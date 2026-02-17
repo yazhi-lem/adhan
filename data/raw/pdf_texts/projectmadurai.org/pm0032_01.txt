@@ -1,0 +1,1744 @@
+ Kalevala - A Finland Epic in Tamil (part Ia)
+Compiled by: Elias Lonnrot
+Translated into Tamil by R.Sivalingam
+Edited with an introduction by Asko Parpola
+(in tamil script, TSCII format, v.1.7)
+
+ ¸§ÄÅÄ¡ - À¢ýÄ¡ó¾¢ý §¾º¢Â ¸¡Å¢Âõ (ÀÌ¾¢ 1«)
+ ¦¾¡ÌôÒ: ±Ä¢Â¡Š ¦Ä¡ñ¦Ã¡ò
+¾Á¢ú ¦Á¡Æ¢¦ÀÂ÷ôÒ: ¬÷. º¢ÅÄ¢í¸õ (¯¾Â½ý)
+áø «¨ÁôÒõ «È¢Ó¸Óõ:
+¼¡ì¼÷ «Š¦¸¡ À¡÷¦À¡Ä¡ (§ÀÃ¡º¢Ã¢Â÷ - þó¾¢Â þÂø)
+
+Etext Preparation: Ms. Sarala Sandirasegarane, Kanpur, India
+Proof-reading: Udhayanan (Sivalingam Ramalingam), Helsinki, Finland
+PDF file preparation: Dr. K. Kalyanasundaram, Lausanne, Switzerland.
+This pdf file is based on TSCInaimathi font embedded in the file. Hence this file can be
+viewed and printed on all computer platforms: Windows, Macintosh and Unix without the
+need to have the font installed in your computer.
+© Project Madurai 2002
+Project Madurai is an open, voluntary, worldwide initiative devoted
+to preparation of electronic texts of tamil literary works and to
+distribute them free on the Internet. Details of Project Madurai are
+available at the website:  <http://www.tamil.net/projectmadurai>
+You are welcome to freely distribute this file, provided this header page is kept intact.
+
+ 
+2
+
+ Kalevala - A Finland Epic
+(in tamil script, TSCII format)
+Compiled by: Elias Lonnrot
+Translated into Tamil by R.Sivalingam
+Edited with an introduction by Asko Parpola
+
+ ¸§ÄÅÄ¡ - À¢ýÄ¡ó¾¢ý §¾º¢Â ¸¡Å¢Âõ
+ ¦¾¡ÌôÒ: ±Ä¢Â¡Š ¦Ä¡ñ¦Ã¡ò
+¾Á¢ú ¦Á¡Æ¢¦ÀÂ÷ôÒ: ¬÷. º¢ÅÄ¢í¸õ (¯¾Â½ý)
+áø «¨ÁôÒõ «È¢Ó¸Óõ:
+¼¡ì¼÷ «Š¦¸¡ À¡÷¦À¡Ä¡ (§ÀÃ¡º¢Ã¢Â÷ - þó¾¢Â þÂø)
+
+ÌÈ¢ôÒ¸û
+À¡¼ø¸Ç¢ý ¦À¡ÕÇ¼ì¸õ
+¸¾¡¿¡Â¸÷¸Ç¢ý ¦ÀÂ÷¸û
+Introduction: Dr. Asko Parpola
+«È¢Ó¸õ (¾Á¢Æ¡ì¸õ) ¼¡ì¼÷ «Š§¸¡ À¡÷¦À¡Ä¡
+±ýÛ¨Ã: ¬÷. º¢ÅÄ¢í¸õ (¯¾Â½ý)
+¸§ÄÅÄ¡ - ¦º¡ü¦È¡Ì¾¢
+¸§ÄÅÄ¡ - Å¢Çì¸ì ÌÈ¢ôÒ¸û
+¸§ÄÅÄ¡ - ¬¾¡Ã áø¸û
+
+--------------------------
+NOTE - I
+Transliteration used in this e-text:
+
+« - a; ¬ - aa; þ - i; ® - ii; ¯ - u; ° -uu; ± - e; ²- ee; ³ - ai; ´ - o;
+µ- oo; ¶ - au.
+
+ì - k; í - ng; î - c; ï - nj; ð - t; ñ - N; ò - th; ó - n-; ô - p; õ -
+m; ö - y; ÷ - r; ø - l; ù - v; ú - z; û - L;
+ü - R; ý - n.
+
+NOTE - II
+There are two additional vowels in Finnish Language. They are two dots
+above "a" ("A") and two dots above "o" ("O"). They are written in this
+e-text as a* (A*) and o* (O*) respectively.
+----------------------------
+
+¦À¡ÕÇ¼ì¸õ
+
+À¡¼ø¸û
+¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý À¢ÈôÒ 
+¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý Å¢¨¾ôÒ 
+À¡¼ü§À¡ðÊ 
+ƒ§É¡Å¢ý ÓÊ× 
+¸¼ü¸ýÉ¢ 
+
+  1. 
+  2. 
+  3. 
+  4. 
+  5. 
+
+«Ê¸û
+344
+378
+580
+518
+241
+
+  
+º§¸¡¾ÃÉ¢ý ÀÆ¢Å¡í¸ø 
+¨ÅÉ¡¦Á¡Â¢ÉÛõ ¦Ä¡ù†¢Ôõ 
+¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý ¸¡Âõ 
+
+Å¼¿¢Ä Áí¨¸¨Â þøÁÃ¢ÉÛìÌ Á½õ ¦ºöÂ ¿¢îºÂ¢ò¾ø 
+Å¢Å¡¸ Å¢ÕóÐìÌô ¦À¡¢Â ±ÕÐ ¦¸¡øÄôÀÎ¾ø 
+¾¢ÕÁ½ì ¦¸¡ñ¼¡ð¼õ 
+Á½Á¸Ç¢ý À¢¡¢×òÐÂ÷ 
+Á½Á¸ÙìÌ «È¢×¨Ã 
+Á½Á¸Ûõ Á½Á¸Ùõ ÒÈôÀÎ¾ø 
+Á½Á¸Ûõ Á½Á¸Ùõ Å£ðÊø ÅÃ§Åü¸ôÀÎ¾ø 
+
+  6. 
+  7. 
+  8. 
+  9.  þÕõÀ¢ý ãÄì¸¨¾ 
+ºõ§À¡¨Åî ¦ºö¾ø 
+  10. 
+  11.  ¦ÄõÁ¢ý¨¸ÉÉ¢ý Å¢Å¡¸õ 
+ºò¾¢Âõ ¾ÅÚ¾ø 
+  12. 
+À¢º¡º¢ý ¸¡ð¦¼ÕÐ 
+  13. 
+  14.  ¦ÄõÁ¢ý¨¸ÉÉ¢ý ÁÃ½õ 
+  15.  ¦ÄõÁ¢ý¨¸ÉÉ¢ý Á£ðº¢ 
+  16. 
+ÁÃ½ ¯Ä¸ò¾¢ø ¨ÅÉ¡¦Á¡Â¢Éý
+  17.  ¨ÅÉ¡¦Á¡Â¢ÉÛõ «ó¦¾§Ã¡ Å¢ÒÉÛõ 
+  18.  ¨ÅÉ¡¦Á¡Â¢ÉÛõ þøÁÃ¢ÉÛõ Å¼¿¡Î ¦ºøÖ¾ø 
+  19. 
+  20. 
+  21. 
+  22. 
+  23. 
+  24.
+  25. 
+  26.  ¦ÄõÁ¢ý¨¸ÉÉ¢ý ¬Àò¾¡É À¢ÃÂ¡½õ 
+  27. 
+Å¼¿¡ðÊø §À¡Õõ ÌÆôÀÓõ 
+  28.  ¦ÄõÁ¢ý¨¸ÉÛõ «ÅÉÐ «ý¨ÉÔõ 
+  29.  ¦ÄõÁ¢ý¨¸ÉÉ¢ý «ï»¡¾ Å¡ºÓõ Ð½¢¸Ãî ¦ºÂø¸Ùõ  
+  30.  ¦ÄõÁ¢ý¨¸ÉÛõ ¯¨ÈÀÉ¢ ÁÉ¢¾Ûõ 
+  31.  ÌÄôÀ¨¸Ôõ «Ê¨Á Å¡ú×õ 
+  32.  ÌøÄ÷§Å¡×õ þøÁ¡¢ÉÉ¢ý Á¨ÉÅ¢Ôõ 
+  33.  þøÁ¡¢ÉÉ¢ý Á¨ÉÅ¢Â¢ý ÁÃ½õ 
+  34.  ÌøÄ÷§Å¡×õ «ÅÛ¨¼Â ¦Àü§È¡Õõ 
+  35.  ÌøÄ÷§Å¡×õ «ÅÛ¨¼Â º§¸¡¾Ã¢Ôõ 
+  36.  ÌøÄ÷§Å¡Å¢ý ÁÃ½õ 
+  37.  ¦À¡ýÉ¢Öõ ¦ÅûÇ¢Â¢Öõ Á½Á¸û 
+  38. 
+  39. 
+  40.  ¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý ¸ó¾§Ä ±ýÛõ Â¡ú 
+  41.  ¨ÅÉ¡¦Á¡Â¢Éý ¸ó¾§Ä ±ýÛõ Â¡¨Æ þ¨ºò¾ø 
+  42. 
+  43. 
+  44.  ¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý Ò¾¢Â Â¡ú 
+  45. 
+  46.  ¨ÅÉ¡¦Á¡Â¢ÉÛõ ¸ÃÊÔõ 
+  47.  Ý¡¢Â ºó¾¢Ã÷ ¾¢Õ¼ôÀÎ¾ø 
+  48.  ¦¿Õô¨À Á£ð¸ Å¨Ä Å£Í¾ø 
+  49.  þøÁÃ¢ÉÉ¢ý ¦ÅûÇ¢î Ý¡¢ÂÛõ ¾í¸ ¿¢Ä×õ 
+  50. 
+
+Å¼¿¡ðÊÄ¢ÕóÐ þøÁÃ¢ÉÉ¢ý Ò¾¢Â Á½Á¸û 
+Å¼¿¡ðÊý Á£Ð À¨¼¦ÂÎôÒ 
+
+Å¼¿¡ðÊÄ¢ÕóÐ ºõ§À¡¨Åò ¾¢ÕÎ¾ø 
+ºõ§À¡×ì¸¡¸ ¿¨¼ô¦ÀüÈ ¸¼ü§À¡÷ 
+
+¸ýÉ¢ Á÷Âò¾¡Å¢ý Á¸ý ¸§ÃÄ¢Â¡Å¢ý «ÃºÉ¡¾ø 
+
+¸§ÄÅÄ¡ Á¡¸¡½ò¾¢ø ¦¸¡û¨Ç §¿¡ö 
+
+3
+
+234
+368
+282
+586
+510
+402
+504
+270
+460
+650
+412
+628
+706
+518
+614
+438
+522
+850
+528
+738
+776
+420
+294
+602
+500
+374
+548
+296
+246
+372
+360
+250
+328
+426
+342
+266
+562
+434
+334
+362
+644
+364
+372
+422
+620
+
+  ¦Á¡ò¾ «Ê¸û 
+
+22,795
+
+¸¡Å¢Â Á¡ó¾÷¸Ç¢ý ¦ÀÂ÷¸û
+
+(¾Á¢ú,  À¢ýÉ¢‰  ¦Á¡Æ¢¸Ç¢Ä  ´§Ã  À¡ò¾¢Ãò¾¢ý  Áü¨ÈÂ  ¦ÀÂ÷¸Ùõ  ¾Á¢ú  «¸Ã  Å¡¢¨ºôÀÊ
+¦Åù§ÅÚ þ¼í¸Ç¢ø ÅÕ¸¢ýÈÉ. §ÁÄ¾¢¸ Å¢ÀÃí¸ÙìÌî ¦º¡ü¦È¡Ì¾¢¨Âô À¡÷ì¸.)
+
+4
+
+«ó¾§Ã¡ Å¢ÒÉý
+àÄ¢ì¸¢ 
+«ö§Â¡ 
+¦¾øÄ÷§Å¡ 
+  «ýÉ¢ì¸¢ 
+ÑÂ£¡¢ì¸¢ 
+  «‹¾¢
+¦ÀøÄ÷¦Å¡Â¢Éý 
+  «‹§¾¡ 
+Á÷Âò¾¡
+  þìÌ-Ð÷§…¡ 
+Á¢¦Á÷ì¸¢  
+  þø§À¡ Á¸û
+Á¢¦ÂÄ¢ì¸¢ 
+  þøÁ¡¢Éý 
+¦Â¡×¸¡¨†Éý
+  ¯ó¾§Á¡ 
+æÄ¢ì¸¢ 
+  ³É¢ì¸¢ 
+¦ÄõÀ¢ 
+  ³§É¡
+¦ÄõÁ¢ý¨¸Éý
+  ¸Ä÷§Å¡ 
+  ¦Ä¡ì¸¡
+  ÌöôÀÉ 
+¦Ä¡ù†¢ 
+  ÌÂ¢(ø)Ä¢, ÌÂ¢øÄ¢ì¸¢
+¦Ä¡Å¢Âò¾¡÷
+  ÌøÄ÷§Å¡ 
+Å¢ÒÉý 
+  ¦¸ÇôÀ¢ 
+Å¢§Ã¡¸ýÉ¡Š
+  ºõº¡
+¦ÅøÄ§Á¡
+  ¾ôÀ¢§Â¡ 
+¨ÅÉ¡, ¨Å§É¡
+  ¾¢§ÂÃ¡ 
+¨ÅÉ¡¦Á¡Â¢Éý
+  à¡¢ 
+Ú§Å¡òÐŠ
+
+Antero Vipunen
+Tuulikki
+A*ijo*
+Tellervo
+Annikki
+Nyyrikki
+Ahti
+Pellervoinen
+Ahto
+Marjatta
+Iku-Turso
+Mimerkki
+ Ilpotar
+ Mielikki
+Ilmarinen
+ Joukahainen
+Untamo
+Lyylikki
+Ainikki
+Lempi
+Aino
+Lemminkainen
+Kalervo
+Lokka
+Kuippana
+Louhi
+ Kylli, Kyllikki
+Loviatar
+Kullervo
+Vipunen
+ Kauppi
+Virokannas
+Sampsa
+Vellamo
+Tapio
+Va*ina*, Va*ino
+Tiera
+Va*ina*mo*inen
+Tuuri
+Ruotus
+
+5
+
+Kalevala the national epic of Finland: An introduction
+
+By Asko Parpola (University of Helsinki)
+
+Kalevala and the ancient Finnish folk poetry
+
+Kalevala, the Finnish national epic  and  one  of  the  great  heroic  poems  of  world  literature,  took  its
+definitive shape in 1849, but it is directly based on oral poetry that mainly came into being during the
+first millennium of the Christian era. The work was compiled by the great philologist Elias Lonnrot
+(1802-1884) from the best and most complete variants of ancient folk songs that he himself and other
+pioneers of Finnish folklore had collected in the backwoods of Karelia.
+
+Karelia, a vast area now mainly on the Russian side of Finland's eastern border, formed a periphery of
+Finnish-Karelian  culture  that  was  cut  off  from  the  centres  of  civilization  by  long  distances  and
+scarcely  inhabited  forests.  The  old  folk  poetry  was  preserved  there  in  an  oral  tradition  until  the
+nineteenth and even twentieth century, because the Orthodox Church prevailing in Russia was more
+tolerant than the Roman Catholic Church current in other parts of Finland until the reformation and the
+Lutheran Christianity, which after the reformation systematically worked for the eradication of pagan
+traditions  in  Finland.  While  Kalevala  on  the  whole  reflects  the  pre-Christian  religion  and  heroic
+legends of the Finnish-speaking peoples, its last canto has as its theme  the  triumph  of  Christianity,
+which the Swedish conquerors forced onto Finland in AD 1155.
+
+Mikeal Agricola's translation of New Testament, printed in 1548, is the oldest directly surviving book
+in  the  Finnish  language.  Very  short  samples  of  the  closely  related  Karelian  language  are  three
+centuries older; they consist of spells written on birchbark, found near the Russian city of Novgorod.
+The folk  poems,  though  collected  only  in  the  nineteenth  century,  largely  go  back  to  pre-Christian
+times, come from widely different areas and comprise a great bulk of material; they are thus, in effect,
+among  the  most  important  monuments  relating  to  the  early  stages  of  the  Finnish  language  and
+religion.
+
+Comparative linguistics has shown Finnish to be an offshoot of the Uralic  language  family,  whose
+speakers  nowadays  number  in  all  about  twenty  million  (the  principal  languages  being  Hungarian,
+Finnish and Estonian, with fourteen, five and one million speakers respectively; the other languages
+are  spoken  by  small  minorities  in  Russia).  I  shall  briefly  discuss  this  linguistic  background  of
+Kalevala also because there are interesting connections with Indian languages.
+
+Genetic relationship between the Uralic and Dravidian languages?
+
+Speakers of the Proto-Uralic language livied around 6000-4000 BC as hunters and fishermen in the
+forest regions of the northeastern Europe, on both sides of Ural mountains. While the Samoyeds of
+Siberia  represent  the  eastern  branch  of  the  Uralic  language  family,  the  Proto-Finno-Ugrians,  who
+lived about 4000-2500 BC in central Russia, form its western branch.
+
+The Uralic language family (or rather its Finno-Ugric branch) has repeatedly been mentioned among
+the most distant relatives of the Dravidian language family. Indeed, several among the most famous
+Dravidologists, such as Robert Caldwell (who spoke of Scythian languages), Thomas Burrow  (1943-
+46)  and  M.S.Andronov,  have  been  supporters  of  this  hypothesis.  Being  a  Finnish  student  of
+Dravidian, I naturally took an interest in this question, and years ago accumulated a lot of material for
+a  book  on  the  subject.  I  never  finished  the  work,  however,  because  I  became  convinced  of  the
+
+6
+
+impossibility of proving by linguistics means any genetic relationship as distant as it is  in  this  case
+assumed  to  be.  Genetic  affinity  can  be  proved  only  by  means  of  establishing  regular  phonetic
+correspondences between the two protolanguages, and to be able to do this in a convincing manner
+that allows some crosschecking, one needs atleast about one hundred good etyma. In other words, to
+start with, one needs minimally a hundred word pairs that on both sides can be reconstructed for the
+protolanguages  and  in  which  the  respective  reconstruction  resemble  each  other  reasonably  closely
+both phonetically and semantically. As the reconstruction of the Uralic family itself is based on only
+about 140 accepted etymologists shared  by  both  Proto-Finno-Urgic  and  Proto-Samoyedic  (Janhunen
+1981), one cannot a priori expect the number of etyma surviving from an even older hypothetic Uralo-
+Dravidian phylum to be much  more  than  around  20,  which  would  be  much  too  few  to  prove  the
+hypothesis.  This  does  not,  of  course,  disprove  the  hypothesis  -  after  all,  it  is  possible  that  all
+languages are ultimately related: L.L.Cavalli-Sforza has recently compared their tentative family tree to
+the spread of human populations around the globe as deduced by biology.
+
+(One paragraph omitted here due to difficulties in typing characters with special diacritical markers.)
+
+In addition, the Proto-Uralic and Proto-Dravidian resemble each other typologically in  a  number  of
+features, such as the agglutinative morphology and the relatively simple syllable structure (no initial
+consonant  clusters).  Even  some  grammatical  morphemes  are  similar:  *n  as  the  possessive  (U)  or
+oblique case (Dr) marker, or *i as a past tense marker (on the Uralic side in Proto-Finno-Ugric only:
+the Samoyedic verbal suffix *y does not seem to mark any tense).
+
+Ancient contacts between Finno-Ugrians and early Aryans
+
+The  Proto-Finno-Ugrians,  who  lived  about  4000-2500  BC  in  the  forests  of  central  Russia,  had  as
+their neighbours in the steppes of southern Russia the speakers of the Proto-Indo-European language
+(c.  4500-2800  BC),  and  then  the  speakers  of  one  of  its  daughter  languages,  the  Proto-Aryans  (c.
+2800-2000),  whose  descendents  brought  Sanskrit  to  India  soon  after  2000  BC.  (Parpola  in  press.)
+The  Finnish  language  preserves  some  ancient  Aryan  loanwords,  such  as  'sata'  `hundred`,  nearly
+identical  with  the  corresponding  Sanskrit  word  sata  `hundred`.  It  is  possible  that  even  the  early
+Finnish religion was influenced by Aryan ideas. Thus the principal Finnish word for `god`, jumala,
+may come from the ancient Aryan word dyumat `shining`, which the Rgvedic hymns apply to Indra,
+the god of war and thunder. Indra occupied the highest position in the ancient Indo-Aryan pantheon
+as  did  Ukko,  the  god  of  thunder,  among  the  ancient  Finnish  deities.  Another  example  is  the
+miraculous mill in Kalevala, called  sampo  (colour  plate  2).  Its  standing  epithet  `having  a  speckled
+cover`  suggested  that  the  idea  of  this  wonder-mill  may  have  come  from  the  star-speckled  cosmic
+`mill` of the revolving heavens. The word sampohas a variant form, sammas, which means `pillar`,
+and this in turn suggests a relationship with Sanskrit skambha or stambha, which occurs in the Veda
+as the name for the cosmic pillar that upholds the sky.
+
+Proto-Finns and Lapps
+
+By the first millennium BC at the latest, the Balto-Finnic offshoot of the Uralic language family had
+reached the Baltic region and Finland and divided into two major branches. Proto-Lapps occupied the
+northern  areas,  probably  most  parts  of  Finland,  while  Proto-Finns  (whose  present-day  linguistic
+descendents include the speakers of Estonian, Finnish and Karelian) were settled in Estonia, Karelia
+and southernmost Finland. The poems of Kalevala belong to  the  Proto-Finnish  branch.  The  Proto-
+Finns were engaged in primitive farming and had a more advanced material culture, which they had
+adopted - along with loanwords and ideas - from the neighbouring Indo-European-speaking peoples,
+including Germanic (Nordic or Scandinavian), Baltic (Latvian and Lithuanian) and Slavic  (Russian)
+
+7
+
+tribes. The songs of Kalevala reflect the northward expansion of the Proto-Finns and  their  hostility
+towards  the  Lapps,  their  linguistic  relatives,  who  nowadays  survive  as  a  small  minority  in  the
+northernmost fringes of Scandinavia near the Artic Ocean. Traditionally the Lapps have been hunters
+and nomadic reindeer herders. It is probably the Lapps that the Roman author Tacitus meant in AD
+98. When in his description of the northernmost borders of Europe he spoke of a people called Fenni
+who lived by hunting and food-gathering, with no permanent homes.
+
+Contents of Kelavala
+
+The war expeditions of Kalevala, which also have as their historical background the Viking raids of
+the late first millennium A.D., form the backbone of the poems, as does war between the Paandavas
+and the Kauravaas in the Mahaabhaarata, or Raama's expedition to Lanka in the Raamaayana. But the
+poems  are  by  no  means  limited  to  warring  themes.  Wooing  with  physical  feats  of  the  would-be-
+groom,  is  another  popular  heroic  theme,  comparable  to  the  svayamvaras  of  the  Indian  epics.  The
+Kalevala poems also deal with many other aspects of everyday life like  agriculture  (see  fig.  2)  and
+herding  (colour  plate  6),  and  all  kinds  of  folk  customs  like  marriage  and  healing  rituals,  or  the
+pastimes  of  the  youth,  and,  of  course,  with  the  world  view  and  religion.  One  gets  a  fairly
+comprehensive description of the ancient Finnish culture, somewhat in the manner that all the facets of
+ancient Tamil culture are presented in Cilappatikaaram (we must not forget, however, that the Finnish
+culture was completely rural and much simpler than the sophisticated and largely urban culture of the
+Tamils).  The  most  ancient  religion  of  the  peoples  speaking  Uralic  languages  was  probably
+shamanistic, but the religion reflected in Kalevala has been much influenced by the other peoples with
+whom the Baltic Finns had been in contact. In fact there are many world views  in  Kalevala:  myths
+going back to the Stone Age, like the poems of creation  and  the  felling  of  the  grat  oak  (discussed
+below), legends connected  with  the  adventurers  of  the  Viking  Age  and  with  Chirstianity,  and  the
+poems by farmers, shamans and women.
+
+The great oak and its felling
+
+As an illustration of Kalevala's contents I would like to discuss in some detail the second  song,  which
+follows upon the myth of the world's creation in the first song. The wise sage Va*ina*mo*inen wants
+to have trees sown upon the bare islands and mainland that rise from the primeval ocean. This is done
+by the spirit guarding the fertility of  the  soil,  Sampsa  Pellervoinen.  The  seeds  of  all  trees  flourish
+excepting that of the oak. Only after the demigods of the sea burn some hay  and  an  acorn  falls  on
+these ashes, does the oak start to grow. But it grows up to the sky, into an enormous tree that prevents
+the sun and the moon from shining. The whole world is doomed to darkness. Va*ina*mo*inen looks
+in vain for a feller for the giant tree, and finally prays to his mother, the maiden of the sea. She sends a
+tiny man, of the length of a thumb, whose appearance makes Va*ina*mo*inen laugh and ridicule him,
+rather like the demon Bali who was misled by the looks of God Visnu in his dwarf incarnation. Just
+like  Vamana,  howver,  the  little  coppery  man  (undoubtedly  a  personification  of  the  ruddy  rising
+morning sun) suddenly grows into an enormous size and fells the terrible tree by hitting it three times
+with his axe. Nature is now freed from the evil of darkness and starts to blossom. (One is reminded
+of the relief of the world when god Indra destroyed the demon 'Vrtra' and released all the waters that
+this monster had been retaining.) Splinters of the fallen oak scatter happiness throughout the world.
+This last mentioned motif seems to be connected with rituals of brewing beer around the central oak in
+the sacred grove, and of making beer cups out of oak wood, which had magic powers. The rest of the
+song describes swidden agriculture, the normal method of cultivation in  ancient  times,  which  is  no
+longer in use (in fact it is prohibited): it invloves cutting all trees  in  a  large  area  and  burning  them
+before the seed is sown in the ashes. (Fig. 2.) Va*ina*mo*inen saves, however, one birch tree for the
+cuckoo bird to sit on.
+
+8
+
+Kalevala
+
+The name Kalevala ends in the Finnish place name suffix  -la.  The  remining  stem  Kaleva  has  been
+understood  as  the  proper  name  of  the  most  ancient  ancestor  of  the  Finns,  who  had  twelve  sons,
+among them such heroes of Kalevala as Vainamoinen  and  Ilmarinen.  In  Finnish,  the  word  Kaleva
+occurs  in  several  names  of  stars  (  the  belt  of  Orion  is  called  `the  sword  of  Kaleva`)  and  other
+heavenly phenomena like thunderbolts (`fires of Kaleva`), and the sons  of  Kaleva  are  said  to  have
+been giants who destroyed forests as superpowerful masters of swidden agriculture (where trees are
+burnt to make fields, fig. 2). The etymology of the name is uncertain, but the most likely explanation
+connects it with the Lithunian word 'kalvis' `smith` and the ancient Baltic smith god Kalevias.
+
+Ilmarinen, the divine smith
+
+One of the principal heroes of Kalevala, Ilmarinen, is specifically a smith. Among his main feats are
+the taming of iron, the forging of the miraculous mill sampo (colour plate 2), ploughing a field full of
+vipers (colour plate 5), the making of a golden maiden and releasing the heavenly lights from the rock
+of the north. In ancient folk poems Ilmarinen has  forged  the  heavenly  vault  as  well  as  the  sampo.
+Depicted on a  shamanic  drum  from  Lapland  dating  from  1692  is  an  anthropomorphic  god,  called
+Ilmaris, who is said  to  regulate  the  air  and  the  wind.  The  Finnish  word  ilma  means  `air`  and  the
+Votyaks living in Russia still worship a sky god called Inmar or Ilmar.
+
+Va*ina*mo*inen and the power of songs
+
+The main actor of Kalevala, Va*ina*mo*inen, is a  many-sided  figure  with  both  divine  and  human
+features. Lo*nnrot seems to have favoured the latter at the expense of mythological characteristics. In
+the first song he is the creator god born in the primeval sea, and also his name, derived from va*ina*
+meaning `a broad, deep and slow-flowing river` suggets that originally he  might  have  been  a  deity
+connected with waters, somewhat like Varuna in the Indian mythology. Va*ina*mo*inen also acts as
+a culture hero: he is the first builder of a boat and the first maker of a zither, who enchants the entire
+nature with his music. Va*ina*mo*inen's epithets emphasis his age and wisdom: he is a mighty sage
+possessed  of  supermundane  knowledge,  who  performs  his  feats  by  means  of  magic  songs  and
+powerful words. Like a shaman, he descends to the netherworld to fetch the missing mantras from a
+dead ancient giant. Although Va*ina*mo*inen often appears as a warrior, his capacities as a fighter
+are not appreciated nearly as much as is his knowledge. It is interesting to note in this connection that
+the  Finnish  word  for  `hero`,  'sankari',  goes  back  to  the  Old  Nordic  word  'sangare'  `singer`.  In  a
+singing contest, Va*ina*mo*inen's mighty words make his adversary sink into  a  swamp.  Different
+scholars  have  come  forward  with  widely  different  and  controversial  results  in  their  efforts  to
+comprehend in simplistic terms the character of  Va*ina*mo*inen.  The  same  applies  to  many  other
+figures of Kalevala. A similar situation prevails in the study of the Indian epics: the five Pandavas,  for
+instance, have been interpreted as incarnations of various deities already in ancient times, while other
+scholars take them to be historical human heroes.
+
+Elias Lo*nnrot
+
+Although Kalevala is based on ancient folk songs, we must  not  forget  that  its  compiler  also  has  a
+considerable share in its formation. It remains the work of Elias Lo*nnrot (1802-1884), son  of  a  poor
+villiage tailor, who started his career as a medical doctor, but who became a Professor of the Finnish
+language with as extraordinarily wide range of cultural activities. On elven long treks through largely
+roadless  wildernesses,  Lo*nnrot  travelled  by  foot  some  twenty  thousand  kilometers  and  collected
+
+9
+
+about 65,000 lines of Kalevala-type folk songs. After a  doctoral  dissertation  on  the  poems  dealing
+with  Va*ina*mo*inen  (1822),  he  published  the  first  edition  of  Kalevala,  the  so  calleed  "Old
+Kalevala", in 1835; the second and final edition, nearly twice the length of  the  first,  comprising  50
+songs and 22,795 lines in all, came out in 1849. An anthology of lyric folk poetry called Kanteletar
+was  published  by  Lo*nnrot  in  1840-41.  The  original  sources  of  these  publications  still  exist,  and
+afford a clear idea of its relationship to the genuine folklore. Lonnrot gave Kalevala its overall shape
+and structure, and in linking the various originally independent episodes composed himself about 600
+lines which have no parallel in the folk material.
+
+A  large  body  of  the  original  folk  poetry  on  which  Kalevala  and  Kanteletar  are  based  has  been
+published in 33 thick volumes of Suomen kansan vanhat runot (`The ancient poems  of  the  Finnish
+people`) in 1908-1948. Even this huge work does not exhaust the rich collections  that  hundreds  of
+scholars and volunteer collectors of folklore have accumulated in the archives of the Finnish Literature
+Society. Established in 1831, the Finnish Literature Society is one of oldest and largest collections of
+oral tradition in the world. In 1977, these collections comprised some 86,800 songs in Kalevala metre;
+129,400 rhymed folk-songs; 52,400 incantations; 336,000 spells, beliefs and omens; 187,400 games;
+9,300 nonsense verse and laments; 96,000 fairy tales; 1,600 religious legends; 103,200 supernatural
+tales and memorates; 77,800 historical and local tales; 7,700 aetiological stories and myths; 766,500
+proverbs (complemented by  1,425,000  proverb  variants  in  the  collections  of  Helsinki  University);
+117,300 riddles; 23,200 folk tunes; and 54,000 ethnographic descriptions.
+
+Kalevala as the national epic of the Finns
+
+Lo*nnrot's work, particularly the publication of Kalevala, had an immerse effect on the self-awareness
+and national feeling of the Finns, who had been dominated by the Swedes from  1155  to  1809  and
+then (after a war between Sweden and Russia, which Sweden  lost)  by  the  Russians  from  1809  to
+1917, when Finland finally obtained independence. Lo*nnrot's service to world literature in salvaging
+the  ancient  heritage  from  the  destruction  can  be  compared  with  that  rendered  by  the  famous
+resurrector  of  the  Old  Tamil  Cankam  literature,  Uu.  Vee.  Caaminaathaiyar.  The  famous  Finnish
+composer Jean Sibelius (1865-1957) introduced many themes of Kalevala to world music. His music
+has in the hearts of the Finns a position comparable to the music of Thiyaagaraajar among the Tamils.
+The poems of Kalevala have greatly inspired also the greatest Finnish visual artists, above all Akseli
+Gallen-Kallela (1865-1931). The vignettes at the beginning and end of  each  poem  have  been  taken
+from his artistic Kalevala edition,  and  a  small  selection  of  his  Kalevala  paintings  and  frescoes  are
+reproduced in the frontispiece and on the eight colour plates. It is hoped that  they  can  also  mediate
+some impression of Finnish  nature,  still  today  characterized  by  lakes  and  forests;  they  render  this
+artist's view of the cultural milieu that created the poems.
+
+The Tamil translation by Mr. R. Sivalingam
+
+Oxford  University  Press  has  recently  published  a  new  English  translation  of  Kalevala  by  Keith
+Bosley in its series `The World's Classics` (1989). This translation, the earlier English renderings by
+W.F.Kirby (1907, reprinted in Gallen-Kallela 1985) and F.B.Magoun, Jr. (1963), together with some
+other English translations have been taken into consideration in the present Tamil interpretation. The
+translator,  Mr  R.  Sivalingam  of  Jaffna,  Sri  Lanka,  is  an  experiened  writer  well  known  to  Tamil
+readers through his numerous novels and short stories published under the pen name Udayanan. His
+two  novels  Ponnaana  malarallavoo  and  An-taranka  kiitam  were  published  by  the  Express
+Newspapers (Ceylon) Ltd. in Colombo in their series of `Virakesari  Publications`.  Having  lived  in
+Finland for more than ten years, he has become acquainted with the Finnish culture and language and
+has  been  able  to  base  his  rendering  of  Kalevala  directly  on  the  Finnish-Karelian  original.  He  has
+
+10
+
+carefully  polished  its  form  with  the  help  of  his  Sri  Lankan  poet  friend,  S.  Krishnapillai
+(`Thimilaithumilan`).
+
+Naturally, it has been impossible to retain all the poetic peculiarties of the original. The Kalevala metre
+consists basically of trochaic tetrametres (-v / -v / -v / -v ), with two such lines usually forming a pair:
+the second line repeats in different words the message conveyed by the first line. Instead of rhyme at
+the end of the line, there is often alliteration: two or more words within a line  begin  with  the  same
+sound. It has been possible to imitate this latter device in the Tamil translation. Compare the Finnish
+original and the Tamil translation of the initial verses of the work reproduced below:
+
+  Mieleni minun tekevi, 
+  aivoni ajattelevi, 
+  la*htea*ni laulamahan, 
+  saa ani sanelemahan, 
+  sukuvirtta* suoltamahan,
+  lajivirtta* laulamahan. 
+  Sanat suussani sulavat,
+  puhe'et putoelevat, 
+  kielelleni kerkia'va*t, 
+  hampahilleni hajoovat. 
+
+  Veli kulta veikkoseni, 
+  kaunis kasvinkumppalini, 
+  lahe nyt kanssa laulamahan,
+  saa kera sanelemahan,
+  yhtehen yhyttyamme 
+  kahta alta kaytyamme! 
+  Harvoin yhtehen yhymme, 
+  saamme toinen toisihimme, 
+  na*illa* raukoilla rajoilla, 
+  poloisilla Pohjan mailla. 
+
+  Lyo*ka*mme ka*si katehen, 
+  sormet sormien lomahan, 
+  Lauloaksemme hyvia*, 
+  parahia pannaksemms, 
+  kuulla noien kultaisien, 
+  tieta* mielitehtoisien, 
+  nuorisossa nousevassa, 
+  kansassa kasuavassa: 
+  moita saamia sanoja, 
+  virsia* viritta*mia*, 
+  vyo*lta vanhan Va*ina*mo*isen, 
+  alta ahjon Ilmarisen, 
+  pa*a*sta kalvan Kaukmielen, 
+  Joukahaisen jousen tiesta*, 
+  Pohjan peltojen perilta*, 
+  Kalevalan kankahilta. 
+
+enath uLLaththil uLLuNarvu ippoo viLikkiRatu
+enathuLLe uyirpeRRu ezukiRahtu eNNamellaam
+paatalaiyaan pakkuvamaayp paatuthaRku van-thitteen
+paatalaiyaan paNNutanee palapeerkkum pakarukiReen
+cuRRaththin varalaarraic cuvaiyaakac colvathaRku
+uRRatoru peerinaththin pazangkathaiyai oothuthaRku;
+vaarththaikaloo vaayinilee van-hu nekizkiRathu
+neerttimiku coRRotarkaL neeraayc corikiRathu
+n-aavile n-ayamaaka nanRaakap puraLkiRathu
+paavaakip paRkaLitaip patamaay uruaLkiRathu.
+
+anpaana cootaranee, ariya en-Ran toozarkaLe!
+ennoote valan-tuyarn-tha ezil mikun-tha naNparkaLee!
+ippoothu vanthitunkal inainthonraayp paatituvom
+naRcuvaiyaayc colluthRrku nalluLaththaith thaarungaL
+onRaakak kuuti yuLLoom onRaakac can-thippoom
+nanraay iruveeRu itamirun-thu naamvanthoom.
+arithaakak kuutituvoom aritaakac can-thippoom
+arithaaka oruvarinai oruvar n-aam can-thippoom
+vaRitaakip pooyviiNe mayangkukinRa ellaikaLiL
+teriyumvata paaln-ilaththil cezippizan-tha puumiyin kaN.
+
+karaththootu karam ceerththuk kanivaakak kai koorththu
+viralotu viral ceerththu viralai yazakaayk koorththu
+nanraaynaam paatituvoom nayamtikazp paatituvoom
+onric ciir koNtavaRRai uvakaiyootu paatituvoom
+ponnaana nallithayam pataiththavarkaL keetkattum
+inimaiyuRu n-ann-enjam iyaintavarkal aRiyattum
+ezucci mikuntoongkum iLainjarkaLin mattiyilum
+vaLarn-thuvarum teeciiya makkaLavar maththiyilum
+yaam aRin-thu koNtuLLa nalliyalpuc coRkaLaiyum
+namatuLaththil uuRukinRa naRcuvaiceer kathaikaLaiyum
+muthiya vainamoyinan araikkaccaNiyi leeyirun-thu
+ilmarinan uuthulaiyin iyai aazaththee yirun-thu
+tuuranenjcinan vaaLin thotukuur munai yirun-thu
+yovukaahainan kurukku villinathu vaziyirun-thu
+vatapaal nilattuRRa vayalkaLilee taan-irun-thu
+kaleevalap pakuthiyathan kanaveLikaL utirun-htu.
+
+(Figure 5 and its explanation omitted here)
+
+  
+  
+11
+
+These initial lines contain typical stock phrases with which the  folk  singers  used  to  introduce  their
+performance. It was common for two persons to sing together, hand in hand (fig. 3), slowly rocking
+their bodies from side to side. Musical accompaniment was provided with a zither, called kantele (fig.
+4).  The  Kalevala  type  poetry  was  sung  in  simple  melodies  known  in  two  main  varieties  (fig.  5).
+Though the melodies are simple, the best singers could vary and repeat them in so many  ways  that
+they never seemed monotonous.
+
+Of course, the translation of a work reflecting a totally different geographic and cultural milieu from
+that of Tamil Nadu and Sri Lanka has posed many problems. Let us remember that snow and skiing,
+for example, were totally unfamiliar to the Tamils before the development of modern communication.
+And how to render the names of plants and berries not growing in southern Asia? All such problems
+could perhaps not be fully solved, but  the  Tamil  reader  is  given  additional  information  concerning
+proper names and problematic expressions (marked in the translation with single and double asterisks
+respectively) in the glossaries and explanations at the end of the work.
+
+I know Tamils to be avid readers and consumers of culture, who are proud to possess great epics of
+much the same age as the Kalevala poetry: the Cilappathikaaram, MaNimeekalai, Ciivakacin-thamaNi
+and Kampa-raamaayaNam. I am convinced that they will appreciate the service done by R. Sivalingam
+to  the  cause  of  Tamil  culture  and  literature  as  he  has  enriched  it  with  a  direct  and  outstanding
+rendering of one of the great epics of the world, just as we Finns feel happy that our ancient heritage
+can now reach lovers of good literature on the other side of the globe. Tamil is now the 30th language
+into which Kalevala has so far been translated in its entirety; abbreviated translations have been made
+into a dozen or so further languages.
+
+Supporters of the project
+
+The  Department  of  Asian  and  African  Studies  at  the  University  of  Helsinki  (this  writer)  and  the
+Finnish Literature Society (Secretary General, Mr Urpo Vento) have coordinated the applications for
+financial  support  to  the  Tamil  Kalevala  project.  We  gratefully  acknowledge  the  schlorship  to  Mr
+Sivalingam and  a  very  substantial  subsidy  covering  most  of  the  printing  expenses  that  have  been
+granted by the Finnish Ministry of Education; special thanks are due to Mr Kalervo Siikala and Mr
+Matti Gustafson, the Director and Assistant Director of the Department of International Affairs, and
+to Ms Marita Savola, Counsellor of Educational Affairs. The special employment funds administrated
+by the City of Helsinki and the University of Helsinki have also been a most important resource for
+the  translation.  Ms  Aivi  Gallen-Kallela  and  her  husband  Dr  Matti  Siren,  Werner  Soderstrom
+Osakeyhtio (WSOY) and its Managing Director, Dr Jorma Kaimio, and former Director Mr Hannu
+Tarmio, and Mr Taumo  Homma,  Manager  WSOY's  Printing  plant  in  Porvoo,  have  all  been  most
+helpful in matters concerning Akseli Gallen-Kallela's Kaleval illustrations. Mr Sivalingam has himself
+taken  care  of  the  typesetting  and  proofreading  of  the  Tamil  text,  and  of  the  translation  of  this
+introduction.  Mr  Petteri  Koskikallio  has  been  of  great  help  in  the  finalization  of  the  layout.  We
+cordially thank Mr Kaarlo Schepel, Director of the Alternative Press, Hong Kong,  for  publishing  this
+translation in an attractive manner and securing its distribution at a price that should be within in the
+reach of the literature loving Tamils.
+
+Department of Asian and African Studies,
+POB 13 (Meritullinkatu 1),
+00014 University of Helsinki,
+Finland.
+1 November 1994
+
+12
+
+¸§ÄÅÄ¡, À¢ýÄ¡ó¾¢ý §¾º£Â ¸¡Å¢Âõ: µ÷ «È¢Ó¸õ
+
+«Š§¸¡ À¡÷¦À¡Ä¡ (¦†øº¢í¸¢ Àø¸¨Äì¸Æ¸õ)
+(¬í¸¢Ä «È¢Ó¸ò¾¢ý ¾Á¢Æ¡ì¸õ)
+
+¸§ÄÅÄ¡×õ À¢ýÄ¡ó¾¢ý ¬¾¢¸¡Ä ¿¡ðÎô À¡¼ø¸Ùõ
+
+¯Ä¸  þÄì¸¢Âò¾¢ý  Á¡¦ÀÕõ  ¸¡Å¢Âô  À¡¼ø¸Ç¢ø  ´ýÈ¡É  ¸§ÄÅÄ¡  ±ýÛõ  À¢ýÄ¡ó¾¢ý
+§¾º£Â  ¸¡Å¢Âõ  1849ø  ´Õ  ºÃ¢Â¡É  ¯ÕÅò¨¾ô  ¦ÀüÈÐ.  ¬É¡ø  þÐ  §¿ÃÊÂ¡¸  Å¡ö¦Á¡Æ¢ô
+À¡¼ø¸Ç¢ý  «ÊôÀ¨¼Â¢Ä¢ÕóÐ  ¸¢È¢ŠÐÅ¢ý  ÅÃÄ¡üÚì  ¸¡Äò¾¢ý  Ó¾Ä¡ÅÐ  ¬Â¢Ãõ  ÅÕ¼ô
+ÀÌ¾¢Â¢ø ¯ÕÅõ ¦¸¡ñ¼Ð. º¢Èó¾Ðõ ÓüÈ¢Öõ À¡¼ §À¾í¸û ¿¢¨Èó¾ÐÁ¡É ¦¾¡ý¨ÁÂ¡É
+¿¡ðÎô  À¡¼ø¸Ç¢Ä¢ÕóÐ  º¢Èó¾  ¦Á¡Æ¢áø  ÅøÖÃ¡É  ±Ä¢Â¡Š  ¦Ä¡ñ¦Ã¡ò  (Elias  Lo*nnrot,
+1802  -  1884)  «Å÷¸Ç¡Öõ  ÁüÚõ  À¢ýÄ¡ó¾¢ý  ¿¡§¼¡Ê  þÄì¸¢Âò¾¢ý  Óý§É¡Ê¸Ç¡Öõ
+¸§ÃÄ¢Â¡Å¢ý ¸¡ðÎô ÀÌ¾¢¸Ç¢Ä¢ÕóÐ §º¸Ã¢ì¸ôÀð¼É.
+
+¸§ÃÄ¢Â¡  ´Õ  Á¢¸ô  ¦ÀÃ¢Â  À¢Ã§¾ºõ.  þô¦À¡ØÐ  «¾ý  ¦ÀÕõ  ÀÌ¾¢  À¢ýÄ¡ó¾¢ý  ¸¢ÆìÌ
+±ø¨ÄìÌ  «ôÀ¡ø  Ã‰Â¡Å¢ø  þÕì¸¢ÈÐ.  ¸§ÃÄ¢Â¡  ±ýÛõ  þôÀÌ¾¢  À¢ýÉ¢‰  -  ¸§ÃÄ¢Â¡
+¸Ä¡îº¡Ãõ  ±ý¦È¡Õ  ±ø¨Äì  §¸¡ð¨¼  «¨ÁòÐì  ¦¸¡ñÎ  àÃ§¾º  ¿¡¸Ã£¸
+À¢Ã§¾ºí¸Ç¢Ä¢ÕóÐõ
+«Ã¢¾¡öì 
+ÌÊ§ÂÈôÀð¼ 
+¨ÁÂí¸Ç¢Ä¢ÕóÐõ 
+ÐñÊì¸ôÀðÊÕó¾Ð; 
+(À¼õ  1,  Å÷½ô  À¼õ  1).  þ¾É¡ø  þó¾  ¿¡ðÎô  À¡¼ø¸û
+Àò¦¾¡ýÀ¾¡õ  áüÈ¡ñÎ  Å¨Ã,  þÕÀ¾¡õ  áüÈ¡ñÎ  Å¨ÃÜ¼,  ÀÃõÀ¨Ã  ÀÃõÀ¨ÃÂ¡¸
+Å¡ö¦Á¡Æ¢  ÁÃÀ¢ø  À¡Ð¸¡ì¸ôÀðÎ  Åó¾É;  ²¦ÉýÈ¡ø,  ÒÉÃ¨Áò¾Öõ  Öò¾Ãý  ¸¢È¢Š¾Å
+þÂì¸Óõ  (Lutheran  Christianity)  ²üÀÎõ  Å¨ÃÂ¢ø,  Ã‰Â¡Å¢ø  §Á§Ä¡í¸¢Â¢Õó¾  ¬÷¾¼ìŠ
+§¾Å¡ÄÂõ  (Orthodox  Church)  À¢ýÄ¡ó¾¢ý  ²¨ÉÂ  ÀÌ¾¢¸Ç¢ø  þÕó¾  §Ã¡Áý  ¸ò§¾¡Ä¢ì¸
+þÂì¸ò¾¢Öõ  À¡÷ì¸  Á¢¸×õ  ¦À¡Ú¾¢Ô¼ý  þÕó¾§¾  ¸¡Ã½Á¡Ìõ;  þÐ§Å  À¢ýÉ¡Ç¢ø  ÒÈî
+ºÁÂô  ÀÃõÀ¨Ã¨Â  «Æ¢ò¦¾¡Æ¢ì¸  Ó¨ÈôÀÊ  þÂí¸Ä¡Â¢üÚ.  ¸§ÄÅÄ¡  ¦Á¡ò¾ò¾¢ø  À¢ýÉ¢‰
+¦Á¡Æ¢  §ÀÍõ  Áì¸Ç¢ý  ¸¢È¢ŠÐ×ìÌ  ÓüÀð¼  ¸¡ÄòÐ  Á¾ò¨¾Ôõ  Å£ÃôÀñÒ¸Ù¨¼Â  Ò¨Éì
+¸¨¾¸¨ÇÔõ  À¢Ã¾¢ÀÄ¢ò¾¡Öõ,  þó¿¡ð¨¼  ¦ÅüÈ¢ì¦¸¡ñ¼  ÍÅ£Ê‰ì¸¡Ã÷  ¸¢.À¢.1155ø
+ÀÄÅó¾Á¡¸ì ¦¸¡ñÎÅó¾ ¸¢È¢ŠÐÅò¾¢ý ¦ÅüÈ¢§Â ¸¨¼º¢ô À¡¼Ä¢ý ¸ÕÅ¡Â¢üÚ.
+
+¸¡ðÎô 
+
+1548ø  «îº¢¼ôÀð¼  Ò¾¢Â  ²üÀ¡ðÊý  Á¢ì¸ø  «¸¢Ã¢§¸¡Ä¡Å¢ý 
+(Mikael  Agricola)
+¦Á¡Æ¢¦ÀÂ÷ô§À  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ø  ¿¢¨Äò¾¢ÕìÌõ  À¨ÆÂ  §¿ÃÊò  ¦¾¡¼÷Ò¨¼Â  áÄ¡Ìõ.
+¦¿Õí¸¢Â  ¯È×¨¼Â  ¸§ÃÄ¢Â  ¦Á¡Æ¢Â¢ø  ¸¡½ôÀÎõ  Á¢¸î  º¢È¢Â  Á¡¾¢Ã¢ì  ÌÈ¢ôÒ¸û  ÓýÚ
+áüÈ¡ñÎ¸û  ÀÆ¨ÁÂ¡É¨Å.  Á¢Ä¡Ú  ÁÃôÀð¨¼Â¢ø  ±Ø¾ôÀðÊÕó¾  þó¾  Áó¾¢Ãì  ÌÈ¢ôÒ¸û
+Ã‰„¢Â¡Å¢ø  ¦Å¡ù¦¸¡Èð 
+(Novgorod)  ¿¸Ã¢ø  ¸¡ñÀð¼É.  þó¾  ¿¡ðÎô  À¡¼ø¸û
+Àò¦¾¡ýÀ¾¡õ  áüÈ¡ñÊ§Ä¾¡ý  §º¸Ã¢ì¸ôÀð¼  §À¡¾¢Öõ,  þÅüÈ¢ø  ¦ÀÕõÀ¡Ä¡É¨Å
+¸¢È¢ŠÐ×ìÌ  ÓüÀð¼  ¸¡ÄõÅ¨Ã  ¦ºøÅ§¾¡Î  ¦Åù§ÅÚ  ÀÃó¾  À¢Ã§¾ºí¸Ç¢ø  ¦ÀÈôÀð¼
+§ÀÃÇ×  ¸Õô¦À¡Õð¸¨Çì  ¦¸¡ñ¼¨Å;  þ¨Å  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ÉÐõ  Á¾ò¾¢ÉÐõ  ¬¾¢¸¡Ä
+¸ð¼í¸Ù¼ý ¦¾¡¼÷Ò¨¼Â Á¢¸ Óì¸¢ÂÁ¡É ¿¢¨É×î º¢ýÉí¸Ç¡Ìõ.
+
+þý¨ÈìÌ  ¦Á¡ò¾Á¡¸î  ÍÁ¡÷  þÃñÎ  §¸¡Ê  Áì¸Ç¡ø  §ÀºôÀÎõ  äÃ¡Ä¢ì  ¦Á¡Æ¢ì
+ÌÎõÀò¾¢ý  (Uralic  language  family)  ¸¢¨Ç¦Á¡Æ¢§Â  À¢ýÉ¢‰  ¦Á¡Æ¢  ±ýÚ  ¾Ì¾¢  Å¡öó¾
+Àý¦Á¡Æ¢  ÅøÖ¿÷  ¸¡ðÊÔûÇÉ÷.  (þ¾¢ø  «¾¢¸õ  Áì¸Ç¡ø  §ÀºôÀÎõ  ¦Á¡Æ¢¸û  †í§¸Ã¢Â,
+À¢ýÉ¢‰,  ±Š§¾¡É¢Â  ¦Á¡Æ¢¸Ç¡Ìõ;  Ó¨È§Â  ´Õ  §¸¡Ê§Â  ¿¡üÀÐ  Äðºõ,  ³õÀÐ  Äðºõ,
+ÀòÐ  Äðºõ  Áì¸Ç¡ø  §ÀºôÀÎ¸¢ýÈÉ.  Áü¨ÈÂ  ¦Á¡Æ¢¸û 
+Ã‰„¢Â¡Å¢ø  º¢È¢Â
+º¢ÚÀ¡ý¨ÁÂ¢ÉÃ¡ø  §ÀºôÀÎ¸¢ýÈÉ).  ¸§ÄÅÄ¡Å¢ý  ¦Á¡Æ¢Â¢ÂÄ¢ý  À¢ýÉ½¢  ÀüÈ¢Ôõ  þí§¸
+ÍÕì¸Á¡¸  ¦º¡øÄô  §À¡¸¢§Èý;  ²¦ÉÉ¢ø  þÐ  þó¾¢Â  ¦Á¡Æ¢¸Ù¼ý  Í¨ÅÂ¡É
+¦¾¡¼÷Ò¸¨Çì ¦¸¡ñ¼Ð.
+
+13
+
+äÃ¡Ä¢ì - ¾¢Ã¡Å¢¼ ¦Á¡Æ¢ì ÌÎõÀí¸Ç¢¨¼§Â ÁÃÒÅÆ¢ÔÈ×?
+
+¸¢.Ó.  6000-4000ìÌ  Óý  À¢ýÉ¡¸,  'Óý-äÃø'  ¦Á¡Æ¢  §Àº¢ÂÅ÷¸û  (Speakers  of  the  Proto-Uralic
+language)  ³§Ã¡ôÀ¡Å¢ý  Å¼¸£úô  À¢Ã§¾ºòÐì  ¸¡ðÎô  ÀÌ¾¢¸Ç¢ø,  äÃø  Á¨Ä¸Ç¢ý  þÕ
+Àì¸í¸Ç¢Öõ  §Å¼Ã¡¸×õ  Á£ÉÅÃ¡¸×õ  Å¡úó¾É÷.  ¨ºÀ£Ã¢Â¡Å¢ý  º§Á¡¦Âð…  (Samoyeds)
+±ýÛõ  ¦Á¡Æ¢  äÃø  ¦Á¡Æ¢ì  ÌÎõÀò¾¢ý  ¸¢ÆìÌì  ¸¢¨Ç¨Â  À¢Ã¾¢¿¢¾¢òÐÅõ  ¦ºö¾  «§¾
+§Å¨ÇÂ¢ø,  ¸¢.Ó.4000-2500ìÌ  ÓýÀ¢ýÉ¡¸  Áò¾¢Â  Ã‰„¢Â¡Å¢ø  Å¡úó¾  À¢ýÉ¢‰ 
+-
+¯¸¢Ã¢Â÷¸Ç¢ý ¬¾¢Óý§É¡÷ (Proto - Finno - Ugrians) þ¾ý §ÁüÌì ¸¢¨Ç¨Â ¯ÕÅ¡ì¸¢É÷.
+
+¾¢Ã¡Å¢¼  ¦Á¡Æ¢ì  ÌÎõÀò¾¢ý  àÃòÐ  ¯È×¸Ç¡¸  þÕì¸ìÜÊÂ  º¡ò¾¢Âí¸Ç¢ø  äÃ¡Ä¢ì
+¦Á¡Æ¢ì ÌÎõÀõ («øÄÐ «¾ý  À¢ý§É¡-¯¸¢Ã¢ì  ¸¢¨Ç  Finno  -  Ugric  branch)  ¾¢ÕõÀò  ¾¢ÕõÀì
+ÌÈ¢ôÀ¢¼ôÀðÎûÇÐ.  þó¾  ¯ò§¾ºì  §¸¡ðÀ¡ð¨¼  ¬¾Ã¢ò¾  Á¢¸ô  À¢ÃÀÄÁ¡É  ¾¢Ã¡Å¢¼  þÂø
+«È¢»÷¸û ÀÄÃ¢ø ('º¢¾¢Âý' Scythian ¦Á¡Æ¢¸û §Àº¢Â) ¦È¡§Àð ¸¡øð¦Åø (Robert Caldwell),
+§¾¡ÁŠ  Ò§È¡ù 
+(M.S.Andronov)
+(Thomas  Burrow  1943-46),  ±õ.±Š.  «ýð§È¡¦É¡ù 
+§À¡ý§È¡Õõ  «¼íÌÅ÷.  ¿¡ý  ¾¢Ã¡Å¢¼  þÂÄ¢ý  À¢ýÄ¡óÐ  Á¡½ÅÉ¡¸  þÕôÀ¾¡ø,
+þÂøÀ¡¸§Å  þ¾¢ø  «ì¸¨È  ¦¸¡ñ¼§¾¡Î  ÀÄ  ÅÕ¼í¸Ç¡¸§Å  þó¾ò  ¾¨ÄôÀ¢ø  ´Õ  áø
+±Ø¾ìÜÊÂ  «Ç×  Å¢¼Âí¸¨Çò  ¦¾¡ÌòÐ  ¨Åò¾¢Õì¸¢§Èý.  ±É¢Ûõ  þó¾  Å¢¼Âò¾¢ø
+¸Õ¾ôÀð¼ÀÊ àÃòÐ ÁÃÒÅÆ¢ÔÈ¨Å ¦Á¡Æ¢ ÅÆ¢Â¡¸ ¯Ú¾¢ôÀÎò¾  ÓÊÂ¡Ð  ±ýÚ  ¿õÀ¢Â¾¡ø,
+þù§Å¨Ä¨Â  ¿¡ý  ÓÊì¸§ÅÂ¢ø¨Ä.  þÃñÎ  ¬¾¢  ¦Á¡Æ¢¸Ùì¸¢¨¼§Â  ¯ûÇ  ´Øí¸¡É
+ÌÃ¦Ä¡Ä¢ò ¦¾¡¼÷Ò¸¨Ç ¿¢¨Ä¿¡ðÎÅ¾ý  ÓÄõ  ÁðÎ§Á  ÁÃÒÅÆ¢ÔÈ¨Å  ¯Ú¾¢ôÀÎò¾  ÓÊÔõ.
+þ¨¾ ¿õÀìÜÊÂ Å¨¸Â¢ø ¦ºöÅ¾É¡ø,  þÃñÎ  ¦Á¡Æ¢¸ÙìÌÁ¢¨¼§Â  ´ôÒ  §¿¡ìÌÅ¾üÌì
+Ì¨Èó¾Ð áÚ ¦º¡øÄ¡ì¸ Å¢Çì¸í¸Ç¡ÅÐ §¾¨Å. §ÅÚ Å¢¾Á¡¸î  ¦º¡øÄô  §À¡É¡ø,  þó¾
+§Å¨Ä¨Âò  ¦¾¡¼í¸¢  ¬¾¢  ¦Á¡Æ¢¸Ùì¸¡¸  þÃñÎ  Àì¸í¸Ç¢Öõ  ÒÉÃ¨ÁôÒî  ¦ºöÐ
+À¡÷ôÀ¾üÌì  Ì¨Èó¾Ð  áÚ  ¦º¡ü¸Ç¢ý  §º¡Ê¸Ç¡ÅÐ  §¾¨Å;  «òÐ¼ý  þò¾¨¸Â
+ÒÉÃ¨ÁôÒ¸û  ÌÃ¦Ä¡Ä¢  ¦º¡ü¦À¡Õû  þÃñÊÖõ  ¿¢Â¡ÂÁ¡¸×õ  ¦¿Õì¸Á¡¸×õ
+'Óý-º§Á¡§Â¾¢ì'
+´ý§È¡¦¼¡ýÚ  ´ò¾¢Õò¾ø  §ÅñÎõ. 
+¦Á¡Æ¢¸Ùõ (Proto-Finno-Ugric and Proto-Samoyedic  [Janhunen  1981])  À¸¢÷óÐ  ¦¸¡ñ¼  ÍÁ¡÷
+140  ²ü¸ôÀð¼  ¦º¡øÄ¡ì¸  Å¢Çì¸í¸Ç¢ø  ÁðÎõ  äÃ¡Ä¢ì  ÌÎõÀò¾¢ý  ÒÉÃ¨ÁôÒ¸§Ç
+«¨Áó¾¢Õì¸¢ýÈÉ. Á¢¸ô ÀÆ¨ÁÂ¡É  ¯ò§¾º  äÃ¡§Ä¡-¾¢Ã¡Å¢¼  ¦Á¡Æ¢¸Ç¢ý  (Uralo-Dravidian)
+¦ÀÕõÀ¢Ã¢Å¢ø  ÍÁ¡÷  20ìÌ  §ÁüÀð¼  ¦º¡øÄ¡ì¸  Å¢Çì¸í¸û  þÕì¸Ä¡õ  ±ýÚ  Â¡Õ§Á
+Å¢¾¢Ó¨ÈôÀÊ  ±¾¢÷À¡÷ì¸  ÓÊÂ¡Ð;  þ¨Å  ¯ò§¾ºì  §¸¡ðÀ¡ð¨¼  ¦ÁöôÀ¢ìÌõ  «Ç×ìÌô
+§À¡¾¢ÂÉ  «øÄ.  ¬Â¢Ûõ  þ¨Å  ¯ò§¾ºì  §¸¡ðÀ¡ð¨¼  ¿¢îºÂÁ¡¸  ÁÚôÀ¨ÅÂøÄ.  ÓÊÅ¢ø
+±øÄ¡  ¦Á¡Æ¢¸Ù§Á  ´ýÚì¦¸¡ýÚ  ¦¾¡¼÷Ò¨¼ÂÉÅ¡¸  ÅÃÄ¡õ;  â§¸¡Çò¨¾î  ÍüÈ¢ô
+ÀÃÅ¢ÔûÇ  ÁÉ¢¾  þÉò¾¢ý  ¯ò§¾ºì  ÌÎõÀ  ÁÃò¨¾  ¯Â¢Ã¢ÂÄ¢Ä¢ÕóÐ  ÅÕÅ¢ò¾  ÓÊ×¼ý  ±ø.
+±ø.  ¸ÅøÄ¢-Š¦À¡÷…¡  (L.  L.  Cavalli-Sforza)  ºÁ£Àò¾¢ø  ´ôÀ¢ðÊÕì¸¢È¡÷. 
+(±ØòÐì
+ÌÈ¢Â£Î¸û «¨ÁôÀ¾¢ø ²üÀð¼ º¢ÃÁò¾¢É¡ø þ¾¢ø ´Õ Àó¾¢ ¾Å¢÷ì¸ôÀð¼Ð)
+
+'Óý-À¢ý§É¡-¯¸¢Ã¢ì'  ÁüÚõ 
+
+§ÁÖõ,  'Óý-äÃ¡Ä¢ì'  'Óý-¾¢Ã¡Å¢¼'  ¦Á¡Æ¢¸û  «¨ÁôÀ¢Öõ  ÀÄ  Å¢¾í¸Ç¢ø  ´ò¾¢Õì¸¢ýÈÉ;
+¯¾¡Ã½Á¡¸ô  ÀÌ¾¢  ¿¢¨ÄÂ¢§Ä  þ¨½Ôõ  þÂøÒ¨¼Â  ¦º¡ø  ÅÊÅ  «¨Áô¨ÀÔõ  «¾ý
+¦¾¡¼÷À¡É  (¦¾¡¼ì¸  ¦Áö¦ÂØòÐî  §º÷ì¨¸ÂüÈ)  ¾É¢Â¨º  «¨Áô¨ÀÔõ  ÜÈÄ¡õ.  º¢Ä
+þÄì¸½ ÅÊÅí¸Ùõ ´ò¾¢Õì¸¢ýÈÉ. 'þý' ¯¨¼¨Á¨Âì ÌÈ¢ìÌõ  ¯ÕÀ¡¸×õ  (ä.)  «øÄÐ
+±ØÅ¡¦Â¡Æ¢ó¾  §ÅüÚ¨Á  ÅÊÅ¡¸×õ  (¾¢Ã¡.)  «øÄÐ 
+'þ'  þÈó¾  ¸¡Ä  «¨ÁôÀ¡¸×õ
+þÕôÀ¨¾ì  ÜÈÄ¡õ;  (þÐ 
+'Óý-À¢ý§É¡-¯¸¢Ã¢ì'  (Proto-Finno-Ugric)  ÀÌ¾¢Â¢ø  äÃ¡Ä¢ì
+À¢Ã¢×ìÌ ÁðÎ§Á ¦À¡ÕóÐõ; º¦Á¡§ÂÊì Å¢¨É Å¢Ì¾¢Â¡É (Samoyedic Verbal suffix) 'y' ±ó¾ì
+¸¡Äí¸¨ÇÔõ ÌÈ¢ôÀ¾¡¸ò ¦¾Ã¢ÂÅ¢ø¨Ä.)
+
+ 
+ 
+14
+
+À¢ý§É¡-¯¸¢Ã¢ÂÕìÌõ  Óü¸¡Ä  ¬Ã¢ÂÕìÌõ  þ¨¼Â¢Ä¡É  ¬¾¢¸¡Äò
+¦¾¡¼÷Ò¸û
+
+ÍÁ¡÷  ¸¢.Ó.  4000-2500  ¬ñÎ¸Ç¢ø  Áò¾¢Â  Ã‰„¢Â¡Å¢ý  ¸¡Î¸Ç¢ø  Å¡úó¾  'Óý-À¢ý§É¡-
+¯¸¢Ã¢ÂÕ'ìÌ (the Proto-Finno-Ugrians) ¦¾ý Ã‰„¢Â¡Å¢ý ºÁ¦ÅÇ¢¸Ç¢ø Å¡úó¾ 'Óý-þó§¾¡-
+³§Ã¡ôÀ¢Â' (the Proto-Indo-European) ¦Á¡Æ¢ §Àº¢§Â¡÷  «ÂÄÅÃ¡¸  þÕó¾É÷  (ÍÁ¡÷  4500-2800
+¸¢.Ó.);  À¢ýÉ÷  «¾ý  ÅÆ¢Åó¾  ¦Á¡Æ¢¸Ç¢ø  ´ý¨Èô  §Àº¢Â  'Óý-¬Ã¢ÂÃ¢ý'  (the  Proto-Aryans)
+(ÍÁ¡÷ 2800-2000 ¸¢.Ó.) ÅÆ¢ò §¾¡ýÈø¸û ¸¢.Ó. 2000³ «ÎòÐ ºÁŠ¸¢Õ¾ò¨¾ þó¾¢Â¡×ìÌì
+¦¸¡ñÎ  Åó¾É÷  (À¡÷¦À¡Ä¡Å¢ý  ¬ì¸õ  -  «îº¢ø).  º¢Ä  À¨ÆÂ  ºÁŠ¸¢Õ¾  þÃÅø  ¦º¡ü¸û
+À¢ýÉ¢‰ ¦Á¡Æ¢Â¢ø À¡Ð¸¡ì¸ôÀÎ¸¢ÈÐ; µ÷ ±ÎòÐì¸¡ð¼¡¸, 'áÚ' ±ýÛõ ¦À¡ÕÙ¨¼Â 'sata'
+'º¾'  ±ýÈ  À¢ýÉ¢‰  ¦º¡ø, 
+'sata'  ±ýÈ  ºÁŠ¸¢Õ¾î  ¦º¡øÖ¼ý  ¸¢ð¼ò¾ð¼î  ºÃ¢Â¡¸
+´ò¾¢Õì¸¢ÈÐ.  ¬¾¢Â¢ø  þÕó¾  À¢ýÉ¢‰  Á¾õ  ¬Ã¢Âì  ¦¸¡û¨Ç¸Ç¢ý  ¾¡ì¸  Å¢¨ÇÅ¡¸ìÜ¼
+þÕó¾¢Õì¸Ä¡õ. þùÅ¡Ú '¸¼×û' ±ýÛõ ¦À¡ÕÙ¨¼Â 'jumala'  ±ýÈ  À¢ýÉ¢‰  ãÄî  ¦º¡ø,
+þÕìÌ§Å¾ô  À¡¼ø¸Ç¢ø  §À¡ÕìÌõ  þÊÓÆì¸òÐìÌõ  ¦¾öÅÁ¡É  þó¾¢Ã¨Éì  ÌÈ¢ôÀ¢Îõ
+'dyumat'  ±ýÈ  À¨ÆÂ  ¬Ã¢Âî  ¦º¡øÄ¢ø  þÕóÐ
+'À¢Ã¸¡º¢ò¾ø'  ±ýÛõ  ¦À¡ÕÙ¨¼Â 
+Åó¾¢Õì¸Ä¡õ.  þó¾¢Â  ¬Ã¢Â÷¸Ç¢ý  ¦¾öÅí¸Ç¢ø  þó¾¢Ãý  ¯Â÷ó¾  ¿¢¨Ä¨Âô  ¦ÀüÈ¡÷;
+À¢ýÉ¢‰  À¨ÆÂ  ¦¾öÅí¸Ç¢ø  þÊÓÆì¸ò¾¢ý  ¦¾öÅÁ¡É  '¯ì§¸¡'  (Ukko)×õ  «ùÅ¡§È
+¸Õ¾ôÀð¼¡÷.  þý¦É¡Õ  ±ÎòÐì¸¡ðÎ  ¸§ÄÅÄ¡Å¢ø  ÅÕõ 
+'ºõ§À¡'  ±ýÛõ  «üÒ¾
+¬¨ÄÂ¡Ìõ.  ÍÆÖõ  ÍÅ÷ì¸ò¾¢ý  ¿ðºò¾¢Ãô  ÒûÇ¢¸Ù¨¼Â  þÂÖÄ¸  «ñ¼òÐìÌÃ¢Â
+'¬¨Ä'Â¢Ä¢ÕóÐ  þó¾  «üÒ¾  ¬¨Äì¸¡É  ±ñ½õ  ²üÀðÊÕì¸Ä¡õ  ±ýÚ  ºõ§À¡Å¢ý
+'ÒûÇ¢¸ÙûÇ  ãÊ'  ±ýÈ  ¿¢¨ÄÂ¡É  «¨¼¦Á¡Æ¢  ¸Õ¾  ¨Åì¸¢ÈÐ.  'ºõ§À¡'  (sampo)  ±ýÛõ
+¦º¡øÄ¢ø þÕóÐ ÅÕõ 'àñ' ±ýÛõ  ¦À¡ÕÙûÇ  ¾¢Ã¢ÒÕ  sammas  ±ýÀÐ,  skambha  «øÄÐ
+stambha ±ýÈ ºÁŠ¸¢Õ¾î ¦º¡øÄ¢ý ¦¾¡¼÷¨À ¿¢¨ÉçðÎ¸¢ÈÐ; §Å¾ò¾¢ø  þÐ  Å¡Éò¨¾ò
+¾¡í¸¢ ¿¢üÌõ þÂÖÄ¸ «ñ¼òÐìÌÃ¢Â à¨½ì ÌÈ¢ì¸¢ÈÐ.
+
+À¢ýÄ¡ó¾¢ÂÃ¢ý Óý§É¡Õõ Ä¡ôÀ¢ÂÕõ
+
+¸¢È¢ŠÐ×ìÌ  Óó¾¢Â  Ó¾ø  ¬Â¢Ãõ  ¬ñÎô  ÀÌ¾¢Â¢ø  äÃ¡Ä¢ì  ¦Á¡Æ¢ì  ÌÎõÀò¾¢ø  þÕóÐ
+¸¢¨ÇÅ¢ð¼  À¡ø§¼¡-À¢ýÉ¢ì  (Balto-Finnic),  À¡øÊì  À¢Ã§¾ºò¨¾Ôõ  À¢ýÄ¡ó¨¾Ôõ  «¨¼óÐ
+þÕ  ¦ÀÕõ  ¸¢¨Ç¸Ç¡¸ô  À¢Ã¢ó¾Ð.  Ä¡ôÀ¢ÂÃ¢ý  Óý§É¡÷  Å¼  ÀÌ¾¢¸Ç¢ø,  ¦ÀÕõÀ¡Öõ
+À¢ýÄ¡ó¾¢ý ¦ÀÕõ ÀÌ¾¢¸Ç¢ø ¾í¸¢Â ¸¡Äò¾¢ø,  À¢ýÄ¡ó¾¢ÂÃ¢ý  Óý§É¡÷  ±Š§¾¡É¢Â¡Å¢Öõ
+¸§ÃÄ¢Â¡Å¢Öõ  À¢ýÄ¡ó¾¢ý  ¦¾ý  ÀÌ¾¢¸Ç¢Öõ  ÌÊ§ÂÈ¢É÷; 
+(þÅ÷¸Ù¨¼Â  þý¨ÈÂ
+¦Á¡Æ¢ÅÆ¢ò  §¾¡ýÈø¸û  ±Š§¾¡É¢Â¡,  ¸§ÃÄ¢Â¡,  À¢ýÉ¢‰  ¦Á¡Æ¢¸¨Çô  §ÀÍÀÅ÷¸Ç¢ø
+«¼íÌÅ÷.)  ¸§ÄÅÄ¡ì  ¸Å¢¨¾¸û 
+(Proto-Finnish)  ¸¢¨Ç¨Âî  §º÷ó¾Ð.
+'Óý-À¢ýÉ¢‰' 
+À¢ýÄ¡ó¾¢ÂÃ¢ý  Óý§É¡÷  Àñ¨¼Â  Å¢Åº¡Âò¾¢ø  ®ÎÀðÊÕó¾§¾¡Î,  ¦ƒ÷Á¡É¢Â  (§¿¡÷Êì
+«øÄÐ  Š¸ýÊ§ÉÅ¢Â),  À¡øÊì  (ÄòÅ¢Âý  +  Ä¢òÐ§ÅÉ¢Â),  ŠÄ¡Å¢Â  (Ã‰Â)  þÉò¾Å÷
+¯ðÀð¼  þó¾¢Â  ³§Ã¡ôÀ¢Â  ¦Á¡Æ¢¸¨Çô  §ÀÍõ  Áì¸Ç¢¼Á¢ÕóÐ  ¦ÀüÈ  þÃÅø  ¦º¡ü¸û,
+¦¸¡û¸Ç¢Ä¢ÕóÐ  «À¢Å¢Õò¾¢  «¨¼ó¾  Óý§ÉüÈÁ¡É  ¸Ä¡º¡Ã  «ÊôÀ¨¼¨ÂÔõ
+¦¸¡ñÊÕó¾É÷.  ¸§ÄÅÄ¡ô  À¡¼ø¸û,  À¢ýÄ¡ó¾¢ÂÃ¢ý  Óý§É¡Ã¢ý  Å¼ìÌ  §¿¡ì¸¢Â
+Å¢Ã¢Å¡ì¸ò¨¾Ôõ,  Ä¡ôÀ¢Â÷À¡ø  þÕó¾  À¨¸¨Á¨ÂÔõ,  ¦Á¡Æ¢ò  ¦¾¡¼÷Ò¸¨ÇÔõ  ±ÎòÐ
+ì¸¡ðÎ¸¢ÈÐ;  þó¾  Ä¡ôÀ¢Â÷  þô¦À¡ØÐ  Å¼  ºÓò¾¢ÃòÐìÌ  «Õ¸¢ø  Š¸ýÊ§ÉÅ¢Â¡Å¢ý
+Å¼ÒÈ  ±ø¨ÄÂ¢ø  ´Õ  º¢È¢Â  º¢ÚÀ¡ý¨ÁÂ¢ÉÃ¡¸ì  ¸¡Äõ  ¾ûÙ¸¢ýÈÉ÷.  Ä¡ôÀ¢Â÷  ÀÃõÀ¨Ã
+ÀÃõÀ¨ÃÂ¡¸  §Åð¨¼ì¸¡ÃÃ¡¸×õ  ¸¨ÄÁ¡ý  Áó¨¾¸¨Ç  ÅÇ÷ìÌõ  ¿¡§¼¡Ê¸Ç¡¸×õ
+þÕó¾É÷. ¸¢. À¢.  98ø  §È¡Áý  áÄ¡º¢Ã¢Â÷  ¼…¢ð¼Š  (Tacitus)  ³§Ã¡ôÀ¢Â  Å¼ÒÈ  ±ø¨Ä¸¨Çô
+ÀüÈ¢  Å¢ÀÃ¢ì¨¸Â¢ø  §Åð¨¼Â¡Ê,  ¯½×¸û  §º¸Ã¢òÐ,  ¿¢Ãó¾ÃÁ¡É  Å£Î¸Ç¢øÄ¡¾  '¦ÀýÉ¢'
+(Fenni)  ±ýÈ  ´Õ  þÉò¾Å¨Ãô  ÀüÈ¢ì  ÜÈ¢Â¢Õì¸¢È¡÷;  þÐ  ¦ÀÕõÀ¡Öõ  þó¾  Ä¡ôÀ¢ÂÃ¡¸
+þÕì¸Ä¡õ.
+
+15
+
+¸§ÄÅÄ¡Å¢ý ¯ûÇ¼ì¸õ
+
+Á¸¡À¡Ã¾ò¾¢ø  À¡ñ¼Å÷¸ÙìÌõ  ¦¸ÇÃÅ÷¸ÙìÌõ  þ¨¼§Â  ²üÀð¼  §À¡Ã¢¨Éô  §À¡Ä
+«øÄÐ þÃ¡Á¡Â½ò¾¢ø þÃ¡Á÷ þÄí¨¸ìÌ §Áü¦¸¡ñ¼ À¨¼¦ÂØîº¢¨Âô §À¡Ä,  ¸¢È¢ŠÐ
+×ìÌ  À¢üÀð¼  Ó¾ø  ¬Â¢Ãõ  ¬ñÎô  ÀÌ¾¢Â¢ø  ¿¢¸úó¾  Š¸ýÊ§ÉÅ¢Âì  ¸¼øÅ£Ã÷¸Ç¢ý
+¾¡ìÌ¾ø¸Ç¢É¡ø  ²üÀð¼  ÅÃÄ¡üÚô  À¢ýÉ½¢ÔÓ¨¼Â  ¸§ÄÅÄ¡Å¢ý  §À¡÷  ¿¼ÅÊì¨¸¸û
+þôÀ¡¼ø¸Ç¢ý ÓÐ¦¸ÖõÀ¡¸ «¨Áó¾É.  ¬É¡ø  ±ì¸¡Ã½õ  ¦¸¡ñÎõ  þôÀ¡¼ø¸û  §À¡÷ì
+¸Õô¦À¡Õ¨Ç  ÁðÎõ  «ÊôÀ¨¼Â¡¸ì  ¦¸¡ñ¼¨ÅÂøÄ.  þó¾¢Â¡Å¢ý  ¸¡Å¢Âí¸Ç¢ø  ÅÕõ
+ÍÂõÅÃí¸¨Çô  §À¡Ä,  Á¡ôÀ¢û¨ÇÂ¡¸ô  §À¡¸¢ÈÅ÷  ¦Àñ¨½  ¿ÂóÐ  ¦ÀÚ¾Öõ  Áì¸û
+Å¢ÕõÒõ ´Õ ¸¡Å¢Âì ¸ÕÅ¡Ìõ. Å¢Åº¡Âõ (À¼õ  2),  ¸¡ø¿¨¼  ¨Åò¾¢Õò¾ø  (Å÷½ô  À¼õ  6),
+Å¢Å¡¸í¸û, ÁÕòÐÅî º¼íÌ¸û  §À¡ýÈ  ±øÄ¡  Å¨¸Â¡É  ¸¢Ã¡Á£Â  ÅÆì¸í¸û,  «øÄÐ  þÇõ
+Áì¸Ç¢ý  ¦À¡ØÐ§À¡ìÌ¸û  ±ýÀÅü§È¡Î  ¯Ä¸  §¿¡ìÌõ  Á¾Óõ  Ü¼  ¯ðÀð¼  ¿¡Ç¡ó¾
+Å¡úì¨¸Â¢ý  Àø§ÅÚ  ÀñÒ¸û  ÀüÈ¢Ôõ  ¸§ÄÅÄ¡  ÜÚ¸¢ÈÐ.  Àñ¨¼Â  ¾Á¢ÆÃ¢ý  ¸Ä¡º¡Ãò¾¢ý
+±øÄ¡ô  Àì¸í¸¨ÇÔõ  º¢ÄôÀ¾¢¸¡Ãò¾¢ø  «Ç¢ò¾¢ÕôÀÐ  §À¡Ä,  Àñ¨¼Â  À¢ýÄ¡ó¾¢ÂÃ¢ý
+¸Ä¡º¡Ãò¾¢ý  º¢Èó¾  Å¢Ã¢Å¡É  Å÷½¨É¨Âì  ¸§ÄÅÄ¡Å¢ø  ¸¡½Ä¡õ.  (þÕôÀ¢Ûõ  ¾Á¢ú
+Áì¸Ù¨¼Â  §¿÷ò¾¢  ÑðÀÁ¡ÉÐõ  ¦ÀÕÁÇÅ¢ø  ¿¸Ãô  ÀñÀ¡ÉÐÁ¡É  ¸Ä¡º¡Ãò¾¢Öõ  À¡÷ì¸,
+À¢ýÄ¡ó¾¢ÂÃ¢ý  ¸Ä¡º¡Ãõ  ÓüÈ¢Öõ  ¸¢Ã¡Á£ÂÁ¡ÉÐõ  Á¢¸×õ  ±Ç¢¨ÁÂ¡ÉÐÁ¡Ìõ  ±ýÀ¨¾  ¿¡õ
+ÁÈóÐ  Å¢¼ìÜ¼¡Ð.)  äÃ¡Ä¢ì  ¦Á¡Æ¢¸û  §ÀÍõ  Áì¸Ç¢ý  Á¢¸ô  À¨ÆÂ  Á¾õ  «§É¸Á¡¸
+'„Á¡É¢ºõ'  (Shamanism)  ¬¸  þÕó¾¢Õì¸Ä¡õ;  ¬É¡ø  À¡øÊì-À¢ýÄ¡ó¾¢Â÷  ¦¾¡¼÷Ò
+¦¸¡ñÊÕó¾  À¢È  Áì¸Ç¢ý  Å¢¨ÇÅ¡ðº¢ìÌ  ¯ðÀð¼  Á¾§Á  ¸§ÄÅÄ¡Å¢ø  À¢Ã¾¢ÀÄ¢ì¸¢ÈÐ.
+¯ñ¨ÁÂ¢ø,  ¸§ÄÅÄ¡Å¢ø  ÀÄ  ¯Ä¸  §¿¡ìÌ¸¨Çì  ¸¡½Ä¡õ;  «¨Å  ¯Ä¸ô  À¨¼ôÒô  ÀüÈ¢Â
+À¡¼ø¸û,  ¦ÀÃ¢Â  º¢óÐÃõ  (great  oak)  Å£úò¾ô  ÀÎ¾ø  (þÐ  ÀüÈ¢ì  ¸£§Æ  ÜÈôÀÎ¸¢ÈÐ),
+Š¸ýÊ§ÉÅ¢Âì  ¸¼øÅ£Ã÷¸Ç¢ý  º¡¸ºî  ¦ºÂø¸û  ÀüÈ¢Ôõ  ¸¢È¢ŠÐÅõ  ÀüÈ¢Ôõ  ÀÃõÀ¨Ãì
+¸¨¾¸û,  Å¢Åº¡Â¢¸û,  Áó¾¢Ãì¸¡Ã÷¸û,  Áó¾¢Ãì¸¡Ã¢¸Ç¢ý  À¡¼ø¸û  ¬¸¢Â¨Å  «¼í¸¢Â
+¸ü¸¡Äõ Å¨Ã À¢ý§¿¡ì¸¢î ¦ºøÄìÜÊÂ ¦ÀÇÃ¡½¢¸ì ¸ÕòÐ¸Ç¡Ìõ.
+
+Á¡¦ÀÕõ º¢óàÃÓõ, «Ð Å£ú¾Öõ
+
+¸§ÄÅÄ¡Å¢ý  ¯ûÇ¼ì¸òÐìÌ  µ÷  ¯¾¡Ã½Á¡¸  «¾ý  þÃñ¼¡ÅÐ  À¡¼¨Äî  ºüÚ  Å¢Ã¢Å¡¸ì
+ÜÈ  Å¢ÕõÒ¸¢§Èý;  Ó¾Ä¡ÅÐ  À¡¼Ä¢ø  ÅÕõ  ¯Ä¸õ  À¨¼ì¸ôÀð¼  ÒÃ¡½ì  ¸¨¾¨Âò
+¦¾¡¼÷óÐ  þôÀ¡¼ø  ÅÕ¸¢ÈÐ.  ¬¾¢Â¢ø  §¾¡ýÈ¢Â  ºÓò¾¢Ãò¾¢ø  ±Øó¾  ¾£×¸Ç¢Öõ  ¾¨Ä¿¢Äô
+ÀÃôÀ¢Öõ  ÁÃí¸¨Ç  Å¢¨¾òÐ  ¯ñ¼¡ì¸  Å¢ÕõÒ¸¢È¡ý  §ÀÃÈ¢×  À¨¼ò¾  »¡É¢Â¡É
+¨ÅÉ¡¦Á¡Â¢Éý.  ÁñÅÇò¨¾ì  ¸¡ìÌõ  §¾Åºì¾¢Â¡É  ºõ…¡  ¦ÀøÄ÷¦Å¡Â¢ÉÉ¡ø  þÐ
+¿¨¼¦ÀÚ¸¢ÈÐ.  º¢óàÃ  ÁÃò¨¾ò  ¾Å¢Ã  ÁüÈ  ±øÄ¡  Å¢¨¾¸Ùõ  Ó¨ÇòÐî  ¦ºÆ¢ì¸¢ýÈÉ.
+¸¼Ä¢ý ¯À§¾Å¨¾¸û ¦¸¡ïº ¨Åì§¸¡¨Ä ±Ã¢òÐ,  «¾ý  º¡õÀ÷§Áø  º¢óàÃ  ÁÃò¾¢ý  Å¢òÐ
+Å¢Øó¾ À¢ýÉ÷ ¾¡ý º¢óàÃõ Ó¨Çì¸ò ¦¾¡¼íÌ¸¢ÈÐ. ¬É¡ø «Ð ´Õ Á¡¦ÀÕõ Å¢ÕðºÁ¡¸
+Å¡Éõ  Å¨Ã  ÅÇ÷óÐ  ÝÃ¢ÂÛõ  ºó¾¢ÃÛõ  ´Ç¢÷Å¨¾ò  ¾Îì¸¢ÈÐ.  ÓØ  ¯Ä¸§Á  þÕÇ¢ø
+«Á¢ú¸¢ÈÐ.  ¨ÅÉ¡¦Á¡Â¢Éý  þó¾  þÃ¡ðºº  ÁÃò¨¾  Å£úò¾ì  ÜÊÂ  ´ÕÅ¨Éò  §¾Êì
+¸¢¨¼ì¸¡Áø,  ¸¨¼º¢Â¢ø  ¾ÉÐ  ¾¡Â¡É  ¸¼øÁ¸¨Ç  Å½íÌ¸¢È¡ý.  «Åû  ¦ÀÕÅ¢Ãø  «Ç×
+¿£ÇÁ¡É  ´Õ  º¢ýÉïº¢È¢Â  ÁÉ¢¾¨É  «ÛôÒ¸¢È¡û;  Å¢‰Ï  À¸Å¡ý  ÌÈû  ÅÊÅ¢ø  «Å¾¡Ãõ
+±Îò¾  §À¡Ð  ÀÄ¢  ±ýÛõ  «Ãì¸ý  «Å¨Ãò  ¾ÅÈ¡¸  ¿¢¨Éò¾¨¾§À¡Ä,  þó¾ì  ÌÈû
+ÁÉ¢¾¨ÉÔõ À¡÷òÐ ¨ÅÉ¡¦Á¡Â¢Éý º¢Ã¢òÐ ²ÇÉõ ¦ºö¸¢È¡ý.  ¬Â¢Ûõ,  Å¡ÁÉ¨Éô  §À¡Ä
+þó¾î  º¢ýÉïº¢È¢Â  ¦ºôÒ  ÁÉ¢¾Ûõ  ¾¢Ë¦ÃÉ  Á¡¦ÀÕõ  «Ç×  ¯ÕÅò¨¾ô  ¦ÀüÚ,  «ó¾ô
+ÀÂí¸Ã  ÁÃò¨¾ì  §¸¡¼¡Ã¢Â¡ø  ÓõÓ¨È  ¾¡ì¸¢  Å£úòÐ¸¢È¡ý;  (þó¾ò  §¾¡üÈõ  ¦ºýÉ¢ÈÁ¡É
+¯¾Âì¸¡Ä  ÝÃ¢ÂÉ¢ý  ¯ÕÅ¸§Á  ±ýÀ¾¢ø  ºó§¾¸Á¢ø¨Ä).  þÂü¨¸  þô¦À¡ØÐ  þÕû
+±ýÛõ  §¸ðÊÄ¢ÕóÐ  Å¢ÎÀðÎ  ÁÄ÷îº¢Â¨¼Âò  ¦¾¡¼íÌ¸¢ÈÐ. 
+(§¾Åý  þó¾¢Ãý
+Å¢Õò¾¢Ã¡ÍÃ¨Éì  ¦¸¡ýÚ,  þó¾  «Ãì¸ý  ¾ÎòÐ  ¨Åò¾¢Õó¾  Á¨Æ  Ó¸¢ø¸¨Ç  ±øÄ¡õ
+Å¢ÎÅ¢òÐ  ¯Ä¸òÐìÌ  Å¢Î¾¨Ä  ¾ó¾¨¾  þíÌ  ¿¢¨É×  ÜÈÄ¡õ).  Å£úó¾  º¢óàÃ  ÁÃò¾¢ý
+ÐñÎ¸û ¯Ä¦¸øÄ¡õ þýÀò¨¾ô ÀÃôÒ¸¢ÈÐ. þ¾ý §¿¡ì¸õ Áó¾¢Ã ºì¾¢ Å¡öó¾, ÒÉ¢¾Á¡É
+
+16
+
+§º¡¨Ä  Áò¾¢Â¢ø  º¢óàÃò¨¾î  ÍüÈ¢  'À£÷'  ±ýÛõ  À¡Éõ  ÅÊìÌõ  º¼íÌ¸û,  º¢óàÃ  ÁÃò¾¢ø
+'À£÷'ô  À¡Éì  ¸¢ñ½í¸û  þÂüÚ¾ø  §À¡ýÈÅü¨Èò  ¦¾¡¼÷ÒÀÎòÐÅ¾¡¸ò  ¦¾Ã¢¸¢ÈÐ.
+À¡¼Ä¢ý  ²¨ÉÂ  ÀÌ¾¢  ¬¾¢¸¡Äò¾¢ø  º¡¾¡Ã½Á¡¸ì  ¨¸Â¡ÇôÀð¼  ¸¡Î¸¨Ç  ±Ã¢ò¾Æ¢òÐî
+¦ºö¾  Å¢Åº¡Âõ  ÀüÈ¢ì  ÜÚ¸¢ÈÐ;  þÐ  þô¦À¡ØÐ  ÅÆì¸¢Ä¢ø¨Ä;  (ºÃ¢Â¡¸î  ¦º¡øÄô
+§À¡É¡ø ¾¨¼¦ºöÂôÀðÎûÇÐ); «¾¡ÅÐ º¡õÀÄ¢ø Å¢¨¾¸¨Ç Å¢¨¾ôÀ¾üÌ ÓýÉ¡ø ¦ÀÕõ
+À¢Ã§¾ºò¾¢ø  ¯ûÇ  ±øÄ¡  ÁÃí¸¨ÇÔõ  ÓüÈ¡¸  ±Ã¢ôÀÐ  (À¼õ  2).  ±É¢Ûõ,  ÌÂ¢ø  ÅóÐ
+«Á÷Å¾ü¸¡¸ ¨ÅÉ¡¦Á¡Â¢Éý ´Õ Á¢Ä¡Ú ÁÃò¨¾ô À¡Ð¸¡ì¸¢È¡ý.
+
+¸§ÄÅÄ¡
+
+¸§ÄÅÄ¡  Kalevala  ±ýÛõ  ¦ÀÂ÷  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ø  'þ¼õ'  ±ýÀ¨¾ì  ÌÈ¢ôÀ¢Îõ  -la  ±ýÛõ
+¦ÀÂ÷  Å¢Ì¾¢Â¢ø  ÓÊÅ¨¼¸¢ÈÐ.  '¸§ÄÅ¡'  ±ýÛõ  ±ïº¢Â  «Ê  À¢ýÄ¡ó¾¢ÂÃ¢ý  ºó¾¾¢Â¢ý
+¬¾¢Ó¾øÅÃ¢ý  ¦ÀÂÃ¡¸ì  ¸Õ¾ôÀÎ¸¢ÈÐ.  þÅÕìÌ  ÀýÉ¢ÃñÎ  ¬ñ  Áì¸û  þÕó¾É÷;
+¸§ÄÅÄ¡Å¢ý  ¿¡Â¸÷¸Ç¡É  ¨ÅÉ¡¦Á¡Â¢ÉÛõ  þøÁÃ¢ÉÛõ  þÅ÷¸Ç¢ø  «¼íÌÅ÷.  À¢ýÉ¢‰
+¦Á¡Æ¢Â¢ø '¸§ÄÅ¡' ±ýÀÐ Å¢ñÁ£ý¸Ç¢ý ÀÄ ¦ÀÂ÷¸Ç¡¸ ÅÕ¸¢ÈÐ; [Á¡ý¾¨Ä Å¢ñÁ£ýÌØ¨Å
+(the  belt  of  orion)  '¸§ÄÅ¡Å¢ý  Å¡û'  ±ýÚ  «¨ÆôÀ÷.]  þÊ§ÂÚ  §À¡ýÈ  Å¡ÛÄ¸ì  ¸¡ðº¢¨Â
+'¸§ÄÅÄ¡Å¢ý  ¦¿ÕôÒ'  ±ýÀ÷.  ¸§ÄÅ¡Å¢ý  ¬ñ  Áì¸¨Ç,  ÅÂø¸¨Ç  ¯ñ¼¡ìÌÅ¾ü¸¡¸
+(ÁÃí¸¨Ç  ±Ã¢òÐî)  Íð¼Æ¢ò¾  ¸¡ðÎ  Å¢Åº¡ÂòÐ¨ÈÂ¢ý  «¾¢ºì¾¢  Å¡öó¾  â¾í¸û  ±ýÀ÷.
+'¦¸¡øÄý'
+¸§ÄÅ¡  ±ýÛõ  ¦ÀÂÃ¢ý  ¦º¡øÄ¡ì¸  Å¢Çì¸õ  ¯Ú¾¢Â¡¸  ¦º¡øÅ¾ü¸¢ø¨Ä. 
+±ýÛõ  ¦À¡Õû  ÅÕõ  kalvis  ±ýÈ  Ä¢òÐ§ÅÉ¢Âý  ¦º¡øÖõ  À¨ÆÂ  À¡øÊì  ¦¸¡ø§Å¨Äò
+¦¾öÅõ kalevias ±ýÀÐõ ¾¡ý ¦¾¡¼÷ÒÀÎò¾ìÜÊÂ Á¢¸ ¦¿Õí¸¢Â Å¢Çì¸Á¡Ìõ.
+
+þøÁÃ¢Éý ±ýÛõ §¾Å ¦¸¡øÄý
+ ¸§ÄÅÄ¡Å¢ý  Óì¸¢Â  ¿¡Â¸÷¸Ç¢ø  ´ÕÅÉ¡É  þøÁÃ¢Éý  ¦¸¡øÄý  ±ýÛõ  ¾É¢î
+º¢ÈôÒ¨¼ÂÅý.  þÅÛ¨¼Â  Óì¸¢Â  «Õï¦ºÂø¸Ç¢ø  º¢Ä:  þÕõ¨Àô  ÀÊÁ¡ÉÁ¡ìÌ¾ø,
+ºõ§À¡  ±ýÛõ  «üÒ¾  ¬¨Ä¨Â  ¯¨ÄÂ¢ø  ¯ÕÅ¡ìÌ¾ø  (Å÷½ôÀ¼õ  2),  À¡õÒ¸û  ¿¢¨Èó¾
+ÅÂ¨Ä  ¯Ø¾ø  (Å÷½ôÀ¼õ  5),  ¾í¸ò¾¢ø  ´Õ  Áí¨¸¨Â  þÂüÚ¾ø,  Å¢ñÏÄ¸  ´Ç¢¸¨Ç
+Å¼¿¢Äô À¡¨È¸Ç¢Ä¢ÕóÐ Å¢ÎÅ¢ò¾ø ±ýÀÉÅ¡õ. À¨ÆÂ ¿¡§¼¡Êô À¡¼ø¸Ç¢ýÀÊ, þøÁÃ¢Éý
+ºõ§À¡¨Åô 
+¦ºö¾¢Õì¸¢È¡ý.
+'„Á¡É¢…'  Á¾ÌÕÅ¢ý  ÓÃº¢ýÀÊ  (drum)
+Ä¡ôÒÄ¡ó¾¢Ä¢ÕóÐ  ¸¢¨¼ò¾  1692õ  ¸¡Äò¨¾Â 
+þøÁÃ¢Š ±ýÛõ ÁýÒ¨ÉÅ¡É ¦¾öÅõ ¸¡ü¨ÈÔõ  ¸¡üÚÅ£î¨ºÔõ  ´Øí¸¢¨º×ôÀÎò¾¢Â¾¡¸î
+¦º¡øÄôÀÎ¸¢ÈÐ.  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ø  ilma  ±ýÛõ  ¦º¡øÖìÌì  ¸¡üÚ  ±ýÚ  ¦À¡Õû.
+'þýÁ÷'  Inmar  «øÄÐ
+Ã‰„¢Â¡Å¢ø  Å¡Øõ  '¦Å¡òÂ¡ìŠ'  (Votyaks)  þÉò¾Å÷  þýÉÓõ 
+'þø¦Á÷' Ilmer ±ýÛõ Å¢ñÏìÌÃ¢Â ¦¾öÅò¨¾ ÅÆ¢ÀÎ¸¢ýÈÉ÷.
+
+Å¢Á¡Éò¨¾Ôõ 
+
+Å¢ñÏÄ¸¢ý 
+
+§À¡Ä§Å 
+
+¸Å¢¨¸ 
+
+¨ÅÉ¡¦Á¡Â¢ÉÛõ À¡¼ø¸Ç¢ý ºì¾¢Ôõ
+
+¸§ÄÅÄ¡Å¢ý  Óì¸¢Â  ¿¡Â¸É¡É  ¨ÅÉ¡¦Á¡Â¢Éý  ÁÉ¢¾î  º¢ÈôÒ  ¦¾öÅî  º¢ÈôÒ  ¬¸¢Â
+þÃñÎõ  ¦¸¡ñ¼  ´Õ  À¡ò¾¢ÃÁ¡Ìõ.  ÒÃ¡½òÐ¨Èò  ¾É¢îº¢ÈôÒ¸Ç¢ý  «ÊôÀ¨¼Â¢ø
+¦Ä¡ñ¦Ã¡ò  (Lo*nnrot)  À¢ýÉ¾ü§¸  º¡¾¸Á¡¸  þÕì¸¢È¡÷  ±ýÚ  ¦¾Ã¢¸¢ÈÐ.  Ó¾Ä¡ÅÐ
+À¡¼Ä¢ø ¨ÅÉ¡¦Á¡Â¢É§É ¬¾¢ ¸¡ÄòÐì ¸¼Ä¢ø À¢Èó¾ À¨¼ôÒì ¸¼×Ç¡¸¢È¡ý; «ÅÛ¨¼Â
+¦ÀÂ÷  '«¸ýÚ  ¬ÆÁ¡ÉÐõ  ¦ÁÐÅ¡¸ô  À¡öÅÐÁ¡É  ¬Ú'  ±ýÛõ  ¦À¡ÕÇ¢ø  ¯ûÇ  va*ina*
+±ýÛõ  ¦º¡øÄ¢ø  þÕóÐ  Åó¾¾¡ø,  ¬¾¢Â¢ø  ¾ñ½£§Ã¡Î  ¦¾¡¼÷Ò¨¼Â  ¸¼×Ç¡¸×õ
+þó¾¢Â¡Å¢ý ÒÃ¡½í¸Ç¢ø ÅÕõ ÅÕ½¨Éô  §À¡Ä×õ  þÕó¾¢Õì¸Ä¡õ  ±ýÚ  ¸Õ¾¨Åì¸¢ÈÐ.
+¨ÅÉ¡¦Á¡Â¢Éý  ´Õ  ¸Ä¡º¡Ã  ¿¡Â¸É¡¸×õ  ¸Õ¾ôÀÎ¸¢È¡ý;  ´Õ  À¼¨¸  Ó¾Ä¢ø  ¸ðÊÂÅý
+«Å§É;  ´Õ  Â¡¨Æ  Ó¾Ä¢ø  ¦ºöÐ  þÂü¨¸  ÓØÅ¨¾Ôõ  ¾ÉÐ  þ¨ºÂ¡ø  ÁÂì¸¢ÂÅÛõ
+«Å§É.  ¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý  Àñ¨À  Å¢ÇìÌõ  º¢ÈôÒô  ¦ÀÂ÷¸û  «ÅÛ¨¼Â  ÅÂ¨¾Ôõ
+«È¢¨ÅÔõ  «Øò¾¢ì  ÜÚ¸¢ýÈÉ;  «Åý  ¯Ä¸¢ÂÖìÌ  «ôÀ¡üÀð¼  «È¢×  À¨¼ò¾  ´Õ
+ÅøÄ¨ÁÁ¢ì¸  »¡É¢;  Áó¾¢Ãô 
+À¡¼ø¸Ç¡Öõ  ºì¾¢  Å¡öó¾  ¦º¡ü¸Ç¡Öõ  ¾ÉÐ
+«Õï¦ºÂø¸¨Ç ¿¢¸úòÐÀÅý. ´Õ À¨ÆÂ þÈó¾  â¾ò¾¢¼õ  §¾¨ÅÂ¡É  Áó¾¢Ãî  ¦º¡ü¸¨Çô
+
+17
+
+¦ÀÚÅ¾ü¸¡¸  ´Õ  Áó¾¢Ã  ÝÉ¢Â  Á¾ÌÕ¨Åô§À¡Ä  À¡¾¡Ç  ¯Ä¸òÐìÌî  ¦ºøÀÅý.
+¨ÅÉ¡¦Á¡Â¢Éý  ´Õ  §À¡÷Å£Ã¨Éô  §À¡Ä  «Êì¸Ê  ¸¡ðº¢ÂÇ¢ò¾¡Öõ,  «ÅÛ¨¼Â
+§À¡÷Å£ÃÛìÌÃ¢Â  ¦ºÂÄ¡üÈø  «ÅÛ¨¼Â  »¡Éò¾¢ý  §¾÷îº¢ÂÇ×ìÌô  À¡Ã¡ð¼ôÀ¼Å¢ø¨Ä.
+þ¾ý  ¦¾¡¼÷À¡¸,  ¿¡Â¸ý  Å£Ãý  ±ýÀ¨¾ì  ÌÈ¢ìÌõ  À¢ýÉ¢‰  ¦º¡ø  sankari,  À¡¼¸ý  ±ýÛõ
+¦À¡ÕÙûÇ À¨ÆÂ §¿¡÷Êì (Old Nordic) ¦º¡øÄ¡É  sangare  Å¨Ã  À¢ý  §¿¡ì¸¢î  ¦ºø¸¢È¨¾ì
+¸ÅÉ¢ò¾ø  ÁÉ¾¢ø  ¬÷Åò¨¾  ²üÀÎòÐõ.  ¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý  ºì¾¢  Å¡öó¾  ¦º¡ü¸û
+±¾¢Ã¡Ç¢¨Âî  §ºüÈ¢ø  «Á¢Æ  ¨Åì¸¢ÈÐ 
+À¡÷ì¸).
+¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý  À¡ò¾¢Ãô  Àñ¨À  ±Ç¢¨ÁÂ¡É  Ó¨È¸Ç¢ø  ¦¾Ã¢óÐì  ¦¸¡ûÇô  Àø§ÅÚ
+¸øÅ¢Á¡ý¸û  ±Îò¾  ÓÂüº¢¸û  Á¢¸×õ  Å¢ò¾¢Â¡ºÁ¡É  Á¡ÚÀ¡¼¡É  ÓÊ×¸¨Ç§Â  ¾ó¾É.
+¸§ÄÅÄ¡Å¢ø  ÅÕõ  §ÅÚ  ÀÄ  À¡ò¾¢Ãí¸ÙìÌõ  þÐ  ¦À¡ÕóÐõ.  þó¾¢Â¡Å¢ý  ¸¡Å¢Âí¸Ç¢ý
+¬öÅ¢Öõ  þò¾¨¸Â  ¿¢Ä¨Á  ¿¢¸úÅ¨¾ì  ¸¡½Ä¡õ:  ¯¾¡Ã½Á¡¸,  ²ü¸É§Å  Óü¸¡Äò¾¢ø
+þÕó¾  Àø§ÅÚ  §¾Å÷¸Ç¢ý  ÁÚÀ¢Èô§À  ÀïºÀ¡ñ¼Å÷¸û  ±ýÚ  ÜÈôÀð¼  «§¾  §Å¨ÇÂ¢ø,
+§ÅÚ ¸øÅ¢Á¡ý¸û «Å÷¸¨Ç ÅÃÄ¡üÚ ÁÉ¢¾ ¿¡Â¸÷¸û ±ýÚ ¸ÕÐ¸¢È¡÷¸û.
+
+À¼òÐì¸¡É  Å¢Çì¸õ 
+
+(Ó¸ôÒ 
+
+±Ä¢Â¡Š ¦Ä¡ñ¦Ã¡ò
+
+¸§ÄÅÄ¡  À¨ÆÂ  ¿¡§¼¡Êô  À¡¼ø¸Ç¢ý  «ÊôÀ¨¼Â¢ø  «¨Áó¾¢Õó¾¡Öõ,  «¾ý  «¨ÁôÀ¢ø
+«¾ý  ¦¾¡ÌôÀ¡º¢Ã¢ÂÕìÌõ  ¸½¢ºÁ¡É  ÀíÌ  ¯ñÎ  ±ýÀ¨¾  ¿¡õ  ÁÈóÐ  Å¢¼ì  Ü¼¡Ð.  þÐ
+±Ä¢Â¡Š  ¦Ä¡ñ¦Ã¡ò¾¢ý  (Elias  Lo*nnrot,  1802-18884)  ¬ì¸Á¡¸§Å  ¿¢¨Äò¾¢Õì¸¢ÈÐ;  ´Õ
+¸¢Ã¡ÁòÐ  ²¨Æò  ¨¾Âü¸¡ÃÃ¢ý  Á¸É¡É  þÅ÷,  ´Õ  ÁÕòÐÅÃ¡¸  Å¡úì¨¸¨Âò  ¦¾¡¼í¸¢,
+º¢Èó¾ Á¢¸ô ¦ÀÃ¢Â  «ÇÅ¢Ä¡É  ¸Ä¡º¡Ãî  ¦ºÂø¸û  ÓÄÁ¡¸ô  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ý  §ÀÃ¡º¢Ã¢Â÷
+¬É¡÷.  À¾¢¦É¡Õ  ¦¿ÎóàÃô  ÀÂ½í¸Ç¢ø,  ¦ÀÕõÀ¡Öõ  ¦¾Õì¸§Ç  þøÄ¡¾  ¸¡ðÎô
+À¢Ã§¾ºí¸û  ÅÆ¢Â¡¸,  þÕÀ¾¢É¡Â¢Ãõ  ¸¢§Ä¡  Á£ð¼÷  àÃõ  ¸¡ø¿¨¼Â¡¸§Å  ¦ºýÚ,  ¸§ÄÅÄ¡
+¿¡ðÎô  À¡¼ø¸û  «¨ÁôÀ¢ø  ¯ûÇ  65,000  À¡¼ø  «Ê¸¨Ç  ¦Ä¡ñ¦Ã¡ò  §º¸Ã¢ò¾¡÷.
+¨ÅÉ¡¦Á¡Â¢Éý  ¦¾¡¼÷À¡É  À¡¼ø¸û  ÀüÈ¢Â  Ó¨ÉÅ÷  Àð¼òÐì¸¡É  ¬ö×ìÌô  À¢ýÉ÷
+(1822),  "À¨ÆÂ  ¸§ÄÅÄ¡"  ±ýÚ  «¨Æì¸ôÀÎõ  ¸§ÄÅÄ¡Å¢ý  Ó¾Ä¡ÅÐ  À¾¢ô¨À  1835ø
+¦ÅÇ¢Â¢ð¼¡÷.  þÃñ¼¡ÅÐõ  ÓØ¨ÁÂ¡ÉÐÁ¡É  À¾¢ôÒ,  Ó¾Ä¡ÅÐ  À¾¢ôÀ¢Öõ  À¡÷ì¸  þÃñÎ
+Á¼íÌ ¿£Çò¾¢ø, ¦Á¡ò¾Á¡¸ 22,795 «Ê¸û ¦¸¡ñ¼ ³õÀÐ À¡¼ø¸Ù¼ý  1849ø  ¦ÅÇ¢Åó¾Ð
+.  1840-41ø  ¦Ä¡ñ¦Ã¡ò  '¸ó¾§Ä¾¡÷'  (Kanteletar)  ±ýÛõ  Â¡Æ¢¨ºô  À¡¼ø  ¦¾¡Ì¾¢  ´ý¨È
+¦ÅÇ¢Â¢ð¼¡÷.  þó¾  ¦ÅÇ¢Â£Î¸Ùì¸¡É  ÓÄô  À¢Ã¾¢¸û  þýÉÓõ  þÕóÐ,  ¯ñ¨ÁÂ¡É
+¿¡§¼¡Êô  À¡¼ø¸Ç¢ý  ¦¾¡¼÷Ò  ÀüÈ¢Â  ´Õ  ¦¾Ç¢Å¡É  ¸Õò¨¾ò  ¾Õ¸¢ýÈÉ.  ¿¡§¼¡Ê
+þÄì¸¢Âò¾¢ø,  Àø§ÅÚ  ¯ñ¨ÁÂ¡É  Í¾ó¾¢ÃÁ¡É  ¸¢¨Çì  ¸¨¾¸¨Çò  ¦¾¡¼÷ÒÀÎòÐõ
+þ¨½ÂüÈ ÍÁ¡÷ 600 «Ê¸¨Ç ¦Ä¡ñ¦Ã¡ò ¾¡§Á  þÂüÈ¢ì  ¸§ÄÅÄ¡×ìÌ  ´Õ  ÓØ¨ÁÂ¡É
+«¨Áô¨ÀÔõ ÅÊÅò¨¾Ôõ ¦¸¡Îò¾¡÷.
+
+¸§ÄÅÄ¡×ìÌõ  ¸ó¾§Ä¾¡ÕìÌõ  «ÊôÀ¨¼Â¡¸  ¯ûÇ  ãÄ  ¿¡§¼¡Êô  À¡¼ø¸Ç¢ý  ´Õ
+Á¡¦ÀÕõ ¦¾¡Ì¾¢ Suomen Kansan vanhat runot ('À¢ýÉ¢„  Áì¸Ç¢ý  Àñ¨¼Â  À¡¼ø¸û')  ±ýÈ
+¦ÀÂÃ¢ø  33  ¦ÀÃ¢Â  À¡¸í¸Ç¡¸  1908-1948ø  ¦ÅÇ¢Â¢¼ôÀð¼Ð.  þó¾ô  ¦ÀÃ¢Â  ¦ºÂüÀ¡ÎÜ¼
+áüÚì¸½ì¸¡É  ¸øÅ¢Á¡ý¸Ç¡Öõ  ¾¡Á¡¸  ÓýÅó¾  §º¨ÅÂ¡Ç÷¸Ç¡Öõ  À¢ýÉ¢‰  þÄì¸¢Â
+ÁýÈò¾¢ý  ¬Å½ì  ¸¡ôÀ¸ò¾¢ø  ÌÅ¢òÐ  ¨Åì¸ôÀð¼  ¦ºÆ¢ôÒÁ¢ì¸  §º¸Ã¢ôÒî  ¦ºøÅí¸¨Ç
+ÅüÈî ¦ºöÂ ÓÊÂÅ¢ø¨Ä. ¯Ä¸õ  ÓØÅ¾¢Öõ  ¯ûÇ  ÀÃõÀ¨Ã  ÀÃõÀ¨ÃÂ¡¸  Åó¾  Å¡ö¦Á¡Æ¢ô
+À¡¼ø¸Ç¢ý  À¨ÆÂÐõ  ¦ÀÃ¢ÂÐÁ¡É  §º¸Ã¢ôÒ¸Ç¢ø  1831ø  ¿¢ÚÅôÀð¼  À¢ýÉ¢‰  þÄì¸¢Â
+ÁýÈÓõ  ´ýÚ.  þó¾  §º¸Ã¢ôÒ¸Ç¢ø  1977ø  À¢ýÅÕÅÉ  «¼í¸¢Â¢Õó¾É:  ¸§ÄÅÄ¡ô
+À¡¼ø¸Ç¢ý  º£Ã¢ø  «¨Áó¾  86,800  À¡¼ø¸û;  ÁüÚõ  ºó¾  ´Øí¸¢ø  «¨Áó¾  129,400  ¿¡§¼Êô
+À¡¼ø¸û;  52,400  Áó¾¢Ãô  À¡¼ø¸û;  336,000  Áó¾¢Ãí¸û,  ¿õÀ¢ì¨¸¸û,  ºÌÉí¸û;  187,400
+Å¢¨ÇÂ¡ðÎ¸û; 9,300 «÷ò¾ÁüÈ À¡¼ø¸Ùõ ÒÄõÀø¸Ùõ; 103,200 ¦¾öÅ£¸ ¬üÈø ¸¨¾¸Ùõ
+¿¢¨ÉÅ¡üÈø  ¸¨¾¸Ùõ;  77,800  ÅÃÄ¡üÚì  ¸¨¾¸Ùõ  ¯ûÙ÷ì  ¸¨¾¸Ùõ;  7,700  ¸¡Ã½
+¸¡Ã¢Âì  ¸¨¾¸Ùõ  ÒÃ¡½ì  ¸¨¾¸Ùõ;  766,500  ÀÆ¦Á¡Æ¢¸û  (¦†øº¢í¸¢  Àø¸¨Äì¸Æ¸õ
+§º¸Ã¢ò¾  1,425,000  ¾¢Ã¢ÒÕô  ÀÆ¦Á¡Æ¢¸Ç¢ø  þÕóÐ  ¦ÀÈôÀð¼¨Å);  117,300  Å¢Î¸¨¾¸û;
+23,200 ¿¡§¼¡Êô À¡¼ø ¦ÁðÎ¸û; 54,000 Á¡É¢¼Å¢Âø Å÷½¨É¸û.
+
+¸§ÄÅÄ¡, À¢ýÄ¡ó¾¢ÂÃ¢ý §¾º£Â ¸¡Å¢Âõ
+
+18
+
+ ¦Ä¡ñ¦Ã¡ò¾¢ý  ¬ì¸í¸û,  ÌÈ¢ôÀ¡¸ì  ¸§ÄÅÄ¡  ¦ÅÇ¢Â£Î  1155  ¦¾¡¼ì¸õ  1809  Å¨Ã
+ÍÅ£Ê‰¸¡ÃÃ¡Öõ,  «¾ý  À¢ýÉ÷  (ÍÅ£Ê‰¸¡ÃÕìÌõ  Ã‰ÂÕìÌõ  ²üÀð¼  §À¡Ã¢ø  ÍÅ£Ê‰¸¡Ã÷
+§¾¡øÅ¢  ¸ñ¼  À¢ý)  1809ø  þÕóÐ  ¸¨¼º¢Â¡¸î  Í¾ó¾¢Ãõ  ¦ÀüÈ  1917  Å¨Ã  Ã‰„¢ÂÃ¡Öõ
+¬ÇôÀðÎ  Åó¾  À¢ýÉ¢‰  Áì¸Ç¢ý  ÍÂÅ¢Æ¢ôÒ½÷Å¢Öõ  §¾º£Â  ¯½÷Å¢Öõ  ´Õ  À¡Ã¢Â
+Å¢¨ÇÀÂ¨É  ²üÀÎò¾¢ÂÐ.  À¨ÆÂ  ÀÃõÀ¨Ãî  ¦ºøÅí¸¨Ç  «Æ¢Å¢Ä¢ÕóÐ  ¸¡ôÀ¡üÈ¢  ¯Ä¸
+þÄì¸¢ÂòÐìÌ  ¦Ä¡ñ¦Ã¡ò  ¦ºö¾  §º¨Å¨Â,  À¨ÆÂ  ¾Á¢úî  ºí¸  þÄì¸¢Âí¸ÙìÌ
+¯Â¢ÕðÊÂÅÃ¡É  À¢ÃÀÄ  ¼¡ì¼÷  ¯.  §Å.  º¡Á¢¿¡¨¾ÂÃ¢ý  §º¨ÅìÌ  ´ôÀ¢¼Ä¡õ.  ¦ƒÂý
+º¢¦ÀÄ¢ÔŠ  [Jean  Sibelius  (1865-1957)]  «Å÷¸û  ¸§ÄÅÄ¡Å¢ý  ÀÄ  À¡¼ø¸¨Ç  ¯Ä¸Ç¡Å¢Â
+þ¨ºìÌ  «È¢Ó¸õ  ¦ºö¾¡÷.  þÅÃ¡ø  þ¨ºÂ¨Áì¸ôÀðÎ  À¢ýÉ¢‰  Áì¸Ç¢ý  þ¾Âí¸Ç¢ø
+þ¼õ¦ÀüÈ  ¸§ÄÅÄ¡ô  Àñ¸û,  ¾Á¢ú  Áì¸Ç¢ý  þ¾Âí¸Ç¢ø  þ¼õ¦ÀüÈ  ¾¢Â¡¸Ã¡ƒÃ¢ý
+¸£÷ò¾¨É¸ÙìÌ  þ¨½Â¡Ìõ.  ¸§ÄÅÄ¡  À¡¼ø¸û  Á¡¦ÀÕõ  À¢ýÉ¢‰  µÅ¢Â÷¸ÙìÌõ
+«¾¢¸ôÀÊÂ¡É  ¯Çì¸¢Ç÷îº¢¨ÂÔõ  °ì¸ò¨¾Ôõ  ²üÀÎò¾¢Â¢Õì¸¢ýÈÉ;  þó¾  ÅÃ¢¨ºÂ¢ø
+±øÄ¡ÕìÌõ  §ÁÄ¡¸  «ì¦ºÄ¢  ¸ø§Äý-¸ø§ÄÄ  [Akseli  Gallen-Kallela  (1865-1931)]¨Åì
+ÌÈ¢ôÀ¢¼Ä¡õ.  þóáÄ¢ø  À¡¼ø¸Ç¢ý  ¦¾¡¼ì¸ò¾¢Öõ  ÓÊÅ¢Öõ  ¸¡½ôÀÎõ  ¦¸¡ÊÅ¨Ãô
+À¢ýÉ½¢ô  À¢Ã¾¢¨Á¸û  þÅÕ¨¼Â  ¸§ÄÅÄ¡  º¢ò¾¢Ã  ¦ÅÇ¢Â£ðÊø  þÕóÐ  ±Îì¸ôÀð¼¨Å;
+¦¾Ã¢ó¦¾Îì¸ôÀðÎ
+þÅÕ¨¼Â 
+Å÷½ôÀ¼í¸Ç¡¸  þóáÄ¢ø  ÁÚÀ¢ÃÍÃõ  ¦ºöÂôÀðÎûÇÉ.  þý¨ÈìÌõ  ²Ã¢¸Ç¡Öõ
+¸¡Î¸Ç¡Öõ ¾É¢î º¢ÈôÒ «Ç¢ìÌõ  þì¸¡ðº¢¸û  À¢ýÄ¡ó¾¢ý  þÂü¨¸  ÀüÈ¢Â  º¢Ä  «Øò¾Á¡É
+À¾¢×¸¨Ç ¯ûÇò¾¢ø ²üÀÎò¾ò Ð¨½ ¿¢üÌõ ±ýÚ  ¿õÀôÀÎ¸¢ÈÐ;  þôÀ¡¼ø¸¨Çô  À¨¼ì¸
+¬¾¡ÃÁ¡Â¢Õó¾ ¸Ä¡º¡Ãî ÝÆø ÀüÈ¢Â µÅ¢ÂÃ¢ý §¿¡ìÌ þó¾ µÅ¢Âí¸Ç¢ø À¢Ã¾¢ÀÄ¢ì¸¢ýÈÐ.
+
+ÍÅ÷ì§¸¡Äí¸Ç¢ø 
+
+µÅ¢Âí¸û 
+
+¸§ÄÅÄ¡ 
+
+º¢Ä 
+
+¬÷. º¢ÅÄ¢í¸õ «Å÷¸Ç¢ý ¾Á¢ú ¦Á¡Æ¢¦ÀÂ÷ôÒ
+
+¸§ÄÅÄ¡ áÄ¢ý ¦¸öò  ¦À¡ŠÄ¢  (Keith  Bosley)  ±ýÀÅÃ¢ý  ´Õ  Ò¾¢Â  ¬í¸¢Ä  ¦Á¡Æ¢¦ÀÂ÷ô¨À
+'¯Ä¸Ç¡Å¢Â  þÄì¸¢Âí¸û'  ±ýÈ  ÅÃ¢¨ºÂ¢ø  ´ìŠ§À¡÷ð  Àø¸¨Äì¸Æ¸  «îº¸õ  (Oxford
+University Press) ºÁ£Àò¾¢ø ¦ÅÇ¢Â¢ðÎûÇÐ  (1989).  þó¾  ¦Á¡Æ¢¦ÀÂ÷ôÒ¼ý  þ¾üÌ  Óý  Åó¾
+W.F.  ¸¢÷À¢  (W.F.  Kirby  1907,  ÁÚÀ¾¢ôÒ  Gallen-Kallela,  1985),  F.B  Á§¸¡ý  jr.  (F.B.  Magoun  jr.-
+1963)  ±ýÀÅ÷¸Ç¢ý  ¦Á¡Æ¢¦ÀÂ÷ôÒ¸Ùõ  §ÅÚ  º¢Ä  ¬í¸¢Ä  ¦Á¡Æ¢¦ÀÂ÷ôÒ¸Ùõ  þó¾ò
+¾Á¢Æ¡ì¸òÐìÌô  ÀÂýÀÎò¾ÀðÎûÇÉ.  þ¾ý  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÀ¡ÇÃ¡É  þÄí¨¸Â¢ø
+Â¡úÀ¡½ò¨¾î §º÷ó¾ ¾¢Õ. ¬÷. º¢ÅÄ¢í¸õ µ÷ «ÛÀÅõ ¿¢¨Èó¾ ¾Á¢ú ±Øò¾¡Ç÷; '¯¾Â½ý'
+±ýÈ  Ò¨É¦ÀÂÃ¢ø  ²Ã¡ÇÁ¡É  º¢Ú¸¨¾¸û,  ¿¡Åø¸¨Çô  À¨¼òÐò  ¾Á¢ú  Å¡º¸÷¸ÙìÌ  ¿ýÌ
+«È¢Ó¸Á¡ÉÅ÷.  þÅÕ¨¼Â 
+'«ó¾Ãí¸  ¸£¾õ'  ¬¸¢Â  þÃñÎ
+¿¡Åø¸¨Ç  ¦¸¡ØõÀ¢ÖûÇ  ±ìŠÀ¢ÃŠ  ¿¢äŠ§ÀôÀ÷Š  (º¢§Ä¡ý)  Ä¢Á¢ð.  ¿¢ÚÅÉõ  'Å£Ã§¸ºÃ¢ô
+À¢ÃÍÃí¸û'  ±ýÈ  ÅÃ¢¨ºÂ¢ø  ¦ÅÇ¢Â¢ð¼É.  ÀòÐ  ÅÕ¼í¸ÙìÌ  §ÁÄ¡¸ô  À¢ýÄ¡ó¾¢ø  Å¡úóÐ
+ÅÕõ  þÅ÷,  À¢ýÉ¢‰  ¦Á¡Æ¢Ô¼Ûõ  À¢ýÉ¢‰  ¸Ä¡º¡ÃòÐ¼Ûõ  ¿ýÌ  ÀÆì¸ôÀðÎÅ¢ð¼¾¡ø,
+À¢ýÉ¢‰-¸§ÃÄ¢Â ÓÄô À¢Ã¾¢Â¢Ä¢ÕóÐ §¿ÃÊÂ¡¸ò ¾Á¢Æ¢ø ¦Á¡Æ¢¦ÀÂ÷òÐò ¾Ã  ÓÊó¾Ð.  þÅ÷
+¾ÉÐ  ¿ñÀÕõ  þÄí¨¸  ¸Å¢»ÕÁ¡É  ±Š.  ¸¢Õ‰½À¢û¨Ç  ('¾¢Á¢¨ÄòÐÁ¢Äý')  «Å÷¸Ç¢ý
+¯¾Å¢Ô¼ý þ¾ý «¨ÁôÒìÌì ¸ÅÉÁ¡¸ ¦ÁÕÜðÊÔûÇ¡÷.
+
+'¦À¡ýÉ¡É  ÁÄÃøÄ§Å¡', 
+
+ãÄ  áÄ¢ø  þÕìÌõ  ±øÄ¡ì  ¸Å¢¨¾î  º¢ÈôÒ¸¨ÇÔõ  ¦Á¡Æ¢¦ÀÂ÷ôÀ¢ø  ¦¸¡ñÎ  ÅÕÅÐ
+®Ã¨ºÂ¡Ä¡É  ¿¡üº£ÃÊ¸Ç¡¸
+À¡¼ø¸û  ¦¿ÊøÌÈ¢ø 
+º¡ò¾¢ÂÁ¡É¾øÄ.  ¸§ÄÅÄ¡ô 
+þÕì¸¢ýÈÉ  (-v  /  -Åv  /  -v  /  -v  /  );  ÅÆì¸Á¡¸  ´Õ  §º¡ÊÂ¡¸  «¨ÁÔõ  þò¾¨¸Â  þÃñÎ
+«Ê¸Ç¢ø,  Ó¾ø  «ÊÂ¢ø  ¦º¡øÄôÀð¼  ¦ºö¾¢¨Â§Â  þÃñ¼¡ÅÐ  «Ê  §ÅÚ  Å¡÷ò¨¾¸Ç¢ø
+¾¢ÕôÀ¢î  ¦º¡øÖõ.  À¡¼ÄÊÂ¢ý  ¸¨¼º¢  ´Ä¢Â¢¨ÂÀ¢ø  «¨ÁÅ¾üÌô  À¾¢Ä¡¸  Ó¾¦ÄØòÐ¸û
+´ýÈ¢ÅÕõ §Á¡¨Éò¦¾¡¨¼Â¢ø ¦ÀÕõÀ¡Öõ þÕì¸¢ýÈÉ; ´Õ «ÊÂ¢ø ¯ûÇ þÃñÎ «øÄÐ
+«¾üÌ  §ÁüÀð¼  ¦º¡ü¸û  ´§Ã  ´Ä¢Â¢ø  ¦¾¡¼íÌõ.  ¸¨¼º¢Â¡¸ì  ÜÈ¢Â¨¾ò  ¾Á¢ú
+
+19
+
+¦Á¡Æ¢¦ÀÂ÷ôÀ¢ø  À¢ýÀüÈì  ÜÊÂ¾¡¸  þÕì¸¢ÈÐ. 
+¦Á¡Æ¢¦ÀÂ÷ôÀ¢Öõ ÅÕõ ¦¾¡¼ì¸ô À¡¼ø «Ê¸¨Çì ¸£§Æ ¾Õ¸¢§Èý.
+
+À¢ýÉ¢‰  ãÄ  áÄ¢Öõ  ¾Á¢ú
+
+  Mieleni minun tekevi, 
+  aivoni ajattelevi, 
+  la*htea*ni laulamahan, 
+  saa'ani sanelemahan, 
+  sukuvirtta* suoltamahan 
+  lajivirtta laulamahan. 
+  Sanat suussani sulavat, 
+  puhe'et putoelevat,
+  kielelleni kerkia*va*t, 
+  hampahilleni hajoovat. 
+
+  Veli kulta veikkoseni, 
+  kaunis kasvinkumppalini, 
+  la*he nyt kanssa laulamahan, 
+  saa kera sanelemahan, 
+  yhtehen yhyttya*mme 
+  kahta'alta ka*ytya*mme! 
+  Harvoin yhtehen yhymme, 
+  saamme toinen toisihimme,
+  na*illa* raukoilla rajoilla, 
+  poloisilla Pohjan mailla. 
+
+±ÉÐÇò¾¢ø ¯ûÙ½÷× þô§À¡ Å¢Æ¢ì¸¢ÈÐ
+±ÉÐû§Ç ¯Â¢÷¦ÀüÚ ±Ø¸¢ÈÐ ±ñ½¦ÁøÄ¡õ
+À¡¼¨ÄÂ¡ý ÀìÌÅÁ¡öô À¡ÎÅ¾üÌ Åó¾¢ð§¼ý
+À¡¼¨ÄÂ¡ý ÀñÏ¼§É ÀÄ§À÷ìÌõ À¸Õ¸¢§Èý
+ÍüÈò¾¢ý ÅÃÄ¡ü¨Èî Í¨ÅÂ¡¸î ¦º¡øÅ¾üÌ
+¯üÈ¦¾¡Õ §ÀÃ¢Éò¾¢ý ÀÆí¸¨¾¨Â µÐ¾üÌ;
+Å¡÷ò¨¾¸§Ç¡ Å¡Â¢É¢§Ä ÅóÐ ¦¿¸¢ú¸¢ÈÐ
+§¿÷ò¾¢Á¢Ì ¦º¡ü¦È¡¼÷¸û §¿Ã¡öî ¦º¡Ã¢¸¢ÈÐ
+¿¡Å¢§Ä ¿ÂÁ¡¸ ¿ýÈ¡¸ô ÒÃû¸¢ÈÐ
+À¡Å¡¸¢ô Àü¸Ç¢¨¼ô À¾Á¡ö ¯Õû¸¢ÈÐ.
+
+«ýÀ¡É §º¡¾Ã§É, «Ã¢Â±ýÈý §¾¡Æ÷¸§Ç!
+±ý§É¡§¼ ÅÇ÷óÐÂ÷ó¾ ±Æ¢øÁ¢Ìó¾ ¿ñÀ÷¸§Ç !
+þô§À¡Ð Åó¾¢Îí¸û þ¨½ó¦¾¡ýÈ¡öô À¡ÊÎ§Å¡õ
+¿üÍ¨ÅÂ¡öî ¦º¡øÖ¾üÌ ¿øÖÇò¨¾ò ¾¡Õí¸û
+´ýÈ¡¸ì ÜÊÔû§Ç¡õ ´ýÈ¡¸î ºó¾¢ò§¾¡õ
+¿ýÈ¡ö þÕ§ÅÚ þ¼Á¢ÕóÐ ¿¡õ Åó§¾¡õ;
+«Ã¢¾¡¸ì ÜÊÎ§Å¡Á «Ã¢¾¡¸î ºó¾¢ô§À¡õ
+«Ã¢¾¡¸ ´ÕÅÃ¢¨É ´ÕÅ÷¿¡õ ºó¾¢ô§À¡õ
+ÅÈ¢¾¡¸¢ô §À¡öÅ£§½ ÁÂíÌ¸¢ýÈ ±ø¨Ä¸Ç¢ø
+¦¾Ã¢ÔõÅ¼ À¡ø¿¢Äò¾¢ø ¦ºÆ¢ôÀ¢Æó¾ âÁ¢Â¢ý¸ñ.
+
+  Lyo*ka*mme ka*si ka*tehen, 
+  sormet sormien lomahan, 
+  Lauloaksemme hyvia*, 
+  parahia pannaksemme, 
+  kuulla noien kultaisien, 
+  tieta* mielitehtoisien, 
+  nuorisossa nousevassa, 
+  kansassa kasuavassa: 
+  noita saamia sanoja, 
+  virsia* viritta*mia*, 
+  vyo*lta* vanhan Va*ina*mo*isen, 
+  alta ahjon Ilmarisen, 
+  pa*a*sta* kalvan Kaukmielen, 
+  Joukahaisen jousen tiesta*, 
+  Pohjan peltojen perilta*, 
+  Kalevalan kankahilta. 
+
+¸Ãò§¾¡Î ¸Ãõ§º÷òÐì ¸É¢Å¡¸ì ¨¸§¸¡÷òÐ
+Å¢Ã§Ä¡Î Å¢Ãø§º÷òÐ Å¢Ã¨ÄÂÆ ¸¡öì§¸¡÷òÐ
+¿ýÈ¡ö¿¡õ À¡ÊÎ§Å¡õ ¿Âõ¾¢¸Æô À¡ÊÎ§Å¡õ
+´ýÈ¢îº£÷ ¦¸¡ñ¼Åü¨È ¯Å¨¸¦Â¡Î À¡ÊÎ§Å¡õ
+¦À¡ýÉ¡É ¿øÄ¢¾Âõ À¨¼ò¾Å÷¸û §¸ð¸ðÎõ
+þÉ¢¨ÁÔÚ ¿ý¦¿ïºõ þ¨Âó¾Å÷¸û «È¢ÂðÎõ
+±Øîº¢ Á¢Ìó§¾¡íÌõ þ¨Ç»÷¸Ç¢ý Áò¾¢Â¢Öõ
+ÅÇ÷óÐÅÕõ §¾º£Â Áì¸ÇÅ÷ Áò¾¢Â¢Öõ
+Â¡ÁÈ¢óÐ ¦¸¡ñÎûÇ ¿øÄ¢ÂøÒî ¦º¡ü¸¨ÇÔõ
+¿ÁÐÇò¾¢ø °Ú¸¢ýÈ ¿üÍ¨Å§º÷ ¸¨¾¸¨ÇÔõ
+Ó¾¢Â¨ÅÉ¡ ¦Á¡Â¢ÉÉ¨Ãì ¸îº½¢Â¢ §ÄÂ¢ÕóÐ
+þøÁÃ¢Éý °Ð¨ÄÂ¢ý þ¨Â¬Æò §¾Â¢ÕóÐ
+àÃ¦¿ïº¢ ÉýÅ¡Ç¢ý ¦¾¡ÎÜ÷ Ó¨ÉÂ¢ÕóÐ
+¦Â¡×¸¡¨† ÉýÌÚìÌ Å¢øÄ¢ÉÐ ÅÆ¢Â¢ÕóÐ
+Å¼À¡ø ¿¢ÄòÐüÈ ÅÂø ¸Ç¢§Ä ¾¡É¢ÕóÐ
+¸§ÄÅÄ¡ô ÀÌ¾¢Â¾ý ¸É¦ÅÇ¢¸ ÙÊÕóÐ.
+
+(À¼õ 5õ «¾ý Å¢Çì¸Óõ þùÅ¢¼ò¾¢ø ¾Å¢÷ì¸ôÀð¼Ð)
+
+¿¡ðÎô  À¡¼ø¸¨Çô  À¡ÎÀÅ÷¸û  ¾í¸û  ¿¢¸úîº¢¨Â  «È¢Ó¸õ  ¦ºöÂô  ÀÂýÀÎòÐõ  ´§Ã
+Á¡¾¢Ã¢Â¡É  ¿¢¨ÄÂ¡É  ¦º¡ü¦È¡¼÷¸§Ç  þó¾  ¬ÃõÀ  «Ê¸û.  þÕÅ÷  ¨¸¸¨Çì  §¸¡÷òÐì
+¦¸¡ñÎ  ¯¼ø¸¨Ç  «ì¸õÀì¸Á¡¸  ¬ðÊÂ¨ºòÐô  À¡ÎÅÐ  ÅÆì¸õ  (À¼õ  3).  '¸ó¾§Ä'
+(kantele) ±ýÛõ ¿ÃõÀ¢¨ºì ¸ÕÅ¢Â¢ý  þ¨ºÔõ  Àì¸  Å¡ò¾¢Â  þ¨ºÂ¡¸  ÅÆí¸ôÀð¼Ð  (À¼õ
+4).  þÃñÎ  À¢Ã¾¡É  Å¨¸¸Ç¡¸ì  ÜÈôÀÎõ  ±Ç¢¨ÁÂ¡É  þýÉ¢¨ºô  À¡¼ø¸Ç¡¸ì  ¸§ÄÅÄ¡
+§À¡ýÈ  À¡¼ø¸û  À¡¼ôÀð¼É  (À¼õ  5).  þýÉ¢¨ºô  À¡¼ø¸û  ±Ç¢¨ÁÂ¡¸  þÕôÀ¢Ûõ,
+
+  
+  
+20
+
+¾¢È¨ÁÔûÇ  À¡¼¸÷¸û  «Åü¨È  ¦¾¡É¢  ²üÈò  ¾¡úÅüÈ  µ¨ºÂ¢§Ä§Â  ÀÄÅ¢¾Á¡¸  Á¡üÈ¢Ôõ
+¾¢ÕôÀ¢Ôõ À¡¼ ÅøÄÅ÷¸û.
+
+¯ñ¨ÁÂ¢ø, ¾Á¢ú¿¡Î, þÄí¨¸ §À¡ýÈ ¿¡Î¸Ç¢Öõ À¡÷ì¸ ¿¢Ä þÂÄ¢Öõ ¸Ä¡º¡Ãî ÝÆÄ¢Öõ
+ÓüÈ¢Öõ  Á¡ÚÀð¼  ¦Á¡Æ¢¦ÀÂ÷ôÒ  §Å¨Ä  ²Ã¡ÇÁ¡É  º¢ì¸ø¸¨Çò  ¾ÃìÜÊÂ  ´ýÚ.  ¿Å£É
+¦¾¡¨Äò¦¾¡¼÷Ò  ÅÇ÷îº¢¸û  ²üÀÎÅ¾üÌ  ÓýÉ÷  ÀÉ¢Á¨ÆÔõ  ÀÉ¢ì¸ðÊÂ¢ø  ºÚìÌ¾Öõ
+¾Á¢ú Áì¸û ÓüÈ¢Öõ «È¢Â¡¾ ºí¸¾¢¸Ç¡Ìõ ±ýÀ¨¾  þíÌ  ¿¢¨É×Ü÷§Å¡õ.  «òÐ¼ý  ¦¾ý
+¬º¢Â¡Å¢ø  ÅÇÃ¡¾  ¦ºÊ¸ÙìÌõ  º¢Ú  ÀÆí¸ÙìÌõ  ±ôÀÊô  ¦ÀÂ÷  ÜÚÅÐ?  þò¾¨¸Â
+À¢Ãîº¨É¸û «¨ÉòÐõ ÓüÈ¢Öõ ¾£÷ì¸ôÀ¼Å¢ø¨Ä; ±É¢Ûõ, þó¾ô À¢Ãîº¨É¸û ¦¾¡¼÷À¡¸
+¦À¡Ðô ¦ÀÂ÷¸ÙìÌõ º¢ì¸Ä¡É ¦º¡øÄ¨ÁôÒ¸ÙìÌõ (¦Á¡Æ¢ô¦ÀÂ÷ôÀ¢ø ´ü¨È þÃð¨¼ô
+ÒûÇ¢  «¨¼Â¡Çí¸û  þðÎ)  áÄ¢ý  ¸¨¼º¢Â¢ø  Ó¨È§Â  ¦º¡ü¦È¡Ì¾¢Â¢Öõ  Å¢Çì¸ì
+ÌÈ¢ôÒ¸Ç¢Öõ ¾Á¢ú Å¡º¸÷¸ÙìÌ §ÁÄ¾¢¸ Å¢ÀÃí¸û ¾ÃôÀðÎûÇÉ.
+
+¾Á¢ú  Áì¸û  ¬÷ÅÓûÇ  Å¡º¸÷¸û  ±ýÀ¨¾Ôõ  ¸Ä¡º¡Ãò¾¢ø  ®ÎÀ¡Î¨¼ÂÅ÷¸û  ±ýÀ¨¾Ôõ
+¿¡ý  «È¢§Åý;  þÅ÷¸û,  ¸§ÄÅÄ¡ô  À¡¼ø¸Ç¢ý  ¸¡ÄòÐì  ¸¡Å¢Âí¸Ç¡É  º¢ÄôÀ¾¢¸¡Ãõ,
+Á½¢§Á¸¨Ä,  º£Å¸º¢ó¾¡Á½¢,  ¸õÀÃ¡Á¡Â½õ  §À¡ýÈÅü¨È  ¨Åò¾¢ÕôÀ¾ü¸¡¸ô  ¦ÀÕ¨Áô
+ÀÎÀÅ÷¸û.  ¯Ä¸Ç¡Å¢Â  þÄì¸¢Âí¸Ç¢ø  ´ý¨Èî  º¢ÈôÀ¡¸×õ  Ó¨ÉôÀ¡¸×õ  «Ç¢òÐò  ¾Á¢ú
+Áì¸Ç¢ý  ¸Ä¡º¡ÃòÐìÌõ  ¾Á¢ú  þÄì¸¢ÂòÐìÌõ  ÅÇÓðÊÂ  ¬÷.  º¢ÅÄ¢í¸õ  «Å÷¸Ç¢ý
+§º¨Å¨Âò  ¾Á¢ú  Áì¸û  À¡Ã¡ðÎÅ¡÷¸û  ±ýÚ  ¿õÒ¸¢§Èý;  «§¾§À¡Ä  À¢ýÉ¢‰  Áì¸Ç¡¸¢Â
+¿¡í¸Ùõ  þó¾ò  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÒ  ãÄõ  ±í¸Ù¨¼Â  Àñ¨¼Â  À¡ÃõÀÃ¢Âî  ¦ºøÅõ
+â§¸¡Çò¾¢ý  ÁÚÀì¸ò¾¢ø  þÕìÌõ  ¿øÄ  þÄì¸¢Âô  À¢Ã¢Â÷¸¨Ç  «¨¼Â  ÓÊ¸¢ÈÐ  ±ýÚ
+Á¸¢úîº¢Â¨¼¸¢§È¡õ.  ¸§ÄÅÄ¡  ÓØ¨ÁÂ¡¸  ¦Á¡Æ¢¦ÀÂ÷ì¸ôÀð¼  Å¨¸Â¢ø  ¾Á¢ú  ÓôÀ¾¡ÅÐ
+¦Á¡Æ¢Â¡Ìõ; ÍÕì¸Á¡É ¦Á¡Æ¢¦ÀÂ÷ôÒ¸û ÀýÉ¢ÃñÎ «øÄÐ  «¾üÌ  §ÁüÀð¼  ¦Á¡Æ¢¸Ç¢ø
+¦ÅÇ¢Â¡¸¢Â¢Õì¸¢ýÈÉ.
+
+þó¾ §Å¨Äò ¾¢ð¼òÐìÌ ¯¾Å¢§Â¡÷
+
+¦†øº¢í¸¢ô Àø¸¨Äì¸Æ¸ò¾¢ý ¬º¢Â ¬ôÀ¢Ã¢ì¸ ¿¡Î¸û ¦¾¡¼÷À¡É ¸øÅ¢ò  ¾¢¨½ì¸ÇÓõ
+À¢ýÉ¢‰  þÄì¸¢Â  ÁýÈÓõ  [¦À¡Ðî  ¦ºÂÄ¡Ç÷:  ¯÷§À¡  ¦Åó§¾¡  (Mr.  Urpo  Vento)]
+þ¨½óÐ, ¸§ÄÅÄ¡ ¾Á¢ú §Å¨Äò ¾¢ð¼ò¾¢ý ¿¢¾¢Ô¾Å¢ Å¢ñ½ôÀí¸¨Çì  ¨¸Â¡ñ¼É.  ¾¢Õ.
+º¢ÅÄ¢í¸òÐìÌ  «Ç¢ì¸ôÀð¼  ÒÄ¨Áô  ÀÃ¢º¢Öì¸¡¸×õ  «îÍ§Å¨Ä  Á¡É¢ÂÁ¡¸  ¾ÃôÀð¼
+¸½¢ºÁ¡É ¦¾¡¨¸ì¸¡¸×õ À¢ýÄ¡ó¾¢ý ¸øÅ¢ «¨ÁîÍìÌ ¿ýÈ¢ ÜÚ¸¢§È¡õ.
+
+¾¢Õ.  ¸¦Ä÷§Å¡  º£ì¸Ä¡×ìÌõ  (Mr.  Kalevaro  Siikala)  º÷Å§¾º  «ÖÅø¸û  ¾¢¨½ì¸Çò¾¢ý
+þÂìÌÉÕõ ¯¾Å¢  þÂìÌÉÕÁ¡É  ¾¢Õ.  Óò¾¢  ÌŠ¾ù…ÛìÌõ  (Mr.  Matti  Gustafson)  «òÐ
+¼ý  ¸øÅ¢  «ÖÅø¸û  ¬§Ä¡º¸÷  Ms.  ÁÃ£ò¾¡  º§Å¡Ä¡×ìÌõ  (Ms.  Marita  Savola)  Å¢§º¼Á¡É
+¿ýÈ¢¨Âò  ¦¾Ã¢Å¢ì¸¢§È¡õ.  Å¢§º¼  ¦¾¡Æ¢ø  ¿¢¾¢¨Â  ¿¢÷Å¸¢ìÌõ  ¦†øº¢í¸¢  Á¡¿¸ÃÓõ
+¦†øº¢í¸¢ô  Àø¸¨Äì¸Æ¸Óõ  þõ¦Á¡Æ¢¦ÀÂ÷ôÒìÌ  Óì¸¢Â  ¬¾¡ÃÁ¡¸  þÕó¾É.  Ms.  ³Å¢
+¸ø§Äý-¸ø§ÄÄ  (Ms.  Aivi  Gallen-Kallela),  «ÅÕ¨¼Â  ¸½Å÷  ¼¡ì¼÷  Áò¾¢  º¢§Ãý  (Dr.  Matti
+Siren),  '¦Å÷É÷  ¦…¡¼÷…  ´…¡§¸  ¯ì¾¢§Â¡'  (Werner  So*derstro*m  Osakeyhtio*  [WSOY])
+±ýÛõ ¿¢ÚÅÉÓõ «¾ý ¿¢÷Å¡¸ þÂìÌÉ÷ ¼¡ì¼÷ ¦Â¡÷Á¡ ¨¸Á¢§Â¡×õ (Dr. Jorma Kaimio),
+ÓýÉ¡ø  þÂìÌÉ÷  ¾¢Õ.  †ýÛ  ¾÷Á¢§Â¡×õ  (Mr.  Hannu  Tarmio),  ¦À¡÷§Å¡Å¢ø  þÕìÌõ
+WSOY  «îº¸  §ÁÄ¡Ç÷  ¾¢Õ.  ¾×§É¡  ¦†¡õÁ¡  (Mr.  Tauno  Homma)-  þÅ÷¸û  ±ø§Ä¡Õõ
+«ì¦ºÄ¢  ¸ø§Äý-¸ø§ÄÄ  (Akseli  Gallen-Kallela)Å¢ý  µÅ¢Âí¸û  ¦¾¡¼÷À¡¸  Á¢¸×õ  ¯¾Å¢
+ÒÃ¢ó¾É÷.  þó¾  áÄ¢ý  ¸½É¢  «îº¨Áô¨ÀÔõ  ºÃ¢À¢¨ÆÀ¡÷ò¾¨ÄÔõ  þó¾  «È¢Ó¸  ¯¨ÃÂ¢ý
+¦Á¡Æ¢¦ÀÂ÷ô¨ÀÔõ  ¾¢Õ  º¢ÅÄ¢í¸õ  ¾¡§É  ¦À¡Úô§ÀüÚî  ¦ºöÐ  ¾ó¾¡÷.  þó¾  áÄ¢ý
+«¨Áô¨À ÓüÚô ÀÎòÐõ §Å¨Ä¸Ç¢ø ¾¢Õ. ¦Àò¾Ã¢ ¦¸¡Š¸¢¸øÄ¢§Â¡ (Mr. Petteri Koskikallio)
+¦ÀÃ¢Ðõ ¯¾Å¢Â¡¸ þÕó¾¡÷. þó¾  á¨Äì  ¸Å÷îº¢Â¡¸  «îº¢ðÎ  þÄì¸¢Â  À¢Ã¢Â÷¸Ç¡É  ¾Á¢ú
+Áì¸ÙìÌ  ±ð¼ìÜÊÂ  Å¢¨ÄÂ¢ø  º¢ÈôÀ¡¸  ¦ÅÇ¢Â¢ð¼  ¦†¡í¦¸¡í,  ¬ø¼§ÉüÈ¢ù  «îº¸
+
+(Alternative  Press,  Hong  Kong)  «¾¢À÷  ¾¢Õ.  ¸¡÷§Ä¡  Š¦¸¦Àø  (Mr.  Kaarlo  Schepel)ÖìÌõ
+ÁÉôâ÷ÅÁ¡É ¿ýÈ¢¨Âò ¦¾Ã¢Å¢ì¸¢§È¡õ.
+
+21
+
+Department of Asian and African Studies,
+POB 13 (Meritullinkatu 1),
+00014 University of Helsinki,
+Finland.
+1 November 1994
+
+22
+
+±ýÛ¨Ã
+
+Å½ì¸õ
+
+À¨ÆÂ  ¾Á¢ú  þÄì¸¢Âí¸¨Çô  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ø  ¦Á¡Æ¢¦ÀÂ÷ìÌõ  ¾¢ð¼òÐ¼ý  ¾¡ý  ¿¡ý
+1986ø  ¦†øº¢í¸¢  Àø¸¨Äì¸Æ¸ò¾¢ø  ¿¢ÂÁÉõ  ¦Àü§Èý.  «ó¾  Å¨¸Â¢ø  ¾¢ÕìÌÈû,
+º¢ÄôÀ¾¢¸¡Ãõ  þÃñÊüÌÁ¡É  ±ÉÐ  Àí¸Ç¢ôÒ  ²ÈìÌ¨ÈÂ  ÓÊó¾  ¿¢¨ÄÂ¢ø,  «Åü¨È
+¦ÅÇ¢Â¢ÎÅ¾¢ø  ²üÀð¼  º¢Ä  ¿¨¼Ó¨Èî  º¢ì¸ø¸û  ¸¡Ã½Á¡¸  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢Ä¢ÕóÐ
+¾Á¢ØìÌ ´Õ á¨Äì  ¦¸¡ñÎ  ÅÃÄ¡õ  ±ýÈ  ±ñ½ò¾¢ø  '¸§ÄÅÄ¡'  ±ýÈ  þó¾  ¯Ä¸Ç¡Å¢Â
+¸¡Å¢Âò¾¢ý  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÒò  ¦¾¡¼í¸ôÀð¼Ð.  ãýÈ¡ñÎ  ¸¡Ä  ÓØ  §¿Ã  ¯¨ÆôÀ¢ý
+ÀÄý þó¾ ¦Á¡Æ¢¦ÀÂ÷ôÒ. À¢ýÉ¢‰ ¦Á¡Æ¢Â¢Ä¢ÕóÐ ¾Á¢ú ÜÚõ  ¿øÖÄÌìÌ  Åó¾  Ó¾Ä¡ÅÐ
+áø  ±ýÈ  ¦ÀÕ¨Á  þó¾  áÖìÌ  ¯ñÎ.  «§¾  §¿Ãõ  ´Õ  ¿£ñ¼  À¢È  ¦Á¡Æ¢ì  ¸¡Å¢Âò¨¾
+¾Á¢Æ¡ì¸¢Â ÁÉ¿¢¨È× ±ÉìÌõ ¯ñÎ.
+
+¸§ÄÅÄ¡
+
+þó¾  ¸¡Å¢ÂõÀüÈ¢  «È¢Ó¸  ¯¨ÃÂ¢ø  Å¢ÀÃÁ¡¸§Å  ¦º¡øÄôÀðÊÕì¸¢ÈÐ.  '¸§ÄÅ¡'  ±ýÀÐ  ´Õ
+Ó¾¡¨¾ÂÃ¢ý ¦ÀÂÃ¢Ä¢ÕóÐ Åó¾ µ÷ þÉò¾ÅÃ¢ý ¦ÀÂ÷. ¸§ÄÅ¡ þÉò¾Å÷ Å¡úó¾ þ¼ò¨¾ì
+¸§ÄÅÄ¡  ±ýÚ  «¨ÆôÀ÷.  «Ð§Å  þóáÄ¢ý  ¦ÀÂÕÁ¡Â¢üÚ.  Å¡ö  ¦Á¡Æ¢ôÀ¡¼ø¸Ç¡¸
+þÕó¾¾¡Öõ  þ¾¢ø  «¼í¸¢ÔûÇ  Áó¾¢Ãô  À¡¼ø¸Ç¡Öõ  þ¨¾  µ÷  þ¾¢¸¡º  áø  ±ýÀ÷  º¢Ä÷.
+¬É¡ø  þ¨¾  ¦¾¡ÌòÐ  «Ç¢ò¾  Ó¨ÈÂ¢Öõ  ¾ü§À¡¨¾Â  «¨ÁôÀ¢Öõ  þÐ  þ¾¢¸¡ºõ  ±ýÈ
+±ø¨Ä¨Âì ¸¼óÐ ¯Ä¸ þÄì¸¢Âõ ±ýÈ ¾Ãò¨¾ô ¦ÀüÚÅ¢ð¼Ð  ±ýÀ÷  «È¢»÷.  À¢ýÄ¡ó¾¢ý
+¾¨Äº¢Èó¾  Ò¸ú  âò¾  þ¨ºì¸¨Ä»Ã¡É  ¦ƒÂý  º¢¦ÀøÄ¢ÔŠ  (Jean  Sibelius)  þôÀ¡¼ø¸û
+º¢ÄÅüÚìÌ  þ¨ºÂ¨ÁòÐ  ¯Ä¸  «ÇÅ¢ø  «Ãí§¸üÈ¢ÂÐõ  þó¾ì  ¸¡Å¢Âõ  '¯Ä¸  þÄì¸¢Âõ'
+±ýÈ  ¾Ãò¨¾ô  ¦ÀÈ  ´Õ  ¸¡Ã½Á¡Ìõ.  Äñ¼ý  À£À£º£  (BBC)  ¿¢¨ÄÂõ  ÀÄ  ¾¼¨Å¸û  ÀÄ
+ÅÊÅí¸Ç¢ø þì¸¡Å¢Âò¾¢ý ÀÌ¾¢¸¨Ç  ´Ä¢ÀÃôÀ¢  ¯Ä¸ÇÅ¢ø  «È¢Ó¸õ  ¦ºö¾Ð.  À¢ýÄ¡ó¨¾ô
+¦À¡Úò¾  Å¨ÃÂ¢ø  þÐ  ´Õ  §¾º£Â  ¸¡Å¢ÂÁ¡¸  «í¸£¸¡Ãõ  ¦ÀüÈÐ.  ¸øæÃ¢¸Ç¢ø  À¡¼  áÄ¡¸
+²ü¸ôÀð¼Ð.  1835ø  ¦ÅÇ¢Â¡É  Ó¾Ä¡ÅÐ  À¾¢ôÀ¢ý  ÓýÛ¨ÃÂ¢ý  ¾¢¸¾¢Â¡É  ¦ÀôÃÅÃ¢  28
+'¸§ÄÅÄ¡  ¾¢Éõ'  ±É  «Ãº¡ø  À¢Ã¸¼Éõ  ¦ºöÂôÀðÎ  ¬ñÎ§¾¡Úõ  ¿¡¦¼íÌõ
+¦¸¡ñ¼¡¼ôÀÎ¸¢ÈÐ.
+
+¾Á¢ú ¦Á¡Æ¢¦ÀÂ÷ôÒ
+
+þõ¦Á¡Æ¢¦ÀÂ÷ôÒ  ÓüÚô  ¦ÀüÈ¦À¡ØÐ  ¿¡ý  þó¿¡ðÎìÌ  ÅóÐ  À¾¢§É¡Õ  ¬ñÎ¸û
+ÓÊÅ¨¼óÐÅ¢ð¼É. ±É§Å  þù§Å¨Ä¨Âò  ¦¾¡¼í¸¢Â  ºÁÂõ  ±ÉìÌ  þó¿¡ðÎ  Å¡úì¨¸Ôõ
+¦Á¡Æ¢Ôõ ¸Ä¡º¡ÃÓõ  µÃÇ×  ÀÆì¸ôÀðÎÅ¢ð¼É.  «ó¾  Ð½¢îºÄ¢ø  ¾¡ý  þôÀ¡Ã¢Â  À½¢¨Âò
+¦¾¡¼í¸¢§Éý.  ¬É¡ø  §À¡¸ô  §À¡¸ò¾¡ý  «¾ý  Í¨Á  ¦¾Ã¢ó¾Ð.  þó¾¢Â¡Å¢§Ä¡
+þÄí¨¸Â¢§Ä¡  «ý§Èø  ¯Ä¸¢ý  §Å¦Èó¾  Ó¨ÄÂ¢§Ä¡  Å¡Øõ  ´Õ  Å¡º¸ÕìÌ
+þõ¦Á¡Æ¢¦ÀÂ÷ôÒì ¸¢¨¼ìÌÁ¡Â¢ý, «ùÅ¡º¸÷ ÓýÀ¢ý  ¸ñÎ  §¸ðÎ  «È¢Â¡¾  þó¾  ¿¡ðÎô
+ÀÆì¸  ÅÆì¸í¸¨Ç,  ¾¡ÅÃí¸¨Ç,  ¯Â¢Ã¢Éí¸¨Çô  ÀüÈ¢  ±ùÅ¡Ú  ÒÃ¢Â  ¨Åì¸ô  §À¡¸¢§Èý
+±ýÈ  Á¨ÄôÒ  ²üÀð¼Ð.  þýÚ  þó¾  ¿¡ðÊø  «ÚÀÐ,  ±ØÀÐ  ¾Á¢Æ÷¸û  Å¨ÃÂ¢ø  ¿¡¦¼íÌõ
+º¢¾È¢ Å¡ú¸¢ýÈ §À¡¾¢Öõ, «Å÷¸Ç¢¨¼§Â ¾Á¢ÆÈ¢×¨¼§Â¡¨Ãì ¸¡ñÀÐ  «Ã¢¾¡¸§Å  ¯ûÇÐ.
+þíÌ  ¾Á¢Æ÷¸û  ´Õ  áÚ  §À÷Ü¼  þøÄ¡¾  ¿¢¨ÄÂ¢ø,  ¦†øº¢í¸¢  Àø¸¨Äì¸Æ¸ò¾¢ø  ¯ûÇ
+¬º¢Â  ¬ôÀ¢Ã¢ì¸  ¿¡Î¸û  ¦¾¡¼÷À¡É  ¸øÅ¢ò  ¾¢¨½ì¸Çò¾¢ý  áø  ¿¢¨ÄÂò¨¾ò  ¾Å¢Ã  §ÅÚ
+±í§¸Ô§Á  ¾Á¢ú  áø¸û,  «¸Ã¡¾¢¸û  ¬¸¢ÂÅü¨Èô  ¦ÀÚÅ¾ü¸¢ø¨Ä.  þó¾  áø
+¿¢¨ÄÂò¾¢ÖûÇ  ¾Á¢ú  ¦Á¡Æ¢,  ¸Ä¡º¡Ãõ  ÀüÈ¢Â  ³õÀÐ,  áÚ  ¾Á¢ú,  ¬í¸¢Ä  áø¸Ç¢Öõ
+¦ÀÕõÀ¡Ä¡É¨Å  À¨ÆÂ  À¾¢ôÒ¸û.  «¾É¡ø  ¸¼ó¾  ³óÐ  Àò¾¡ñÎ¸Ç¢ø  ¾Á¢ú  ¦Á¡Æ¢Â¢ø
+ÅÆìÌìÌ  Åó¾  ¦º¡ü¸¨Ç  «È¢Ôõ  Å¡öôÒõ  ±ÉìÌ  Á¢¸  Á¢¸  «Ã¢Ð.  þó¿¢¨ÄÂ¢ø  ¸§ÄÅÄ¡
+
+23
+
+¸¡Å¢Âõ  ¦¾¡¼÷À¡¸  À¢ýÉ¢‰  ¬í¸¢Ä  ¦Á¡Æ¢¸Ç¢ø  ¦ÀÈìÜÊÂ  «ò¾¨É  áø¸¨ÇÔõ  Å¡í¸¢ô
+ÀÃôÀ¢ ¨ÅòÐì¦¸¡ñÎ ¾É¢ÂÉ¡öò Ð½¢óÐ ¦¾¡¼í¸¢§Éý.
+
+'Š§Ã¡ÀÃ¢'  (strawberry)  ±ýÚ  ¬í¸¢Äô  ¦ÀÂ¨Ã§Â  ¦º¡ýÉ¡ø,  ¾Á¢ú¿¡ðÊø  ±í§¸¡  ´Õ
+Ó¨ÄÂ¢ø  Å¡Øõ  ´Õ  Å¡º¸÷  «¨¾  ´Õ  ÀÆõ  ±ýÚ  °¸¢ì¸Ä¡õ;  ¬É¡ø  ÀÄ¡ôÀÆõ  §À¡ýÈ
+¦ÀÃ¢Â ÀÆÁ¡? þÄó¨¾ôÀÆõ §À¡ýÈ º¢È¢Â ÀÆÁ¡? ±ýÚ °¸¢ì¸ ÓÊÂ¡Áø §À¡¸Ä¡õ. Á¡õÀÆõ
+§À¡ýÚ  þÉ¢¨ÁÂ¡É¾¡?  Å¡¨ÆôÀÆõ  §À¡ýÚ  Í¨ÅÂ¡É¾¡?  «øÄÐ  §ÅÚ  ²§¾¡  ´Õ
+Å¢¾Á¡É¾¡?  ±ýÚ  ¯½Ã  ÓÊÂ¡Áø  §À¡¸Ä¡õ.  þ¾üÌ  ¿¡§É  ´Õ  Ò¾¢Â  ¾Á¢úô  ¦ÀÂ¨ÃÔõ
+¸ñÎôÀ¢ÊòÐì  ÜÈ¢É¡ø  ÌÆôÀõ  þýÛõ  «¾¢¸Á¡¸Ä¡õ.  «¾É¡ø  '´Õ  ÀÆõ'  '´Õ  ¦ºÊ',  '´Õ
+ÁÃõ' ±ýÚ ¦Á¡Æ¢¦ÀÂ÷ôÀ¢ø  ¬í¸¡íÌ  ÜÈ¢,  «ÅüÈ¢ý  À¢ýÉ¢‰  ¦ÀÂ÷¸û,  ¬í¸¢Äô  ¦ÀÂ÷¸û,
+«È¢Å¢Âø  ¦ÀÂ÷¸û  «¨Éò¨¾Ôõ 
+'Å¢Çì¸ì  ÌÈ¢ôÒ¸Ç¢ø'  ¾ó¾¢Õì¸¢§Èý.  ¾Å¢Ã,  ¬õÀø,
+ÌÅ¨Ç,  «ÃÍ,  º¢óàÃõ,  Ý¨Ã,  §ÀÃ¢  §À¡ýÈ  ¾¡ÅÃí¸Ç¢ý  ¦ÀÂ÷¸¨ÇÔõ  ÌÂ¢ø,  «ýÉõ,  ¸£Ã¢
+§À¡ýÈ  À¢Ã¡½¢¸Ç¢ý  ¦ÀÂ÷¸¨ÇÔõ  Å¡º¸÷¸û  ¬í¸¡íÌ  ¸¡½Ä¡õ.  ¬É¡ø  ¿ÁÐ  ¿¡Î¸Ç¢ø
+ÅÇÕõ  «ºø  ¬õÀø  ÁÄ§Ã¡  «Ãº  ÁÃ§Á¡  «øÄÐ  «í§¸  Åº¢ìÌõ  «§¾  ÌÂ¢§Ä¡  ¸£Ã¢§Â¡
+þí§¸Ôõ  þÕì¸¢ÈÐ  ±ýÚ  ¸üÀ¨É  ¦ºöÂ  §Åñ¼¡õ.  ÅÕ¼ò¾¢ø  ¬Ú  Á¡¾í¸û
+¯¨ÈÀÉ¢Â¡ø  Ó¼ôÀðÊÕìÌõ  þó¿¡ðÊø  «ó¾ò  ¾¡ÅÃí¸û  «ôÀÊ§Â  ÅÇ÷ÅÐõ
+º¡ò¾¢ÂÁ¢ø¨Ä; «ó¾ À¢Ã¡½¢¸û Åº¢ôÀÐõ º¡ò¾¢ÂÁ¢ø¨Ä. þó¾  ¿¡ðÊý  ¾ðÀ¦ÅôÀ  ¿¢¨ÄÂ¢ø
+ÅÇÃì ÜÊÂ «§¾ þÉò¨¾î º¡÷ó¾ «§¾ ÌÎõÀò¨¾î º¡÷ó¾ ´Õ ÁÃõ «øÄÐ À¢Ã¡½¢ ±ýÚ
+Å¢Çí¸¢ì  ¦¸¡ûÙÁ¡Ú  Å¡º¸÷¸¨Çì  §¸ðÎì  ¦¸¡û¸¢§Èý.  þÅüÈ¢ý  À¢ýÉ¢‰  ¦ÀÂ÷¸û,
+¬í¸¢Äô  ¦ÀÂ÷¸û,  «È¢Å¢Âø  ¦ÀÂ÷¸¨ÇÔõ  ¾ó¾¢Õì¸¢§Èý.  '¸§ÄÅÄ¡'Å¢ý  À¢ýÉ¢‰  áÄ¢ø
+¯ûÇ º¢Ä À¢ýÉ‰ ¦º¡ü¸û ¾ü¸¡Ä  ÅÆì¸¢ø  þø¨Ä  ±ýÀ¨¾Ôõ  «¨Å  ¾ü¸¡Ä  «¸Ã¡¾¢¸Ç¢ø
+Ü¼  þ¼õ  ¦ÀÈÅ¢ø¨Ä  ±ýÀ¨¾Ôõ  þíÌî  ÍðÊì  ¸¡ð¼  Å¢ÕõÒ¸¢§Èý.  þ¾É¡ø  ´§Ã
+¦º¡ø¨Ä ¦Á¡Æ¢¦ÀÂ÷ôÀ¡Ç÷¸û ¦Åù§ÅÚ Å¢¾Á¡¸  Å¢Çí¸¢ì  ¦¸¡ñ¼  ºó¾÷ôÀí¸Ùõ  ¯ñÎ.
+þôÀÊÂ¡É º¢ÄÅü¨ÈÔõ Å¢Çì¸ì ÌÈ¢ôÒ¸Ç¢ø ÌÈ¢ôÀ¢ðÊÕì¸¢§Èý.
+
+º¢Ä ´üÚ¨Á¸û
+
+¿¡Î,  ¦Á¡Æ¢,  ¸¨Ä,  ¸Ä¡º¡Ãõ  §À¡ýÈÅüÈ¡ø  Áì¸û  §ÅÚÀðÎ  þÕó¾¡Öõ,  ¯Ä¦¸øÄ¡õ
+Å¡Øõ ÁÉ¢¾ þÉò¾¢¨¼§Â  ÁÉò¾ÇÅ¢ø  º¢ó¾¨ÉÂ¢ø  ¿õÀ¢ì¨¸¸Ç¢ø  µ÷  ´üÚ¨Á  þÕôÀ¨¾
+þì¸¡Å¢Âò¨¾ô  ÀÊòÐ  «È¢óÐ  ¦¸¡ûÇÄ¡õ.  ÁÉò¾¢ý  «ÊÂ¡Æò¾¢ø  þÕì¸ìÜÊÂ
+´Õ¨ÁôÀ¡Î  ÁÉ¢¾ì  ÌÄòÐìÌô  ¦À¡ÐÅ¡ÉÐ.  ¸É×,  ºÌÉõ,  ÌÈ¢  À¡÷ò¾ø  §À¡ýÈ¨Å  ¿ÁÐ
+ÒÃ¡½í¸Ç¢Öõ  þÄì¸¢Âí¸Ç¢Öõ  ÅÕ¸¢ýÈÉ.  ´Õ  ¸¡Äò¾¢ø  þ¨Å¦ÂøÄ¡õ  ±øÄ¡
+¿¡Î¸Ç¢Öõ  ±øÄ¡  þÉò¾ÅÃ¢¼Óõ  þÕó¾É  ±ýÀ¾üÌ  þÐ  ´Õ  º¡ýÚ.  þó¾ì  '¸§ÄÅÄ¡'
+±ýÛõ ¸¡Å¢Âò¾¢ø ÅÕõ º¢Ä ºõÀÅí¸û þ§¾¡:
+
+¦ÄõÁ¢ý¨¸Éý  ±ýÛõ  «‹¾¢  Å¼¿¡ðÎìÌô  ÒÈôÀÎ¸¢È¡ý.  «ÅÛ¨¼Â  Á¨ÉÅ¢  ÌÂ¢Ä¢  ´Õ
+¸É×  ¸ñÎ  «ÅÉÐ  ÀÂ½ò¨¾ò  ¾Îì¸¢È¡û.  «Åû  ¸É×  ¸ñÎ  ÀÂó¾Ð  §À¡Ä§Å  «ÅÛìÌ
+ÁÃ½õ  ÅÕ¸¢ÈÐ.  þó¾ì  ¸ð¼ò¾¢ø  ÌÂ¢Ä¢Â¢ý  ÜüÚ  'Å£ÃÀ¡ñÊÂ  ¸ð¼ô¦À¡õÁÉ¢'ø  ÅÕõ
+"§À¡¸¡§¾  §À¡¸¡§¾  ±ý  ¸½Å¡,  ¦À¡øÄ¡¾  ¦º¡üÀÉõ  ¿¡Ûõ  ¸ñ§¼ý"  ±ýÈ  «Ê¸¨Ç
+¿¢¨ÉçðÎ¸¢ÈÐ:
+
+"«ý§À, þÉ¢Â±ý «‹¾¢§Â, §¸Ç¡ö!
+§À¡ÕìÌ ¿£Ôõ ÒÈôÀ¼ §Åñ¼¡õ
+ÐÂ¢Öõ ¦À¡ØÐ §¾¡ýÈ¢Â §¾¡÷¸É¡
+«¨Á¾¢Â¡ö ¯ÈíÌõ «ô§À¡ ¸ñ§¼ý:
+
+¯¨Äì¸Çõ §À¡Ä ´Õ¦¿Õô ¦ÀØó¾Ð
+ÍÅ¡¨ÄÂ¡ö ±ØóÐ Í¼÷Å¢ð ¦¼Ã¢ó¾Ð
+º¡ÇÃò ¾¢ý¸£ú ºÃ¢Â¡ö Åó¾Ð
+À¢ýÍÅ÷ô Àì¸Á¡öô ¦ÀÃ¢¾¡öî ¦ºýÈÐ
+
+24
+
+¯¼ýÍÆý Èí¸¢Õó Ðû§Ç Ñ¨Æó¾Ð
+¯ì¸¢Ãõ ¦¸¡ñ¼Ð ¯Â÷¿£÷ Å£úîº¢§À¡ø
+¾¨ÃÂ¢§Ä þÕóÐ ¾¡Å¢ì Ü¨Ã
+ÀÄ¸½¢ ÀÄ¸½¢ ÀÃÅ¢î ¦ºýÈÐ." - À¡¼ø 12.
+
+¾Îò¾Ð  «ÅÛ¨¼Â  Á¨ÉÅ¢  ÌÂ¢Ä¢  ÁðÎÁøÄ;  ¾¡Ôõ  ¾Îò¾¡û.  «ó§¿Ãõ  ¾¨Ä  º£Å¢ì
+¦¸¡ñÊÕó¾  ¦ÄõÁ¢ý¨¸Éý,  «ó¾î  º£ô¨Àî  ÍÅÃ¢ø  ±È¢óÐÅ¢ðÎ,  "±ÉìÌ  ²¾¡ÅÐ  ¦¸Î¾¢
+§¿÷ó¾¡ø  þó¾  º£ôÀ¢Ä¢ÕóÐ  þÃò¾õ  ÅÊÔõ"  ±ýÈ¡ý.  «ôÀÊ§Â  Å¼¿¡ðÊø  «Åý
+þÈó¾§À¡Ð  þí§¸  º£ôÀ¢Ä¢ÕóÐ  þÃò¾õ  ÅÊó¾Ð.  «¨¾ì  ¸ñ¼  ¾¡ö  À¾È¢ì  ¦¸¡ñÎ
+ÒÈôÀðÎô §À¡É¡û.
+
+«ó¾§Ã¡  Å¢ÒÉý  Áó¾¢Ãô  À¡¼ø¸û  ¦¾Ã¢ó¾  ´Õ  â¾õ.  ¾ÉÐ  ÅÂ¢üÈ¢ø  þÕìÌõ
+¨ÅÉ¡¦Á¡Â¢É¨É  ´Õ  ¬Å¢  ±ýÚ  ±ñ½¢  «¨¾  ¦ÅÇ¢§ÂüÈ  Áó¾¢Ãõ  ¦ºÀ¢ì¸¢È¡ý.  «Ð  ´Õ
+¿£ñ¼  ¦ºÀõ.  þ¨¼§Â  «ó¾  ¬Å¢  ¾ý  þÕôÀ¢¼õ  §À¡öî  §º÷ó¾¾üÌ  µ÷  «¨¼Â¡Çõ
+¸¡ðÎõÀÊ þôÀÊì §¸ð¸¢È¡ý:
+
+«íÌÅó ¾¾ü§¸¡÷ «¨¼Â¡ ÇõÁ¢Î
+º¡÷ó¾(¾ü ¸¢)Ã¸º¢Âî ¨º¨¸¨Âì ¸¡ðÎ
+«¨¼Â¡ ÇõÁ¢Î «¾¢÷þÊ ÓÆì¸Á¡ö
+Á¢ýÉÄ¡ö Á¢ýÉ¢ ¦ÅÇ¢Â¢Î ¨º¨¸¨Â
+§¾¡ð¼ì ¸¾¨Åò ¦¾¡ðÎÅ£úò Ð¨¾òÐ
+º¡ÇÃì ¸¾¨Åò ¾¡ý¾¸÷ò ¦¾È¢ó¾¢Î! - À¡¼ø 17.
+
+¾Á¢ú Áì¸Ç¢¨¼§Â þÕó¾  ±ò¾¨É§Â¡  ¨Åò¾¢Âõ,  §º¡¾¢¼õ,  Å÷Áõ,  Á¡ó¾¢Ã£¸õ  §À¡ýÈ  «Ã¢Â
+¸¨Ä¸Ç¢ø  º¢Ä  «Æ¢óÐÅ¢ð¼É;  «øÄÐ  «¨Å  ¾ÁÐ  ÓØ¨Á¨Â  þÆóÐ  ÌÚ¸¢Å¢ð¼É  ±ýÚõ
+¦º¡øÄÄ¡õ.  þ¾üÌ  ÀÄ  ¸¡Ã½í¸û  þÕó¾¡Öõ  ´ý¨È  þíÌ  ÌÈ¢ôÀ¢¼  Å¢ÕõÒ¸¢§Èý.
+Á¡½Åý  ¾ý¨É  Á¢ïº¢Å¢¼ì  Ü¼¡§¾  ±ýÈ  ÌÚ¸¢Â  §¿¡ì¸¢ø  ÌÕ  ÓØì  ¸¨Ä¨ÂÔõ
+Á¡½ÅÛìÌì  ¸üÀ¢ôÀ¾¢ø¨Ä.  ¾ý¨É  þÉõ¸¡ð¼  ²¾¡ÅÐ  ´ýÚ  ¾ÉìÌ  ÁðÎõ¾¡ý
+¦¾Ã¢ó¾¢Õì¸  §ÅñÎõ  ±ýÈ  ÍÂ¿Äò¾¢ø  ±¨¾Â¡ÅÐ  Á¨ÈòÐ  Å¢ÎÅ¡÷;  «ó¾  Á¡½Åý  ¾¡ý
+¦ÀüÈ Á¸É¡¸ þÕó¾¡Öõ þó¾î ÍÂ¿ÄòÐìÌ  Å¢¾¢Å¢Äì¸¢ø¨Ä.  þôÀÊ§Â  ¬Ùì¦¸¡ýÈ¡ö
+Á¨Èì¸ô  §À¡ö  «Ê§Â¡Î  «Æ¢ó¾ÐÓñÎ.  º¢Ä÷  ¾ÁÐ  Å§Â¡¾¢À  ¸¡Äò¾¢ø  º¢Ä  ²ðÎî
+ÍÅÊ¸¨Ç  ¬üÈ¢ø  Å¢ð¼¾¡¸×õ  ¦¿ÕôÀ¢ø  ±Ã¢ò¾¾¡¸×õ  «È¢ó¾¢Õì¸¢§È¡õ.  þì¸¡Å¢Âò¾¢ø
+¨ÅÉ¡¦Á¡Â¢Éý Å¡ö¦Á¡Æ¢Â¡¸ ÅÕõ þó¾ «Ê¸¨Çô À¡Õí¸û:
+
+"... Áó¾¢Ãî ¦º¡ü¸û Á¨Èò¾ø¬ ¸¡Ð
+À¸÷Áó ¾¢Ã¦Á¡Æ¢ ÀÐìÌ¾ø ¬¸¡(Ð)
+¿¢ÄòÐì ¸ÊÂ¢§Ä Ò¨¾ò¾Öõ ¬¸¡(Ð)
+Áó¾¢ÃÅ¡¾¢¸û Á¨ÈóÐ§À¡ É¡Öõ. - À¡¼ø 17.
+
+þÃ¡Å½ý  Â¡ú  Á£ðÊî  º¢Å¨É  Á¸¢Æ  ¨Åò¾Ð  ¦¾¡¼ì¸õ  þ¨º  þÂü¨¸¨Â§Â  ¦¿¸¢Æ
+¨Åò¾ÐÅ¨Ã  þ¨ºÂ¢ý  ºì¾¢¨Â  ¿¡õ  «È¢§Å¡õ.  þó¾ì  ¸¡Å¢Âò¾¢Öõ  ¨ÅÉ¡¦Á¡Â¢Éý
+'¸ó¾§Ä'  ±ýÛõ  Â¡¨Æ  Á£ðÊ  þ¨ºÂ¢ýÀõ  «Ç¢ôÀ¨¾  þÃñÎ  ºó¾÷ôÀí¸Ç¢ø  ¸¡ñ¸¢§È¡õ.
+¬É¡ø «ó¾§Ã¡ Å¢ÒÉý Áó¾¢Ãô À¡¼ø¸¨Çô À¡Îõ§À¡Ð ¿¢¸úó¾¨Å ÅÕÁ¡Ú:
+
+À¡¼¨Äì §¸ð¸ô À¸ÄÅý ¿¢ýÈÉý
+¿¢ý§È ¾í¸ ¿¢Ä×õ §¸ð¼Ð
+«¨Ä¸û¿£÷ô ÀÃôÀ¢ø «¨ºÂ¡ ¿¢ýÈÉ
+«ùÅ¢¾õ ¸¨ÃÂ¢Öõ «¨Ä¸û ¿¢ýÈÉ
+«ÕÅ¢¸û µ¼¡(Ð) «¨Áó§¾ ¿¢ýÈÉ
+¿¢Á¢÷Ñ¨Ã ¯Úò¾¢Â¡ ¿£÷Å£úî(º¢) ¿¢ýÈÐ
+
+×§Å¡ìº¢¿£÷ Å£úîº¢ô À¡öîºÖõ ¿¢ýÈÐ
+«ùÅ¢¾õ §Â¡÷¾¡ý ¬ÈÐõ ¿¢ýÈÐ. -À¡¼ø 17.
+
+¨ÅÉ¡¦Á¡Â¢Éý þÃñ¼¡ÅÐ ¾¼¨Å ¸ó¾§Ä ±ýÛõ Â¡¨Æ Á£ðÊÂ§À¡Ð ¿¼ó¾¨Å ÅÕÁ¡Ú:
+
+25
+
+Á£ðÊÉý ¨ÅÉ¡ ¦Á¡Â¢Éý Å¢ÃÄ¡ø
+¸ó¾§Ä ¿ÃõÒ¸û ¸É¢Å¡ ¦Â¡Ä¢ò¾É
+ÀýÁ¨Ä ÓØí¸¢É À¡¨È¸û §Á¡¾¢É
+¯Â÷Ìý Èí¸û ´Õí¸¨ºó ¾¡ÊÉ
+¸üÀ¡(¨È) Å£úóÐ ¸É¾¢¨Ãò ¦¾È¢ò¾É
+ÜÆ¡í ¸ü¸û ÌÇ¢÷ÒÉø ¿¸÷ó¾É
+§¾Å ¾¡Õ¸û ¾¢¨Çò¾É Á¸¢úîº¢Â¢ø
+¸Å¢ýÒü È¨ÃÁÃì ¸ð¨¼¸û ÐûÇ¢É.
+¸§ÄÅ¡ô ¦Àñ¸û ¸Å¢ý¨Áò ÐÉ¢Á¡÷
+º¢ò¾¢Ãò ¨¾ÂÄ¢ý Áò¾¢Â¢ Ä¢Õó¾É÷
+¿¾¢Â¢¨Éô §À¡Ä§Å ¿í¨¸Â÷ Å¢¨Ãó¾É÷
+«ÕÅ¢¨Âô §À¡Ä§Å «¨ÉÅÕ §Á¡ÊÉ÷
+¿¨¸ò¾ Å¡Â¢Ç ¿í¨¸Â §Ã¡ÊÉ÷
+Á¸¢úó¾ ÁÉòÐ¼ý Á¨ÉÅ¢Â÷ ÜÊÉ÷
+Â¡Æ¢¨É Á£ðÀ¨¾ ¿ÄÁ¡öì §¸ð¸§Å
+þ¨ºÂ¢ý Àò¨¾ þÉ¢§¾ Ñ¸Ã.
+ÁÕí¸¢É¢ø ¿¢ýÈ ÁÉ¢¾÷¸û «¨ÉÅÃ¢ý
+¸Ãí¸Ç¢ Ä¢Õó¾É ¸Å¢úò¾Å÷ ¦¾¡ôÀ¢¸û;
+Àì¸õ Ó¾¢Â À¡¨ÅÂ÷ Â¡ÅÕõ
+¸ýÉõ ¾¡í¸¢ì ¨¸¸Ç¢ø ¿¢ýÈÉ÷
+¿¢Äòàý(È¢) ÓÆí¸¡ø ¿¢ýÈÉ÷ ¨Áó¾÷
+¸ó¾§Ä þ¨ºÂ¢¨Éì ¸Å¢ÛÈì §¸ð¸
+þ¨ºÂ¢ý Àò¨¾ þÉ¢§¾ Ñ¸Ã - À¡¼ø 44.
+
+À¡¼ø  9ø  ¨ÅÉ¡¦Á¡Â¢ÉÛìÌì  ¸¡Âõ  ²üÀðÎ  þÃò¾õ  ¦ÀÕÌ¸¢ÈÐ.  þôÀ¡¼Ä¢Öõ
+¦ÀÕõÀÌ¾¢  Áó¾¢Ãõ  ¦º¡øÅ¾¡¸§Å  «¨ÁóÐ  Å¢ð¼Ð.  þÃò¾ô  ¦ÀÕì¨¸  ¿¢Úò¾  Áó¾¢Ãò¾¡ø
+¬¨½Â¢Îõ º¢Ä «Ê¸û:
+
+þÃò¾§Á ¿¢øÓý ±¾¢÷ÍÅ ¨Ãô§À¡ø!
+Á¢Ì§º¡Ã¢ ¬§È §ÅÄ¢¨Âô §À¡ø¿¢ø!
+¬Æ¢Â¢ø ¿¢üÌõ Å¡¦ÇÉ ¿¢üÀ¡ö!
+¦¸¡Øï§º ¦ÈØó¾ §¸¡¨Ãô Òø¦ÄÉ!
+ÅÂÄ¢§Ä ¯ûÇ ÅÃõÀ¢¨Éô §À¡ø¿¢ø!
+¿£÷Å£úîº¢ Â¢ø¯Ú ¦¿Îí¸ø ±É¿¢ø!
+
+¨ÅÉ¡¦Á¡Â¢Éý  ¾¡ý  Á½õ  ¦ºöÅ¾üÌ  Å¼  ¿¡ðÎ  Áí¨¸¨Âì  §¸ðÀ¾ü¸¡¸  ´Õ  À¼¸¢ø
+ÒÈôÀðÎî  ¦ºø¸¢È¡ý.  þ¨¾ÂÈ¢ó¾  þøÁÃ¢Éý  ¾Ûõ  ´Õ  ºÚìÌ  ÅñÊÂ¢ø  Å¢¨Ã¸¢È¡ý.  ´§Ã
+¦ÀñÏìÌô  §À¡ðÊÂ¢ð¼  þÕ  Á¡ôÀ¢û¨Ç¸Ùõ  ÅÆ¢Â¢ø  ´ÕÅ¨Ã¦Â¡ÕÅ÷  ºó¾¢ì¸¢ýÈÉ÷.
+þÕÅÃÐ ÁÉ¿¢¨ÄÔõ ±ôÀÊ þÕó¾¢ÕìÌõ? þ§¾¡ þÐ ¨ÅÉ¡¦Á¡Â¢ÉÉ¢ý ÜüÚ:
+
+"¿ðÒ¼ý ÀÊì¨¸ ¿¡ý´ý È¨Áô§Àý
+¦ÀñÀÄ Åó¾Á¡ö ¦ÀÂ÷ò¦¾Æø þø¨Ä
+«Åû¿¨ºì ¦¸¾¢÷Á½õ ¬ÅÐõ þø¨Ä,
+«ÅÛì §¸¦Àñ «Ç¢ò¾¢¼ø §ÅñÎõ
+«ÅÛì §¸«Åû ±Å¨É Å¢ÕõÀ¢Öõ,
+
+26
+
+¦ÅÚôÀ¢ øÄ¡Áø Á¢¸¿£û ¸¡Äõ
+ÀøÄ¡ñ ¼¸¨Å À¨¸Â¢ø Ä¡Áø." - À¡¼ø 18.
+
+àÃò¾¢ø  Áì¸û  Üð¼Á¡¸  ÅÕÅ¨¾  Å¼¿¢Äò  ¾¨ÄÅ¢  ¸¡ñ¸¢È¡û.  «Åû  ¾ÉÐ  «Ê¨Áô
+¦ÀñÏìÌî  ¦º¡ø¸¢È¡û:  "§ÀÃ¢î  ÍûÇ¢¨Â  ±ÎòÐ  ¦¿ÕôÀ¢§Ä  §À¡Î.  «¾¢§Ä  þÃò¾õ
+°ü¦ÈÎò¾¡ø  ±õ¨Áò  §¾Ê  ´Õ  §À¡÷  ÅÕ¸¢ÈÐ  ±ýÚ  «÷ò¾õ.  ¾ñ½£÷  °ü¦ÈÎò¾¡ø,  «Ð
+§À¡ÃøÄ;  ¿¡í¸û  «¨Á¾¢Â¡ö  Å¡ÆÄ¡õ."  ¬É¡ø  þÃò¾§Á¡  ¾ñ½£§Ã¡  °ü¦ÈÎì¸Å¢ø¨Ä;
+§¾ý  ÍÃó¾Ð.  «¾üÌ  ´Õ  Ó¾¢ÂÅû  ÀÄý  ¦º¡ø¸¢È¡û:  "Á½ô¦Àñ¨½ì  §¸ðÎ
+Á¡ôÀ¢û¨ÇÔõ ÌØÅ¢ÉÕõ ÅÕ¸¢È¡÷¸û"
+±ýÚ. (À¡¼ø 18)
+
+þÕ  Á¡ôÀ¢û¨Ç¸Ùõ  §À¡ðÊ  §À¡ðÎì  ¦¸¡ñÎ  ÅÕÅ¨¾  «È¢ó¾  Å¼¿¢Äò  ¾¨ÄÅ¢,  "Ó¾¢Â
+¨ÅÉ¡¦Á¡Â¢Éý ¿¢¨Èó¾ ¦ºøÅòÐ¼ý À¼¸¢ø ÅóÐ ¦¸¡ñÊÕì¸¢È¡ý. ¿£ «Å¨É§Â §¾÷óÐ
+Á½óÐ ¦¸¡û!" ±ýÚ Á¸ÙìÌ ¬§Ä¡º¨É ÜÚ¸¢È¡û. «¾üÌ Á¸Ç¢ý ÁÚ¦Á¡Æ¢ þÐ:
+
+"±¨ÉîÍÁó ¾Å§Ç,µ,±ý «õÁ¡!
+±¨ÉÅÇ÷ò ¾Å§Ç,µ,±ý «ýÉ¡ö!
+ÅÕ¦ºø Åó¾¨É Á½ôÀ¾ü ¸¢ø¨Ä
+¯Â÷Á¡ É¢¼«È¢ ¦Å¡Õ¦À¡Õ ÇøÄ
+þÉ¢¿¡ý Á½ôÀÐ ±Æ¢øÑ¾ Ö¨¼§Â¡ý
+«í¸õ ÓØÅÐõ «ÆÌ À¨¼ò§¾¡ý;
+þÐ¿¡û Å¨ÃÂ¢ø ²ó¾¢¨Æ Â¡¨ÃÔõ
+Å¢Âý¦À¡Õ Ùì¸¡ö Å¢üÈ§¾ þø¨Ä
+Áí¨¸¨Âò ¾¡ÉÁ¡ö ÅÆíÌ¾ø ¿øÄÐ ... ..." – À¡¼ø 18.
+
+ÍÁ¡÷  À¾¢¨ÉóÐ  þÕÀÐ  ÅÕ¼í¸ÙìÌ  ÓýÉ÷  ¸ø¸¢  «øÄÐ  ¬Éó¾Å¢¸¼ý  ¾£À¡ÅÇ¢  ÁÄÃ¢ø
+ÀÊò¾  ´Õ  ¾Á¢ú  ¿¡ðÎô  À¡¼ø  ¿¢¨É×ìÌ  ÅÕ¸¢ÈÐ.  þÐ  ´Õ  ¾Á¢úò  ¾¢¨ÃôÀ¼ò¾¢Öõ  þ¼õ
+¦ÀüÈÐ.  «ó¾  ¿¡ðÎô  À¡¼Ä¢ø  º¢Ä  «Ê¸û  þ¨Å  ¾¡ý  ±ýÚ  ¿¢¨Éì¸¢§Èý:  "°Ã¡÷
+¯Èí¨¸Â¢§Ä  ¯üÈ¡Õõ àí¨¸Â¢§Ä  ¿øÄ  À¡õÒ  §Å¼õ  ¦¸¡ñÎ  ¿¡ý  ÅÕ§Åý  º¡Áò¾¢§Ä;
+¿øÄ  À¡õÒ  §Å¼õ  ¦¸¡ñÎ  ¿Îîº¡Áõ  Åó¾¡Â¡É¡ø  °÷ìÌÕÅ¢  §Å¼õ  ¦¸¡ñÎ  ¯ÂÃò¾¢ø
+ÀÈó¾¢Î§Åý;  °÷ìÌÕÅ¢  §Å¼õ  ¦¸¡ñÎ  ¯ÂÃò¾¢ø  ÀÈó¾¡Â¡É¡ø  ¦ºõÀÕóÐ  §Å¼õ
+¦¸¡ñÎ ¦Åóàì¸¡öò àì¸¢Î§Åý ... ..." '¸§ÄÅÄ¡' ¸¡Å¢Âò¾¢ø ÅÕõ þó¾ «Ê¸û ±ôÀÊ?
+
+"þÕô¨À§Âø Å¢ÎÅ¢Â¡ ¾¢í¸¢Õó ¦¾ý¨É
+¬Æ¢Á£ É¡¦Â¨É Â¡ì¸¢¼ô À¡Î§Åý
+¬Æ¦Åñ Á£É¡ö «¨ÄÂ¢øÁ¡ È¢Î§Åý."
+
+. . . . . . . . . . . . . . . . . . . . . . . .
+"«ùÅ¢¼õ ¯ýÉ¡ø «¨¼ó¾¢¼ ÓÊÂ¡
+§¸¡§Ä¡îº¢ Á£É¡öì ÌÁÃ¢À¢ý ¦¾¡¼÷§Åý."
+
+. . . . . . . . . . . . . . . . . . . . . . . .
+"þÕô¨À§Âø Å¢ÎÅ¢Â¡ ¾¢ì¸¢Õó ¦¾ý¨É
+«¼Å¢Ôð ¦ºýÚ «í§¸ Á¨È§Åý
+¸£Ã¢Â¡öô À¡¨Èì ¸£úìÌÆ¢ ÒÌ§Åý."
+
+. . . . . . . . . . . . . . . . . . . . . . . .
+"«ùÅ¢¼õ ¯ýÉ¡ø «¨¼ó¾¢¼ ÓÊÂ¡
+¿£÷¿¡ö ÅÊÅ¡ö ¿¢ýÀ¢ý ¦¾¡¼÷§Åý."
+
+27
+
+. . . . . . . . . . . . . . . . . . . . . . . .
+"þÕô¨À§Âø Å¢ÎÅ¢Â¡ ¾¢ì¸¢Õó ¦¾ý¨É
+§Á¸ôÒû Ç¡ö ¯ÂÃ§Áü ÀÈô§Àý
+§Á¸ô À¢ýÒÈõ Á¢¸Á¨Èó ¾¢Õô§Àý."
+. . . . . . . . . . . . . . . . . . . . . . . .
+"«ùÅ¢¼õ ¯ýÉ¡ø «¨¼ó¾¢¼ ÓÊÂ¡
+¸ØÌÕ ¦ÅÎòÐì ¸ýÉ¢À¢ý ¦¾¡¼÷§Åý." - À¡¼ø 38
+
+À¢ýÉ¢‰ ¦Á¡Æ¢Â¢ø vilja 'Å¢øÂ¡' ±ýÈ ¦º¡øÖìÌò ¾¡É¢Âõ ±ýÚ ¦À¡Õû. þó¾î  ¦º¡ø  þ§¾
+¦À¡ÕÇ¢ø  þýÚõ  ÅÆì¸¢ø  þÕì¸¢ÈÐ.  ¬É¡ø 
+'¸§ÄÅÄ¡'  ¸¡Å¢Âò¾¢ø  þî¦º¡ø  ÀÄ
+þ¼í¸Ç¢ø '¦ºøÅõ' ±ýÈ ¦À¡Ðî ¦À¡ÕÇ¢ø¾¡ý ÅÕ¸¢ÈÐ. ¬í¸¡íÌ þó¾î ¦ºøÅõ ±ýÉ
+±ýÚ  À¡÷ò¾¡ø  À¢ýÅÕÅÉÅüÈ¢ø  ²¾¡ÅÐ  ´ý¨Èò¾¡ý  «Ð  ÌÈ¢ìÌõ:  ¾¡É¢Âõ,  ¸¡ø¿¨¼,
+§Åð¨¼Â¢ý  þÄìÌ.  Å¡úì¨¸ìÌ  Óì¸¢ÂÁ¡É  ¾¡É¢Âõ  ±ýÛõ 
+'Å¢øÂ¡'  ÁÉ¢¾É¢ý
+¦ºøÅÁ¡Â¢üÚ. À¢ýÉ÷ Å¡úì¨¸ìÌ Óì¸¢ÂÁ¡É ±øÄ¡õ [¯.õ.  ¸¡ø¿¨¼]  ¦ºøÅõ  vilja  ±ýÚ
+¸Õ¾ôÀð¼Ð.
+
+¾Á¢ÆÕõ  Àñ¨¼ì  ¸¡Äò¾¢ø  ¸¡ø¿¨¼¨Âî  ¦ºøÅÁ¡¸§Å  ¸Õ¾¢É÷.  Á¡Î  ±ýÈ¡ø  ¦ºøÅõ
+±ýÈ ´Õ ¦À¡ÕÙõ  ¯ñÎ.  «ó¾ì  ¸¡Äò¾¢§Ä§Â  ¦ºøÅô  ¦À¡ÕÇ¡¸ì  ¸¡ø¿¨¼¸û  «¨Áó¾
+¸¡Ã½ò¾¢É¡§Ä§Â  «Ð  ºÓ¾¡Âò¾¢§Ä  §À¡ÕìÌì  ¸¡Ä¡Â¨Áó¾Ð.  ÀÍ¨Åì  ¸ÅÕ§Å¡Õõ,
+¸ÅÕ§Å¡¨Ãò  ¾Îì¸  Ó¨ÉÀÅÕõ  ã÷ì¸Á¡É  §À¡Ã¢ø  ®ÎÀð¼É÷  ±ýÚ  ºí¸  þÄì¸¢Âí¸û
+º¡üÚ¸¢ýÈÉ. þì¸¡Å¢Âò¾¢Öõ Å¼¿¢Äò  ¾¨ÄÅ¢ìÌõ  ¸§ÄÅÄ¡  þÉò¾ÅÕìÌõ  À¨¸  ²üÀð¼
+¸ð¼ò¾¢ø  ¸§ÄÅÄ¡ô  ÀÌ¾¢Â¢ý  ÀÂ¢÷¸¨ÇÔõ  ¸¡ø¿¨¼¸¨ÇÔõ  «Æ¢ô§Àý  ±ýÚ  Å¼¿¢Äò
+¾¨ÄÅ¢ ÜÈ¢ «ùÅ¢¾§Á ¦ºöÂ×õ ÓÂø¸¢È¡û. «Åû ÜüÚ ÅÕÁ¡Ú:
+
+"¸Å¢ýÀÍõ ÒüÈ¨Ãì ¸ÃÊ¨Â ±ØôÒ§Åý
+¦ÀÃ¢ÂÀü À¢Ã¡½¢¨Â ¿Úó§¾Å ¾¡ÕÅ¢ø
+. . . . . . . . . . . . . . . . . . . . . . . .
+¸¡ø¿¨¼ Â¡¨ÅÔõ ¸Å¢úò§¾ Å£úò¾¢¼
+ÀÍÅ¢Éõ ÓØ¨¾Ôõ ÀÃôÀ¢¼î º¢¾È¢;
+«¨ÉòÐÁì ¸¨ÇÔõ «Æ¢ô§Àý §¿¡Â¢É¡ø
+¯ýÈý þÉò¨¾ ´ýÈ¢Ä¡ ¦¾¡Æ¢ô§Àý,
+±ýÚ§Á þó¾ ±Æ¢ø¿¢Ä ×ÇÅ¨Ã
+«Å÷¸¨Çô ÀüÈ¢ «ÅÉ¢Â¢ø §Àî¦ºÆ¡(Ð)." - À¡¼ø 43.
+
+'ºõ§À¡'¨Å  þÆó¾¾¡ø  ¬ò¾¢Ãõ  ¦¸¡ñ¼  Å¼¿¢Äò  ¾¨ÄÅ¢  ¸§ÄÅÄ¡  Áì¸ÙìÌô  ÀÄÅ¢¾Á¡É
+¦¾¡ø¨Ä¸¨Çì  ¦¸¡Îì¸¢È¡û.  Ó¾Ä¢ø  ÅÆì¸ò¾¢ø  þøÄ¡¾  ¦¸¡ÊÂ  §¿¡ö¸¨Ç
+«ÛôÒ¸¢È¡û. «ÎòÐ ´Õ ¸ÃÊ¨Â ²Å¢ Å¢Î¸¢È¡û. ÓýÈ¡Å¾¡¸î ÝÃ¢Â ºó¾¢Ã÷¸¨Çò ¾¢ÕÊ ´Õ
+Á¨ÄÂ¢ø  ´Ç¢òÐ  Å¢Î¸¢È¡û.  «¾É¡ø  þÃ×  Åó¾Ð;  þ¨¼Å¢¼¡  ¾¢Õó¾Ð.  þÕû  ¿¢¨Èó¾Ð;
+þÃÅ§¾  ¿£ñ¼Ð.  ¸§ÄÅÄ¡ô  ÀÌ¾¢Â¢ø  ¸ÎÁ¢ÕÇ¡ÉÐ.  ÝÃ¢Â  ºó¾¢Ã÷¸û  ±í§¸  Á¨Èó¾É÷
+±ý§È  ¦¾Ã¢Â¡¾  ¿¢¨ÄÂ¢ø,  ¨ÅÉ¡¦Á¡Â¢Éý  ¾¢Õ×Çî  º£ðÎ  ÓÄõ  ¯ñ¨Á¨Â  «È¢Â
+ÓüÀÎ¸¢È¡ý. â÷îº ÁÃò¾¢ø ÐñÎ¸û º£Å¢, «Åü¨È ´Øí¸¡¸ «Îì¸¢ò  ¾¢ÕôÀ¢,  þ¨ÈÅ¨Éô
+À¢Ã¡÷ò¾¢òÐ ¯ñ¨Á¨Â «È¢¸¢È¡ý. þÐ ¨ÅÉ¡¦Á¡Â¢Éý ÜüÚ:
+
+"¬ñ¼Å Ã¢¼¦Á¡Õ «ÛÁ¾¢ §¸ð¸¢§Èý
+¬õ,ºÃ¢ Â¡õÀ¾¢ø «Ð¦Å¡ý ÈÅº¢Âõ:
+þ¨ÈÅÉ¢ý º£ð§¼ þÂõÒÅ¡ö ¯ñ¨Á
+§¾ÅÉ¢ý ¾¢Õ×Çî º£ð§¼ Ô¨ÃôÀ¡ö
+¦ºí¸¾¢÷ ±¨ÁÅ¢ð ¦¼í§¸ ¦ºýÈÐ
+±í§¸ Á¨Èó¾Ð ±¨ÁÅ¢ð §¼Á¾¢?
+±ýÚ§Á Å¡úÅ¢ø þø¨Ä§Â «¨Å¸û
+
+28
+
+þø¨Ä «Åü¨ÈÅ¡ý ±ýÚõ ¸¡Ï¾ø.
+
+¯ûÇ¨¾ ¯ûÇÅ¡ Ú¨ÃôÀ¡ö º£ð§¼!
+ÁÉ¢¾É¢ý Å¢ÕôÒ§À¡ø ÁüÚ¿£ ¯¨Ã§Âø
+¯ñ¨Áî ¦ºö¾¢¨Â ¯¼É¢í ¸ÕûÅ¡ö
+Å¢¾¢ò¾Ð ±Ð§Å¡ Å¢ÇõÒÅ¡ö «¾¨É!
+¾¢Õ×Çî º£ðÎî ¦ºôÀ¢É¡ø ¦À¡öÔ¨Ã
+º£ðÊý Á¸¢¨Áî º¢ÈôÀ¾¡ø Ì¨ÈÔõ
+¾¢Õ×Çî º£ð§¼ò ¾£Â¢¨¼ Å£ÍÅ÷
+ÁÉ¢¾Ã¢ý Ã¡º¢¸û Áü¦ÈÃ¢ À¼Ä¡õ." -À¡¼ø 49
+
+þì¸¡Å¢Âò¾¢ø  ¸¼×û  ¿õÀ¢ì¨¸  ¦ÅÇ¢ôÀ¨¼Â¡¸§Å  ¦¾Ã¢¸¢ÈÐ.  ¸¡Î,  ¸¼ø,  §ºüÚ  ¿¢Äõ
+§À¡ýÈÅüÈ¢ý  ºì¾¢¸û  «øÄÐ  «¾¢À¾¢¸û  º¢Ú  ¦¾öÅí¸Ç¡Å¡÷.  ¯¾¡Ã½Á¡¸ì  ¸¡ðÊý
+«¾¢À¾¢  ¾ôÀ¢§Â¡;  «ÅÃÐ  Á¨ÉÅ¢  Á¢¦ÂÄ¢ì¸¢;  Á¸ý  ÑÂ£Ã¢ì¸¢;  ¦Àñ¸û  ¦¾øÄ÷§Å¡×õ
+àÄ¢ì¸¢Ôõ.  ¸¡ðÊø  ´Õ  ºõÀÅõ  ¿¢¸Øõ  §À¡Ð  þÅ÷¸¨Ç  «¨ÆòÐ  Ó¨ÈÂ¢ðÎ  ¯¾Å¢
+§¸¡ÕÅ¨¾ì ¸¡½Ä¡õ. þôÀÊÂ¡É º¢Ú ¦¾öÅí¸ÙìÌ  §Áø  ´Õ  ¸¼×û  þÕì¸¢È¡÷.  þÅ¨Ã
+ÓýÉ¡Ç¢ø  '¯ì§¸¡'  Ukko  ±ýÚ  À¢ýÉ¢‰  ¦Á¡Æ¢Â¢ø  «¨Æò¾¡÷¸û.  '¯ì§¸¡'  ±ýÈ¡ø  ¸¢ÆÅý
+±ýÚõ  ukko/nen  ±ýÈ¡ø  ÓÆì¸õ  ±ýÚõ  ¦À¡Õû.  ¬í¸¢Ä  ¦Á¡Æ¢¦ÀÂ÷ôÀ¡Ç÷¸û  Old  man
+±ý§È ¦Á¡Æ¢¦ÀÂ÷ò¾¢Õì¸¢È¡÷¸û. ¸¼×¨Çì "¸¢ÆÅ¡!" ±ýÚ Å¢Ç¢ì¸ ±ÉÐ  ÁÉõ  ´ôÀÅ¢ø¨Ä.
+«òÐ¼ý  ¦ÀÂÃ¢øÄ¡Áø  'Ó¾¢ÂÅý'  ±ýÚ  «¨Æì¸ôÀð¼  º¢Ä  À¡ò¾¢Ãí¸Ùõ  ¸¡Å¢Âò¾¢ø
+þ¨¼Â¢¨¼§Â  ÅÕ¸¢ýÈÉ.  ±É§Å  'ÓÐ  ÁÉ¢¾ý'  ±ýÚõ,  ÁÛì  ÌÄò¾¢ý  Ó¾øÅý  ±ýÈ
+¦À¡ÕÇ¢ø  'ÁÛ  Ó¾øÅý'  ±ýÚõ  ¾Á¢Æ¢ø  ¦Á¡Æ¢¦ÀÂ÷ò¾¢Õì¸¢§Èý.  ÓÐ  ÁÉ¢¾ý,  ¯Â÷Á¡
+¦¾öÅõ,  ¸¡üÚ¸¨ÇÔõ  þÊ  ÓÆì¸í¸¨ÇÔõ  ¬ûÀÅ÷,  ¿£Äì  ¸¡Ö¨ÈÔõ  Ì¾¢  ¯Â÷ó¾
+¸¡Ä½¢¸Ùõ  «½¢óÐ  Ó¸¢ø¸Ç¢ý  §Áø  ¿¼ôÀÅ÷  ±ý¦ÈøÄ¡õ  ¸¼×û  Å÷½¢ì¸ôÀÎ¸¢È¡÷.
+¦Åù§ÅÚ þ¼í¸Ç¢ø ÅÕõ º¢Ä «Ê¸¨Çî §º÷òÐì ¸£§Æ ¾Õ¸¢§Èý:
+
+"µ,ÓÐ ÁÉ¢¾§É, ¯Â÷Á¡ ¦¾öÅ§Á!
+ÁÛÁ¡ Ó¾øÅ§É Á¡¦ÀÕõ §¾§Å!
+Å¡É¸õ Å¾¢Ôõ Á¡ÓÐ ¾ó¨¾§Â
+Ó¸¢üÌÄõ ÒÃìÌõ ÓÐ¸¡ ÅÄ§É!
+ÓÆíÌõ Ó¸¢ø¸¨Ç ÓØ¾¡û ºì¾¢§Â
+Å¡ÔÅ¢ý ÅÆ¢Â¡ö Å¡ìÌ¨ÃôÀÅ§É!
+§Á¸õ §ÁÖÚõ Å¢Âýº¨À ÂÁ÷ÀÅ÷
+¯Â÷óÐ ¦¾Ç¢ó¾ ¯Â÷Áý Ú¨ÈÀÅ÷
+¿¢¨Ä¦ÀÚõ ÍÅ÷ì¸Á¡û §¿ºò ¾ó¨¾
+
+ÅÕÅ¡ö «¨ÆìÌõ ¾Õ½ò ¾¢í§¸
+ÜÅ¢ ¯¨Æì¨¸Â¢ø Ì¨È¿£ì¸ ÅÕ¸
+«Éø¯Á¢ú «ÄÌÚõ «Ã¢ÂÅ¡ Ù¼ýÅ¡!
+. . . . . . . . . . . . . . . . . . . . . . . ."
+
+¿¡õ  À¢Ã¡÷ò¾¨É  ¦ºöÔõ§À¡Ð  ¸¼×Ç¢¼õ  ¦À¡ÐÅ¡¸î  "º¢ÈôÀ¡É  Å¡ú×"  §ÅñÎõ  ±ýÚ
+§¸ðÀÐ ÅÆì¸õ. ¨ÅÉ¡¦Á¡Â¢ÉÛõ µÃ¢¼ò¾¢ø "º¢ÈôÀ¡É Å¡ú×" §ÅñÎõ  ±ýÚ  §¸ð¸¢È¡ý;
+«Îò¾ «ÊÂ¢ø "§Áý¨ÁÂ¡É ÁÃ½õ" §ÅñÎõ ±ýÚõ §¸ð¸¢È¡ý. þ§¾¡ «ó¾ «Ê¸û:
+
+¾ó¾Õû ¸÷ò¾§É, ¾ó¾Õû þ¨ÈÅ¡!
+¾ó¾Õû À¡ì¸¢Âõ ¾¡ý¿¢¨È Å¡ú¨Å
+±ýÚõ º¢ÈôÀ¡ö þÉ¢ÐÅ¡ú ÅÃò¨¾
+¾ó¾Õû §Áý¨Á ¾¡ýÁ¢Ì ÁÃ½õ
+þôÀ¢ý Ä¡óÐ þÉ¢¨ÁÂ¡õ ¿¡ðÊø
+
+29
+
+¸Å¢ý¿¢¨Èó ¾¢ÎÁ¢ì ¸÷ÂÄ¡ô ÀÌ¾¢Â¢ø.-À¡¼ø 43.
+
+þó¾ì  ¸¡Å¢Âõ  ÓØÅ¾¢Öõ  ±ÉìÌô  À¢Êò¾  ÀÌ¾¢  ±Ð¦ÅýÚ  §¸ð¼¡ø,  þøÁÃ¢ÉÉ¢ý
+¾¢ÕÁ½ò¾¢ý  À¢ýÉ÷,  Á½Á¸Ûõ  Á½Á¸Ùõ  þøÁÃ¢ÉÉ¢ý  Å£ðÎìÌô  ÒÈôÀð¼  ºÁÂõ,
+«Å÷¸ÙìÌò ¾É¢ò¾É¢§Â ÜÈôÀð¼ «È¢×¨Ã ¾¡ý. «¾¢ø º¢Ä «Ê¸¨Ç ÁðÎõ þíÌ ÜÚÅÐ
+º¡ò¾¢ÂÁ¢ø¨Ä; ÓØÅ¨¾Ô§Á Å¡º¸÷¸û ÀÊì¸ §ÅñÎõ ±ýÚ §¸ðÎì ¦¸¡û¸¢§Èý.
+
+¿ýÈ¢
+
+þó¾ò  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÒ,  ÓýÉ¢¨½ôÒ¸û,  À¢ýÉ¢¨½ôÒ¸û  Â¡×õ  §º÷óÐ  ÍÁ¡÷  ¬Â¢Ãõ
+Àì¸í¸û  Åó¾É.  þ¨¾  µ÷  ¯Â÷¾Ã  À¾¢ôÀ¡¸×õ  ¦ÅÇ¢Â¢¼  Å¢ÕõÀ¢§É¡õ.  ¬Â¢Ãõ  Àì¸í¸û
+¦¸¡ñ¼  ´Õ  áø  º¢Èó¾  Ó¨ÈÂ¢Öõ  À¾¢ôÀ¢ì¸ôÀð¼¡ø,  ´Õ  ºÃ¡ºÃ¢  Å¡º¸ý  «¨¾  Å¡í¸
+ÓÊÂ¡¾  Å¢¨ÄÂ¢ø  Å¢ü¸  §¿Ã¢Îõ.  «¾É¡ø  ¦¸¡ïºõ  ¦ÀÃ¢Â  «Ç×  ¸¡¸¢¾ò¾¢ø,  ´Õ  Àì¸ò¾¢ø
+þÃñÎ  Àò¾¢¸Ç¢ø  (columns)  º¢È¢Â  ±ØòÐ¸Ç¢ø  À¡¼ø¸¨Ç  ¦ÅÇ¢Â¢ðÎô  Àì¸í¸¨Ç  500
+«ÇÅ¢ø ¦¸¡ñÎÅÃò ¾£÷Á¡É¢ì¸ôÀð¼Ð. «òÐ¼ý þóáø ¦ÅÇ¢Â£ðÎìÌ ´Õ Á¡É¢Âõ §¸¡Ã¢
+À¢ýÉ¢‰  þÄì¸¢Â  ÁýÈò¨¾Ôõ  «Å÷¸û  ãÄÁ¡¸ì  ¸øÅ¢  «¨Áî¨ºÔõ  ¦†øº¢í¸¢ô
+Àø¸¨Äì¸Æ¸õ  «Ï¸¢ÂÐ.  áÚ  ¾Á¢Æ÷¸û  Ü¼  Å¡Æ¡¾  þó¾  ¿¡ðÊø  ¬Â¢Ãõ  Àì¸í¸û
+¦¸¡ñ¼ ´Õ ¾Á¢ú á¨Ä ¦ÅÇ¢Â¢¼ «Å÷¸û ¯üº¡¸òÐ¼ý ¯¾Å¢ìÌ Åó¾¡÷¸û.
+
+þùÅÇ×ìÌõ  À¢ýÉ½¢Â¢ø  ¿¢ýÚ  ±øÄ¡Åü¨ÈÔõ  þÂì¸¢  ¿¢¨È×  ÀÎò¾¢ÂÅ÷  §ÀÃ¡º¢Ã¢Â÷
+«Š§¸¡  À¡÷¦À¡Ä¡  (Dr.  Asko  Parpola)  «Å÷¸û.  þÅ§Ã  ¦†øº¢í¸¢ô  Àø¸¨Äì¸Æ¸ò¾¢ý
+'¬º¢Â  ¬À¢Ã¢ì¸  ¿¡Î¸û  ¦¾¡¼÷À¡É  ¸øÅ¢ò  ¾¢¨½ì¸Ç'ò¾¢ý  þó¾¢ÂÅ¢Âø  ºõÀó¾ôÀð¼
+¸øÅ¢ìÌô ¦À¡ÚôÀ¡ÉÅ÷. þõ¦Á¡Æ¢¦ÀÂ÷ôÒìÌ ÁÉÓÅóÐ µ÷ «È¢Ó¸ ¯¨Ã ±Ø¾¢Â¢Õì¸¢È¡÷.
+±ÉÐ þÉ¢Â ¿ñÀ÷.
+
+þó¾ì  ¸¡Å¢Âò¾¢ý  §ÅÚ  ¦Á¡Æ¢¦ÀÂ÷ôÒ¸Ç¢ø  º¢Ä  ¯¨Ã¿¨¼Â¢Öõ  º¢Ä  ¸Å¢¨¾  ¿¨¼Â¢Öõ
+¦ÅÇ¢Åó¾¢Õì¸¢ýÈÉ.  ¾Á¢Æ¢Öõ  ¯¨Ã¿¨¼Â¡¸  ¦ÅÇ¢Â¢ÎÅÐ  ±ýÈ  ¾¢ð¼òÐ¼ý¾¡ý
+¦¾¡¼í¸ôÀð¼Ð. ¬É¡ø À¢ýÉ¢‰ áø ¸Å¢¨¾ÂÊ¸Ç¡¸  þÕó¾¾¡ø,  «ó¾î  º¢È¢Â  «Ê¸¨Çò
+¾Á¢Æ¢ø  ¬ì¸¢Â§À¡Ð,  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÒõ  þÂøÀ¡¸§Å  ¸Å¢¨¾¿¨¼Â¢ø  «¨ÁóÐÅ¢ð¼Ð.
+¬É¡ø ÀÄ þÉô À¡ì¸Ùõ ¸ÄóÐ þÕó¾É.
+
+¸Å¢»÷ ¾¢Á¢¨ÄòÐÁ¢Äý þó¾ ¦Á¡Æ¢¦ÀÂ÷ôÒ ÓØÅ¨¾Ôõ ÀÊòÐô À¡÷òÐ  ÁÃÒì  ¸Å¢¨¾¸Ç¡¸
+«¨Áì¸î  ¦ºö¾  ¯¾Å¢  Á¸ò¾¡ÉÐ.  Â¡ôÀ¨Á¾¢§Â¡Î  þÕó¾  ¦Á¡Æ¢¦ÀÂ÷ôÒ  «Ê¸û  ¾Å¢Ã,
+²¨ÉÂ ²Ã¡ÇÁ¡É «Ê¸¨Ç Â¡ôÒì§¸üÀò ¾¢Õò¾¢î º£÷¸Ùû ºÃ¢ÅÃ «¨ÁòÐò ¾ó¾¡÷.
+
+Â¡úôÀ¡½õ  Àø¸¨Äì¸Æ¸ò¾¢ý  ¾Á¢úô  §ÀÃ¡º¢Ã¢Â÷  ¸¡.  º¢Åò¾õÀ¢  «Å÷¸û  À¢ýÄ¡óÐìÌ
+Åó¾¢Õó¾  ºÁÂõ  þó¾ò  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ôÀ¢ý  º¢Ä  À¡¼ø¸¨Çô  À¡÷¨ÅÂ¢ðÎò  ¾ÉÐ  ¸ÕòÐ
+¸¨ÇÔõ ¬§Ä¡º¨É¸¨ÇÔõ «ýÒ¼ý ÜÈ¢É¡÷.
+
+«ÖÅ¸òÐìÌô §À¡ö Á½¢ìÜð¨¼ô À¡÷òÐì¦¸¡ñÎ  ±ðÎ  Á½¢  §¿Ã  §Å¨Ä  ¦ºö¾¢Õó¾¡ø
+þó¾ ¦Á¡Æ¢¦ÀÂ÷ôÒ þô¦À¡ØÐõ ÓÊó¾¢Ã¡Ð. þ¾ý ¦ÀÕõ ÀÌ¾¢¨Â Å£ðÊø þÕó§¾ ¦ºöÐ
+ÓÊò§¾ý.  ºÉ¢,  »¡Â¢Ú,  Å¢ÎÓ¨È  ±ýÈ  µöÅ¢øÄ¡Áø  ¸¡¨Ä  ¿¡Ö  Á½¢Â¢Ä¢ÕóÐ  þÃ×  ÀòÐô
+À¾¢¦É¡Õ  Á½¢Å¨Ã  ¯¨Æò¾  ¿¡ð¸û  ±ò¾¨É§Â¡.  «ô¦À¡Ø¦¾øÄ¡õ  §¾¨ÅÂ¡É  ´òÐ
+¨Æô¨Àò  ¾óÐ  ±ý¨É  °ì¸ôÀÎò¾¢Â  ±ý  Á¨ÉÅ¢¨ÂÔõ  Áì¸¨ÇÔõ  þíÌ  ¸ð¼¡Âõ
+ÌÈ¢ôÀ¢¼ §ÅñÎõ.
+
+§ÁüÜÈ¢Â «¨ÉÅÕìÌõ ±ÉÐ ¿ýÈ¢¨Âî ºÁ÷ôÀ½õ ¦ºö¸¢§Èý.
+
+30
+
+¸¡½¢ì¨¸
+
+À¾¢¦É¡Õ  ¬ñÎ¸ÙìÌ  ÓýÉ÷  ¿¡ý  þó¾  ¿¡ðÎìÌ  Åó¾§À¡Ð  ºó¾¢ò¾  Ó¾ø  ÁÉ¢¾÷
+þýÉÓõ  ±ÉÐ  ¦¿ïº¢ø  Ó¾Ä¡õ  þ¼ò¾¢§Ä§Â  þÕì¸¢È¡÷.  þÅ÷  ÀÄ  ¿¡Î¸Ç¢ø  ÀÄ  þÉ
+Áì¸§Ç¡Î §º÷óÐ Å¡úóÐ, «ýÒìÌõ ÀñÒìÌõ  «÷ò¾õ  ¦º¡øÄ¢Å¢ðÎ  þí§¸  Åó¾Å÷.  ÁÉ¢¾
+§¿Âò¾¢ý  þÄì¸½ò¨¾î  ¦ºÂÄ¢ø  ¸¡ðÎÀÅ÷.  ±ÉÐ  ¯ûÇò¨¾ò  Ð¨¼òÐò  àö¨ÁÂ¡ì¸¢
+«¾¢§Ä  ¿ðÒìÌ  ¿Âõ  ±Ø¾¢  ¨Åò¾Å÷.  'þ¨ÈÅ§É  ¯Â÷ó¾Å÷  '  ±ýÀÐ  ¦¸¡û¨¸.  '±ø§Ä¡Õõ
+¿øÄÅ§Ã' ±ýÀÐ §¸¡ðÀ¡Î. À¢ÈôÀ¡ø  «¦ÁÃ¢ì¸÷.  ÅÂÐ  ±ØÀÐ.  þÅ÷  ¦ÀÂ÷  ¼¡ì¼÷  ¦Ä¡Â¢ð
+ÍÅ¡ý…  (Dr.  Lloyd  Swantz).  þÅÕìÌ  þó¾ò  ¾Á¢ú  ¦Á¡Æ¢¦ÀÂ÷ô¨À  «ó¾Ãí¸  Íò¾¢Ô¼ý
+«÷ôÀ½õ ¦ºö¸¢§Èý.
+
+ÓÊÅ¡¸ ...
+
+¦Á¡Æ¢,  ¸¨Ä,  ¸Ä¡º¡Ãò¾¡ø  ÓüÈ¢Öõ  §ÅÚÀð¼  ´Õ  ¸¡Å¢Âò¨¾ò  ¾Á¢Æ¢ø  ¦Á¡Æ¢¦ÀÂ÷ôÀ§¾
+º¢ÃÁõ. «¨¾Ôõ ÁÃÒ ¸Å¢¨¾Â¢ø ¦º¡øÅÐ Á¢¸ Á¢¸î º¢ÃÁõ. À¢ýÉ¢‰ ¦Á¡Æ¢Â¢ø ¯ûÇ ´Õ ÅÃ¢¨Â
+¾Á¢Æ¢ø ´Õ  ¦º¡øÄ¢ø  ¦º¡øÄìÜÊÂ  ºó¾÷ôÀÓõ  þÕó¾Ð;  ´Õ  ¦º¡ø¨Ä  Å¢Çì¸ò  ¾Á¢Æ¢ø
+¿¡ýÌ ÅÃ¢¸û §¾¨Å ±ýÈ ¿¢¨ÄÔõ Åó¾Ð. 'Å¢Çì¸ì ÌÈ¢ôÒ¸û' ±ýÈ  À¢ýÉ¢¨½ôÒ  þùÅÇ×
+¿£ÇÁ¡¸ «¨Áó¾¾üÌ þÐ×õ ´Õ ¸¡Ã½õ.  ¦Á¡Æ¢¦ÀÂ÷ôÀÐ,  ¸½É¢ìÌ  °ðÎÅÐ,  ¸½É¢Â¢ý
+«îÍô À¢Ã¾¢¸Ç¢ø ºÃ¢À¢¨Æ À¡÷ôÀÐ, ¾¢Õò¾í¸¨Ç  ¦ºöÅÐ  §À¡ýÈ  º¸Ä  §Å¨Ä¸¨ÇÔõ  ¿¡ý
+´ÕÅ§É  ¦ºöÂ  §ÅñÊÂ¢Õó¾¾¡ø  ¬í¸¡íÌ  º¢Ä  À¢¨Æ¸û  þÕì¸Ä¡õ.  ÌüÈõ  Ì¨È¸¨Ç
+ÁýÉ¢Ôí¸û; ¸ÕòÐ¸¨Çì ÜÚí¸û; ¾¢Õò¾í¸¨Ç ±ØÐí¸û.
+
+«ýÒ¼ý,
+¬÷. º¢ÅÄ¢í¸õ
+(¯¾Â½ý)
+
+Laakavuorentie 4 C 41,
+00970 Helsinki,
+Finland.
+10.09.1994
+
+
