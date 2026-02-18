@@ -1,8 +1,8 @@
-# Aadhan LLM Development Setup - Complete
+# Adhan LLM Development Setup - Complete
 
 ## 🎯 Project Status: READY FOR TRAINING
 
-All components for training the Aadhan Tamil language model are now set up and ready to use.
+All components for training the Adhan Tamil language model are now set up and ready to use.
 
 ---
 
@@ -70,7 +70,7 @@ Two production-ready Jupyter notebooks for training:
   - Saves trained model
   - Tests with inference examples
 
-**Output**: `models/aadhan-mlm-v1/`
+**Output**: `models/adhan-mlm-v1/`
 
 **Framework**: Hugging Face Transformers + PyTorch
 
@@ -137,7 +137,7 @@ Improvements vs. v1.0:
 
 ### Step 1: Run Setup Notebook
 ```bash
-cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/aadhan
+cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/adhan
 jupyter notebook notebooks/01_setup_and_exploration.ipynb
 ```
 ✅ Execute all cells (10-15 minutes)
@@ -154,7 +154,7 @@ from transformers import pipeline
 
 fill_mask = pipeline(
     "fill-mask",
-    model="models/aadhan-mlm-v1",
+    model="models/adhan-mlm-v1",
     local_files_only=True
 )
 
@@ -203,7 +203,7 @@ Inference Speed: 50-100 samples/sec (GPU)
 ## 📁 Project Structure
 
 ```
-aadhan/
+adhan/
 ├── data/                          (Raw & processed data)
 │   └── pre_training/tamil_texts/
 │       ├── all_sentences.jsonl    (original, 2,918 records)
@@ -230,7 +230,7 @@ aadhan/
 ├── models/                        (Outputs)
 │   ├── tokenized_datasets/        (from notebook 1)
 │   ├── checkpoints/               (training checkpoints)
-│   └── aadhan-mlm-v1/             (final trained model)
+│   └── adhan-mlm-v1/             (final trained model)
 │
 ├── logs/                          (tensorboard logs)
 │
@@ -398,7 +398,7 @@ Before training, verify:
 
 **Command to verify**:
 ```bash
-cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/aadhan
+cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/adhan
 ls -R notebooks/ models/ src/data_scraper/ *.md
 ```
 
@@ -410,7 +410,7 @@ Everything is set up. You're ready to:
 
 1. **Run Notebook 1**: `jupyter notebook notebooks/01_setup_and_exploration.ipynb`
 2. **Run Notebook 2**: `jupyter notebook notebooks/02_model_training.ipynb`
-3. **Use the Model**: Load from `models/aadhan-mlm-v1/`
+3. **Use the Model**: Load from `models/adhan-mlm-v1/`
 
 ---
 

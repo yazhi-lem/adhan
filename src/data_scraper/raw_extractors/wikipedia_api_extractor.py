@@ -85,7 +85,7 @@ def main():
         logger.error('wikipedia-api package not found. Install with: pip install wikipedia-api')
         return
 
-    wiki = wikipediaapi.Wikipedia(language='ta', extract_format=wikipediaapi.ExtractFormat.WIKI, user_agent='AadhanTamilCorpus/1.0')
+    wiki = wikipediaapi.Wikipedia(language='ta', extract_format=wikipediaapi.ExtractFormat.WIKI, user_agent='AdhanTamilCorpus/1.0')
     scraper = TamilCorpusScraper(base_dir='data/raw')
 
     kws = [k.strip() for k in args.keywords.split(',') if k.strip()]

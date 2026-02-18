@@ -1,7 +1,7 @@
 # Projects Configuration
 
-## Project: Aadhan
-- **Description:** Aadhan (Tamil: ஆதான்) - Foundational models and datasets for Tamil language processing.
+## Project: Adhan
+- **Description:** Adhan (Tamil: ஆதன்) — Tamil First LLM. Named after earliest Tamil words from Adichanallur (905-696 BC) & Keezhadi excavations.
 - **Location:** `/home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/aadhan/`
 - **Type:** Open Source Software (OSS)
 - **Timestamp:** 2026-02-17 21:34:00

@@ -1,8 +1,8 @@
-# Aadhan Model Training Guide
+# Adhan Model Training Guide
 
 ## Overview
 
-This guide walks through the complete process of training the Aadhan Tamil language model using the modern Tamil corpus.
+This guide walks through the complete process of training the Adhan Tamil language model using the modern Tamil corpus.
 
 **Status**: Ready for training  
 **Framework**: Hugging Face Transformers  
@@ -64,11 +64,11 @@ Total Training Steps: ~380 (38 steps/epoch × 10 epochs)
 ```
 
 **Key Outputs**:
-- Trained model: `models/aadhan-mlm-v1/`
+- Trained model: `models/adhan-mlm-v1/`
 - Checkpoints: `models/checkpoints/`
 - Training logs: `logs/`
 - Metrics visualization: `notebooks/02_training_metrics.png`
-- Results summary: `models/aadhan-mlm-v1/training_results.json`
+- Results summary: `models/adhan-mlm-v1/training_results.json`
 
 **Duration**: 
 - GPU (NVIDIA A100): ~20-30 minutes
@@ -86,7 +86,7 @@ Total Training Steps: ~380 (38 steps/epoch × 10 epochs)
 ### 3️⃣ `03_downstream_tasks.ipynb` - Fine-tuning (Optional)
 
 **What it does** (planned):
-- Loads trained Aadhan model
+- Loads trained Adhan model
 - Fine-tunes for specific downstream tasks:
   - Named Entity Recognition (NER)
   - Sentiment Analysis
@@ -104,7 +104,7 @@ Total Training Steps: ~380 (38 steps/epoch × 10 epochs)
 ### Step 1: Run Setup Notebook
 
 ```bash
-cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/aadhan
+cd /home/neutron/.openclaw/zorba/Projects/OSS/yazhi/models/adhan
 jupyter notebook notebooks/01_setup_and_exploration.ipynb
 ```
 
@@ -128,7 +128,7 @@ Execute all cells to train the model. **Ensure GPU is available** for faster tra
 
 **Expected Output**:
 ```
-✅ Model saved to models/aadhan-mlm-v1/
+✅ Model saved to models/adhan-mlm-v1/
 - pytorch_model.bin (500 MB)
 - config.json
 - tokenizer.json
@@ -142,7 +142,7 @@ from transformers import pipeline
 
 fill_mask = pipeline(
     "fill-mask",
-    model="models/aadhan-mlm-v1",
+    model="models/adhan-mlm-v1",
     local_files_only=True
 )
 
@@ -251,7 +251,7 @@ models/tokenized_datasets/
          ↓
     [Notebook 2: Training]
          ↓
-models/aadhan-mlm-v1/ ← TRAINED MODEL
+models/adhan-mlm-v1/ ← TRAINED MODEL
 ├── pytorch_model.bin (500 MB)
 ├── config.json
 ├── tokenizer.json
@@ -454,7 +454,7 @@ text = tscii_to_unicode(text)
 
 ### Model Cards
 - Base model: [xlm-roberta-base](https://huggingface.co/xlm-roberta-base)
-- Our model: See `models/aadhan-mlm-v1/README.md`
+- Our model: See `models/adhan-mlm-v1/README.md`
 
 ---
 

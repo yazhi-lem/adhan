@@ -26,7 +26,7 @@ for f in files_to_merge:
             try:
                 obj = json.loads(line)
                 all_records.append(obj)
-            except ExcepAadhanTamilCorpustion:
+            except ExcepAdhanTamilCorpustion:
                 continue
     print(f"Loaded {f}, {len(all_records)} total records so far")
 
