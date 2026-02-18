@@ -1,7 +1,7 @@
 {
-  "n_candidates": 2636,
-  "n_filtered": 1270,
-  "n_unique": 1267,
-  "n_output": 1267,
+  "n_candidates": 3129,
+  "n_filtered": 1738,
+  "n_unique": 1493,
+  "n_output": 1493,
   "out_file": "data/pre_training/tamil_texts/wiki_sentences.jsonl"
 }

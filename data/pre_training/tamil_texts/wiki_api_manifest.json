@@ -1,0 +1,7 @@
+{
+  "n_candidates": 1524,
+  "n_filtered": 1491,
+  "n_unique": 1427,
+  "n_output": 1427,
+  "out_file": "data/pre_training/tamil_texts/wiki_api_sentences.jsonl"
+}
