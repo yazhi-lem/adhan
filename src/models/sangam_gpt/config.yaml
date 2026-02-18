@@ -1,0 +1,44 @@
+# Tamil Model Training Configuration
+
+# Model settings
+model_name: "sangam/IndianLanguages-Tamil-BERT-v0.1"
+model_type: "causal_lm"  # Options: causal_lm, masked_lm
+vocab_size: null  # Set to custom size if needed, null = use model default
+max_length: 512
+
+# Data settings
+data_dir: "data/pre_training/tamil_texts/hf"
+train_file: "train.jsonl"
+val_file: "validation.jsonl"
+test_file: "test.jsonl"
+text_column: "text"
+
+# Training settings
+output_dir: "models/tamil_model"
+num_epochs: 3
+batch_size: 4
+learning_rate: 5.0e-5
+warmup_steps: 500
+weight_decay: 0.01
+gradient_accumulation_steps: 1
+
+# Evaluation settings
+eval_steps: 500
+save_steps: 500
+save_total_limit: 3
+logging_steps: 100
+
+# Hardware settings
+use_fp16: true  # Use mixed precision training (requires CUDA)
+use_cuda: true  # Use CUDA if available
+num_workers: 4  # Number of data loading workers
+
+# Optional integrations
+use_wandb: false  # Enable Weights & Biases tracking
+wandb_project: "tamil-llm"
+wandb_run_name: null  # Set to custom name or null for auto-generated
+
+# Early stopping
+early_stopping: true
+early_stopping_patience: 3  # Stop if no improvement for N eval steps
+early_stopping_threshold: 0.0  # Minimum improvement threshold
