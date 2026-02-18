@@ -33,12 +33,38 @@ Powered by Sangam Literature and rooted in the earliest Tamil words — from Adi
 ```
 data/
   ├── raw/           # Raw HTML, PDF, manifests, and samples
+  │   └── .cache/    # Scraper cache (auto-generated)
   ├── intermediate/  # Pipeline working files (extracted, rebalanced, etc.)
   └── final/         # Training-ready splits (Hugging Face format)
 src/
   ├── data_scraper/  # Extraction, processing, export, and evaluation scripts
+  │   ├── raw_extractors/       # Web scrapers
+  │   │   ├── tamil_corpus_scraper_enhanced.py  # ✨ NEW: Enhanced scraper with caching
+  │   │   ├── tamil_corpus_scraper.py           # Legacy scraper
+  │   │   ├── wikipedia_api_extractor.py
+  │   │   ├── pdf_book_scraper.py
+  │   │   └── pmworks_extractor.py
+  │   ├── processing/           # Data processing
+  │   │   ├── build_unified_corpus.py           # ✨ NEW: Unified corpus builder
+  │   │   ├── build_pretraining_sentences.py
+  │   │   └── extract_wiki_sentences.py
+  │   ├── export/               # HuggingFace format export
+  │   │   └── export_unified_hf.py              # ✨ NEW: Unified exporter
+  │   └── evaluation/           # Quality validation
+  └── models/
+      └── sangam_gpt/
+          ├── train_enhanced.py                 # ✨ NEW: Enhanced training with config
+          ├── train.py                          # Legacy training script
+          └── config.yaml                       # Training configuration
   └── notebooks/     # Jupyter notebooks for exploration and training
 ```
+
+**✨ New Features:**
+- **Enhanced Scraper**: Improved error handling, caching, and retry logic
+- **Unified Scripts**: Consolidated duplicate functionality
+- **Config-based Training**: YAML/JSON configuration support
+- **Pipeline Integration**: Seamless data → training workflow
+
 
 ---
 
@@ -79,18 +105,60 @@ src/
 
 ## Usage
 
+### Complete End-to-End Pipeline
+
+**1. Scrape and collect Tamil text data:**
+```bash
+# Use enhanced scraper with caching
+python src/data_scraper/raw_extractors/tamil_corpus_scraper_enhanced.py \
+    --source wikipedia \
+    --category Tamil_language \
+    --max-articles 50 \
+    --output tamil_corpus_enhanced.jsonl
+```
+
+**2. Build modern Tamil corpus:**
+```bash
+# Build corpus with modern source prioritization
+python src/data_scraper/processing/build_unified_corpus.py \
+    --strategy modern \
+    --output data/pre_training/tamil_texts/all_sentences_modern.jsonl
+```
+
+**3. Export to HuggingFace format:**
+```bash
+# Export with modern weighting strategy
+python src/data_scraper/export/export_unified_hf.py \
+    --input data/pre_training/tamil_texts/all_sentences_modern.jsonl \
+    --output data/pre_training/tamil_texts/hf \
+    --strategy modern
+```
+
+**4. Train the model:**
+```bash
+# Create configuration file
+python src/models/sangam_gpt/train_enhanced.py --create-config config.yaml
+
+# Edit config.yaml to customize settings, then train
+python src/models/sangam_gpt/train_enhanced.py --config config.yaml
+```
+
+### Alternative: Legacy Scripts
+
 - **Extract and clean data:**
   ```bash
   python src/data_scraper/pmworks_extractor.py
   python src/data_scraper/wikipedia_api_extractor.py
-  # ...other scripts as needed
   ```
 - **Train a model (from notebook):**
   Open and run cells in `src/notebooks/02_model_training.ipynb`.
 - **Export to Hugging Face Datasets:**
   ```bash
-  python src/data_scraper/export_hf_from_sentences.py
+  python src/data_scraper/export/export_hf_from_sentences.py  # DEPRECATED
   ```
+
+**Note**: Legacy scripts are deprecated. Please use the new unified scripts for better reliability and features.
+
 
 ---
 

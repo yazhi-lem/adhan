@@ -26,5 +26,23 @@ Thumbs.db
 # Data (large files - do not commit)
 data/
 
+# Cache directories
+.cache/
+*.cache
+
 # Logs
 *.log
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+
+# Weights & Biases
+wandb/
+
+# Model checkpoints (except final models)
+models/*/checkpoint-*/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
