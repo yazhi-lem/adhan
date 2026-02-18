@@ -1,4 +1,4 @@
-# Adhan: FOSS Tamil LLM Project
+# Adhan: Yazhi's first Tamil LLM Model
 
 Our own Tamil First GPT-based LLM Model.  
 Powered by Sangam Literature and rooted in the earliest Tamil words — from Adichanallur to Keezhadi.
