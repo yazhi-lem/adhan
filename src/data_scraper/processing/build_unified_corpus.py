@@ -8,9 +8,14 @@ import json
 import re
 import hashlib
 import argparse
+import logging
 from pathlib import Path
 from collections import defaultdict
 from typing import List, Dict, Tuple
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def sentence_split(text: str) -> List[str]:
@@ -91,7 +96,36 @@ def load_news_corpus(data_dir: Path) -> List[Dict]:
 
 
 def get_conversational_phrases() -> List[Dict]:
-    """Get sample modern conversational Tamil phrases."""
+    """Get sample modern conversational Tamil phrases from config file."""
+    # Try to load from config file first
+    config_file = Path(__file__).parent / 'conversational_phrases.yaml'
+    
+    if config_file.exists():
+        try:
+            import yaml
+            with config_file.open('r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            
+            phrases = config.get('phrases', [])
+            source = config.get('source', 'modern_conversational')
+            quality_score = config.get('quality_score', 0.7)
+            tamil_fraction = config.get('tamil_fraction', 1.0)
+            
+            records = []
+            for phrase in phrases:
+                if len(phrase) > 10:
+                    records.append({
+                        'text': phrase,
+                        'source': source,
+                        'quality_score': quality_score,
+                        'tamil_fraction': tamil_fraction,
+                        'url': None,
+                    })
+            return records
+        except Exception as e:
+            logger.warning(f"Failed to load phrases from config: {e}. Using fallback.")
+    
+    # Fallback to hardcoded phrases if config not available
     phrases = [
         "நீ என்ன செய்கிறாய் இப்போது?",
         "என்கிட்ட ஒன்னும் சொல்லவில்லை",

@@ -212,14 +212,23 @@ class BaseScraper:
             self.progress['failed'] += 1
             raise
     
-    def is_tamil_text(self, text: str, min_fraction: float = 0.5) -> bool:
-        """Check if text contains sufficient Tamil characters"""
-        if not text:
-            return False
+    def _count_tamil_chars(self, text: str) -> tuple:
+        """Count Tamil and total characters in text.
         
-        # Tamil Unicode range: 0x0B80-0x0BFF
+        Returns:
+            tuple: (tamil_chars, total_chars)
+        """
+        if not text:
+            return (0, 0)
+        
         tamil_chars = sum(1 for c in text if '\u0B80' <= c <= '\u0BFF')
         total_chars = len([c for c in text if c.strip()])
+        
+        return (tamil_chars, total_chars)
+    
+    def is_tamil_text(self, text: str, min_fraction: float = 0.5) -> bool:
+        """Check if text contains sufficient Tamil characters"""
+        tamil_chars, total_chars = self._count_tamil_chars(text)
         
         if total_chars == 0:
             return False
@@ -291,12 +300,7 @@ class BaseScraper:
     
     def _calculate_tamil_fraction(self, text: str) -> float:
         """Calculate fraction of Tamil characters in text"""
-        if not text:
-            return 0.0
-        
-        tamil_chars = sum(1 for c in text if '\u0B80' <= c <= '\u0BFF')
-        total_chars = len([c for c in text if c.strip()])
-        
+        tamil_chars, total_chars = self._count_tamil_chars(text)
         return tamil_chars / total_chars if total_chars > 0 else 0.0
     
     def save_records(self, records: List[Dict], filename: str):
