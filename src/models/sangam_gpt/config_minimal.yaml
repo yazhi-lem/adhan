@@ -1,0 +1,22 @@
+# Minimal Tamil Model Configuration
+# Optimized for security and performance
+
+# Model (using smaller, faster model by default)
+model_name: "distilgpt2"  # 82M params - faster than full GPT2
+data_dir: "data/pre_training/tamil_texts/hf"
+output_dir: "models/tamil_minimal"
+
+# Training (conservative defaults for safety)
+num_epochs: 3
+batch_size: 8
+learning_rate: 5e-5
+warmup_steps: 500
+
+# Performance optimizations
+num_workers: 4
+gradient_accumulation_steps: 2  # Effective batch = 8 * 2 = 16
+
+# Advanced options (commented for minimal config)
+# use_wandb: false
+# early_stopping: true
+# max_grad_norm: 1.0
