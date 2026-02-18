@@ -23,9 +23,8 @@ build/
 .DS_Store
 Thumbs.db
 
-# Data (large files - commit manifests only)
-# data/pre_training/tamil_texts/*.jsonl
-# data/pre_training/tamil_texts/hf/
+# Data (large files - do not commit)
+data/
 
 # Logs
 *.log
