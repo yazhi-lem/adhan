@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+DEPRECATED: Use export_unified_hf.py instead with --strategy modern
+
 Export modern-enhanced corpus to HF format with source/style weighting.
 Prioritize modern sources in train/val/test splits.
+
+This script is deprecated. Use the unified exporter:
+    python src/data_scraper/export/export_unified_hf.py --strategy modern
 """
 import json
 import hashlib
 import random
+import warnings
 from pathlib import Path
 from collections import defaultdict
+
+warnings.warn(
+    "export_modern_hf.py is deprecated. "
+    "Use export_unified_hf.py with --strategy modern instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 INPUT_FILE = Path('data/pre_training/tamil_texts/all_sentences_modern.jsonl')
 OUTPUT_DIR = Path('data/pre_training/tamil_texts/hf')

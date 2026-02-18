@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+DEPRECATED: Use export_unified_hf.py instead with --strategy standard
+
 Export sentences JSONL to HuggingFace-style train/validation/test JSONL splits.
+
+This script is deprecated. Use the unified exporter:
+    python src/data_scraper/export/export_unified_hf.py --strategy standard
 """
 import json
+import warnings
 from pathlib import Path
+
+warnings.warn(
+    "export_hf_from_sentences.py is deprecated. "
+    "Use export_unified_hf.py with --strategy standard instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 IN_FILE = Path('data/pre_training/tamil_texts/all_sentences.jsonl')
 OUT_DIR = Path('data/pre_training/tamil_texts/hf')
