@@ -1,0 +1,19 @@
+# Modern Tamil Conversational Phrases
+# Used for enriching the corpus with contemporary spoken Tamil
+
+phrases:
+  - "நீ என்ன செய்கிறாய் இப்போது?"
+  - "என்கிட்ட ஒன்னும் சொல்லவில்லை"
+  - "இந்த பொருட்களுக்கு என்ன விலை?"
+  - "நான் வீட்டுக்கு போகிறேன்"
+  - "அவங்க எங்கு போனார்கள்?"
+  - "கடந்த வாரம் செய்த வேலை சொல்லுங்கள்"
+  - "மக்கள் இதை கேட்டால் சந்தோஷப்படுவார்கள்"
+  - "நாம் செய்தது சரியே"
+  - "வந்த பேருக்கு வேறு சொல்லிட்டாங்க"
+  - "தமிழ் மொழியை பயன்படுத்த வேண்டும்"
+
+# Metadata
+source: "modern_conversational"
+quality_score: 0.7
+tamil_fraction: 1.0

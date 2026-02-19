@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+DEPRECATED: Use build_unified_corpus.py instead with --strategy modern
+
 Build modern Tamil corpus by extracting sentences from social/news sources.
 Process tamil_social_sample.jsonl, tamil_corpus.txt, and other modern sources.
+
+This script is deprecated. Use the unified corpus builder:
+    python src/data_scraper/processing/build_unified_corpus.py --strategy modern
 """
 import json
 import re
 import hashlib
+import warnings
 from pathlib import Path
 from collections import defaultdict
+
+warnings.warn(
+    "build_modern_tamil_sources.py is deprecated. "
+    "Use build_unified_corpus.py with --strategy modern instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 def sentence_split(text):
     """Split text into sentences by Tamil punctuation and newlines."""

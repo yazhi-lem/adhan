@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+DEPRECATED: Use build_unified_corpus.py instead with --strategy rebalanced
+
 Rebalance corpus: prioritize modern/news/social sources, filter archaic literary texts.
 Rebuild with weighted selection to favor contemporary Tamil.
+
+This script is deprecated. Use the unified corpus builder:
+    python src/data_scraper/processing/build_unified_corpus.py --strategy rebalanced
 """
 import json
 import hashlib
 import re
+import warnings
 from pathlib import Path
 from collections import defaultdict
+
+warnings.warn(
+    "build_modern_tamil_corpus.py is deprecated. "
+    "Use build_unified_corpus.py with --strategy rebalanced instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 IN_FILE = Path('data/pre_training/tamil_texts/all_sentences.jsonl')
 OUT_FILE = Path('data/pre_training/tamil_texts/all_sentences_rebalanced.jsonl')
