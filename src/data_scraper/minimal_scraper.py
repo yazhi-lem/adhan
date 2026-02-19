@@ -357,11 +357,6 @@ def _parse_args() -> argparse.Namespace:
         default="data/scraped/minimal.jsonl",
         help="Output JSONL file path",
     )
-    parser.add_argument(
-        "--output-dir",
-        default="data/scraped",
-        help="Directory for saving output (overridden by --output if absolute)",
-    )
     return parser.parse_args()
 
 
