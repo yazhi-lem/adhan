@@ -6,6 +6,32 @@ This directory contains high‑level site crawlers, PDF extractors and small uti
 
 ---
 
+## Minimal Scraper (Recommended)
+
+For quick, high-quality Tamil data collection:
+
+```bash
+python src/data_scraper/minimal_scraper.py --domains govt,news,wiki --limit 100
+```
+
+Scrapes 300–500 records in <5 minutes from:
+- TN Government schemes (official Tamil, quality 0.9)
+- Tamil news headlines (modern conversational, quality 0.7)
+- Wikipedia current events (formal contemporary, quality 0.8)
+
+Full options:
+
+```bash
+python src/data_scraper/minimal_scraper.py \
+  --domains govt,news,wiki \
+  --limit 100 \
+  --output data/scraped/minimal.jsonl
+```
+
+Output is JSONL with fields: `text`, `source`, `url`, `quality_score`, `id`.
+
+---
+
 ## Contents 📂
 
 - `tamil_corpus_scraper.py` — main crawler and extractor (sitemaps, literature sites, news, social simulacra). Supports FineWeb‑style filtering, HF export, PDF extraction and manifest building.
