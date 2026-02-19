@@ -19,6 +19,11 @@ from typing import List, Dict
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+# Import core constants
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.core import TAMIL_HASHTAGS
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -215,7 +220,7 @@ def main():
 
     if 'social' in include:
         try:
-            hashtags = ['tamil','tamilculture','tamilpoetry']
+            hashtags = TAMIL_HASHTAGS[:10]  # Use core hashtags
             texts = scraper.scrape_social_media(hashtags)
             for t in texts:
                 for s in split_sentences(t):

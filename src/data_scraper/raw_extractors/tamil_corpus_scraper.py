@@ -19,6 +19,11 @@ import time
 import logging
 from typing import List, Dict, Optional
 
+# Import core constants
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.core import TAMIL_HASHTAGS
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -1008,7 +1013,7 @@ def main():
             book_paths = []
             add_many(scraper.scrape_tamil_books(book_paths), "books")
         if 'social' in args.sources:
-            hashtags = ['#tamil', '#tamilculture', '#tamilpoetry']
+            hashtags = ['#' + tag for tag in TAMIL_HASHTAGS[:5]]  # Use core hashtags
             add_many(scraper.scrape_social_media(hashtags), "social")
 
     initial_count = len(records)

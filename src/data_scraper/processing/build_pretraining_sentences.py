@@ -26,6 +26,11 @@ from typing import List, Dict
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+# Import core constants
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.core import TAMIL_HASHTAGS, COLLOQUIAL_PATTERNS
+
 SEED = 42
 random.seed(SEED)
 
@@ -75,7 +80,7 @@ def collect_candidates(scraper: TamilCorpusScraper, sources: List[str], max_arti
 
     if 'social' in sources:
         try:
-            hashtags = ['tamil', 'tamilculture', 'tamilpoetry']
+            hashtags = TAMIL_HASHTAGS[:10]  # Use core hashtags
             texts = scraper.scrape_social_media(hashtags)
             for t in texts:
                 candidates.append({'text': t, 'source': 'social', 'url': None})
