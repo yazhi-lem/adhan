@@ -3,7 +3,7 @@
 merge_corpora.py - Merge ADHAN and VAZHI datasets into a unified Tamil training corpus.
 
 Usage:
-    python scripts/merge_corpora.py \
+    python src/data_scraper/merge_corpora.py \
         --adhan_dir data/final/tamil_texts/hf \
         --vazhi_repo ../vazhi \
         --output data/unified/tamil_6k.jsonl \
