@@ -2,6 +2,36 @@
 
 Tamil-first LLM data + training pipeline.
 
+## Vision Board
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ADHAN VISION                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐                │
+│   │  Tamil   │    │  Open    │    │  Edge    │                │
+│   │  Native  │───▶│  Source  │───▶│  Deploy  │                │
+│   │  LLM     │    │  Model   │    │  (ONNX)  │                │
+│   └──────────┘    └──────────┘    └──────────┘                │
+│        │                                       │                │
+│        ▼                                       ▼                │
+│   ┌──────────┐                         ┌──────────┐            │
+│   │ 1.2K+    │                         │  Mobile  │            │
+│   │ Samples  │                         │  /IoT    │            │
+│   │ Ready    │                         │  Ready   │            │
+│   └──────────┘                         └──────────┘            │
+│                                                                  │
+│   MISSION: Open Tamil LLM for everyone                           │
+│   ────────────────────────────────────────────────────          │
+│   Phase 1: Data Pipeline    [██████░░░░] 60%                    │
+│   Phase 2: Model Training   [██░░░░░░░░] 10%                    │
+│   Phase 3: ONNX Export      [░░░░░░░░░░] 0%                     │
+│   Phase 4: Downstream Apps  [░░░░░░░░░░] 0%                     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ## Recent changes
 
 - Added shared constants in `src/core/`
