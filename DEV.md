@@ -54,6 +54,25 @@ python scripts/run_model.py \
   --batch-size 4
 ```
 
+## 6) Organisation repo stats
+
+Show statistics (stars, forks, open issues, language, size, dates) for every
+repository in the **yazhi-lem** GitHub organisation:
+
+```bash
+# Human-readable table (no auth — subject to GitHub rate limits)
+python scripts/repo_stats.py
+
+# Authenticated request (higher rate limit)
+python scripts/repo_stats.py --token "$GITHUB_TOKEN"
+
+# Machine-readable JSON output
+python scripts/repo_stats.py --token "$GITHUB_TOKEN" --json
+
+# Skip the per-repo language breakdown call
+python scripts/repo_stats.py --no-languages
+```
+
 ## Notes
 
 - Run from repository root.
