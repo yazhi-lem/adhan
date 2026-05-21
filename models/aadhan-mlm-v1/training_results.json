@@ -1,0 +1,13 @@
+{
+  "model_name": "xlm-roberta-base",
+  "final_model_dir": "/home/zrya/Yazhi/Adhan/adhan/models/aadhan-mlm-v1",
+  "training_started": "2026-02-19T21:51:02.107624",
+  "training_loss": 2.7036868731180825,
+  "val_loss": 2.0959811210632324,
+  "test_loss": 1.864943504333496,
+  "test_perplexity": 6.455571163893144,
+  "epochs": 3,
+  "batch_size": 8,
+  "learning_rate": 5e-05,
+  "num_parameters": 278295186
+}

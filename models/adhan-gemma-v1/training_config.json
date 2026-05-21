@@ -1,0 +1,18 @@
+{
+  "model_name": "google/gemma-3-1b-it",
+  "device": "cpu",
+  "use_4bit": false,
+  "use_fp16": false,
+  "max_length": 128,
+  "lora_r": 4,
+  "lora_alpha": 8,
+  "lora_dropout": 0.05,
+  "epochs": 1,
+  "batch_size": 1,
+  "grad_accum": 8,
+  "learning_rate": 0.0002,
+  "train_loss": 4.557447002047584,
+  "val_loss": 4.052835941314697,
+  "test_loss": 4.237180709838867,
+  "timestamp": "2026-02-20T15:47:22.300245"
+}
