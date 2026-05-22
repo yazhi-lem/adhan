@@ -2,12 +2,11 @@
 
 Tamil-first LLM data + training pipeline.
 
-## Project Structure
+## Recent changes
 
-- `notebooks/` — Jupyter notebooks for exploration and training (e.g. Gemma LoRA)
-- `src/training/` — Unified training scripts (CPU & GPU)
-- `src/data_scraper/` — Corpus generation and merging
-- `src/models/` — Base model architectures
+- Added shared constants in `src/core/`
+- Added corpus merger: `src/data_scraper/merge_corpora.py`
+- Added Gemma training notebook: `src/notebooks/03_gemma_training.ipynb`
 
 ## Quick start
 
