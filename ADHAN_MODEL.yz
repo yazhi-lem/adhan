@@ -1,0 +1,44 @@
+# ==============================================================================
+#                     ADHAN MODEL — General Tamil LLM
+#                     ADHAN_MODEL.yz — Pointer + Summary
+#                     Status: Data Ready, Training Phase | Updated: 2026-06-11
+# ==============================================================================
+
+# POINTER: Full implementation at oss/models/adhan/
+
+  Source:      oss/models/adhan/
+  README:      oss/models/adhan/README.md
+  Roadmap:     oss/models/adhan/ROADMAP.md
+  Arch docs:   oss/models/adhan/docs/ (14 documents)
+  Data:        oss/models/adhan/data/
+  Checkpoints: oss/models/adhan/models/
+  Scripts:     oss/models/adhan/scripts/
+  Training:    scripts/train_adhan.py
+
+# SUMMARY
+
+  Purpose:    Production-grade Tamil LLM. Powers enterprise agent stack.
+              Tolkappiyam-standard. On-premise deployable.
+
+  Base:       Fine-tuned from Gemma / OpenHathi
+  Corpus:     Sangam literature + modern Tamil (news, govt, literature)
+  Target:     High-fidelity Tamil generation, translation, doc processing
+
+  Phases (from ROADMAP.md):
+  1. Data collection     ✅ Complete
+  2. Training            🔄 Active
+  3. Social media corpus   Planned
+  4. ONNX quantization     Planned
+  5. Downstream tasks      Planned
+
+  Enterprise use:
+  - Bundled with Agam Enterprise node (service/agent/)
+  - Local inference, no API fees, DPDP compliant
+  - Pricing: ₹10,00,000–₹15,00,000 setup
+
+# RELATIONSHIP
+  adhan  →  service/agent/ enterprise stack
+  adhan  →  service/annotation/ pre-annotation pipeline
+  adhan  →  models/amudh/ (language component base)
+
+# ==============================================================================
