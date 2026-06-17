@@ -30,7 +30,8 @@
               Tolkappiyam-standard. On-premise deployable.
 
   Architecture: DECODER-ONLY TRANSFORMER, designed for Tamil morphology:
-  - Custom Tamil BPE tokenizer (NOT adapted from English)
+  - **Tokenizer (primary):** Custom Tamil BPE (50K-65K vocab, NOT adapted from English)
+  - **Tokenizer (research track):** Swaram-based tokenizer — see SWARAM_VS_TOKEN_RESEARCH.md
   - Vocabulary: 50,000-65,000 tokens (Tamil-optimized, includes compound forms)
   - Context: 4K tokens (longer than typical English models for agglutinative morphology)
   - Embeddings: 1,024-2,048 dim (calibrated for Tamil semantic density)
@@ -45,6 +46,16 @@
   - Total pre-training tokens: 1B-10B (depending on model size)
   - Hardware: Sovereign cluster (S-Nodes) + opportunistic cloud GPU
   - License: Apache 2.0
+
+  Swaram research track (PARALLEL experiment):
+  - See docs/research/SWARAM_VS_TOKEN_RESEARCH.md for full rationale
+  - Hypothesis: Swarams (Tamil musical atoms) are better atomic units than BPE tokens
+  - Train Adhan-S (swaram tokenizer) alongside Adhan-B (BPE) on identical data
+  - Compare empirically in Q1 2027
+  - If swaram wins by >=10%: ship Adhan v2 with swaram tokenizer
+  - If swaram competitive (within 5%): offer both, swaram for Tamil-first users
+  - Connection to Pann isai: Tamil's musical origins (Tolkappiyam, 3rd c. BCE)
+  - Connection to token-free research: ByT5 (Google 2021), CANINE (Google 2022)
 
   Phases (UPDATED Jun 18):
   1. Data collection         ✅ Complete (Sangam + modern + synthetic)
