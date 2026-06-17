@@ -1,10 +1,19 @@
-# ==============================================================================
-#                     ADHAN MODEL — General Tamil LLM
-#                     ADHAN_MODEL.yz — Pointer + Summary
-#                     Status: Data Ready, Training Phase | Updated: 2026-06-11
-# ==============================================================================
+// =============================================================================
+//                     ADHAN MODEL — General Tamil LLM
+//                     ADHAN_MODEL.yz — Pointer + Summary
+//                     Status: PIVOTING to Tamil-first (from-scratch) | Updated: 2026-06-18
+// =============================================================================
+//
+// ⚠️ STRATEGIC PIVOT (Jun 18, 2026, 03:00 IST):
+// See `docs/TAMIL_FIRST_DOCTRINE.md` for full rationale.
+// Adhan will NO LONGER be fine-tuned from Gemma/OpenHathi.
+// Adhan will be PRE-TRAINED FROM SCRATCH on Tamil-dominant corpus
+// using OpenSangam as the seed foundation. This is a 6-month architectural
+// pivot (Sep 2026 → Mar 2027).
+//
+// =============================================================================
 
-# POINTER: Full implementation at oss/models/adhan/
+// POINTER: Full implementation at oss/models/adhan/
 
   Source:      oss/models/adhan/
   README:      oss/models/adhan/README.md
@@ -15,30 +24,60 @@
   Scripts:     oss/models/adhan/scripts/
   Training:    scripts/train_adhan.py
 
-# SUMMARY
+// SUMMARY
 
   Purpose:    Production-grade Tamil LLM. Powers enterprise agent stack.
               Tolkappiyam-standard. On-premise deployable.
 
-  Base:       Fine-tuned from Gemma / OpenHathi
-  Corpus:     Sangam literature + modern Tamil (news, govt, literature)
-  Target:     High-fidelity Tamil generation, translation, doc processing
+  Architecture: DECODER-ONLY TRANSFORMER, designed for Tamil morphology:
+  - Custom Tamil BPE tokenizer (NOT adapted from English)
+  - Vocabulary: 50,000-65,000 tokens (Tamil-optimized, includes compound forms)
+  - Context: 4K tokens (longer than typical English models for agglutinative morphology)
+  - Embeddings: 1,024-2,048 dim (calibrated for Tamil semantic density)
+  - Layers: 12-24 (depending on parameter budget: 100M, 300M, 1B)
+  - Attention: Multi-head with Tamil-specific positional encoding
 
-  Phases (from ROADMAP.md):
-  1. Data collection     ✅ Complete
-  2. Training            🔄 Active
-  3. Social media corpus   Planned
-  4. ONNX quantization     Planned
-  5. Downstream tasks      Planned
+  Pre-training: FROM SCRATCH on Tamil-dominant corpus
+  - Seed corpus: OpenSangam (CC-BY Tamil literature, ~505K tokens core)
+  - Extended corpus: Modern Tamil (news, govt, literature — Agam-private tier)
+  - Synthetic data: Tamil dialogue (CC-BY)
+  - Training objective: Causal LM with Tamil span masking
+  - Total pre-training tokens: 1B-10B (depending on model size)
+  - Hardware: Sovereign cluster (S-Nodes) + opportunistic cloud GPU
+  - License: Apache 2.0
+
+  Phases (UPDATED Jun 18):
+  1. Data collection         ✅ Complete (Sangam + modern + synthetic)
+  2. Tamil tokenizer design  🔄 Active (Q3 2026)
+  3. Architecture design     🔄 Active (Q3 2026)
+  4. From-scratch pre-train  📋 Planned (Q4 2026 - Q1 2027)
+  5. Instruction tuning      📋 Planned (Q1 2027)
+  6. ONNX quantization       📋 Planned (Q2 2027)
+  7. Downstream tasks        📋 Planned (Q2 2027)
+
+  LEGACY (archive as `adhan-gemma-v0.5`):
+  - Gemma-fine-tuned model (NOT Tamil-first, transitional only)
+  - Deprecate after from-scratch v1.0 ships
 
   Enterprise use:
   - Bundled with Agam Enterprise node (service/agent/)
   - Local inference, no API fees, DPDP compliant
   - Pricing: ₹10,00,000–₹15,00,000 setup
 
-# RELATIONSHIP
+// RELATIONSHIP
   adhan  →  service/agent/ enterprise stack
   adhan  →  service/annotation/ pre-annotation pipeline
   adhan  →  models/amudh/ (language component base)
+  adhan  →  models/yazh/ (Yazh is a productized subset for kids)
+  adhan  ←  models/sangam/ (OpenSangam is the seed corpus)
 
-# ==============================================================================
+// TAMIL-FIRST COMPLIANCE
+  This model adheres to /home/neutron/Yazhi/docs/TAMIL_FIRST_DOCTRINE.md:
+  ✅ Custom Tamil tokenizer (not adapted)
+  ✅ Tamil-dominant pre-training corpus (>= 90%)
+  ✅ Tamil-tuned architecture (context length, embedding dim)
+  ✅ Tamil-first evaluation (not translated from English)
+  ✅ Open weights (Apache 2.0)
+  ❌ NO LONGER: Gemma-fine-tuning (deprecated)
+
+// ==============================================================================
