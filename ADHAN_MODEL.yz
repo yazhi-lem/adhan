@@ -39,13 +39,25 @@
   - Attention: Multi-head with Tamil-specific positional encoding
 
   Pre-training: FROM SCRATCH on Tamil-dominant corpus
-  - Seed corpus: OpenSangam (CC-BY Tamil literature, ~505K tokens core)
-  - Extended corpus: Modern Tamil (news, govt, literature — Agam-private tier)
+  - Seed corpus: OpenSangam (CC-BY Tamil literature, ~500K tokens core)
+  - Extended corpus: News Tamil (Dinamalar, Dinamani, BBC Tamil — modern vocabulary)
+  - Extended corpus: Colloquial Tamil (podcasts, dialogues, movie scripts — spoken register)
+  - Extended corpus: Children's Tamil (simple sentences — Yazh alignment)
   - Synthetic data: Tamil dialogue (CC-BY)
   - Training objective: Causal LM with Tamil span masking
   - Total pre-training tokens: 1B-10B (depending on model size)
   - Hardware: Sovereign cluster (S-Nodes) + opportunistic cloud GPU
   - License: Apache 2.0
+  
+  Tamil natures (MUST handle):
+  - Agglutinative morphology (suffix chaining, not English-style words)
+  - Sandhi rules (sound changes at word boundaries)
+  - Diglossia (literary vs spoken registers — both required)
+  - SOV word order (not English SVO)
+  - Pro-drop (subjects often dropped)
+  - No articles (no a/an/the)
+  - 247+ letters (Tamil script complexity)
+  - Swaram-based phonology (Pann isai origins)
 
   Swaram research track (PARALLEL experiment):
   - See docs/research/SWARAM_VS_TOKEN_RESEARCH.md for full rationale
