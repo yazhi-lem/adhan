@@ -63,3 +63,48 @@ python scripts/run_model.py \
   - `export_unified_hf.py`
   - `train_enhanced.py`
   - `src/data_scraper/merge_corpora.py` (optional)
+
+## 6) Social media collection (Phase 2)
+
+```bash
+# Reddit only
+python scripts/run_scraper.py --social reddit --social-max-posts 500
+
+# Twitter/X only
+python scripts/run_scraper.py --social twitter --social-max-requests 100
+
+# Both + corpus rebuild
+python scripts/run_scraper.py --social all
+```
+
+## 7) ONNX export + quantization (Phase 3)
+
+```bash
+# Export trained model to ONNX
+python scripts/export_onnx.py \
+  --model-dir models/adhan \
+  --output-dir models/adhan_onnx
+
+# INT8 dynamic quantization (no calibration data required)
+python scripts/quantize_model.py \
+  --model-dir models/adhan_onnx \
+  --mode int8-dynamic \
+  --benchmark
+
+# INT4 weight-only quantization (requires optimum[onnxruntime])
+python scripts/quantize_model.py \
+  --model-dir models/adhan_onnx \
+  --mode int4
+```
+
+## 8) Sentiment analysis fine-tuning (Phase 4)
+
+```bash
+python src/models/sentiment/train_sentiment.py \
+  --train-file data/sentiment/train.jsonl \
+  --val-file   data/sentiment/val.jsonl \
+  --model-name xlm-roberta-base \
+  --output-dir models/adhan_sentiment \
+  --num-labels 2 \
+  --num-epochs 5
+```

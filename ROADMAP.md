@@ -1,6 +1,6 @@
 # Adhan Roadmap
 
-## Project Completion: ~35%
+## Project Completion: ~60%
 
 ### ✅ Completed
 - [x] Data pipeline (scrapers, cleaners, processors)
@@ -20,20 +20,21 @@
 - [ ] Generate training metrics
 
 #### Phase 2: Social Media Integration
-- [ ] Add Twitter/X scraper for Tamil content
-- [ ] Add Reddit (r/Tamil, r/tamilnadu) scraper
+- [x] Add Reddit (r/Tamil, r/tamilnadu, r/kollywood, r/Chennai) scraper → `src/data_scraper/raw_extractors/reddit_scraper.py`
+- [x] Add Twitter/X collector (via Nitter, no API key) → `src/data_scraper/raw_extractors/twitter_scraper.py`
+- [x] Integrate social scrapers into `scripts/run_scraper.py` (`--social reddit|twitter|all`)
 - [ ] Add Instagram/Telegram collectors
 - [ ] Build colloquial Tamil corpus expansion
 
 #### Phase 3: Optimization (ONNX/Quantization)
-- [ ] Convert to ONNX format
-- [ ] INT8 post-training quantization
-- [ ] INT4 quantization for edge deployment
+- [x] Convert to ONNX format → `scripts/export_onnx.py` (supports optimum & torch fallback)
+- [x] INT8 dynamic and static post-training quantization → `scripts/quantize_model.py`
+- [x] INT4 weight-only quantization for edge deployment → `scripts/quantize_model.py --mode int4`
 - [ ] Benchmark on Raspberry Pi 5
 
 #### Phase 4: Downstream Tasks
 - [ ] Fine-tune for NER
-- [ ] Fine-tune for Sentiment Analysis
+- [x] Fine-tune for Sentiment Analysis → `src/models/sentiment/train_sentiment.py`
 - [ ] Build instruction-tuning dataset
 - [ ] Create chat/inference demo
 
@@ -47,3 +48,8 @@
 
 ## Next Action
 Run training notebook or expand social media data.
+
+## Recent completions (Phase 2–4)
+- Social media scrapers (Reddit + Twitter/X) added and integrated into `run_scraper.py`
+- ONNX export (`scripts/export_onnx.py`) and INT8/INT4 quantization (`scripts/quantize_model.py`) added
+- Tamil sentiment fine-tuning trainer added (`src/models/sentiment/train_sentiment.py`)
