@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Run corpus build + HF export pipeline."""
+"""Run corpus build + HF export pipeline.
+
+Optional social-media pre-collection:
+  --social reddit    Run the Reddit Tamil scraper before building the corpus.
+  --social twitter   Run the Twitter/X Tamil collector before building the corpus.
+  --social all       Run both social scrapers.
+"""
 
 from __future__ import annotations
 
@@ -48,8 +54,42 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--no-dedupe", action="store_true")
 
+    # Social media collection
+    parser.add_argument(
+        "--social",
+        choices=["reddit", "twitter", "all"],
+        default=None,
+        help="Run social-media scraper(s) before corpus build.",
+    )
+    parser.add_argument("--social-output-dir", default="data/raw/social",
+                        help="Base output dir for social scrapers.")
+    parser.add_argument("--social-max-posts", type=int, default=500,
+                        help="Max posts per subreddit (Reddit scraper).")
+    parser.add_argument("--social-max-requests", type=int, default=100,
+                        help="Max HTTP requests (Twitter scraper).")
+
     args = parser.parse_args()
 
+    # ── optional social collection ─────────────────────────────────────────────
+    if args.social in ("reddit", "all"):
+        reddit_cmd = [
+            sys.executable,
+            str(ROOT / "src/data_scraper/raw_extractors/reddit_scraper.py"),
+            "--output-dir", str(Path(args.social_output_dir) / "reddit"),
+            "--max-posts", str(args.social_max_posts),
+        ]
+        run_command(reddit_cmd, args.dry_run)
+
+    if args.social in ("twitter", "all"):
+        twitter_cmd = [
+            sys.executable,
+            str(ROOT / "src/data_scraper/raw_extractors/twitter_scraper.py"),
+            "--output-dir", str(Path(args.social_output_dir) / "twitter"),
+            "--max-requests", str(args.social_max_requests),
+        ]
+        run_command(twitter_cmd, args.dry_run)
+
+    # ── corpus build ───────────────────────────────────────────────────────────
     build_cmd = [
         sys.executable,
         str(ROOT / "src/data_scraper/processing/build_unified_corpus.py"),
