@@ -1,2 +1,4 @@
 """Adhan CLI module."""
-__all__ = []
+from .main import main
+
+__all__ = ["main"]

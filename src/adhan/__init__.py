@@ -32,6 +32,12 @@ from .data import (
     CorpusSample,
     BaseScraper,
 )
+from .models import (
+    BaseModel,
+    Trainer,
+    Evaluator,
+    InferenceEngine,
+)
 
 __all__ = [
     "Config",
@@ -48,4 +54,8 @@ __all__ = [
     "Corpus",
     "CorpusSample",
     "BaseScraper",
+    "BaseModel",
+    "Trainer",
+    "Evaluator",
+    "InferenceEngine",
 ]
