@@ -1,0 +1,59 @@
+# Default Adhan Configuration
+name: adhan
+version: 0.2.0
+description: Tamil Large Language Model
+
+tokenizer:
+  vocab_size: 32000
+  model_type: tamil_agglutinative
+  max_length: 512
+  morphemes: 70
+  sandhi_rules: 14
+  lowercase: true
+  remove_punctuation: false
+
+data:
+  corpus_path: data/corpus.jsonl
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  batch_size: 16
+  num_workers: 4
+  scrapers:
+    - dinamalar
+    - bbc_tamil
+    - dinamani
+  scraper_timeout: 30
+  scraper_max_retries: 3
+  clean_text: true
+  validate_corpus: true
+  remove_duplicates: true
+
+model:
+  model_type: xlm-roberta-base
+  learning_rate: 0.00002
+  num_epochs: 3
+  warmup_steps: 500
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  device: cpu
+  fp16: false
+  save_strategy: epoch
+  eval_strategy: epoch
+  save_total_limit: 3
+  output_dir: models/checkpoints
+
+eval:
+  metrics:
+    - morphological_accuracy
+    - tokenization_f1
+    - agglutination_support
+    - sandhi_preservation
+    - diglossia_handling
+    - accuracy
+    - f1
+    - perplexity
+  eval_batch_size: 32
+  compute_metrics_frequency: 100
+
+log_level: INFO

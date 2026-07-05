@@ -1,0 +1,23 @@
+# RPi 5 Optimized Configuration
+name: adhan-rpi5
+version: 0.2.0
+
+tokenizer:
+  vocab_size: 16000  # Smaller vocab for VRAM
+  model_type: tamil_agglutinative
+  max_length: 256   # Shorter sequences
+
+data:
+  batch_size: 8     # Minimal batch for 8GB VRAM
+  num_workers: 2    # Fewer parallel workers
+  corpus_path: data/corpus.jsonl
+  train_split: 0.7
+
+model:
+  device: cpu
+  fp16: false
+  num_epochs: 1     # Quick test on RPi
+  learning_rate: 0.00001
+  output_dir: models/checkpoints-rpi5
+
+log_level: INFO

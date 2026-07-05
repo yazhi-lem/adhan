@@ -1,0 +1,31 @@
+# S-Node Cluster Configuration (4× RPi 5)
+name: adhan-cluster
+version: 0.2.0
+
+tokenizer:
+  vocab_size: 32000
+  model_type: tamil_agglutinative
+  max_length: 512
+
+data:
+  batch_size: 32    # Distributed batch
+  num_workers: 8
+  corpus_path: /cluster/shared/corpus.jsonl
+
+model:
+  device: cpu
+  num_epochs: 3
+  learning_rate: 0.00002
+  output_dir: /cluster/checkpoints
+  save_strategy: steps
+  save_steps: 100
+
+distributed:
+  enabled: true
+  num_nodes: 4
+  backend: gloo
+  init_method: env://
+  rank: 0
+  world_size: 4
+
+log_level: INFO
