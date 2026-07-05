@@ -27,6 +27,11 @@ from .tokenizer import (
     TamilAgglutinativeTokenizer,
     decompose_morphemes,
 )
+from .data import (
+    Corpus,
+    CorpusSample,
+    BaseScraper,
+)
 
 __all__ = [
     "Config",
@@ -40,4 +45,7 @@ __all__ = [
     "BaseTokenizer",
     "TamilAgglutinativeTokenizer",
     "decompose_morphemes",
+    "Corpus",
+    "CorpusSample",
+    "BaseScraper",
 ]
