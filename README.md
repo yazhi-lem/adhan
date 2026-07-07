@@ -2,6 +2,22 @@
 
 Tamil-first LLM data + training pipeline.
 
+## 🆕 Native Tamil SLM (swaram tokens + JAX)
+
+We are building a **from-scratch, pure-Tamil small language model** — akshara
+(உயிர்–மெய் / *swaram*) as the atomic token, agglutination-aware modeling, trained in
+**JAX/Flax** and tracked with **MLflow**, targeting a light, edge-deployable launch.
+
+- **Roadmap:** [`ROADMAP_JAX_SLM.md`](ROADMAP_JAX_SLM.md)
+- **Architecture:** [`docs/ARCHITECTURE_SWARAM_SLM.md`](docs/ARCHITECTURE_SWARAM_SLM.md)
+- **Code:** [`src/adhan_slm/`](src/adhan_slm/) (working swaram tokenizer + Flax SLM + JAX/MLflow trainer)
+
+```bash
+PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
+```
+
+The existing PyTorch pipeline below is reused for corpus building and as baselines.
+
 ## Recent changes
 
 - Added shared constants in `src/core/`
