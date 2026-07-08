@@ -1,5 +1,9 @@
 # Adhan Native Tamil SLM — Architecture (Swaram Tokens + JAX)
 
+> **Swaram** — Dravidian-language tokenizer prototype (Tamil first, then Kannada,
+> Telugu, Malayalam). A parallel project, **Aksharam**, does the same for Hindi/Indic
+> scripts. Both feed native SLMs via **yazhi-api** (internal deployment platform).
+
 This document specifies the design of Adhan's from-scratch Tamil small language
 model: the **swaram tokenizer**, the **agglutination-aware model**, and the
 **JAX/Flax + MLflow** training stack. It complements `ROADMAP_JAX_SLM.md`.
@@ -139,12 +143,24 @@ init params → for step in schedule:
 ---
 
 ## 5. Evaluation (Tamil-first, not just perplexity)
+
+### Automatic metrics
 - **Per-akshara & per-word perplexity** on held-out corpus (comparable across vocabs).
 - **Morphology probe:** predict the correct suffix given a root+context.
 - **Sandhi accuracy:** split/join புணர்ச்சி test set.
 - **Agglutination stress set:** long derived word-forms; measure token fertility + ppl.
 - **Code-switch robustness:** Tamil–English mixed sentences.
-- **Human rubric:** fluency + grammaticality on generations (small panel).
+
+### Human rubric (kid-level fluency bar)
+Quality target: **age 5–7 Tamil speaker level** — the model should:
+- Read & understand simple Tamil text (basic vocabulary, 1–3 sentence paragraphs)
+- Answer basic questions (who, what, where, what color, favorite food)
+- Generate 2–3 coherent sentences on familiar topics (family, school, animals)
+- Use correct grammatical case endings and tense agreement
+- Handle familiar code-switch (Tamil + English numerals/tech words)
+
+Evaluated by small Tamil-fluent panel (min. 5 raters) on a 20-prompt holdout.
+
 See `docs/EVAL_TAMIL.md` (Phase 4) and MLflow evaluation runs for the live table.
 
 ---
@@ -157,9 +173,34 @@ Raspberry Pi 5 / Android. Targets for the first launch: **INT4 nano ≤ 30 MB,
 
 ---
 
-## 7. How this coexists with the current repo
+## 7. Integration with yazhi-api (deployment)
+
+**yazhi-api** (private: `yazhi-lem/yazhi-api`) is the internal platform for deploying
+language models. Adhan ships through it:
+
+- **Model registry:** checkpoint uploaded and versioned
+- **REST API:** `/models/adhan-nano/infer` endpoint (streaming or batch)
+- **Python SDK:** `from yazhi_api import AdhanClient; client = AdhanClient("adhan-nano-instruct-int4")`
+- **Usage tracking:** request/response logging for feedback loops
+- **Version control:** A/B testing across model variants (nano, tiny, instruct, int4)
+
+This keeps production separate from research; the repo stays a library.
+
+## 8. Swaram as Dravidian prototype
+
+Swaram is not Tamil-specific — it's a **Dravidian-language tokenizer** that respects
+akshara boundaries across the script family:
+- **Tamil** (தமிழ்) — Phase 0/1 reference implementation
+- **Kannada** (ಕನ್ನಡ), **Telugu** (తెలుగు), **Malayalam** (മലയാളം) — Phase 7+ road
+- Shared morphological rules (agglutination patterns) where they overlap
+- Language-specific sandhi / case rules per Dravidian grammar
+
+Parallel: **Aksharam** (Indic scripts, Hindi-first) solves the same for matra-based scripts.
+
+## 9. How this coexists with the current repo
 - The PyTorch corpus pipeline (`src/data_scraper/*`, scrapers, HF export) is **reused
   as-is** to build and clean the Tamil corpus.
 - The from-scratch model, tokenizer, and JAX training live under `src/adhan_slm/`
   and `requirements-jax.txt`, isolated from the existing fine-tuning code.
 - Gemma/XLM-R/distilgpt2 fine-tunes remain as **baselines** to beat, not the product.
+- Phase 6+: checkpoint moves to yazhi-api for production serving; adhan repo stays research.
