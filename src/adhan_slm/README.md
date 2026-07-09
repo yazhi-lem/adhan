@@ -5,21 +5,28 @@ Not a fine-tune of an English/multilingual base. See the top-level
 [`ROADMAP_JAX_SLM.md`](../../ROADMAP_JAX_SLM.md) and
 [`docs/ARCHITECTURE_SWARAM_SLM.md`](../../docs/ARCHITECTURE_SWARAM_SLM.md).
 
+Adhan is the **foundational model** of the Yazh ecosystem — see
+[`docs/YAZH_FOUNDATION.md`](../../docs/YAZH_FOUNDATION.md).
+
 ## Layout
 | Path | What |
 |---|---|
-| `tokenizer/swaram_tokenizer.py` | Akshara (உயிர்–மெய்) segmentation + bounded morpheme-merge BPE. Pure-python, lossless, tested. |
+| `tokenizer/swaram_tokenizer.py` | **Swaram** — Dravidian/Tamil akshara (உயிர்–மெய்) segmentation + morpheme-merge BPE. Lossless, tested. |
+| `tokenizer/aksharam_tokenizer.py` | **Aksharam** — Indic/Hindi Devanagari (matra + conjunct) tokenizer, sibling of Swaram. Lossless, tested. |
+| `tokenizer/jax_encode.py` | JAX-accelerated batch encoding shared by both tokenizers. |
 | `model/transformer.py` | Flax decoder-only SLM (RoPE + RMSNorm + SwiGLU, tied embeddings). `nano/tiny/mini`. |
 | `training/train_jax.py` | JAX/Flax pretraining loop with MLflow tracking. |
 | `training/mlflow_utils.py` | MLflow run contract (params + git SHA + data version). |
 | `configs/adhan_slm_tiny.yaml` | Model + training + data config. |
-| `eval/` | Tamil-first evaluation (perplexity, morphology, sandhi) — Phase 4. |
+| `eval/` | Tamil-first evaluation (perplexity, morphology, sandhi, kid-level rubric) — Phase 4. |
 
 ## Quick start
 ```bash
-# tokenizer works with zero extra deps (pure python)
-PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
-PYTHONPATH=src python src/adhan_slm/tokenizer/test_swaram_tokenizer.py   # 5 tests
+# tokenizers work with zero extra deps (pure python)
+PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"   # Tamil
+PYTHONPATH=src python -m adhan_slm.tokenizer.aksharam_tokenizer "पढ़ रहा था"               # Hindi
+PYTHONPATH=src python src/adhan_slm/tokenizer/test_swaram_tokenizer.py     # 5 tests
+PYTHONPATH=src python src/adhan_slm/tokenizer/test_aksharam_tokenizer.py   # 5 tests
 
 # model size table (no JAX needed for configs)
 PYTHONPATH=src python -m adhan_slm.model.transformer

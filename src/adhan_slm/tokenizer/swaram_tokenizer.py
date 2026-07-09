@@ -111,9 +111,19 @@ class SwaramTokenizer:
     def __len__(self) -> int:
         return len(self.vocab)
 
+    # -- segmentation hook (overridden by sibling tokenizers, e.g. Aksharam) ----
+    def _segment(self, text: str) -> List[str]:
+        """Layer A segmentation. Subclasses override for other scripts."""
+        return segment_aksharas(text)
+
+    @classmethod
+    def _base_inventory(cls) -> List[str]:
+        """Closed base akshara set. Subclasses override for other scripts."""
+        return default_akshara_inventory()
+
     def aksharas(self, text: str) -> List[str]:
         """Layer A only — the grapheme clusters, for inspection/eval."""
-        return segment_aksharas(text)
+        return self._segment(text)
 
     # -- Layer B: greedy BPE over aksharas ------------------------------------
     def _apply_merges(self, pieces: List[str]) -> List[str]:
@@ -135,7 +145,7 @@ class SwaramTokenizer:
         """Segment, then insert word-boundary marks before non-space words."""
         text = unicodedata.normalize("NFC", text)
         pieces: List[str] = []
-        for i, cluster in enumerate(segment_aksharas(text)):
+        for i, cluster in enumerate(self._segment(text)):
             if cluster == " ":
                 pieces.append(WORD_MARK)
             else:
@@ -165,7 +175,7 @@ class SwaramTokenizer:
 
     def fertility(self, text: str) -> float:
         """Mean tokens per akshara (Layer B target: < 1.15). Lower = tighter."""
-        n_aks = sum(1 for a in segment_aksharas(text) if a.strip())
+        n_aks = sum(1 for a in self._segment(text) if a.strip())
         if n_aks == 0:
             return 0.0
         n_tok = sum(1 for t in self._apply_merges(self._pretokenize(text)) if t != WORD_MARK)
@@ -182,7 +192,7 @@ class SwaramTokenizer:
         akshara pair until vocab_size is reached (captures productive suffix chains
         like -கிற- -ந்த- -ஏன் -ஆக).
         """
-        base = list(SPECIAL_TOKENS) + [WORD_MARK] + default_akshara_inventory()
+        base = list(SPECIAL_TOKENS) + [WORD_MARK] + cls._base_inventory()
         seen = set(base)
         word_pieces: List[List[str]] = []
         for line in corpus:

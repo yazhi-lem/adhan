@@ -91,9 +91,12 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 
 ### Phase 0 — Foundation & scaffolding  ✅ (this PR)
 - ✅ 📦 `src/adhan_slm/` package: tokenizer, model, training, configs, eval
-- ✅ 📦 Working **swaram tokenizer** (akshara segmentation + morpheme merges) with tests
+- ✅ 📦 Working **Swaram tokenizer** — Dravidian/Tamil (akshara segmentation + merges), tested
+- ✅ 📦 Working **Aksharam tokenizer** — Indic/Hindi Devanagari (conjuncts + matras), tested
+- ✅ 📦 **JAX-accelerated batch encoding** shared by both tokenizers (`jax_encode.py`)
 - ✅ 📦 Flax transformer SLM skeleton (`adhan-nano/tiny/mini` configs)
 - ✅ 📦 JAX training loop wired to **MLflow** (params/metrics/artifacts)
+- ✅ 📦 **Yazh foundation** wired as base requirement (`docs/YAZH_FOUNDATION.md`); Adhan = foundational model
 - ✅ 📦 `requirements-jax.txt`, architecture doc, this roadmap
 
 ### Phase 1 — Tokenizer to production  📋  (Week 1–2)
@@ -173,11 +176,15 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 ## 6. Tokenizer family (Swaram + Aksharam + future)
 | Tokenizer | Script | Target | Status | Purpose |
 |---|---|---|---|---|
-| **Swaram** | Tamil (தமிழ்) | Dravidian family (Tamil → Kannada/Telugu/Malayalam) | Phase 0 | akshara-native Dravidian tokenizer |
-| **Aksharam** | Hindi/Devanagari | Indic script family (Hindi → Marathi/Bengali) | Planned | matra-native Hindi tokenizer (parallel to Swaram) |
-| Future | Others | … | … | extend to other scripts (Urdu, Gujarati, etc.) |
+| **Swaram** | Tamil (தமிழ்) | Dravidian family (Tamil → Kannada/Telugu/Malayalam) | ✅ Phase 0 | akshara-native Dravidian tokenizer |
+| **Aksharam** | Hindi/Devanagari | Indic script family (Hindi → Marathi/Bengali) | ✅ Phase 0 | matra/conjunct-native Indic tokenizer |
+| Future | Others | … | 📋 | extend to other scripts (Urdu, Gujarati, etc.) |
 
-Both live in a shared tokenizer library, with language-specific tuning for morphology + script rules.
+Both live in a **shared tokenizer library** (`SwaramTokenizer` + `AksharamTokenizer`
+share the merge/encode/decode machinery via `_segment`/`_base_inventory` hooks), with
+a common **JAX-accelerated batch-encoding** fast path. Language-specific tuning only in
+the script/morphology layer. Adhan builds on the **Yazh foundation** — see
+[`docs/YAZH_FOUNDATION.md`](docs/YAZH_FOUNDATION.md).
 
 ## 7. Repository map (new)
 ```

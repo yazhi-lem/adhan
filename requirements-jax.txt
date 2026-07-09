@@ -20,4 +20,15 @@ tqdm>=4.66.0
 grain>=0.2.0 ; python_version >= "3.10"
 datasets>=2.14.0
 
-# The swaram tokenizer core is pure-python (no external tokenizer dependency).
+# --- Yazh foundation (base requirement) --------------------------------------
+# Adhan is the foundational language model of the Yazh ecosystem and builds on the
+# shared Yazh base (config, data schemas, serving contracts). Install from git:
+#   pip install "yazh-kutty @ git+https://github.com/yazhi-lem/yazh-kutty.git"
+# Deployment goes through yazhi-api (private):
+#   pip install "yazhi-api @ git+https://github.com/yazhi-lem/yazhi-api.git"
+# (Uncomment once the Yazh packages publish a setup.py / pyproject.toml.)
+# yazh-kutty @ git+https://github.com/yazhi-lem/yazh-kutty.git
+# yazhi-api  @ git+https://github.com/yazhi-lem/yazhi-api.git
+
+# The swaram/aksharam tokenizer cores are pure-python (no external tokenizer dep);
+# JAX only accelerates batch encoding (see tokenizer/jax_encode.py).
