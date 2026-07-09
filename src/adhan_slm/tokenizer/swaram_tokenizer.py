@@ -155,8 +155,12 @@ class SwaramTokenizer:
         return pieces
 
     # -- encode / decode -------------------------------------------------------
+    def tokenize(self, text: str) -> List[str]:
+        """Layer A + B merged subword-piece strings (no ids), for inspection/eval."""
+        return self._apply_merges(self._pretokenize(text))
+
     def encode(self, text: str, add_special: bool = False) -> List[int]:
-        pieces = self._apply_merges(self._pretokenize(text))
+        pieces = self.tokenize(text)
         ids = [self.vocab.get(p, self.unk_id) for p in pieces]
         if add_special:
             ids = [self.vocab.get("<bos>", self.unk_id), *ids,

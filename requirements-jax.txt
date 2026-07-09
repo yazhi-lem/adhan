@@ -20,6 +20,14 @@ tqdm>=4.66.0
 grain>=0.2.0 ; python_version >= "3.10"
 datasets>=2.14.0
 
+# --- open-tamil (base Tamil-NLP layer) ---------------------------------------
+# MIT-licensed. Used across tokenizer tests (segmentation cross-check), eval/
+# (sandhi/stemmer morphology probes, kid-level prompt lexicon, n-gram
+# baseline), and corpus tooling (legacy-encoding normalization, Tanglish
+# transliteration). Never imported by the tokenizer's hot encode/decode path —
+# see src/adhan_slm/external/open_tamil_bridge.py for the full rationale.
+open-tamil>=1.1
+
 # --- Yazh foundation (base requirement) --------------------------------------
 # Adhan is the foundational language model of the Yazh ecosystem and builds on the
 # shared Yazh base (config, data schemas, serving contracts). Install from git:
@@ -30,5 +38,7 @@ datasets>=2.14.0
 # yazh-kutty @ git+https://github.com/yazhi-lem/yazh-kutty.git
 # yazhi-api  @ git+https://github.com/yazhi-lem/yazhi-api.git
 
-# The swaram/aksharam tokenizer cores are pure-python (no external tokenizer dep);
-# JAX only accelerates batch encoding (see tokenizer/jax_encode.py).
+# The swaram/aksharam tokenizer cores are pure-python and work without this file
+# at all (no hard tokenizer dependency); JAX only accelerates batch encoding
+# (see tokenizer/jax_encode.py), and open-tamil above is optional too — tests
+# and eval/ that use it skip cleanly if it's absent.

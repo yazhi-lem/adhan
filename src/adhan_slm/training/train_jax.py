@@ -14,7 +14,10 @@ checkpointing (marked TODO below).
 from __future__ import annotations
 
 import argparse
+import functools
+import math
 import sys
+import time
 from pathlib import Path
 
 import yaml
@@ -83,8 +86,13 @@ def train(config_path: str, smoke: bool = False):
     dummy = jnp.ones((batch, seq_len), dtype=jnp.int32)
     params = model.init(key, dummy)["params"]
 
+    # warmup_steps must be strictly less than decay_steps or optax's internal
+    # cosine phase length (decay_steps - warmup_steps) hits zero and raises —
+    # bites `--smoke` runs where warmup_steps (config default 2000) otherwise
+    # clamps equal to the tiny smoke step count.
+    warmup_steps = min(warmup, max(1, steps - 1))
     sched = optax.warmup_cosine_decay_schedule(
-        0.0, lr, warmup_steps=min(warmup, steps), decay_steps=steps, end_value=lr * 0.1)
+        0.0, lr, warmup_steps=warmup_steps, decay_steps=steps, end_value=lr * 0.1)
     tx = optax.chain(optax.clip_by_global_norm(1.0),
                      optax.adamw(sched, weight_decay=float(tcfg.get("weight_decay", 0.1))))
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
@@ -95,7 +103,11 @@ def train(config_path: str, smoke: bool = False):
         ll = optax.softmax_cross_entropy_with_integer_labels(logits, targets)
         return ll.mean()
 
-    @jax.jit
+    # donate_argnums=(0,): let XLA reuse the input `state`'s device buffers for
+    # the output instead of allocating a fresh copy every step. Safe because the
+    # loop below always rebinds `state = ...` and never reads the pre-step value
+    # again — a standard JAX/Flax training-loop memory/throughput optimization.
+    @functools.partial(jax.jit, donate_argnums=(0,))
     def train_step(state, batch):
         loss, grads = jax.value_and_grad(loss_fn)(state.params, batch)
         return state.apply_gradients(grads=grads), loss
@@ -110,19 +122,49 @@ def train(config_path: str, smoke: bool = False):
                   "train.learning_rate": lr, "train.max_steps": steps,
                   "params_millions": round(model_cfg.approx_params() / 1e6, 2)}
 
+    # Pulling a JAX array to host (float(), .item(), etc.) blocks until that
+    # step's computation finishes — doing it every iteration serializes step
+    # N+1's dispatch behind step N's completion and throws away XLA's async
+    # dispatch pipelining, which is where most single-GPU throughput lives in a
+    # loop this small. Buffer `log_every` steps of device-side loss values and
+    # do one batched host sync, instead of one sync per step.
+    log_every = max(1, int(tcfg.get("log_every", 10)))
+    tokens_per_step = batch * seq_len
+
     with track_run(experiment=cfg.get("experiment", "adhan-slm"),
                    run_name=cfg.get("run_name", "smoke" if smoke else None),
                    params=run_params,
                    data_version=cfg.get("data", {}).get("version"),
                    tracking_uri=cfg.get("mlflow_uri")) as run:
+        pending_losses = []
+        pending_steps = []
+        window_start = time.perf_counter()
+
+        def _flush(final_step):
+            if not pending_losses:
+                return
+            # one host sync for the whole buffered window, not one per step
+            loss_vals = jax.device_get(pending_losses)
+            elapsed = time.perf_counter() - window_start
+            toks_per_sec = tokens_per_step * len(pending_losses) / max(elapsed, 1e-9)
+            for s, lv in zip(pending_steps, loss_vals):
+                lv = float(lv)
+                run.log_metric("train_loss", lv, step=s)
+                run.log_metric("perplexity", math.exp(min(lv, 20.0)), step=s)
+                run.log_metric("learning_rate", float(sched(s)), step=s)
+            run.log_metric("tokens_per_sec", toks_per_sec, step=final_step)
+            last_lv = float(loss_vals[-1])
+            print(f"step {final_step:6d}  loss {last_lv:.4f}  ppl {math.exp(min(last_lv, 20.0)):.2f}"
+                  f"  tok/s {toks_per_sec:,.0f}")
+
         for step, b in enumerate(batches):
             state, loss = train_step(state, jnp.asarray(b))
-            lv = float(loss)
-            run.log_metric("train_loss", lv, step=step)
-            run.log_metric("perplexity", float(jnp.exp(loss)), step=step)
-            run.log_metric("learning_rate", float(sched(step)), step=step)
-            if step % max(1, steps // 10) == 0 or step == steps - 1:
-                print(f"step {step:6d}  loss {lv:.4f}  ppl {float(jnp.exp(loss)):.2f}")
+            pending_losses.append(loss)
+            pending_steps.append(step)
+            if (step + 1) % log_every == 0 or step == steps - 1:
+                _flush(step)
+                pending_losses, pending_steps = [], []
+                window_start = time.perf_counter()
             # TODO(Phase 3): periodic eval + Orbax async checkpoint + best-by-val save
         print("done." + (" (smoke)" if smoke else ""))
 
