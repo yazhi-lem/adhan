@@ -119,8 +119,15 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 - 🎯 Frozen `adhan-corpus-v1` with a datasheet (sources, sizes, licenses)
 - 📦 Data card in `docs/`, splits registered in MLflow
 
-### Phase 3 — Pretrain `adhan-nano`  📋  (Week 4–6)
-- 📋 Flax model finalized; `jit` step; mixed precision (bf16); Optax schedule
+### Phase 3 — Pretrain `adhan-nano`  🚧  (Week 4–6)
+- ✅ 📦 **Single-GPU throughput pass**: fused `jax.nn.dot_product_attention`
+  (auto-dispatches to a cuDNN flash-attention kernel on GPU, `is_causal=True` —
+  no materialized O(T²) mask/score array), `donate_argnums` on the jit-ed train
+  step (in-place state-buffer reuse), batched host sync for metric logging
+  (was blocking every step on `float(loss)`, serializing XLA's async
+  dispatch — now one sync per `log_every` window); XLA fallback path kept for
+  older jax installs. `tokens_per_sec` now logged alongside loss/ppl/LR.
+- 📋 Flax model finalized; mixed precision (bf16, already wired) tuned on real data; Optax schedule
 - 📋 Orbax checkpointing + resume; MLflow live curves (loss, ppl, tok/s, LR)
 - 📋 Overfit-a-batch sanity → 100M-token dry run → full nano run
 - 🎯 **`adhan-nano` val perplexity beats a distilgpt2 baseline on Tamil** per-akshara ppl

@@ -67,17 +67,29 @@ try:
     import jax
     import jax.numpy as jnp
 
+    # jax.nn.dot_product_attention (added ~0.4.28) dispatches to a fused cuDNN
+    # flash-attention kernel on supported GPUs (implementation=None auto-selects
+    # it, falling back to XLA elsewhere) — materializes no O(T^2) score/mask
+    # array and is the single biggest single-GPU training throughput lever for
+    # a transformer this shape. Guarded so older jax installs still work.
+    _HAS_FUSED_ATTN = hasattr(jax.nn, "dot_product_attention")
+
     def _rms_norm(x, weight, eps=1e-6):
         var = jnp.mean(jnp.square(x), axis=-1, keepdims=True)
         return x * jax.lax.rsqrt(var + eps) * weight
 
     def _rope(x, theta):
-        # x: [B, H, T, Dh]
-        b, h, t, dh = x.shape
+        # x: [B, T, H, Dh] — angle broadcasts over the T axis (axis=1)
+        dh = x.shape[-1]
         half = dh // 2
         freqs = 1.0 / (theta ** (jnp.arange(0, half) / half))
-        ang = jnp.arange(t)[:, None] * freqs[None, :]          # [T, half]
-        cos, sin = jnp.cos(ang), jnp.sin(ang)
+        t = x.shape[1]
+        ang = jnp.arange(t)[:, None] * freqs[None, :]           # [T, half], fp32
+        # cos/sin computed in fp32 for precision, then cast to x's compute dtype
+        # (bf16) so q/k/v stay uniform — dot_product_attention requires matching
+        # dtypes across q/k/v, and mixed fp32/bf16 here would force an upcast.
+        cos = jnp.cos(ang)[None, :, None, :].astype(x.dtype)
+        sin = jnp.sin(ang)[None, :, None, :].astype(x.dtype)
         x1, x2 = x[..., :half], x[..., half:]
         rot = jnp.concatenate([x1 * cos - x2 * sin, x1 * sin + x2 * cos], axis=-1)
         return rot
@@ -95,12 +107,20 @@ try:
             qkv = nn.Dense(3 * c.d_model, use_bias=False, dtype=dt, name="qkv")(h)
             q, k, v = jnp.split(qkv, 3, axis=-1)
             dh = c.d_model // c.n_heads
-            shp = lambda t: t.reshape(t.shape[0], t.shape[1], c.n_heads, dh).transpose(0, 2, 1, 3)
+            b, t = x.shape[0], x.shape[1]
+            # (B, T, H, Dh) directly — no transpose needed, matches the layout
+            # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
+            shp = lambda a: a.reshape(b, t, c.n_heads, dh)
             q, k, v = _rope(shp(q), c.rope_theta), _rope(shp(k), c.rope_theta), shp(v)
-            att = (q @ k.transpose(0, 1, 3, 2)) / jnp.sqrt(dh)
-            att = jnp.where(mask, att, -1e9)
-            att = jax.nn.softmax(att, axis=-1)
-            o = (att @ v).transpose(0, 2, 1, 3).reshape(x.shape)
+            if _HAS_FUSED_ATTN:
+                o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
+            else:
+                qT, kT, vT = (a.transpose(0, 2, 1, 3) for a in (q, k, v))
+                att = (qT @ kT.transpose(0, 1, 3, 2)) / jnp.sqrt(dh)
+                att = jnp.where(mask, att, -1e9)
+                att = jax.nn.softmax(att, axis=-1)
+                o = (att @ vT).transpose(0, 2, 1, 3)
+            o = o.reshape(x.shape)
             x = x + nn.Dense(c.d_model, use_bias=False, dtype=dt, name="proj")(o)
             # --- SwiGLU MLP ---
             g2 = self.param("norm2", nn.initializers.ones, (c.d_model,))
@@ -126,7 +146,9 @@ try:
                 x = x + bmark[boundaries]
             x = x.astype(dt)
             t = tokens.shape[1]
-            mask = jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
+            # Fused attention takes is_causal=True and never materializes a mask;
+            # only build the O(T^2) boolean array for the XLA fallback path.
+            mask = None if _HAS_FUSED_ATTN else jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
             for i in range(c.n_layers):
                 x = Block(c, name=f"block_{i}")(x, mask)
             gf = self.param("norm_f", nn.initializers.ones, (c.d_model,))
