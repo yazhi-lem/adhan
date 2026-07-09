@@ -1,0 +1,27 @@
+# Adhan SLM — training config (default: tiny tier, ~33M params)
+# Used by: python -m adhan_slm.training.train_jax --config <this>
+
+experiment: adhan-slm
+run_name: null            # null -> MLflow autogenerates
+mlflow_uri: null          # e.g. "http://localhost:5000" or "file:./mlruns"
+
+model:
+  size: tiny              # nano | tiny | mini  (or omit and set fields explicitly)
+  vocab_size: 12000       # frozen swaram tokenizer vocab (roadmap Phase 1)
+  use_boundary_emb: false # enable to add tokenizer Layer-C morpheme-boundary signal
+  dtype: bfloat16
+
+train:
+  batch_size: 32
+  learning_rate: 3.0e-4
+  warmup_steps: 2000
+  max_steps: 100000
+  weight_decay: 0.1
+  seed: 0
+
+data:
+  version: adhan-corpus-v1        # dataset version tag logged to MLflow
+  shards: data/final/tamil_slm/   # packed swaram-tokenized TFRecord/Arrow (Phase 2/3)
+  seq_packing: true
+
+# Launch-first tier: to pretrain the shippable nano model, set model.size: nano.

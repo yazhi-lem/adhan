@@ -1,5 +1,10 @@
 # Adhan Roadmap
 
+> **New direction:** the native, from-scratch Tamil SLM (swaram tokens + JAX + MLflow)
+> has its own roadmap — see [`ROADMAP_JAX_SLM.md`](ROADMAP_JAX_SLM.md). This file
+> tracks the original PyTorch corpus + fine-tuning pipeline, now used for data
+> building and baselines.
+
 ## Project Completion: ~60%
 
 ### ✅ Completed
