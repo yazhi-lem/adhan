@@ -146,8 +146,12 @@ init params → for step in schedule:
 
 ### Automatic metrics
 - **Per-akshara & per-word perplexity** on held-out corpus (comparable across vocabs).
-- **Morphology probe:** predict the correct suffix given a root+context.
-- **Sandhi accuracy:** split/join புணர்ச்சி test set.
+- **Classical baseline** (`eval/ngram_baseline.py`): add-one smoothed unigram-over-akshara
+  perplexity via open-tamil's `ngram.LetterModels` — the floor `adhan-nano` must clear.
+- **Morphology probe** (`eval/morphology.py`): agreement between Layer B (BPE) merge
+  boundaries and open-tamil's `TamilStemmer` suffix splits on inflected words.
+- **Sandhi accuracy** (`eval/morphology.py`): word-level correctness rate of model
+  generations under open-tamil's `tamilsandhi` ~40-rule புணர்ச்சி checker.
 - **Agglutination stress set:** long derived word-forms; measure token fertility + ppl.
 - **Code-switch robustness:** Tamil–English mixed sentences.
 
@@ -204,3 +208,28 @@ Parallel: **Aksharam** (Indic scripts, Hindi-first) solves the same for matra-ba
   and `requirements-jax.txt`, isolated from the existing fine-tuning code.
 - Gemma/XLM-R/distilgpt2 fine-tunes remain as **baselines** to beat, not the product.
 - Phase 6+: checkpoint moves to yazhi-api for production serving; adhan repo stays research.
+
+## 10. open-tamil as the base Tamil-NLP layer
+
+Rather than reimplementing every mature-but-tedious piece of Tamil NLP, Adhan builds
+on **open-tamil** (Ezhil Language Foundation, MIT-licensed, `pip install open-tamil`)
+wherever it already solves the problem well. The integration point is
+`src/adhan_slm/external/open_tamil_bridge.py`; it is imported by `eval/` and by
+tests, **never by the tokenizer's encode/decode hot path** — the swaram/aksharam
+cores stay pure-python and dependency-free (§2 design goal).
+
+| open-tamil piece | Adhan use | Where |
+|---|---|---|
+| `tamil.utf8.get_letters` | Reference akshara segmenter — differential test against Layer A on every commit | `tokenizer/test_open_tamil_crosscheck.py` |
+| `tamilstemmer.TamilStemmer` | Suffix-stripping stemmer — morpheme-boundary signal for scoring Layer B (BPE) merges | `eval/morphology.py::stemmer_boundary_agreement` |
+| `tamilsandhi.check_sandhi` | Rule-based ~40-rule சந்தி grammar checker — scores model generations, satisfies the Phase 1 "morphological analyzer" requirement | `eval/morphology.py::sandhi_correctness_rate` |
+| `ngram.LetterModels.Unigram` | Classical per-akshara frequency baseline — the floor `adhan-nano` perplexity must clear | `eval/ngram_baseline.py::AksharaUnigramBaseline` |
+| `solthiruthi` categorized lexicons (animals, objects, verbs, pronouns, ...) | Seed vocabulary for the kid-level (5–7 y/o register) 50-prompt eval set | `eval/kid_level_prompts.py` |
+| `tamil.txt2unicode` (25 legacy encodings) | Normalizes scraped text (TSCII, TAB, Bamini, dinamani, ...) to Unicode before corpus ingestion | `external/open_tamil_bridge.py::normalize_encoding` |
+| `transliterate.azhagi` | Recovers Tamil meaning from romanized/Tanglish social text before it's discarded as non-Tamil during filtering | `external/open_tamil_bridge.py::transliterate_tanglish` |
+| `tamil.numeral` | Number → Tamil-word rendering for synthetic kid-level counting/date data | `external/open_tamil_bridge.py::number_to_tamil` |
+
+**License note:** open-tamil itself is MIT. Its bundled `tamilsandhi` submodule is
+GPLv3 (Nithya Duraisamy's sandhi checker) — Adhan only *calls* it as a separately
+installed package via `pip install open-tamil`, never vendors its source, so this
+repo's licensing is unaffected.

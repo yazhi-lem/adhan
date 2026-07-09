@@ -13,3 +13,7 @@ tokenizers>=0.14.0
 accelerate>=0.25.0
 peft>=0.8.0
 bitsandbytes>=0.41.0
+
+# Tamil-script utilities (legacy-encoding detection, transliteration, lexicons)
+# used by the corpus-building pipeline in src/data_scraper/. MIT-licensed.
+open-tamil>=1.1

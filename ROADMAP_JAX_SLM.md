@@ -78,6 +78,7 @@ with vocab size since embeddings are tied.)
 | Checkpoints | **Orbax** | async, sharded, resumable |
 | Experiment tracking | **MLflow** | params, metrics, artifacts, model registry |
 | Tokenizer | **custom swaram tokenizer** (this repo) | pure-python core, no external base |
+| Tamil-NLP foundation | **open-tamil** (MIT, Ezhil Language Foundation) | segmentation oracle, stemmer, sandhi checker, encoding/transliteration, lexicons — eval/tooling only, never the hot path |
 | Serving | ONNX / GGUF / TFLite export + INT8/INT4 | reuse existing `scripts/quantize_model.py` path |
 
 JAX is additive — it lives in `src/adhan_slm/` and `requirements-jax.txt`; the
@@ -99,11 +100,14 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 - ✅ 📦 **Yazh foundation** wired as base requirement (`docs/YAZH_FOUNDATION.md`); Adhan = foundational model
 - ✅ 📦 `requirements-jax.txt`, architecture doc, this roadmap
 
-### Phase 1 — Tokenizer to production  📋  (Week 1–2)
+### Phase 1 — Tokenizer to production  🚧  (Week 1–2)
+- ✅ 📦 **open-tamil adopted as base Tamil-NLP layer** (`src/adhan_slm/external/open_tamil_bridge.py`):
+  reference akshara segmenter (differential-tested against Layer A), `TamilStemmer` +
+  `tamilsandhi` as the **morphological analyzer** Phase 1 called for, 25-encoding
+  detector, Azhagi transliteration, `tamil.numeral`, and solthiruthi lexicons —
+  see `docs/ARCHITECTURE_SWARAM_SLM.md` §10
 - 📋 Grantha + aytham + numeral + code-switch (Latin) handling; NFC normalization pass
 - 📋 Train the morpheme-merge layer on the full corpus; freeze `vocab.json` + `merges`
-- 📋 **Morphological analyzer** integration (rule-based sandhi splitter; evaluate
-  `open-tamil` / `tamilinaiya` / a small learned segmenter)
 - 🎯 **Fertility target: < 1.15 tokens per akshara**, round-trip lossless on held-out text
 - 📦 `adhan-tok-v1` artifact logged to MLflow registry
 
@@ -122,9 +126,18 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 - 🎯 **`adhan-nano` val perplexity beats a distilgpt2 baseline on Tamil** per-akshara ppl
 - 📦 `adhan-nano-base` checkpoint + eval report
 
-### Phase 4 — Evaluation & Tamil-specific probes  📋  (Week 5–7)
-- 📋 Per-akshara / per-word perplexity; morphology probe (suffix prediction)
-- 📋 Sandhi split/join accuracy; agglutination stress set; code-switch robustness
+### Phase 4 — Evaluation & Tamil-specific probes  🚧  (Week 5–7)
+- ✅ 📦 **Morphology probe** (`src/adhan_slm/eval/morphology.py`): stemmer-boundary
+  agreement between Layer B merges and open-tamil's `TamilStemmer` suffix splits;
+  sandhi correctness rate over generations via `tamilsandhi`
+- ✅ 📦 **Kid-level prompt set seed** (`src/adhan_slm/eval/kid_level_prompts.py`):
+  50 deterministic prompts from open-tamil's `solthiruthi` categorized lexicons
+  (animals, objects, adjectives, adverbs, relations, pronouns, verbs) — matches
+  the 5–7-year-old register better than a literary/classical corpus would
+- ✅ 📦 **Classical baseline** (`src/adhan_slm/eval/ngram_baseline.py`): add-one
+  smoothed unigram-over-aksharas perplexity via open-tamil's `ngram.LetterModels`
+  — a near-zero-cost floor `adhan-nano` must clear before the distilgpt2 comparison
+- 📋 Per-akshara / per-word perplexity; agglutination stress set; code-switch robustness
 - 📋 Human read-through rubric (fluency, grammaticality) on generations
 - 📦 `docs/EVAL_TAMIL.md` + MLflow evaluation runs, comparison table vs baselines
 
@@ -192,7 +205,8 @@ src/adhan_slm/
 ├── tokenizer/   swaram_tokenizer.py  (+ tests)   # akshara + morpheme tokens (Dravidian prototype)
 ├── model/       transformer.py                    # Flax SLM (nano/tiny/mini)
 ├── training/    train_jax.py, mlflow_utils.py     # JAX loop + MLflow tracking
-├── eval/        (perplexity, morphology probes, kid-level rubric)
+├── eval/        morphology.py, kid_level_prompts.py, ngram_baseline.py
+├── external/    open_tamil_bridge.py               # base Tamil-NLP layer (open-tamil)
 └── configs/     adhan_slm_tiny.yaml               # model+train+data config
 requirements-jax.txt
 docs/ARCHITECTURE_SWARAM_SLM.md
@@ -210,6 +224,12 @@ pip install -r requirements-jax.txt
 
 # Try the swaram tokenizer (no deps needed)
 python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
+
+# Cross-check Layer A against open-tamil's reference segmenter
+python src/adhan_slm/tokenizer/test_open_tamil_crosscheck.py
+
+# Preview the kid-level eval prompt set (seeded from open-tamil lexicons)
+python -m adhan_slm.eval.kid_level_prompts
 
 # Smoke-train nano on a tiny sample with MLflow tracking
 python -m adhan_slm.training.train_jax --config src/adhan_slm/configs/adhan_slm_tiny.yaml --smoke
