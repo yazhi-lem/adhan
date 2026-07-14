@@ -22,8 +22,10 @@ Adhan is the **foundational model** of the Yazh ecosystem — see
 | `configs/adhan_slm_tiny.yaml` | Model + training + data + checkpoint config. |
 | `eval/` | Tamil-first evaluation: `morphology.py` (stemmer/sandhi), `kid_level_prompts.py`, `ngram_baseline.py`, `perplexity.py` (model ppl), and `run_eval.py` (one-shot harness → JSON). See [`docs/EVAL_TAMIL.md`](../../docs/EVAL_TAMIL.md). |
 | `external/open_tamil_bridge.py` | Bridge onto **open-tamil** (MIT), the base Tamil-NLP layer for eval/tooling — segmentation oracle, stemmer, sandhi checker, encoding/transliteration, lexicons. Never imported by the tokenizer hot path. |
+| `tokenizer/testdata/tholkappiyam_moolam.txt` | Public-domain Tholkappiyam moolam (Project Madurai) — classical-Tamil regression fixture for `test_swaram_classical.py`. |
 | `../../scripts/prepare_slm_corpus.py` | Freeze tokenizer (`vocab.json`+`merges.txt`) + pack shards + `datasheet.json`. |
 | `../../scripts/generate_slm.py` | Sample text from a trained checkpoint. |
+| `../../scripts/extract_tholkappiyam.py` | Fetch + clean the Tholkappiyam moolam into structured text (corpus + fixture). |
 
 ## Quick start
 ```bash

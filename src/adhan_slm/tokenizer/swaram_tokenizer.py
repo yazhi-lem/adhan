@@ -37,6 +37,15 @@ UYIR = list("அஆஇஈஉஊஎஏஐஒஓஔ")                    # 12 vowe
 _CONSONANTS = list("கஙசஜஞடணதநனபமயரறலளழவஶஷஸஹ")   # base consonants (+ Grantha)
 AYTHAM = "ஃ"
 
+# Tamil numerals + numeric/auspicious symbols (Tamil block, single codepoints).
+# Adding these to the *closed* base inventory means classical and modern text that
+# uses native Tamil numbers (e.g. ௰௲ = 1000) or the OM sign never falls back to
+# <unk> — the "numeral handling" Phase-1 item in ROADMAP_JAX_SLM.md §Phase 1.
+TAMIL_DIGITS = [chr(cp) for cp in range(0x0BE6, 0x0BF0)]      # ௦ ௧ … ௯ (0–9)
+TAMIL_NUMERALS = [chr(cp) for cp in range(0x0BF0, 0x0BF3)]    # ௰ ௱ ௲ (10, 100, 1000)
+# ௳ day, ௴ month, ௵ year, ௶ debit, ௷ credit, ௸ as-above, ௹ rupee, ௺ number sign
+TAMIL_SYMBOLS = [chr(cp) for cp in range(0x0BF3, 0x0BFB)] + [chr(0x0BD0)]  # + ௐ OM
+
 SPECIAL_TOKENS = ["<pad>", "<bos>", "<eos>", "<unk>", "<mask>"]
 WORD_MARK = "▁"  # SentencePiece-style word-boundary marker (Layer B only)
 
@@ -46,12 +55,14 @@ def _is_combining(cp: int) -> bool:
 
 
 def default_akshara_inventory() -> List[str]:
-    """The closed base set: 12 uyir + 216 uyirmey + 18 mey + aytham + Grantha.
+    """The closed base set: 12 uyir + 216 uyirmey + 18 mey + aytham + Grantha,
+    plus Tamil digits/numerals/symbols (௦–௯, ௰௱௲, ௳–௺, ௐ).
 
     Generated combinatorially so the base vocabulary is complete regardless of
     which aksharas happen to appear in a given corpus.
     """
     inv: List[str] = list(UYIR) + [AYTHAM]
+    inv += TAMIL_DIGITS + TAMIL_NUMERALS + TAMIL_SYMBOLS
     matras = [chr(cp) for cp in range(0x0BBE, 0x0BCD)]
     for c in _CONSONANTS:
         inv.append(c)                       # inherent-'a' uyirmey (க)

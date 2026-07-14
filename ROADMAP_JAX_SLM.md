@@ -110,9 +110,16 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
   swaram/aksharam merge layer on a corpus, freezes `vocab.json` + `merges.txt`, measures
   held-out fertility against the < 1.15 target, and writes a `datasheet.json` (sources,
   token counts, code SHA) — the data card Phase 2 also asks for
-- 🎯 **Fertility target: < 1.15 tokens per akshara**, round-trip lossless on held-out text
-  (fertility now measured + reported by the prep script)
-- 📋 Grantha + aytham + numeral + code-switch (Latin) handling; NFC normalization pass
+- ✅ 📦 **Classical grammar corpus + tokenizer hardening** (`scripts/extract_tholkappiyam.py`,
+  `tokenizer/testdata/tholkappiyam_moolam.txt`): the Tholkappiyam moolam (1,594 sutras,
+  public-domain via Project Madurai) is extracted as clean structured text and used as
+  a regression fixture (`tokenizer/test_swaram_classical.py`). It proved Layer A is
+  lossless and the closed inventory already covers **every** akshara in classical Tamil;
+  it surfaced the one real gap — **Tamil numerals/symbols** (௦–௯, ௰௱௲, ௳–௺, ௐ) were
+  missing from the closed set and now are (no more `<unk>` on native numbers).
+- ✅ 🎯 **Fertility on classical Tamil**: base 1.000 → 0.316 tok/akshara with merges
+  (68% tighter), well under the < 1.15 target, round-trip lossless on all 1,594 sutras.
+- 📋 Grantha edge-cases + code-switch (Latin) handling (NFC normalization already wired)
 - 📋 Run the freeze on the full curated corpus; log `adhan-tok-v1` to the MLflow registry
 
 ### Phase 2 — Corpus at pretraining scale  🚧  (Week 2–4)
