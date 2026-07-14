@@ -4,6 +4,7 @@
 experiment: adhan-slm
 run_name: null            # null -> MLflow autogenerates
 mlflow_uri: null          # e.g. "http://localhost:5000" or "file:./mlruns"
+checkpoint_dir: checkpoints/adhan-tiny   # Orbax dir (resumable, best-by-val); null to disable
 
 model:
   size: tiny              # nano | tiny | mini  (or omit and set fields explicitly)
@@ -18,10 +19,16 @@ train:
   max_steps: 100000
   weight_decay: 0.1
   seed: 0
+  log_every: 10           # steps between host-synced metric flushes
+  eval_every: 2000        # steps between validation-perplexity passes (uses val.bin)
+  checkpoint_every: 2000  # steps between Orbax checkpoints
+  keep_checkpoints: 3     # most-recent + best retained
 
 data:
   version: adhan-corpus-v1        # dataset version tag logged to MLflow
-  shards: data/final/tamil_slm/   # packed swaram-tokenized TFRecord/Arrow (Phase 2/3)
+  # Packed swaram-tokenized shards from scripts/prepare_slm_corpus.py.
+  # That dir holds train.bin / val.bin (+ manifests), vocab.json, merges.txt, datasheet.json.
+  shards: data/final/tamil_slm/
   seq_packing: true
 
 # Launch-first tier: to pretrain the shippable nano model, set model.size: nano.
