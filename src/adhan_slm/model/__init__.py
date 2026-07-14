@@ -1,3 +1,3 @@
-from .transformer import AdhanConfig, AdhanSLM
+from .transformer import AdhanConfig, AdhanSLM, generate
 
-__all__ = ["AdhanConfig", "AdhanSLM"]
+__all__ = ["AdhanConfig", "AdhanSLM", "generate"]
