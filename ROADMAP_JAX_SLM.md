@@ -90,6 +90,63 @@ existing PyTorch pipeline stays intact for corpus building and baselines.
 
 Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · 📋 planned
 
+**Note**: Infrastructure phases (A-D) added for production readiness. See `docs/COMPLETION_TRACKER.md` for detailed progress.
+
+### Phase A — Foundation & CI/CD  🚀 (Week 1–2, NEW)
+- ✅ 📦 **GitHub Actions workflows** (test, lint, type-check):
+  - `test.yml`: Unit tests + coverage (pytest)
+  - `lint.yml`: Black, isort, ruff checks + bandit security scan
+  - `type-check.yml`: mypy type checking with error reporting
+- ✅ 📦 **Package infrastructure**:
+  - `pyproject.toml`: Package metadata, dependencies (core, jax, pytorch, tamil-nlp, dev)
+  - `pytest.ini`: Test configuration
+  - `tests/conftest.py`: Shared fixtures for all tests
+- ✅ 📦 **Structured logging module** (`src/adhan_slm/core/logging.py`):
+  - `StructuredFormatter`: JSON output for production
+  - `ColoredFormatter`: Human-readable console output
+  - `get_logger()`: Unified logger factory
+  - Environment config: `ADHAN_LOG_LEVEL`, `ADHAN_JSON_LOGS`
+- 📋 Replace all `print()` statements (26+) with structured logging
+- 📋 Remove deprecated scripts (4 files in `src/data_scraper/`)
+- 📋 Wire MLflow logging integration
+- 📋 Update `README.md` with `pip install -e .` instructions
+- 🎯 **All GitHub Actions workflows passing**, package pip-installable, deprecated code removed
+
+### Phase B — Robustness & Observability  📋 (Week 2–3, NEW)
+- 📋 **Custom error handling**:
+  - `src/adhan_slm/core/exceptions.py`: AdhanError hierarchy
+  - Retry/recovery context managers
+- 📋 **Configuration validation**:
+  - `src/adhan_slm/core/config_validator.py`: YAML schema checks
+  - Type checking with pydantic
+- 📋 **Complete type hints** (100% coverage):
+  - tokenizer/, model/, training/, data/ modules
+  - mypy checks in CI (zero errors threshold)
+- 📋 **Performance monitoring**:
+  - Throughput tracking (tokens/sec, examples/sec)
+  - Latency histograms for inference
+  - GPU memory tracking integration
+
+### Phase C — Deployment & Serving  📋 (Week 3–4, NEW)
+- 📋 **FastAPI serving** (`src/adhan_slm/serving/api.py`):
+  - `/generate`, `/tokenize`, `/decode` endpoints
+  - Request/response validation with pydantic
+  - Model loading (checkpoint or HuggingFace)
+- 📋 **Containerization**:
+  - `Dockerfile` (JAX + CUDA base, API server CMD)
+  - `docker-compose.yml` for local testing
+- 📋 **Integration tests** (`tests/integration/`):
+  - E2E training (overfit-a-batch), model loading, inference, API
+- 📋 **Deployment guide** (`docs/DEPLOYMENT.md`):
+  - Serving, Docker, Kubernetes, edge deployment (TFLite/ONNX on RPi 5)
+- 🎯 Ready for deployment via **yazhi-api** (private repo)
+
+### Phase D — Roadmap Completion  📋 (Post-Phase C)
+- 📋 Complete Phase 2: Corpus dedup (MinHash), language-ID filter, PII scrub
+- 📋 Complete Phase 3: Full GPU pretrain, baseline comparison
+- 📋 Complete Phase 4: Instruction dataset + SFT/DPO
+- 📋 Complete Phase 5-7: Edge deployment, distributed training
+
 ### Phase 0 — Foundation & scaffolding  ✅ (this PR)
 - ✅ 📦 `src/adhan_slm/` package: tokenizer, model, training, configs, eval
 - ✅ 📦 Working **Swaram tokenizer** — Dravidian/Tamil (akshara segmentation + merges), tested
