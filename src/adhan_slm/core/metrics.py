@@ -14,10 +14,14 @@ class ThroughputTracker:
     """Tracks tokens per second and examples per second."""
 
     window_size: int = 100  # Number of batches to average over
-    tokens_processed: Deque[int] = field(default_factory=lambda: deque(maxlen=100))
-    examples_processed: Deque[int] = field(default_factory=lambda: deque(maxlen=100))
-    timestamps: Deque[float] = field(default_factory=lambda: deque(maxlen=100))
+    tokens_processed: Deque[int] = field(init=False)
+    examples_processed: Deque[int] = field(init=False)
+    timestamps: Deque[float] = field(init=False)
 
+    def __post_init__(self) -> None:
+        self.tokens_processed = deque(maxlen=self.window_size)
+        self.examples_processed = deque(maxlen=self.window_size)
+        self.timestamps = deque(maxlen=self.window_size)
     def update(self, num_tokens: int, num_examples: int) -> None:
         """Record tokens and examples processed.
 
