@@ -11,9 +11,9 @@
 | Phase | Name | Status | Completion | Target | ETA |
 |-------|------|--------|------------|--------|-----|
 | **Phase 0** | Foundation & Scaffolding | ✅ Done | 100% | - | - |
-| **Phase A** | CI/CD & Logging | ✅ Done | 100% | Week 1-2 | 2026-07-23 |
-| **Phase B** | Observability & Robustness | ✅ Done | 100% | Week 2-3 | 2026-07-23 |
-| **Phase C** | Deployment & Serving | ✅ Done | 100% | Week 3-4 | 2026-07-23 |
+| **Phase A** | CI/CD & Logging | 🚀 In Progress | 41% | Week 1-2 | 2026-07-23 |
+| **Phase B** | Observability & Robustness | ⏳ Queued | 0% | Week 2-3 | TBD |
+| **Phase C** | Deployment & Serving | ⏳ Queued | 0% | Week 3-4 | TBD |
 | **Phase D** | Roadmap Completion | ⏳ Future | 0% | Ongoing | TBD |
 | **Phase 1** | Tokenizer to Production | 🟡 Partial | 85% | - | - |
 | **Phase 2** | Corpus at Scale | 🔴 Blocked | 10% | - | - |
