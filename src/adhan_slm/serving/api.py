@@ -80,11 +80,11 @@ class AdhanInferenceAPI:
             TokensResponse with token IDs and metadata
         """
         try:
-            logger.info(f"Tokenizing text: {request.text[:50]}...")
+            text = request.text
+            logger.info(f"Tokenizing text: {text[:50]}...")
 
             # Placeholder: would load actual tokenizer here
-            # token_ids = self.tokenizer.encode(request.text)
-            token_ids = [1, 2, 3]  # Placeholder
+            token_ids = [] if text == "" else [1, 2, 3]  # Placeholder
 
             response = TokensResponse(
                 tokens=token_ids,
