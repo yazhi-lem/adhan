@@ -345,7 +345,7 @@ yazhi-api models endpoints adhan-nano
 
 ### Authentication
 
-All requests require a valid API key (header: `X-API-Key`):
+Requests can include an API key header (header: `X-API-Key`) if your deployment enforces it:
 
 ```bash
 curl -H "X-API-Key: your-api-key" \
