@@ -25,7 +25,7 @@ from typing import Generator, Optional
 from adhan_slm.core import get_logger
 from adhan_slm.data.deduplicator import TextDeduplicator
 from adhan_slm.data.filters import CorpusFilter
-from src.data_scraper.yazhi_integrations import (
+from src.data_scraper.importers import (
     CorpusTamilImporter,
     SangamImporter,
     VazhiImporter,
@@ -68,7 +68,9 @@ class Phase2CorpusBuilder:
             "total_after_filter": 0,
         }
 
-    def ingest_yazhi_projects(self, yazhi_root: Optional[str] = None) -> Generator[dict, None, None]:
+    def ingest_yazhi_projects(
+        self, yazhi_root: Optional[str] = None
+    ) -> Generator[dict, None, None]:
         """Import data from yazhi ecosystem projects.
 
         Args:
@@ -91,7 +93,9 @@ class Phase2CorpusBuilder:
                 importer = VazhiImporter(str(vazhi_path))
                 count = 0
                 for record in importer.import_from_repo():
-                    self.stats["sources"]["vazhi"] = self.stats["sources"].get("vazhi", 0) + 1
+                    self.stats["sources"]["vazhi"] = (
+                        self.stats["sources"].get("vazhi", 0) + 1
+                    )
                     self.stats["total_ingested"] += 1
                     count += 1
                     yield record
@@ -127,7 +131,9 @@ class Phase2CorpusBuilder:
                 importer = SangamImporter()
                 count = 0
                 for record in importer.import_from_open_sangam(str(sangam_path)):
-                    self.stats["sources"]["sangam"] = self.stats["sources"].get("sangam", 0) + 1
+                    self.stats["sources"]["sangam"] = (
+                        self.stats["sources"].get("sangam", 0) + 1
+                    )
                     self.stats["total_ingested"] += 1
                     count += 1
                     yield record

@@ -6,8 +6,8 @@ Provides integration with yazhi projects:
 - Yazhi API + open Sangam: Classical literature
 """
 
-from .vazhi_importer import VazhiImporter
 from .corpus_tamil_importer import CorpusTamilImporter
 from .sangam_importer import SangamImporter
+from .vazhi_importer import VazhiImporter
 
 __all__ = ["VazhiImporter", "CorpusTamilImporter", "SangamImporter"]

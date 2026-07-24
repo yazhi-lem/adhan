@@ -173,9 +173,9 @@ class CorpusValidator:
         return {
             "sample_size": len(records_to_check),
             "records_with_pii": records_with_pii,
-            "pii_rate": records_with_pii / len(records_to_check)
-            if records_to_check
-            else 0,
+            "pii_rate": (
+                records_with_pii / len(records_to_check) if records_to_check else 0
+            ),
             "pii_types_found": dict(pii_counts),
         }
 
@@ -313,12 +313,18 @@ Examples:
         print(f"Avg text length: {report['average_text_length']:.0f} chars")
         print(f"\nQuality Scores:")
         print(f"  Average: {report['quality_scores']['avg_score']:.2f}")
-        print(f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}")
+        print(
+            f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}"
+        )
         print(f"\nLanguage Mix:")
-        print(f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}")
+        print(
+            f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}"
+        )
         print(f"\nPII Check:")
         pii = report["pii_check"]
-        print(f"  Records with PII: {pii['records_with_pii']}/{pii['sample_size']} ({pii['pii_rate']:.1%})")
+        print(
+            f"  Records with PII: {pii['records_with_pii']}/{pii['sample_size']} ({pii['pii_rate']:.1%})"
+        )
         print(f"\nFertility (estimate):")
         fert = report["fertility_estimate"]
         print(f"  Avg: {fert.get('avg_fertility', 0):.3f}")

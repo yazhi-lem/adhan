@@ -33,9 +33,7 @@ class CorpusFilter:
     PHONE_PATTERN = re.compile(
         r"(?:\+?91[-.\s]?|\b)(?:\d{4,5}[-.\s]?)?\d{3,4}[-.\s]?\d{4}\b"
     )
-    URL_PATTERN = re.compile(
-        r"https?://[^\s]+|www\.[^\s]+|\[URL\]", re.IGNORECASE
-    )
+    URL_PATTERN = re.compile(r"https?://[^\s]+|www\.[^\s]+|\[URL\]", re.IGNORECASE)
 
     def __init__(
         self,
@@ -135,7 +133,9 @@ class CorpusFilter:
                 yield doc
 
             stats["removed"] = stats["total"] - stats["kept"]
-            stats["removal_rate"] = stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
+            stats["removal_rate"] = (
+                stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
+            )
 
             return stats
 
@@ -184,7 +184,9 @@ class CorpusFilter:
                 yield doc
 
             stats["removed"] = stats["total"] - stats["kept"]
-            stats["removal_rate"] = stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
+            stats["removal_rate"] = (
+                stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
+            )
             if stats["tamil_fractions"]:
                 stats["avg_tamil_fraction"] = sum(stats["tamil_fractions"]) / len(
                     stats["tamil_fractions"]
@@ -267,7 +269,9 @@ class CorpusFilter:
                 stats["kept"] += 1
                 yield doc
 
-            stats["removal_rate"] = stats["had_pii"] / stats["total"] if stats["total"] > 0 else 0.0
+            stats["removal_rate"] = (
+                stats["had_pii"] / stats["total"] if stats["total"] > 0 else 0.0
+            )
 
             return stats
 

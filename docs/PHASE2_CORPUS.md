@@ -72,10 +72,10 @@ Your projects have high-quality Tamil data:
 - **Quality**: High (0.75)
 - **Volume**: ~50k-100k QA pairs (potential 10-50M tokens)
 - **Format**: JSON/JSONL
-- **Integration**: `VazhiImporter` in `src/data_scraper/yazhi_integrations/`
+- **Integration**: `VazhiImporter` in `src/data_scraper/importers/`
 
 ```python
-from src.data_scraper.yazhi_integrations import VazhiImporter
+from src.data_scraper.importers import VazhiImporter
 
 importer = VazhiImporter("/path/to/yazhi-lem/vazhi")
 for record in importer.import_from_repo():
@@ -96,7 +96,7 @@ for record in importer.import_from_repo():
 - **Integration**: `CorpusTamilImporter`
 
 ```python
-from src.data_scraper.yazhi_integrations import CorpusTamilImporter
+from src.data_scraper.importers import CorpusTamilImporter
 
 importer = CorpusTamilImporter("/path/to/yazhi-lem/corpus-tamil")
 for record in importer.import_from_repo():
@@ -111,7 +111,7 @@ for record in importer.import_from_repo():
 - **Integration**: `SangamImporter`
 
 ```python
-from src.data_scraper.yazhi_integrations import SangamImporter
+from src.data_scraper.importers import SangamImporter
 
 importer = SangamImporter()
 for record in importer.import_from_open_sangam("/path/to/sangam"):
@@ -377,7 +377,7 @@ python scripts/phase2_validate.py \
 
 ## Key Code Modules
 
-### Importers (`src/data_scraper/yazhi_integrations/`)
+### Importers (`src/data_scraper/importers/`)
 
 1. **VazhiImporter** - QA pairs from vazhi-lem/vazhi
    ```python

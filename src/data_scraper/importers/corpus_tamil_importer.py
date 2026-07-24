@@ -27,7 +27,9 @@ class CorpusTamilImporter:
         self.repo_path = Path(repo_path) if repo_path else None
         self.logger = logger
 
-    def import_from_repo(self, repo_path: Optional[str] = None) -> Generator[dict, None, None]:
+    def import_from_repo(
+        self, repo_path: Optional[str] = None
+    ) -> Generator[dict, None, None]:
         """Load pre-curated corpus from corpus-tamil repository.
 
         Yields JSONL records with format:
@@ -51,7 +53,9 @@ class CorpusTamilImporter:
         """
         path = Path(repo_path) if repo_path else self.repo_path
         if not path:
-            raise ValueError("repo_path must be provided either in __init__ or import_from_repo()")
+            raise ValueError(
+                "repo_path must be provided either in __init__ or import_from_repo()"
+            )
 
         path = Path(path)
         if not path.exists():
@@ -116,7 +120,9 @@ class CorpusTamilImporter:
                     record = json.loads(line)
                     yield self._convert_record(record, line_idx, file_path.stem)
                 except json.JSONDecodeError as e:
-                    self.logger.debug(f"Invalid JSON at line {line_idx} in {file_path.name}: {e}")
+                    self.logger.debug(
+                        f"Invalid JSON at line {line_idx} in {file_path.name}: {e}"
+                    )
 
     def _process_json(self, file_path: Path) -> Generator[dict, None, None]:
         """Process JSON file from corpus-tamil.
@@ -139,9 +145,15 @@ class CorpusTamilImporter:
             records = data
         elif isinstance(data, dict):
             if "data" in data:
-                records = data["data"] if isinstance(data["data"], list) else [data["data"]]
+                records = (
+                    data["data"] if isinstance(data["data"], list) else [data["data"]]
+                )
             elif "texts" in data:
-                records = data["texts"] if isinstance(data["texts"], list) else [data["texts"]]
+                records = (
+                    data["texts"]
+                    if isinstance(data["texts"], list)
+                    else [data["texts"]]
+                )
             else:
                 records = [data]
 

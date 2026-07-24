@@ -31,10 +31,10 @@
 
 **Files Created**:
 - ✅ `src/data_scraper/__init__.py` - Module root
-- ✅ `src/data_scraper/yazhi_integrations/__init__.py` - Submodule
-- ✅ `src/data_scraper/yazhi_integrations/vazhi_importer.py` - VazhiImporter class
-- ✅ `src/data_scraper/yazhi_integrations/corpus_tamil_importer.py` - CorpusTamilImporter class
-- ✅ `src/data_scraper/yazhi_integrations/sangam_importer.py` - SangamImporter class
+- ✅ `src/data_scraper/importers/__init__.py` - Submodule
+- ✅ `src/data_scraper/importers/vazhi_importer.py` - VazhiImporter class
+- ✅ `src/data_scraper/importers/corpus_tamil_importer.py` - CorpusTamilImporter class
+- ✅ `src/data_scraper/importers/sangam_importer.py` - SangamImporter class
 
 **Importers Implemented**:
 - ✅ VazhiImporter: Load QA pairs from yazhi-lem/vazhi

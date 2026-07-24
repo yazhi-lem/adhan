@@ -184,7 +184,10 @@ class TextDeduplicator:
         # Not a duplicate - remember this text
         self.exact_hashes.add(text_hash)
         self.minhash_signatures[doc_id] = signature
-        self.seen_docs[doc_id] = {"hash": text_hash, "text": text[:200]}  # Store preview
+        self.seen_docs[doc_id] = {
+            "hash": text_hash,
+            "text": text[:200],
+        }  # Store preview
 
         return False, None
 
@@ -235,7 +238,9 @@ class TextDeduplicator:
                         stats["exact_duplicates"] += 1
                         if track_sources:
                             stats["per_source"][source]["duplicates"] += 1
-                        self.logger.debug(f"Exact duplicate: {doc_id} (matches {dup_of})")
+                        self.logger.debug(
+                            f"Exact duplicate: {doc_id} (matches {dup_of})"
+                        )
                     else:
                         stats["near_duplicates"] += 1
                         if track_sources:
@@ -256,10 +261,12 @@ class TextDeduplicator:
                 "removed": stats["exact_duplicates"] + stats["near_duplicates"],
                 "exact_duplicates": stats["exact_duplicates"],
                 "near_duplicates": stats["near_duplicates"],
-                "removal_rate": (stats["exact_duplicates"] + stats["near_duplicates"])
-                / stats["total_seen"]
-                if stats["total_seen"] > 0
-                else 0.0,
+                "removal_rate": (
+                    (stats["exact_duplicates"] + stats["near_duplicates"])
+                    / stats["total_seen"]
+                    if stats["total_seen"] > 0
+                    else 0.0
+                ),
                 "per_source": dict(stats["per_source"]),
             }
 

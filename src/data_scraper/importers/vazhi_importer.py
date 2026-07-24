@@ -27,7 +27,9 @@ class VazhiImporter:
         self.repo_path = Path(repo_path) if repo_path else None
         self.logger = logger
 
-    def import_from_repo(self, repo_path: Optional[str] = None) -> Generator[dict, None, None]:
+    def import_from_repo(
+        self, repo_path: Optional[str] = None
+    ) -> Generator[dict, None, None]:
         """Load QA pairs from vazhi repository and convert to corpus format.
 
         Yields JSONL records with format:
@@ -52,7 +54,9 @@ class VazhiImporter:
         """
         path = Path(repo_path) if repo_path else self.repo_path
         if not path:
-            raise ValueError("repo_path must be provided either in __init__ or import_from_repo()")
+            raise ValueError(
+                "repo_path must be provided either in __init__ or import_from_repo()"
+            )
 
         path = Path(path)
         if not path.exists():
@@ -107,7 +111,9 @@ class VazhiImporter:
                 try:
                     records.append(json.loads(line))
                 except json.JSONDecodeError as e:
-                    self.logger.warning(f"Invalid JSON at line {line_idx} in {file_path.name}: {e}")
+                    self.logger.warning(
+                        f"Invalid JSON at line {line_idx} in {file_path.name}: {e}"
+                    )
         else:
             # Try JSON format (single array or object)
             try:
@@ -117,9 +123,15 @@ class VazhiImporter:
                 elif isinstance(data, dict):
                     # Handle various JSON object structures
                     if "data" in data:
-                        records = data["data"] if isinstance(data["data"], list) else [data["data"]]
+                        records = (
+                            data["data"]
+                            if isinstance(data["data"], list)
+                            else [data["data"]]
+                        )
                     elif "qa" in data:
-                        records = data["qa"] if isinstance(data["qa"], list) else [data["qa"]]
+                        records = (
+                            data["qa"] if isinstance(data["qa"], list) else [data["qa"]]
+                        )
                     else:
                         records = [data]
             except json.JSONDecodeError as e:
@@ -149,7 +161,9 @@ class VazhiImporter:
             ValueError: If text is empty or invalid.
         """
         # Extract question and answer
-        question = record.get("question") or record.get("q") or record.get("query") or ""
+        question = (
+            record.get("question") or record.get("q") or record.get("query") or ""
+        )
         answer = record.get("answer") or record.get("a") or record.get("response") or ""
 
         if not question and not answer:
