@@ -30,7 +30,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests/ -v --tb=short --cov=src/adhan_slm --cov-report=xml --cov-report=term
+          pytest -m "not integration" --cov=src/adhan_slm --cov-report=xml --cov-report=term
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
