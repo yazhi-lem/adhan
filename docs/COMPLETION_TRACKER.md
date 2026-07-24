@@ -1,399 +1,273 @@
-# Adhan SLM - Project Completion Tracker
+# Adhan SLM - Completion Tracker
 
-**Project Status**: v0.1.0.dev0 - Phase 2 Infrastructure Ready  
+**Project Status**: v0.1.0.dev0 - Phase A (Foundation) In Progress  
 **Last Updated**: 2026-07-23  
-**Current Branch**: `claude/adhan-phase2-corpus-v1`
+**Next Milestone**: Phase A completion → Phase B (Robustness)
 
 ---
 
-## Overall Progress Summary
+## Overall Progress
 
-| Phase | Name | Status | Completion | Notes |
-|-------|------|--------|------------|-------|
-| **Phase 0** | Foundation & Scaffolding | ✅ Done | 100% | Tokenizer, model, training loop |
-| **Phase A** | CI/CD & Logging | ✅ Done | 100% | GitHub Actions, structured logging, pytest |
-| **Phase B** | Observability & Robustness | ✅ Done | 100% | Error handling, validation, metrics |
-| **Phase C** | Deployment & Serving | ✅ Done | 100% | FastAPI, Docker, Kubernetes docs |
-| **Phase 2** | Corpus Curation | 🟡 In Progress | 50% | Infrastructure + scripts ready |
-| **Phase 3** | Pretrain adhan-nano | ⏳ Queued | 0% | Awaiting Phase 2 corpus |
-| **Phase 4** | Evaluation | ✅ Done | 95% | Stemmer, Sandhi, evaluation suite |
-| **Phase 5-7** | Edge & Distributed | 📋 Planned | 0% | Future roadmap |
+| Phase | Name | Status | Completion | Target | ETA |
+|-------|------|--------|------------|--------|-----|
+| **Phase 0** | Foundation & Scaffolding | ✅ Done | 100% | - | - |
+| **Phase A** | CI/CD & Logging | 🚀 In Progress | 41% | Week 1-2 | 2026-07-23 |
+| **Phase B** | Observability & Robustness | ⏳ Queued | 0% | Week 2-3 | TBD |
+| **Phase C** | Deployment & Serving | ⏳ Queued | 0% | Week 3-4 | TBD |
+| **Phase D** | Roadmap Completion | ⏳ Future | 0% | Ongoing | TBD |
+| **Phase 1** | Tokenizer to Production | 🟡 Partial | 85% | - | - |
+| **Phase 2** | Corpus at Scale | 🔴 Blocked | 10% | - | - |
+| **Phase 3** | Pretrain `adhan-nano` | 🟡 Partial | 50% | - | - |
+| **Phase 4** | Evaluation & Probes | ✅ Done | 95% | - | - |
 
 ---
 
-## Phase 2: Corpus Curation - 🟡 In Progress (50%)
+## Phase A: Foundation (CI/CD & Logging) - 🚀 In Progress
 
-**Goal**: Build 300M-1B clean Tamil token corpus for pretraining  
-**Branch**: `claude/adhan-phase2-corpus-v1`  
-**Status**: Infrastructure complete, scripts ready, awaiting data collection
+**Goal**: Enable quality gates and reproducibility  
+**Status**: 41% complete (Infrastructure tasks)
 
-### Phase 2.1: Yazhi Ecosystem Integration ✅ DONE
+### Tasks Breakdown
 
-**Files Created**:
-- ✅ `src/data_scraper/__init__.py` - Module root
-- ✅ `src/data_scraper/importers/__init__.py` - Submodule
-- ✅ `src/data_scraper/importers/vazhi_importer.py` - VazhiImporter class
-- ✅ `src/data_scraper/importers/corpus_tamil_importer.py` - CorpusTamilImporter class
-- ✅ `src/data_scraper/importers/sangam_importer.py` - SangamImporter class
+```
+A1. Add CI/CD Pipeline ...................... ✅ 100% (DONE)
+    ├─ GitHub Actions workflows .............. ✅ Done (3 files)
+    ├─ pytest configuration ................. ✅ Done
+    └─ test fixtures ........................ ✅ Done
 
-**Importers Implemented**:
-- ✅ VazhiImporter: Load QA pairs from yazhi-lem/vazhi
-- ✅ CorpusTamilImporter: Load pre-curated corpus from yazhi-lem/corpus-tamil
-- ✅ SangamImporter: Load classical Tamil literature from open Sangam + Yazhi API
+A2. Add Structured Logging .................. 🟡 14% (IN PROGRESS)
+    ├─ Logging module factory ............... ✅ Done
+    ├─ Replace prints (29 occurrences) ...... 🔴 Pending
+    └─ MLflow integration ................... 🔴 Pending
 
-**Features**:
-- Multiple format support (JSONL, JSON, TXT, XML)
-- Unified output format for corpus processing
-- Error handling and logging
-- Support for nested directory structures
+A3. Add Package Installation ................ 🟡 25% (IN PROGRESS)
+    ├─ pyproject.toml ....................... ✅ Done
+    ├─ README updates ....................... 🔴 Pending
+    └─ Installation testing ................. 🔴 Pending
 
-**Commit**: `f943d66` - "Phase 2: Add yazhi ecosystem data importers"
-
-### Phase 2.2: Core Processing Modules ✅ DONE
-
-**Files Created**:
-- ✅ `src/adhan_slm/data/deduplicator.py` - TextDeduplicator (MinHash/LSH)
-- ✅ `src/adhan_slm/data/filters.py` - CorpusFilter (quality/language/PII)
-
-**Deduplicator Features**:
-- ✅ MinHash/LSH-based near-duplicate detection
-- ✅ SHA-256 exact match deduplication
-- ✅ Per-source deduplication option
-- ✅ Configurable similarity threshold (default 85%)
-- ✅ Detailed statistics reporting
-
-**Filter Features**:
-- ✅ Quality filtering (text length, punctuation, validity)
-- ✅ Language-ID filtering (Tamil fraction detection)
-- ✅ PII scrubbing (emails, phones, URLs, anonymization)
-- ✅ Composable pipeline support
-- ✅ Multiple anonymization levels
-
-**Commit**: `cfac18a` - "Phase 2: Add core corpus processing modules"
-
-### Phase 2.3: Orchestration & Validation ✅ DONE
-
-**Files Created**:
-- ✅ `scripts/phase2_corpus_build.py` - Main orchestration script
-- ✅ `scripts/phase2_validate.py` - Quality validation script
-- ✅ `docs/PHASE2_CORPUS.md` - Comprehensive documentation
-
-**Orchestrator Features**:
-- ✅ Ingest from yazhi projects (vazhi, corpus-tamil, sangam)
-- ✅ Apply deduplication pipeline
-- ✅ Apply filtering pipeline
-- ✅ Generate corpus JSONL output
-- ✅ Generate statistics reports
-- ✅ Configurable thresholds
-
-**Validator Features**:
-- ✅ Token count estimation
-- ✅ Fertility measurement (estimate)
-- ✅ PII presence detection (spot-check)
-- ✅ Language mix analysis
-- ✅ Quality distribution histograms
-- ✅ Per-source statistics
-
-**Usage Examples**:
-
-```bash
-# Build corpus
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects ~/yazhi-projects \
-  --output data/raw/phase2
-
-# Validate corpus
-python scripts/phase2_validate.py \
-  --corpus data/raw/phase2/unified.jsonl \
-  --sample-size 1000 \
-  --output validation_report.json
+A4. Remove Deprecated Code .................. 🟡 25% (IN PROGRESS)
+    ├─ Identify deprecated files ............ ✅ Done (4 files)
+    ├─ Remove deprecated scripts ............ 🔴 Pending
+    └─ Update documentation ................. 🔴 Pending
 ```
 
-**Commit**: `8800a83` - "Phase 2: Add corpus orchestration and validation scripts"
+### Detailed Status by File
 
-### Phase 2.4: Documentation ✅ DONE
+**Infrastructure (✅ Done)**
+- ✅ `.github/workflows/test.yml` - Unit tests + coverage
+- ✅ `.github/workflows/lint.yml` - Code quality checks
+- ✅ `.github/workflows/type-check.yml` - Type checking
+- ✅ `pytest.ini` - Test configuration
+- ✅ `tests/conftest.py` - Test fixtures
+- ✅ `pyproject.toml` - Package definition
+- ✅ `src/adhan_slm/core/logging.py` - Logging module
 
-**Files Created**:
-- ✅ `docs/PHASE2_CORPUS.md` - Complete Phase 2 guide (1500+ lines)
-
-**Documentation Covers**:
-- ✅ Architecture diagram (6 processing steps)
-- ✅ Data sourcing strategy (4 priority tiers)
-- ✅ Full processing pipeline walkthrough
-- ✅ Data formats (input, after dedup, after filter)
-- ✅ Quality metrics and targets
-- ✅ Code module reference
-- ✅ Reproducibility instructions
-- ✅ Timeline (5 weeks)
-- ✅ Troubleshooting guide
-- ✅ Next steps for Phase 3
-
-### Phase 2.5: Data Collection 🟡 PENDING
-
-**Status**: Scripts ready, awaiting data sources
-
-**Tasks Remaining**:
-- 🔴 Integrate yazhi-lem/vazhi data
-- 🔴 Integrate yazhi-lem/corpus-tamil data
-- 🔴 Integrate open Sangam sources
-- 🔴 Run existing scrapers at scale (Wikipedia, Reddit, Twitter, News)
-- 🔴 Collect 300M-1B tokens target
-
-**Target Distribution**:
-- Yazhi ecosystem: 100M tokens (5-15%)
-- Modern conversational: 50-100M tokens (15-30%)
-- News/journalism: 50-100M tokens (15-30%)
-- Educational/literature: 100-200M tokens (30-40%)
-- Other/mixed: 50M tokens (10-15%)
-
-### Phase 2.6: Quality Assurance 🟡 PENDING
-
-**Tasks Remaining**:
-- 🔴 Run deduplication at scale
-- 🔴 Apply filtering (quality/language/PII)
-- 🔴 Validate corpus statistics
-- 🔴 Generate datasheet.json (reproducibility)
-- 🔴 Manual spot-check (100 samples)
-
-**Success Criteria**:
-- ✅ 300M-1B tokens collected
-- ✅ Dedup rate 10-20% (no over-dedup)
-- ✅ PII validation: 0% PII in spot-check
-- ✅ Language: ≥70% Tamil content
-- ✅ Fertility: <1.15 tokens/akshara
-- ✅ Datasheet complete with code SHA
+**Integration (🔴 Pending)**
+- 🔴 Replace print statements (26+ in critical modules)
+- 🔴 Update README.md with installation guide
+- 🔴 Test `pip install -e .` locally
+- 🔴 Remove 4 deprecated scripts
+- 🔴 Update ROADMAP_JAX_SLM.md with Phase A status
+- 🔴 Wire MLflow logging integration
 
 ---
 
-## Previously Completed Phases
+## Phase B: Observability & Robustness - ⏳ Queued
 
-### Phase A: CI/CD & Logging ✅ COMPLETE
+**Goal**: Production-ready error handling and validation  
+**Target Start**: After Phase A completion  
+**Estimated Completion**: Week 2-3
 
-**Status**: 100% - All infrastructure in place
+```
+B1. Structured Error Handling ............... ✅ 100% (DONE)
+    ├─ Custom exception hierarchy ........... ✅ Done
+    ├─ Error context managers .............. ✅ Done
+    └─ 13 unit tests ........................ ✅ Done
 
-**Implemented**:
-- ✅ GitHub Actions workflows (test, lint, type-check)
-- ✅ pytest configuration with fixtures
-- ✅ Structured logging module (JSON + colored)
-- ✅ Package metadata (pyproject.toml)
-- ✅ 33/33 tests passing
+B2. Configuration Validation ................ ✅ 100% (DONE)
+    ├─ YAML schema validation .............. ✅ Done
+    ├─ Type checking wiring ................ ✅ Done
+    └─ 6 validation tests .................. ✅ Done
 
-**Files**: 7 files created/modified, ~900 lines
+B3. Complete Type Hints ..................... 🔴 0% (Pending)
+    ├─ tokenizer/ (100% typed) .............
+    ├─ model/ (100% typed) ................
+    ├─ training/ (100% typed) .............
+    └─ data/ (100% typed) .................
 
-### Phase B: Observability & Robustness ✅ COMPLETE
-
-**Status**: 100% - Production-grade modules
-
-**Implemented**:
-- ✅ Custom exception hierarchy (6 exception types)
-- ✅ Configuration schema validator (3 schemas)
-- ✅ Performance metrics (throughput, latency, memory)
-- ✅ Module exports (`__init__.py`)
-
-**Files**: 4 files created, ~660 lines + 13 tests
-
-### Phase C: Deployment & Serving ✅ COMPLETE
-
-**Status**: 100% - Ready for production
-
-**Implemented**:
-- ✅ FastAPI inference API (4 endpoints)
-- ✅ Docker containerization
-- ✅ Integration tests (6 async tests)
-- ✅ Deployment guide (1500+ lines)
-
-**Files**: 7 files created, ~900 lines + 6 integration tests
+B4. Performance Monitoring .................. ✅ 100% (DONE)
+    ├─ Throughput tracking ................. ✅ Done
+    ├─ Latency histograms .................. ✅ Done
+    ├─ Resource monitoring ................. ✅ Done
+    └─ Aggregated metrics .................. ✅ Done
+```
 
 ---
 
-## Key Statistics
+## Phase C: Deployment & Serving - ⏳ Queued
+
+**Goal**: Enable production serving via yazhi-api  
+**Target Start**: After Phase B completion  
+**Estimated Completion**: Week 3-4
+
+```
+C1. Serving API (FastAPI) ................... ✅ 100% (DONE)
+    ├─ /generate endpoint .................. ✅ Done
+    ├─ /tokenize endpoint ................. ✅ Done
+    ├─ /decode endpoint ................... ✅ Done
+    ├─ /health endpoint ................... ✅ Done
+    ├─ Model loading ...................... ✅ Done
+    └─ Request/response validation ........ ✅ Done
+
+C2. Containerization ........................ ✅ 100% (DONE)
+    ├─ Dockerfile ......................... ✅ Done
+    ├─ docker-compose.yml ................. ✅ Done
+    ├─ .dockerignore ....................... ✅ Done
+    └─ Health checks ....................... ✅ Done
+
+C3. Deployment Documentation ............... ✅ 100% (DONE)
+    ├─ DEPLOYMENT.md ....................... ✅ Done
+    ├─ Kubernetes manifests (templates) ... ✅ Done
+    ├─ Local development guide ............ ✅ Done
+    ├─ Docker deployment guide ............ ✅ Done
+    ├─ yazhi-api integration guide ........ ✅ Done
+    └─ API reference ....................... ✅ Done
+
+C4. Integration Tests ....................... ✅ 100% (DONE)
+    ├─ API tokenization tests ............. ✅ Done
+    ├─ API generation tests ............... ✅ Done
+    ├─ API health check tests ............. ✅ Done
+    ├─ Parameter validation tests ......... ✅ Done
+    └─ Error handling tests ............... ✅ Done
+```
+
+---
+
+## Phase D: Roadmap Completion - ⏳ Future
+
+**Goal**: Complete planned features from original roadmap
+
+```
+D1. Phase 2: Full Corpus Curation .......... 📋 Planned
+    ├─ Deduplication (MinHash/LSH) .......
+    ├─ Language-ID filtering .............
+    └─ PII scrubbing .....................
+
+D2. Phase 3: Full Pretrain on GPU ......... 📋 Planned
+    ├─ Freeze adhan-tok-v1 ..............
+    ├─ 300M+ token corpus ................
+    └─ Baseline comparison ...............
+
+D3. Phase 4: Instruction Tuning ........... 📋 Planned
+    ├─ SFT dataset (~10k examples) .......
+    └─ DPO alignment (optional) ..........
+
+D4. Phase 5-7: Edge & Distributed ........ 📋 Planned
+    ├─ ONNX/GGUF/TFLite export ..........
+    ├─ RPi 5 validation ..................
+    └─ Multi-GPU training (pjit) ........
+```
+
+---
+
+## Key Metrics
+
+### Infrastructure Health
+- **CI/CD Coverage**: 0% → 100% (GitHub Actions workflows)
+- **Type Safety**: ~30% → Target 100% (incremental)
+- **Logging Coverage**: 0% → Target 100% (print → structured logs)
+- **Package Maturity**: v0 (scripts) → v0.1 (pip-installable)
 
 ### Code Quality
-- **Total Tests**: 33/33 passing ✅
-- **Test Coverage**: ~70% for critical modules
-- **Type Annotations**: 100% for new Phase 2 code
-- **Logging**: 100% structured logging (no print)
+- **Test Files**: 5 existing (392 lines)
+- **Unit Test Coverage**: ~60% (tokenizer/data)
+- **Integration Test Coverage**: 0% (Phase C adds)
+- **Type Annotations**: ~30% (Phase B completes)
 
-### Repository Structure
+### Deployment Readiness
+- **Local Development**: 🟢 Works (pip/venv)
+- **CI/CD Pipeline**: 🟢 Added (Phase A)
+- **Container Support**: 🔴 Not yet (Phase C)
+- **Serving API**: 🔴 Not yet (Phase C)
+- **Production Deployment**: 🔴 Not yet (Phase C → yazhi-api)
+
+---
+
+## Deployment Path
 
 ```
-adhan/
-├── src/
-│   ├── adhan_slm/
-│   │   ├── core/              [Phase B] Logging, exceptions, config, metrics
-│   │   ├── data/              [Phase 2] Dedup, filters, corpus processing
-│   │   ├── serving/           [Phase C] FastAPI inference
-│   │   ├── tokenizer/         [Phase 0] Swaram tokenizer
-│   │   ├── model/             [Phase 0] JAX transformer
-│   │   ├── training/          [Phase 0] Training loop
-│   │   └── eval/              [Phase 4] Evaluation suite
-│   └── data_scraper/          [Phase 2] Yazhi importers
-├── scripts/
-│   ├── run_api_server.py      [Phase C] FastAPI server
-│   ├── phase2_corpus_build.py [Phase 2] Corpus orchestration
-│   ├── phase2_validate.py     [Phase 2] Quality validation
-│   └── prepare_slm_corpus.py  [Phase 0] Existing corpus prep
-├── tests/
-│   ├── unit/                  [Phase A] 33 passing tests
-│   └── integration/           [Phase C] 6 integration tests
-├── docs/
-│   ├── DEPLOYMENT.md          [Phase C] Deployment guide
-│   ├── PHASE2_CORPUS.md       [Phase 2] Corpus guide
-│   ├── ARCHITECTURE_*.md      [Phase 0] Architecture docs
-│   └── ...other docs
-├── .github/workflows/         [Phase A] CI/CD pipelines
-├── Dockerfile                 [Phase C] Container image
-├── docker-compose.yml         [Phase C] Local testing
-└── pyproject.toml            [Phase A] Package metadata
+Local Development
+    ↓ (Phase A: pip install -e .)
+Package Installation
+    ↓ (Phase B: Type safety, validation)
+Production Ready
+    ↓ (Phase C: Serving API)
+API Server (FastAPI)
+    ↓ (Docker)
+Container
+    ↓ (Deploy to yazhi-api)
+Production (yazhi-api REST endpoint)
+    ↓ (Client library)
+End Users (Python SDK, REST)
 ```
 
 ---
 
-## Deployment Readiness
+## Critical Path
 
-### Local Development
-- ✅ Package installable: `pip install -e .[dev,jax]`
-- ✅ Tests runnable: `pytest` (33/33 passing)
-- ✅ Type checking: `mypy` (zero errors)
-- ✅ Linting: `black`, `isort`, `ruff` (clean)
+**Must Complete Before Phase C (Deployment)**:
+1. ✅ Phase A1: CI/CD workflows
+2. ✅ Phase A3: Package installation
+3. 🔴 Phase A2: Logging integration
+4. 🔴 Phase A4: Deprecated code removal
+5. 🔴 Phase B1: Error handling
+6. 🔴 Phase B2: Validation
 
-### CI/CD Pipeline
-- ✅ GitHub Actions workflows configured
-- ✅ Test suite runs on commits
-- ✅ Type checking in CI
-- ✅ Code quality checks in CI
-
-### Docker Deployment
-- ✅ Dockerfile builds without errors
-- ✅ docker-compose.yml for local testing
-- ✅ Health checks configured
-- ✅ Non-root user for security
-
-### API Serving
-- ✅ FastAPI server with 4 endpoints
-- ✅ Request/response validation (Pydantic)
-- ✅ Structured error handling
-- ✅ OpenAPI/Swagger docs
-
-### Production Ready
-- ✅ Structured logging (JSON/colored)
-- ✅ Custom exception handling
-- ✅ Configuration validation
-- ✅ Performance monitoring
-- ✅ Deployment documentation
+**Must Complete Before yazhi-api Deployment**:
+1. 🔴 Phase C1: Serving API
+2. 🔴 Phase C2: Containerization
+3. 🔴 Phase C4: Integration tests
+4. 🔴 yazhi-api integration (deployment platform)
 
 ---
 
-## Critical Path to Phase 3
+## Success Criteria by Phase
 
-**Prerequisites for Phase 3 Pretrain**:
+### Phase A (Foundation)
+- ✅ All GitHub Actions workflows created
+- 🔴 Package installable via `pip install -e .`
+- 🔴 Zero print statements (→ structured logging)
+- 🔴 Deprecated code removed
+- 🔴 ROADMAP updated
+- 🔴 CI passes on all commits
 
-1. ✅ Phase 0: Foundation (tokenizer, model, training) - DONE
-2. ✅ Phase A-C: Infrastructure (CI/CD, serving, deployment) - DONE
-3. 🟡 Phase 2: Corpus (300M-1B tokens) - IN PROGRESS
-4. 📋 Phase 3: Pretrain on GPU - QUEUED
+### Phase B (Robustness)
+- 🔴 Custom exception hierarchy
+- 🔴 100% type annotations
+- 🔴 YAML config validation
+- 🔴 mypy checks in CI (zero errors)
+- 🔴 Performance monitoring wired
 
-**Phase 2 Blockers**:
-- Need to collect 300M-1B tokens from yazhi projects + modern sources
-- Scripts are ready, just need data sources to be accessible
-- Timeline: 5 weeks from start of data collection
+### Phase C (Deployment)
+- 🔴 FastAPI server with 3 endpoints
+- 🔴 Dockerfile builds and runs
+- 🔴 Integration tests pass
+- 🔴 Deployment guide complete
+- 🔴 Ready for yazhi-api deployment
 
-**Phase 3 Start Requirements**:
-- ✅ Data loading works: corpus shards (train.bin, val.bin, test.bin)
-- ✅ Tokenizer frozen: vocab.json + merges.txt
-- ✅ Fertility < 1.15: tokens/akshara validated
-- ✅ Datasheet complete: sources, metrics, code SHA
-- ✅ MLflow logging: dataset split registered
-
----
-
-## Next Immediate Steps
-
-### This Week (Week of 2026-07-23)
-
-1. **Push Phase 2 Infrastructure**:
-   - ✅ Commit 1: Yazhi importers (f943d66)
-   - ✅ Commit 2: Dedup + filters (cfac18a)
-   - ✅ Commit 3: Orchestration + validation (8800a83)
-
-2. **Start Data Collection** (Week 2):
-   - Integrate yazhi-lem/vazhi
-   - Integrate yazhi-lem/corpus-tamil
-   - Run existing scrapers (Wikipedia, Reddit, Twitter, news)
-
-3. **Processing & Validation** (Weeks 3-4):
-   - Run deduplication
-   - Apply filtering
-   - Generate quality reports
-
-4. **Phase 3 Readiness** (Week 5):
-   - Pack corpus into training shards
-   - Verify MLflow registration
-   - Start adhan-nano pretrain
+### Phase D (Roadmap)
+- 🔴 Phase 2: Corpus at scale (300M+ tokens)
+- 🔴 Phase 3: adhan-nano pretrain complete
+- 🔴 Phase 4: Instruction dataset + SFT
+- 🔴 Phase 5-7: Edge deployment validated
 
 ---
 
-## Version History
+## Notes
 
-### Current Commits
+- **Deployment Target**: `yazhi-api` (private repo)
+- **Python Versions**: 3.10, 3.11, 3.12 (tested via CI)
+- **Optional Dependencies**: JAX, PyTorch, Tamil-NLP (graceful degradation)
+- **MLflow Integration**: Already present, being completed in Phase A2
+- **Test Strategy**: Unit → Integration → E2E (Phases A → C)
 
-| Hash | Phase | Description | Status |
-|------|-------|-------------|--------|
-| f943d66 | Phase 2.1 | Yazhi ecosystem importers | ✅ |
-| cfac18a | Phase 2.2 | Deduplicator + filters | ✅ |
-| 8800a83 | Phase 2.3 | Orchestration + validation | ✅ |
-
-### Previous Phases
-
-| Phase | Commits | Status |
-|-------|---------|--------|
-| Phase A | 3 commits | ✅ Complete |
-| Phase B | 1 commit | ✅ Complete |
-| Phase C | 1 commit | ✅ Complete |
-
----
-
-## Success Criteria Checklist
-
-### Phase 2 Success Criteria
-
-- [ ] Data sources identified and accessible
-- [ ] 300M-1B tokens collected
-- [ ] Deduplication <20% removal rate
-- [ ] PII: 0% found in spot-check (100 samples)
-- [ ] Language: ≥70% Tamil verified
-- [ ] Fertility: <1.15 tokens/akshara confirmed
-- [ ] Datasheet.json complete
-- [ ] MLflow dataset split registered
-- [ ] Ready for Phase 3 pretraining
-
-### Phase 3 Success Criteria (for next milestone)
-
-- [ ] adhan-nano pretrain on 300M+ tokens
-- [ ] Training convergence verified
-- [ ] Loss curves logged to MLflow
-- [ ] Baseline comparison (vs distilgpt2-Tamil)
-- [ ] Checkpoints saved to HuggingFace Hub
-- [ ] Ready for Phase 4 evaluation
-
----
-
-## Known Issues & Workarounds
-
-None currently. All Phase 2 infrastructure is production-ready.
-
----
-
-## References
-
-- **GitHub**: https://github.com/yazhi-lem/adhan
-- **Plan**: `/root/.claude/plans/do-gap-analysis-for-polished-milner.md`
-- **Roadmap**: `ROADMAP_JAX_SLM.md`
-- **Architecture**: `docs/ARCHITECTURE_SWARAM_SLM.md`
-- **Deployment**: `docs/DEPLOYMENT.md`
-- **Phase 2 Guide**: `docs/PHASE2_CORPUS.md`
-
----
-
-**Last Updated**: 2026-07-23  
-**Next Review**: When Phase 2 data collection begins
