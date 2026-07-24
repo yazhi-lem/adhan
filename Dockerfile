@@ -17,8 +17,8 @@ COPY . /app/
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install -e ".[dev,jax,tamil-nlp]" && \
-    pip install fastapi uvicorn pydantic
+    pip install -e "." && \
+    pip install fastapi uvicorn
 
 # Create non-root user for security
 RUN useradd -m -u 1000 adhan && \
