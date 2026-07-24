@@ -24,13 +24,77 @@ The existing PyTorch pipeline below is reused for corpus building and as baselin
 - Added corpus merger: `src/data_scraper/merge_corpora.py`
 - Added Gemma training notebook: `src/notebooks/03_gemma_training.ipynb`
 
-## Quick start
+## Installation
+
+### Option 1: Development Install (Recommended)
 
 ```bash
+# Clone the repository
+git clone https://github.com/yazhi-lem/adhan.git
+cd adhan
+
+# Create a virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install the package in development mode with all dependencies
+pip install -e ".[dev,jax,tamil-nlp]"
 ```
+
+### Option 2: JAX Stack Only (for training)
+
+```bash
+pip install -e ".[jax]"
+```
+
+### Option 3: PyTorch Stack Only (for baselines)
+
+```bash
+pip install -e ".[pytorch]"
+```
+
+## Quick Start
+
+**Test the swaram tokenizer** (no JAX/PyTorch needed):
+```bash
+python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
+```
+
+**Run unit tests** (ensure everything works):
+```bash
+pytest tests/ -v
+```
+
+**Try the full pipeline** (after installing JAX):
+```bash
+# 1. Prepare corpus and freeze tokenizer
+python scripts/prepare_slm_corpus.py \
+    --corpus data/raw/tamil/ --out data/final/tamil_slm \
+    --vocab-size 12000 --seq-len 1024
+
+# 2. Train a model (smoke test)
+python -m adhan_slm.training.train_jax \
+    --config src/adhan_slm/configs/adhan_slm_tiny.yaml --smoke
+
+# 3. Generate text from a checkpoint
+python scripts/generate_slm.py \
+    --tokenizer-dir data/final/tamil_slm \
+    --checkpoint checkpoints/adhan-tiny \
+    --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?"
+
+# 4. Run full evaluation suite
+python -m adhan_slm.eval.run_eval \
+    --tokenizer-dir data/final/tamil_slm \
+    --config src/adhan_slm/configs/adhan_slm_tiny.yaml \
+    --checkpoint checkpoints/adhan-tiny
+```
+
+## Documentation
+
+- **[Roadmap](ROADMAP_JAX_SLM.md)** — Phased development plan (Phase 0 done, Phase A in progress)
+- **[Architecture](docs/ARCHITECTURE_SWARAM_SLM.md)** — Swaram tokenizer + JAX/Flax model design
+- **[Completion Tracker](docs/COMPLETION_TRACKER.md)** — Real-time progress on all phases
+- **[Phase A Tracker](docs/PHASE_A_TRACKER.md)** — Current work (CI/CD, logging, packaging)
 
 ## Run scripts
 

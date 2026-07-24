@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+.venv/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+
+# Documentation
+docs/_build/
+site/
+
+# Misc
+.env
+.env.local
+*.log
+tmp/
+temp/
+
+# Large files
+models/checkpoints/**
+data/raw/**
+*.tar.gz
+*.zip
