@@ -160,9 +160,10 @@ class Phase2CorpusBuilder:
             count_after_dedup += 1
             yield doc
 
+        ingested = self.stats["total_ingested"]
+        ratio = (count_after_dedup / ingested) if ingested else 0.0
         self.logger.info(
-            f"After deduplication: {count_after_dedup} documents "
-            f"({count_after_dedup / self.stats['total_ingested']:.1%} of ingested)"
+            f"After deduplication: {count_after_dedup} documents ({ratio:.1%} of ingested)"
         )
 
         # Note: Filtering happens in post-processing step via apply_all_filters
