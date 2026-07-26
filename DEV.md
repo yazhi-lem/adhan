@@ -108,3 +108,31 @@ python src/models/sentiment/train_sentiment.py \
   --num-labels 2 \
   --num-epochs 5
 ```
+
+## 9) Core Domain reasoning kernel (Phase 1)
+
+Five agent postures (context, reasoning, planning, reflection, generation) routed
+through one Adhan checkpoint. See `src/domains/core/README.md`.
+
+```bash
+# Tests — no model, no network, no JAX
+PYTHONPATH=src python -m domains.core.test_core_domain
+
+# One turn against the built-in stub, with per-agent spans
+python scripts/run_core_domain.py --query "வணக்கம்" --trace
+
+# Prove the wire to a local Adhan checkpoint (one call, no pipeline)
+python scripts/run_core_domain.py --client adhan --mode passthrough \
+  --config src/adhan_slm/configs/adhan_slm_tiny.yaml \
+  --checkpoint-dir models/adhan_slm/checkpoints \
+  --tokenizer-dir models/adhan_slm/tokenizer \
+  --query "வணக்கம்"
+
+# Dev-only: iterate on prompts.py against Ollama before a training run
+python scripts/run_core_domain.py --client ollama --model qwen3:4b \
+  --query "How do I apply for the scheme?" --trace
+
+# Production shape: Adhan on vLLM
+python scripts/run_core_domain.py --client vllm --base-url http://localhost:8000 \
+  --model adhan --query "How do I apply for the scheme?"
+```

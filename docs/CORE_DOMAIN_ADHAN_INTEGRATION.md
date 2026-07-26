@@ -115,8 +115,13 @@ None of these replace the existing DPDP compliance gate or the Tamil normalisati
 Rather than invent a separate calendar, this slots into the existing legal-pipeline and Adhan work already underway:
 
 **Now → alongside legal pipeline Phase 1 (India Code scraping, pgvector schema)**
-- Stand up `domains/core/` module structure, schemas, orchestrator skeleton, single-agent pass-through (per Core Domain doc §11 Phase 1) — no training yet, wire it to existing Adhan checkpoint as-is to validate plumbing.
+- ✅ Stand up `domains/core/` module structure, schemas, orchestrator skeleton, single-agent pass-through (per Core Domain doc §11 Phase 1) — no training yet, wire it to existing Adhan checkpoint as-is to validate plumbing. **Landed:** `src/domains/core/` ([README](../src/domains/core/README.md)), runner at `scripts/run_core_domain.py`, tests via `PYTHONPATH=src python -m domains.core.test_core_domain`.
+  - Option A is enforced structurally: the orchestrator takes one `ModelClient`, roles travel as control tokens (`[CONTEXT]`/`[REASON]`/`[PLAN]`/`[REFLECT]`/`[RESPOND]`).
+  - The `requires_planning` cost gate (§6) is live and measured — a simple turn is 3 model calls, a multi-step turn is 5. Cold conversations skip the Context Agent too.
+  - `TurnResult.metrics()` emits the §5 structure-compliance number and the §6 per-agent latency / planning-rate / reflection-pass-rate payload from day one; `CoreOrchestrator(on_span=...)` is the LangFuse seam.
+  - Reflection fails closed (unparseable verdict → fail) and reflection-driven retries harvest §4.1 preference pairs. Retention of both interactions and pairs takes a required `consented` argument (§4.3) — no permissive default.
 - Reflection Agent design reviewed against native-reviewer workflow *before* any synthetic data generation starts.
+- Baseline the untrained checkpoint: run the pass-through and then the full pipeline against the current Adhan weights and record `structure_compliance`. It is expected to be poor — that number is what the first training run has to beat.
 
 **Next → alongside legal pipeline Phase 2 (State Acts ingestion, Q3 2026)**
 - Generate + review synthetic reasoning/planning training data (§4.2), scoped first to Tamil-Gov / Tamil-Legal verticals since those already have natural multi-step structure.
