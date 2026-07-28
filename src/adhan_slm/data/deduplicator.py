@@ -5,7 +5,6 @@ Handles both exact and near-duplicate detection for corpus curation at scale.
 
 import hashlib
 import json
-import logging
 from collections import defaultdict
 from typing import Dict, Generator, List, Optional, Set, Tuple
 

@@ -29,10 +29,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from adhan_slm.data import corpus as corpus_mod
-from adhan_slm.data import packing
-from adhan_slm.tokenizer import SwaramTokenizer
-from adhan_slm.tokenizer.aksharam_tokenizer import AksharamTokenizer
+from adhan_slm.data import corpus as corpus_mod  # noqa: E402
+from adhan_slm.data import packing  # noqa: E402
+from adhan_slm.tokenizer import SwaramTokenizer  # noqa: E402
+from adhan_slm.tokenizer.aksharam_tokenizer import AksharamTokenizer  # noqa: E402
 
 _TOKENIZERS = {"swaram": SwaramTokenizer, "aksharam": AksharamTokenizer}
 

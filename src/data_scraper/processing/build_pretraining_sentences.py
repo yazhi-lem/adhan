@@ -14,22 +14,23 @@ Usage:
 
 """
 from __future__ import annotations
+
 import argparse
 import json
-import math
 import random
 import re
-from collections import Counter
-from pathlib import Path
-from statistics import mean, median
-from typing import List, Dict
-
-from tamil_corpus_scraper import TamilCorpusScraper
 
 # Import core constants
 import sys
+from collections import Counter
+from pathlib import Path
+from statistics import mean, median
+from typing import Dict, List
+
+from tamil_corpus_scraper import TamilCorpusScraper
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core import TAMIL_HASHTAGS, COLLOQUIAL_PATTERNS
+from src.core import TAMIL_HASHTAGS
 
 SEED = 42
 random.seed(SEED)

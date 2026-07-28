@@ -7,23 +7,22 @@ gpu_lora_train.py – GPU-optimised LoRA fine-tuning for Gemma 3 1B-it
 Optimized for Google Colab (T4 GPU) or any CUDA-enabled environment.
 """
 
-import os
 import json
+import os
 from pathlib import Path
-from datetime import datetime
 
 import numpy as np
 import torch
 import transformers
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    TrainingArguments,
-    Trainer,
-    DataCollatorForLanguageModeling,
-)
-from peft import LoraConfig, get_peft_model, TaskType
 from datasets import Dataset
+from peft import LoraConfig, TaskType, get_peft_model
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
 
 # ── Reproducibility ──────────────────────────────────────────────────────────
 torch.manual_seed(42)
@@ -87,7 +86,7 @@ if not train_records:
 # ── 2. Format & tokenise ─────────────────────────────────────────────────────
 def to_gemma_format(text: str) -> str:
     # We use a user/model turn format to simulate instruction data
-    # even though our data is mostly sentences. 
+    # even though our data is mostly sentences.
     # This helps the model stay in character.
     return (
         "<start_of_turn>user\n"
@@ -188,7 +187,7 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-print(f"\nStarting GPU LoRA fine-tuning...")
+print("\nStarting GPU LoRA fine-tuning...")
 train_result = trainer.train()
 
 # ── 6. Save ──────────────────────────────────────────────────────────────────

@@ -5,12 +5,11 @@ Usage:
 """
 
 import argparse
-from typing import Optional
 
 try:
+    import uvicorn
     from fastapi import FastAPI, HTTPException
     from fastapi.responses import JSONResponse
-    import uvicorn
 except ImportError:
     print("FastAPI and uvicorn required. Install with: pip install fastapi uvicorn")
     exit(1)
@@ -19,7 +18,6 @@ from adhan_slm.core.logging import configure_root_logger, get_logger
 from adhan_slm.serving.api import (
     AdhanInferenceAPI,
     AdhanRequest,
-    ErrorResponse,
     TextResponse,
     TokensResponse,
 )

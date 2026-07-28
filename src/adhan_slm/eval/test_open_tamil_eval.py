@@ -33,8 +33,8 @@ def test_stemmer_boundary_agreement_on_trained_tokenizer():
     if not HAS_OPEN_TAMIL:
         print("SKIP (open-tamil not installed)")
         return
-    from adhan_slm.tokenizer import SwaramTokenizer, default_akshara_inventory
     from adhan_slm.eval.morphology import stemmer_boundary_agreement
+    from adhan_slm.tokenizer import SwaramTokenizer, default_akshara_inventory
 
     tok = SwaramTokenizer.train(INFLECTED_WORDS, vocab_size=len(default_akshara_inventory()) + 20)
     report = stemmer_boundary_agreement(tok, INFLECTED_WORDS)

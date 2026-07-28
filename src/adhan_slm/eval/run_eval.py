@@ -48,7 +48,7 @@ def probe_fertility(tok, texts, cap=500):
 
 def probe_classical(texts):
     try:
-        from adhan_slm.eval.ngram_baseline import AksharaUnigramBaseline, HAS_OPEN_TAMIL
+        from adhan_slm.eval.ngram_baseline import HAS_OPEN_TAMIL, AksharaUnigramBaseline
     except ImportError:
         return {"status": "skipped", "reason": "open-tamil not installed"}
     if not HAS_OPEN_TAMIL:
@@ -67,8 +67,7 @@ def probe_classical(texts):
 
 def probe_morphology(tok, texts, cap=300):
     try:
-        from adhan_slm.eval.morphology import (
-            stemmer_boundary_agreement, sandhi_correctness_rate)
+        from adhan_slm.eval.morphology import sandhi_correctness_rate, stemmer_boundary_agreement
         from adhan_slm.external.open_tamil_bridge import HAS_OPEN_TAMIL
     except ImportError:
         return {"status": "skipped", "reason": "open-tamil not installed"}
@@ -91,10 +90,10 @@ def probe_model(config, checkpoint, tokenizer_dir, tok, texts, n_samples=5):
     if not (config and checkpoint):
         return {"status": "skipped", "reason": "no --config/--checkpoint given"}
     try:
-        from adhan_slm.inference import load_model, generate_text
-        from adhan_slm.eval.perplexity import model_token_perplexity
         from adhan_slm.data import PackedDataset
         from adhan_slm.data.packing import load_manifest
+        from adhan_slm.eval.perplexity import model_token_perplexity
+        from adhan_slm.inference import generate_text, load_model
     except ImportError as e:
         return {"status": "skipped", "reason": f"JAX stack not installed ({e})"}
 
@@ -138,7 +137,7 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
            "examples": [p.prompt for p in prompts[:5]]}
     if config and checkpoint:
         try:
-            from adhan_slm.inference import load_model, generate_text
+            from adhan_slm.inference import generate_text, load_model
             model, params, _ = load_model(config, checkpoint, vocab_size=len(tok))
             out["generations"] = [
                 {"prompt": p.prompt,

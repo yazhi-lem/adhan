@@ -10,7 +10,6 @@ from .config_validator import (
 )
 from .exceptions import (
     AdhanError,
-    ConfigError,
     ExternalDependencyError,
     TokenizerError,
 )

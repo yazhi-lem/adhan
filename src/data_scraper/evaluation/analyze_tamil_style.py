@@ -7,7 +7,6 @@ Classify sentences by archaic/formal vs colloquial/modern markers.
 import json
 import re
 from pathlib import Path
-from collections import Counter
 
 IN_FILE = Path('data/pre_training/tamil_texts/all_sentences.jsonl')
 
@@ -74,5 +73,5 @@ print(f"Mixed: {mixed_count} ({mixed_pct}%)")
 print(f"Neutral/other: {len(records) - old_count - modern_count - mixed_count}")
 
 print(f"\n⚠️  Current corpus is {old_pct}% old Tamil")
-print(f"    Need to add more modern/colloquial sources")
-print(f"    Recommendation: Reweight to ~60% modern, 40% classical")
+print("    Need to add more modern/colloquial sources")
+print("    Recommendation: Reweight to ~60% modern, 40% classical")

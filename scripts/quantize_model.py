@@ -81,7 +81,7 @@ def load_calibration_texts(calib_path: Path, max_samples: int = 200) -> list[str
 
 def quantize_int8_dynamic(onnx_path: Path, output_path: Path) -> None:
     try:
-        from onnxruntime.quantization import quantize_dynamic, QuantType  # type: ignore
+        from onnxruntime.quantization import QuantType, quantize_dynamic  # type: ignore
     except ImportError:
         _require("onnxruntime")
 
@@ -104,13 +104,13 @@ def quantize_int8_static(
     max_length: int,
 ) -> None:
     try:
-        from onnxruntime.quantization import (  # type: ignore
-            quantize_static,
-            CalibrationDataReader,
-            QuantType,
-            QuantFormat,
-        )
         import numpy as np  # type: ignore
+        from onnxruntime.quantization import (  # type: ignore
+            CalibrationDataReader,
+            QuantFormat,
+            QuantType,
+            quantize_static,
+        )
     except ImportError:
         _require("onnxruntime")
 
@@ -156,9 +156,11 @@ def quantize_int8_static(
 def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     """INT4 weight-only quantization via HuggingFace Optimum."""
     try:
-        from optimum.onnxruntime import ORTModelForFeatureExtraction  # type: ignore
+        from optimum.onnxruntime import (
+            ORTModelForFeatureExtraction,  # type: ignore
+            ORTQuantizer,  # type: ignore
+        )
         from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
-        from optimum.onnxruntime import ORTQuantizer  # type: ignore
     except ImportError:
         _require("optimum[onnxruntime]")
 
@@ -194,8 +196,8 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int,
     import time  # noqa: PLC0415
 
     try:
-        import onnxruntime as ort  # type: ignore
         import numpy as np  # type: ignore
+        import onnxruntime as ort  # type: ignore
         from transformers import AutoTokenizer  # type: ignore
     except ImportError:
         return {}

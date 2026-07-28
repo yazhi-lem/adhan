@@ -13,13 +13,12 @@ Example:
 
 """
 from __future__ import annotations
+
 import argparse
-import json
-import os
 import hashlib
-import re
+import json
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from tamil_corpus_scraper import TamilCorpusScraper
 

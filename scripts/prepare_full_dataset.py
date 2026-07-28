@@ -6,7 +6,6 @@ Merges Wikipedia, News, and other sources, and cleans sticky headers.
 """
 
 import json
-import os
 import re
 from pathlib import Path
 
@@ -42,29 +41,29 @@ STICKY_HEADERS = [
 def clean_text(text):
     if not text:
         return ""
-    
+
     # Strip sticky headers
     for pattern in STICKY_HEADERS:
         text = re.sub(pattern, "", text).strip()
-    
+
     # Clean up multiple spaces/newlines
     text = re.sub(r'\s+', ' ', text).strip()
-    
+
     return text
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     merged_output_file = RAW_DATA_DIR / "merged_corpus_raw.jsonl"
-    
+
     records = []
     seen_texts = set()
-    
-    print(f"Loading and cleaning records...")
+
+    print("Loading and cleaning records...")
     for input_file in INPUT_FILES:
         if not input_file.exists():
             print(f"⚠️ Skipping missing file: {input_file}")
             continue
-            
+
         print(f"  Processing {input_file.name}...")
         count = 0
         with open(input_file, "r", encoding="utf-8") as f:
@@ -73,20 +72,20 @@ def main():
                     data = json.loads(line)
                     raw_text = data.get("text", "")
                     cleaned_text = clean_text(raw_text)
-                    
+
                     if not cleaned_text or len(cleaned_text) < 20:
                         continue
-                        
+
                     # Deduplicate based on cleaned text
                     text_hash = cleaned_text[:200]
                     if text_hash in seen_texts:
                         continue
-                        
+
                     seen_texts.add(text_hash)
                     data["text"] = cleaned_text
                     records.append(data)
                     count += 1
-                except Exception as e:
+                except Exception:
                     continue
         print(f"    Done: {count} valid records.")
 
@@ -96,7 +95,7 @@ def main():
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
     print(f"\nTotal unique records: {len(records)}")
-    print(f"Now run the unified exporter to generate splits:")
+    print("Now run the unified exporter to generate splits:")
     print(f"python src/data_scraper/export/export_unified_hf.py --input {merged_output_file} --output {OUTPUT_DIR} --strategy modern")
 
 if __name__ == "__main__":

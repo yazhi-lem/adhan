@@ -12,8 +12,8 @@ import os
 from pathlib import Path
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 PROJECT_ROOT = Path(os.environ.get(

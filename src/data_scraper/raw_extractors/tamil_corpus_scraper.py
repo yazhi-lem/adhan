@@ -4,23 +4,25 @@
 Tamil Corpus Scraper for AADHAN Model Training
 """
 import argparse
+import hashlib
+import json
+import logging
 import os
 import re
-import json
-import hashlib
-import xml.etree.ElementTree as ET
-from datetime import datetime
-from urllib.parse import urlparse, urljoin
-from urllib import robotparser
-import requests
-from bs4 import BeautifulSoup
-from pathlib import Path
-import time
-import logging
-from typing import List, Dict, Optional
 
 # Import core constants
 import sys
+import time
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
+from urllib import robotparser
+from urllib.parse import urljoin, urlparse
+
+import requests
+from bs4 import BeautifulSoup
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core import TAMIL_HASHTAGS
 
@@ -29,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 class TamilCorpusScraper:
     """Scraper for collecting Tamil text data from various sources"""
-    
+
     def __init__(self, base_dir="data/raw"):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
@@ -37,15 +39,15 @@ class TamilCorpusScraper:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
-    
+
     def scrape_wikipedia(self, category: str = "Tamil_language") -> List[str]:
         """Scrape Tamil Wikipedia articles"""
         logger.info(f"Scraping Tamil Wikipedia category: {category}")
         articles = []
-        
+
         try:
             # Get category members
-            url = f"https://ta.wikipedia.org/w/api.php"
+            url = "https://ta.wikipedia.org/w/api.php"
             params = {
                 'action': 'query',
                 'format': 'json',
@@ -53,10 +55,10 @@ class TamilCorpusScraper:
                 'cmtitle': f"Category:{category}",
                 'cmlimit': 50
             }
-            
+
             response = self.session.get(url, params=params)
             data = response.json()
-            
+
             for member in data.get('query', {}).get('categorymembers', []):
                 if member['ns'] == 0:  # Only articles
                     article_url = f"https://ta.wikipedia.org/wiki/{member['title'].replace(' ', '_')}"
@@ -64,124 +66,124 @@ class TamilCorpusScraper:
                     if article_text:
                         articles.append(article_text)
                         time.sleep(1)  # Rate limiting
-            
+
         except Exception as e:
             logger.error(f"Error scraping Wikipedia: {e}")
-        
+
         return articles
-    
+
     def _scrape_wikipedia_article(self, url: str) -> Optional[str]:
         """Scrape content from a single Wikipedia article"""
         try:
             response = self.session.get(url)
             response.raise_for_status()
-            
+
             soup = BeautifulSoup(response.content, 'html.parser')
-            
+
             # Extract main content
             content_div = soup.find('div', {'id': 'mw-content-text'})
             if not content_div:
                 return None
-            
+
             # Remove unwanted elements
             for element in content_div.find_all(['table', 'img', 'script', 'style']):
                 element.decompose()
-            
+
             # Extract text
             paragraphs = content_div.find_all('p')
             text = "\n".join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
-            
+
             # Clean text
             text = self._clean_tamil_text(text)
-            
+
             return text if text else None
-            
+
         except Exception as e:
             logger.error(f"Error scraping article {url}: {e}")
             return None
-    
+
     def scrape_tamil_literature_sites(self) -> List[str]:
         """Scrape Tamil literature websites"""
         logger.info("Scraping Tamil literature sites...")
         texts = []
-        
+
         # Sangam literature sites
         sites = [
             "https://sangam.org",
             "https://tamilvu.org",
             "https://projectmadurai.org"
         ]
-        
+
         for site in sites:
             texts.extend(self._scrape_literature_site(site))
             time.sleep(2)  # Rate limiting
-        
+
         return texts
-    
+
     def _scrape_literature_site(self, url: str) -> List[str]:
         """Scrape content from a literature website"""
         try:
             response = self.session.get(url)
             response.raise_for_status()
-            
+
             soup = BeautifulSoup(response.content, 'html.parser')
-            
+
             # Find text content
             texts = []
             for element in soup.find_all(['p', 'div', 'span']):
                 text = element.get_text().strip()
                 if self._is_tamil_text(text):
                     texts.append(self._clean_tamil_text(text))
-            
+
             return texts
-            
+
         except Exception as e:
             logger.error(f"Error scraping literature site {url}: {e}")
             return []
-    
+
     def scrape_tamil_news_sites(self) -> List[str]:
         """Scrape Tamil news websites"""
         logger.info("Scraping Tamil news sites...")
         texts = []
-        
+
         news_sites = [
             "https://tamil.oneindia.com",
             "https://tamil.samayam.com",
             "https://tamil.indianexpress.com"
         ]
-        
+
         for site in news_sites:
             texts.extend(self._scrape_news_site(site))
             time.sleep(2)  # Rate limiting
-        
+
         return texts
-    
+
     def _scrape_news_site(self, url: str) -> List[str]:
         """Scrape news articles from a site"""
         try:
             response = self.session.get(url)
             response.raise_for_status()
-            
+
             soup = BeautifulSoup(response.content, 'html.parser')
-            
+
             # Find news articles
             articles = []
             for article in soup.find_all('article'):
                 text = article.get_text().strip()
                 if self._is_tamil_text(text):
                     articles.append(self._clean_tamil_text(text))
-            
+
             return articles
-            
+
         except Exception as e:
             logger.error(f"Error scraping news site {url}: {e}")
             return []
-    
+
     def scrape_tamil_books(self, book_paths: List[str]) -> List[str]:
         """Scrape Tamil books from local files or URLs"""
         logger.info("Scraping Tamil books...")
         texts = []
-        
+
         for path in book_paths:
             if path.startswith("http"):
                 # Download and scrape
@@ -192,19 +194,19 @@ class TamilCorpusScraper:
                 # Read local file
                 with open(path, 'r', encoding='utf-8') as f:
                     text = f.read()
-            
+
             if text:
                 cleaned_text = self._clean_tamil_text(text)
                 texts.append(cleaned_text)
                 time.sleep(1)  # Rate limiting
-        
+
         return texts
-    
+
     def scrape_social_media(self, hashtags: List[str]) -> List[str]:
         """Scrape Tamil content from social media"""
         logger.info("Scraping social media for Tamil content...")
         texts = []
-        
+
         # Twitter/Telegram scraping (simplified)
         for hashtag in hashtags:
             # Simulate social media scraping
@@ -217,21 +219,21 @@ class TamilCorpusScraper:
             ]
             texts.extend(sample_texts)
             time.sleep(1)  # Rate limiting
-        
+
         return texts
-    
+
     def _is_tamil_text(self, text: str) -> bool:
         """Check if text contains Tamil characters"""
         tamil_pattern = re.compile(r'[\u0B80-\u0BFF]+')
         return bool(tamil_pattern.search(text))
-    
+
     def _clean_tamil_text(self, text: str) -> str:
         """Clean and preprocess Tamil text"""
         # Remove unwanted characters
         text = re.sub(r'\s+', ' ', text)  # Normalize whitespace
         text = re.sub(r'[^\w\s\u0B80-\u0BFF.,!?]', '', text)  # Remove special chars
         text = text.strip()
-        
+
         return text
 
     def make_record(self, text: str, source: str = "unknown", url: Optional[str] = None) -> Dict:
@@ -370,7 +372,7 @@ class TamilCorpusScraper:
                     continue
 
                 # reject extremely repetitive pages
-                lines = [l.strip() for l in txt.splitlines() if l.strip()]
+                lines = [line.strip() for line in txt.splitlines() if line.strip()]
                 if lines and (len(set(lines)) / len(lines) < 0.5):
                     removed += 1
                     continue
@@ -746,7 +748,7 @@ class TamilCorpusScraper:
             rf.write(f"Project Madurai HF export — total={n}, train={len(train)}, val={len(val)}, test={len(test)}\n")
 
         return {'train': len(train), 'validation': len(val), 'test': len(test), 'total': n}
-    
+
     def save_to_file(self, texts: List[str], filename: str = "tamil_corpus.txt"):
         """Save collected texts to file.
 
@@ -771,7 +773,7 @@ class TamilCorpusScraper:
                     f.write(text + "\n\n")
 
         logger.info(f"Saved {len(texts)} texts to {filepath}")
-    
+
     def get_language_packages(self) -> Dict[str, str]:
         """Check and install required language packages"""
         packages = {
@@ -781,7 +783,7 @@ class TamilCorpusScraper:
             'sentencepiece': 'pip install sentencepiece',
             'fasttext': 'pip install fasttext'
         }
-        
+
         installed = {}
         for pkg, install_cmd in packages.items():
             try:
@@ -795,32 +797,32 @@ class TamilCorpusScraper:
                     installed[pkg] = "installed"
                 except ImportError:
                     installed[pkg] = "failed"
-        
+
         return installed
-    
+
     def run_full_scrape(self):
         """Run complete scraping pipeline"""
         logger.info("Starting full Tamil corpus scraping...")
-        
+
         all_texts = []
-        
+
         # Check language packages
         packages = self.get_language_packages()
         logger.info(f"Language packages: {packages}")
-        
+
         # Scrape different sources
         logger.info("Scraping Wikipedia...")
         all_texts.extend(self.scrape_wikipedia())
-        
+
         logger.info("Scraping literature sites...")
         all_texts.extend(self.scrape_tamil_literature_sites())
-        
+
         logger.info("Scraping news sites...")
         all_texts.extend(self.scrape_tamil_news_sites())
-        
+
         # Save to file
         self.save_to_file(all_texts, "full_tamil_corpus.txt")
-        
+
         logger.info(f"Scraping complete! Total texts: {len(all_texts)}")
         return all_texts
 
@@ -848,12 +850,12 @@ def main():
                        help="Build per-work manifests from collected records")
     parser.add_argument("--to-hf", action="store_true",
                        help="Convert collected records to a simple HuggingFace JSONL dataset")
-    parser.add_argument("--sources", nargs='+', 
+    parser.add_argument("--sources", nargs='+',
                        choices=['wikipedia', 'literature', 'news', 'books', 'social'],
                        default=['wikipedia', 'literature', 'news'],
                        help="Sources to scrape from")
     parser.add_argument("--full", action="store_true", help="Run full scraping pipeline")
-    parser.add_argument("--check_packages", action="store_true", 
+    parser.add_argument("--check_packages", action="store_true",
                        help="Check and install language packages")
     parser.add_argument("--min-quality", type=float, default=0.0,
                        help="Minimum quality_score to keep a record (0.0-1.0)")
@@ -863,9 +865,9 @@ def main():
                        help="Require Tamil-dominant text (filters out pages with low Tamil fraction)")
     parser.add_argument("--apply-fineweb", action="store_true",
                        help="Apply additional FineWeb-style heuristics during filtering")
-    
+
     args = parser.parse_args()
-    
+
     scraper = TamilCorpusScraper()
 
     if args.check_packages:
@@ -931,7 +933,7 @@ def main():
             scraper.build_manifests(all_records, out_dir=str(per_site_dir / 'manifests'))
 
         if args.to_hf:
-            scraper.convert_to_hf_dataset(all_records, out_dir=str(per_site_dir / 'hf'), min_quality=args.min_quality) 
+            scraper.convert_to_hf_dataset(all_records, out_dir=str(per_site_dir / 'hf'), min_quality=args.min_quality)
 
         # save combined
         if args.format == 'jsonl':
@@ -977,7 +979,7 @@ def main():
 
         # build manifests if requested
         if args.build_manifest:
-            manifest = scraper.build_manifests(records)
+            scraper.build_manifests(records)
 
         # export HF dataset if requested
         if args.to_hf:

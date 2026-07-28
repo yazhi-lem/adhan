@@ -121,6 +121,7 @@ def train(config_path: str, smoke: bool = False):
         import jax.numpy as jnp
         import optax
         from flax.training import train_state
+
         from adhan_slm.model import AdhanSLM
     except ImportError as e:
         print(f"[train_jax] JAX stack not available ({e}).")

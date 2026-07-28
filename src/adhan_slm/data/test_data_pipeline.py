@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from adhan_slm.data import corpus, packing, loader
+from adhan_slm.data import corpus, loader, packing
 from adhan_slm.tokenizer import SwaramTokenizer, default_akshara_inventory
 
 TAMIL_LINES = [

@@ -70,7 +70,7 @@ def export_with_torch(model_dir: Path, output_dir: Path, opset: int,
     except ImportError:
         _require("torch")
     try:
-        from transformers import AutoTokenizer, AutoModel  # type: ignore
+        from transformers import AutoModel, AutoTokenizer  # type: ignore
     except ImportError:
         _require("transformers")
     try:

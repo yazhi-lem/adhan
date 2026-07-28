@@ -10,9 +10,9 @@ keeps the loader importable and unit-testable in a minimal environment.
 from __future__ import annotations
 
 import random
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 
-from .packing import PackedShard, read_shard, load_manifest
+from .packing import PackedShard, load_manifest, read_shard
 
 
 def _to_batch(rows, use_numpy):

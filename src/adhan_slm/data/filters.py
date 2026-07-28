@@ -4,9 +4,8 @@ Provides production-grade filtering pipelines for corpus curation.
 """
 
 import json
-import logging
 import re
-from typing import Generator, Optional, Set, Tuple
+from typing import Generator, Tuple
 
 from adhan_slm.core import get_logger
 

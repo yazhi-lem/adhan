@@ -45,6 +45,7 @@ def load_model(config_path, checkpoint_dir, vocab_size: Optional[int] = None, st
     try:
         import jax.numpy as jnp
         import orbax.checkpoint as ocp
+
         from adhan_slm.model import AdhanSLM
     except ImportError as e:
         raise ImportError(

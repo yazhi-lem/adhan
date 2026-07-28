@@ -1,7 +1,6 @@
 """Importer for yazhi-lem/vazhi knowledge/QA dataset."""
 
 import json
-import logging
 from pathlib import Path
 from typing import Generator, Optional
 

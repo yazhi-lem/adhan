@@ -15,8 +15,8 @@ Design goals:
     (roadmap §5: "reproducible from MLflow / data version + code SHA").
 """
 from .corpus import iter_documents, read_corpus
-from .packing import pack_documents, PackedShard
 from .loader import PackedDataset, batches_from_shard
+from .packing import PackedShard, pack_documents
 
 __all__ = [
     "iter_documents",

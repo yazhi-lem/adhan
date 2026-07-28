@@ -6,8 +6,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
 
 from adhan_slm.tokenizer import (  # noqa: E402
     SwaramTokenizer,
-    segment_aksharas,
     default_akshara_inventory,
+    segment_aksharas,
 )
 
 SAMPLES = [

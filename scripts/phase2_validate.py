@@ -311,21 +311,21 @@ Examples:
         print(f"Total characters: {report['total_characters']:,}")
         print(f"Estimated tokens: {report['total_tokens_estimate']:,}")
         print(f"Avg text length: {report['average_text_length']:.0f} chars")
-        print(f"\nQuality Scores:")
+        print("\nQuality Scores:")
         print(f"  Average: {report['quality_scores']['avg_score']:.2f}")
         print(
             f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}"
         )
-        print(f"\nLanguage Mix:")
+        print("\nLanguage Mix:")
         print(
             f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}"
         )
-        print(f"\nPII Check:")
+        print("\nPII Check:")
         pii = report["pii_check"]
         print(
             f"  Records with PII: {pii['records_with_pii']}/{pii['sample_size']} ({pii['pii_rate']:.1%})"
         )
-        print(f"\nFertility (estimate):")
+        print("\nFertility (estimate):")
         fert = report["fertility_estimate"]
         print(f"  Avg: {fert.get('avg_fertility', 0):.3f}")
         print(f"  Meets target (<1.15): {fert.get('meets_target', False)}")

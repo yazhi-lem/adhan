@@ -340,7 +340,7 @@ Examples:
     # Write report
     report_path = builder.write_report()
 
-    print(f"\n✅ Corpus building complete!")
+    print("\n✅ Corpus building complete!")
     print(f"   Output: {corpus_path}")
     print(f"   Report: {report_path}")
     print(f"   Records: {builder.stats['total_after_filter']}")

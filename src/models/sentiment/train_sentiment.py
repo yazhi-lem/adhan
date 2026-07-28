@@ -32,8 +32,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -144,7 +143,9 @@ def load_jsonl(path: str, text_col: str, label_col: str,
 def build_compute_metrics(num_labels: int):
     try:
         from sklearn.metrics import (  # type: ignore
-            accuracy_score, f1_score, classification_report,
+            accuracy_score,
+            classification_report,
+            f1_score,
         )
         sklearn_available = True
     except ImportError:
@@ -171,14 +172,14 @@ def build_compute_metrics(num_labels: int):
 def train(cfg: SentimentConfig) -> None:
     try:
         import torch
+        from torch.utils.data import Dataset as TorchDataset
         from transformers import (
-            AutoTokenizer,
             AutoModelForSequenceClassification,
+            AutoTokenizer,
+            EarlyStoppingCallback,
             Trainer,
             TrainingArguments,
-            EarlyStoppingCallback,
         )
-        from torch.utils.data import Dataset as TorchDataset
     except ImportError as exc:
         logger.error("Required dependency missing: %s. Run: pip install transformers torch", exc)
         raise

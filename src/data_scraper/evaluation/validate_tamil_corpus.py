@@ -9,8 +9,8 @@ Validate Tamil pretraining corpus: sample sentences and check for:
 """
 import json
 import random
-from pathlib import Path
 import re
+from pathlib import Path
 
 IN_FILE = Path('data/pre_training/tamil_texts/all_sentences.jsonl')
 
@@ -74,7 +74,7 @@ for r in records:
 colloquial_pct = round(100 * colloquial_count / len(records), 1)
 print(f"\nColloquial indicators found: {colloquial_count} ({colloquial_pct}%)")
 
-print(f"\n✅ Corpus appears suitable for Tamil training")
+print("\n✅ Corpus appears suitable for Tamil training")
 print(f"   - {len(records)} total sentences")
 print(f"   - {colloquial_pct}% show conversational/informal markers")
 print(f"   - {tamil_avg:.1%} average Tamil character coverage")

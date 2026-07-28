@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import unicodedata
 from pathlib import Path
-from typing import Iterable, Iterator, List, Sequence
+from typing import Iterator, List, Sequence
 
 DEFAULT_TEXT_KEYS: Sequence[str] = ("text", "content", "body", "sentence", "tamil")
 _SUFFIXES = (".txt", ".jsonl", ".json")

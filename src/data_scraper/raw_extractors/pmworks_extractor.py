@@ -13,11 +13,11 @@ Usage:
 
 """
 import argparse
-import json
 import hashlib
+import json
 import re
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 
@@ -97,31 +97,31 @@ def fast_extract_text(html: str, max_chars: int = 50000) -> str:
     """Extract text from HTML with minimal parsing. Cap large documents."""
     if not html:
         return ""
-    
+
     # Truncate if too large (avoid regex backtracking)
     if len(html) > max_chars * 10:
         html = html[:max_chars * 10]
-    
+
     try:
         soup = BeautifulSoup(html[:max_chars * 10], 'html.parser', features='html.parser')
     except Exception:
         # fallback: raw strip
         return re.sub(r'<[^>]+>', ' ', html)
-    
+
     # decompose script/style/etc
     for el in soup.find_all(['script', 'style', 'svg', 'noscript']):
         el.decompose()
-    
+
     # extract text
     text = soup.get_text(separator=' ', strip=True)
-    
+
     # normalize whitespace
     text = re.sub(r'\s+', ' ', text).strip()
-    
+
     # cap final result
     if len(text) > max_chars:
         text = text[:max_chars]
-    
+
     return text
 
 
@@ -181,7 +181,7 @@ def build_library(pmworks_html: Path, out_dir: Path, limit: Optional[int] = None
             break
         if (i + 1) % 100 == 0:
             print(f"[INFO] Processing row {i+1}/{len(rows)}...", flush=True)
-        
+
         work_no = row["work_no"]
         title = row["title"]
         author = row["author"]
@@ -248,7 +248,7 @@ def build_library(pmworks_html: Path, out_dir: Path, limit: Optional[int] = None
             raw_html = maybe_convert_tscii(raw_html)
 
             clean_text = fast_extract_text(raw_html, max_chars=50000)
-            
+
             rec = {
                 "work_no": work_no,
                 "title": title,
@@ -313,7 +313,7 @@ def build_library(pmworks_html: Path, out_dir: Path, limit: Optional[int] = None
     for j, (wid, items) in enumerate(groups.items()):
         if (j + 1) % 50 == 0:
             print(f"[INFO] Writing manifest {j+1}/{len(groups)}...", flush=True)
-        
+
         combined = "\n\n".join([it.get("text", "") for it in items if it.get("text")])
         manifest_index[wid] = {
             "work_id": wid,

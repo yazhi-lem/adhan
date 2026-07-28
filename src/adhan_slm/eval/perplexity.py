@@ -9,7 +9,6 @@ no code to actually measure. JAX-only; imported lazily.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 
 def model_token_perplexity(model, params, val_loader, max_batches: int = 500):

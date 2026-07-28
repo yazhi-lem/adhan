@@ -1,7 +1,6 @@
 """Importer for yazhi-lem/corpus-tamil pre-curated dataset."""
 
 import json
-import logging
 from pathlib import Path
 from typing import Generator, Optional
 

@@ -4,38 +4,35 @@
 SangamGPT Training Script for AADHAN
 """
 
-import os
+import argparse
+import logging
+
 import torch
-import torch.nn as nn
 from transformers import (
-    AutoTokenizer,
     AutoModelForCausalLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
-    DataCollatorForLanguageModeling,
-    pipeline
+    pipeline,
 )
-from datasets import load_dataset
-from tqdm import tqdm
-import logging
-import argparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TamilTextDataset:
     """Custom dataset for Tamil text processing"""
-    
+
     def __init__(self, file_path, tokenizer, block_size=512):
         self.tokenizer = tokenizer
         self.block_size = block_size
         self.texts = self._load_texts(file_path)
-    
+
     def _load_texts(self, file_path):
         """Load and preprocess Tamil text data"""
         logger.info(f"Loading Tamil text from {file_path}")
         texts = []
-        
+
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f:
@@ -50,10 +47,10 @@ class TamilTextDataset:
                 "சங்கக்கால் சங்கக்கால் சங்கக்கால்",
                 "சங்கக்கால் சங்கக்கால் சங்கக்கால்"
             ]
-        
+
         logger.info(f"Loaded {len(texts)} Tamil text samples")
         return texts
-    
+
     def tokenize(self, text):
         """Tokenize Tamil text"""
         return self.tokenizer.encode(
@@ -62,10 +59,10 @@ class TamilTextDataset:
             max_length=self.block_size,
             truncation=True
         )
-    
+
     def __len__(self):
         return len(self.texts)
-    
+
     def __getitem__(self, idx):
         encoding = self.tokenize(self.texts[idx])
         return {
@@ -75,7 +72,7 @@ class TamilTextDataset:
 
 class TamilSangamGPT:
     """SangamGPT model for Tamil text generation"""
-    
+
     def __init__(self, model_name="sangam/IndianLanguages-Tamil-BERT-v0.1", output_dir="sangam_gpt_model"):
         self.model_name = model_name
         self.output_dir = output_dir
@@ -83,7 +80,7 @@ class TamilSangamGPT:
         self.tokenizer = None
         self.model = None
         self.trainer = None
-        
+
     def setup_tokenizer(self):
         """Setup Tamil tokenizer"""
         logger.info("Setting up Tamil tokenizer...")
@@ -94,7 +91,7 @@ class TamilSangamGPT:
         )
         self.tokenizer.add_special_tokens({"bos_token": "க", "eos_token": "க"})
         logger.info("Tamil tokenizer setup complete")
-    
+
     def setup_model(self):
         """Setup base model"""
         logger.info("Setting up base model...")
@@ -105,27 +102,27 @@ class TamilSangamGPT:
         self.model.resize_token_embeddings(len(self.tokenizer))
         self.model.to(self.device)
         logger.info("Base model setup complete")
-    
+
     def prepare_dataset(self, data_path):
         """Prepare Tamil text dataset"""
         logger.info("Preparing Tamil dataset...")
-        
+
         # Create dataset
         train_dataset = TamilTextDataset(data_path, self.tokenizer)
-        
+
         # Create data collator
         data_collator = DataCollatorForLanguageModeling(
             tokenizer=self.tokenizer,
             mlm=False,
             return_tensors="pt"
         )
-        
+
         return train_dataset, data_collator
-    
+
     def setup_training(self, train_dataset, data_collator):
         """Setup training arguments and trainer"""
         logger.info("Setting up training configuration...")
-        
+
         training_args = TrainingArguments(
             output_dir=self.output_dir,
             overwrite_output_dir=True,
@@ -140,7 +137,7 @@ class TamilSangamGPT:
             dataloader_num_workers=2,
             report_to="none"
         )
-        
+
         self.trainer = Trainer(
             model=self.model,
             args=training_args,
@@ -148,41 +145,41 @@ class TamilSangamGPT:
             data_collator=data_collator,
             prediction_loss_only=True
         )
-        
+
         logger.info("Training setup complete")
-    
+
     def train(self, data_path):
         """Train the SangamGPT model"""
         logger.info("Starting SangamGPT training...")
-        
+
         # Setup components
         self.setup_tokenizer()
         self.setup_model()
-        
+
         # Prepare dataset
         train_dataset, data_collator = self.prepare_dataset(data_path)
-        
+
         # Setup training
         self.setup_training(train_dataset, data_collator)
-        
+
         # Start training
         logger.info("Starting training...")
         self.trainer.train()
-        
+
         # Save final model
         logger.info("Saving final model...")
         self.trainer.save_model()
         self.tokenizer.save_pretrained(self.output_dir)
-        
+
         logger.info(f"Training complete! Model saved to {self.output_dir}")
-        
+
         return self.output_dir
-    
+
     def generate_text(self, prompt, max_length=100, num_return_sequences=1):
         """Generate Tamil text"""
         if not self.tokenizer or not self.model:
             raise ValueError("Model not initialized. Call setup_tokenizer() and setup_model() first.")
-        
+
         # Create pipeline
         generator = pipeline(
             "text-generation",
@@ -190,7 +187,7 @@ class TamilSangamGPT:
             tokenizer=self.tokenizer,
             device=self.device.index if self.device.type == "cuda" else -1
         )
-        
+
         # Generate text
         results = generator(
             prompt,
@@ -201,7 +198,7 @@ class TamilSangamGPT:
             top_p=0.9,
             no_repeat_ngram_size=2
         )
-        
+
         return results
 
 # Command line interface
@@ -214,12 +211,12 @@ def main():
     parser.add_argument("--train", action="store_true", help="Start training")
     parser.add_argument("--generate", type=str, help="Generate text from prompt")
     parser.add_argument("--max_length", type=int, default=100, help="Max length for generation")
-    
+
     args = parser.parse_args()
-    
+
     # Initialize model
     model = TamilSangamGPT(output_dir=args.output_dir)
-    
+
     if args.train:
         # Train the model
         model.train(args.data_path)
@@ -232,7 +229,7 @@ def main():
             max_length=args.max_length,
             num_return_sequences=1
         )
-        
+
         print("\nGenerated Tamil Text:")
         for i, result in enumerate(results, 1):
             print(f"{i}. {result['generated_text']}")

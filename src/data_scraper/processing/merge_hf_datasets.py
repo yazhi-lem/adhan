@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Merge HF JSONL outputs from multiple sentence sources (wiki_sentences + wiki_api_sentences), dedupe and combine
-import json
 import hashlib
-from pathlib import Path
+import json
 import sys
+from pathlib import Path
 
 # make local imports work
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -26,7 +26,7 @@ for f in files_to_merge:
             try:
                 obj = json.loads(line)
                 all_records.append(obj)
-            except ExcepAdhanTamilCorpustion:
+            except json.JSONDecodeError:
                 continue
     print(f"Loaded {f}, {len(all_records)} total records so far")
 
@@ -57,4 +57,4 @@ with OUT_FILE.open('w', encoding='utf-8') as fh:
         fh.write(json.dumps(r, ensure_ascii=False) + '\n')
 
 print(f'Wrote {len(uniq)} records to {OUT_FILE}')
-print(f'Ready for HF export')
+print('Ready for HF export')

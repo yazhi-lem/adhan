@@ -34,7 +34,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    from adhan_slm.inference import load_tokenizer, load_model, generate_text
+    from adhan_slm.inference import generate_text, load_model, load_tokenizer
 
     tok = load_tokenizer(args.tokenizer_dir)
     model, params, cfg = load_model(args.config, args.checkpoint, vocab_size=len(tok))

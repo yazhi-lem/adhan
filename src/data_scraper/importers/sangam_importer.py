@@ -1,10 +1,8 @@
 """Importer for classical Tamil literature from Yazhi API and open Sangam sources."""
 
 import json
-import logging
 from pathlib import Path
 from typing import Generator, Optional
-from urllib.parse import urljoin
 
 from adhan_slm.core import get_logger
 
