@@ -27,6 +27,9 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Tuple
+from adhan_slm.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 # --- Tamil Unicode ranges (block U+0B80–U+0BFF) --------------------------------
 _TAMIL_MATRAS = set(range(0x0BBE, 0x0BCD))  # vowel signs ா ி ீ … ௌ
@@ -269,17 +272,17 @@ class SwaramTokenizer:
 
 def _demo(text: str) -> None:
     aks = segment_aksharas(text)
-    print(f"input      : {text}")
-    print(f"aksharas   : {aks}")
-    print(f"n_aksharas : {sum(1 for a in aks if a.strip())}")
+    logger.info(f"input      : {text}")
+    logger.info(f"aksharas   : {aks}")
+    logger.info(f"n_aksharas : {sum(1 for a in aks if a.strip())}")
     # Train a tiny merge layer on the single input just to demonstrate ids/round-trip.
     tok = SwaramTokenizer.train([text], vocab_size=len(default_akshara_inventory()) + 64)
     ids = tok.encode(text, add_special=True)
     back = tok.decode(ids)
-    print(f"n_tokens   : {len(ids)}  (with <bos>/<eos>)")
-    print(f"ids        : {ids}")
-    print(f"fertility  : {tok.fertility(text):.3f} tokens/akshara")
-    print(f"round-trip : {'OK' if back == text else 'LOSSY'}  -> {back!r}")
+    logger.info(f"n_tokens   : {len(ids)}  (with <bos>/<eos>)")
+    logger.info(f"ids        : {ids}")
+    logger.info(f"fertility  : {tok.fertility(text):.3f} tokens/akshara")
+    logger.info(f"round-trip : {'OK' if back == text else 'LOSSY'}  -> {back!r}")
 
 
 if __name__ == "__main__":
