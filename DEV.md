@@ -7,10 +7,10 @@ Minimal command sequence for local development.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e ".[dev,jax,tamil-nlp,data-collection]"
 ```
 
-## 2) Build corpus (dependency order)
+## 2) Build corpus (Phase 2 data collection)
 
 ```bash
 python scripts/run_scraper.py \
@@ -22,18 +22,32 @@ python scripts/run_scraper.py \
   --max-records 80000
 ```
 
-## 3) Train
+## 3) Freeze tokenizer + pack shards
 
 ```bash
-python scripts/run_training.py \
-  --data-dir data/final/tamil_texts/hf \
-  --output-dir models/adhan \
-  --num-epochs 3 \
-  --batch-size 4 \
-  --learning-rate 5e-5
+python scripts/prepare_slm_corpus.py \
+  --corpus data/raw/tamil/ --out data/final/tamil_slm \
+  --vocab-size 12000 --seq-len 1024 --val-frac 0.02
 ```
 
-## 4) Optional merge (ADHAN + VAZHI)
+## 4) Train (JAX)
+
+```bash
+python -m adhan_slm.training.train_jax \
+  --config src/adhan_slm/configs/adhan_slm_tiny.yaml --smoke
+```
+
+## 5) Generate from a checkpoint
+
+```bash
+python scripts/generate_slm.py \
+  --tokenizer-dir data/final/tamil_slm \
+  --config src/adhan_slm/configs/adhan_slm_tiny.yaml \
+  --checkpoint checkpoints/nano \
+  --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?" --temperature 0.8
+```
+
+## 6) Optional corpus merge (ADHAN + VAZHI)
 
 ```bash
 python src/data_scraper/merge_corpora.py \
@@ -44,27 +58,7 @@ python src/data_scraper/merge_corpora.py \
   --split
 ```
 
-## 5) One command (build + train)
-
-```bash
-python scripts/run_model.py \
-  --strategy modern \
-  --max-records 80000 \
-  --num-epochs 3 \
-  --batch-size 4
-```
-
-## Notes
-
-- Run from repository root.
-- Use `python scripts/run_scraper.py --help`, `python scripts/run_training.py --help`, and `python scripts/run_model.py --help`.
-- Current runner executes:
-  - `build_unified_corpus.py`
-  - `export_unified_hf.py`
-  - `train_enhanced.py`
-  - `src/data_scraper/merge_corpora.py` (optional)
-
-## 6) Social media collection (Phase 2)
+## 7) Social media collection (Phase 2)
 
 ```bash
 # Reddit only
@@ -77,34 +71,16 @@ python scripts/run_scraper.py --social twitter --social-max-requests 100
 python scripts/run_scraper.py --social all
 ```
 
-## 7) ONNX export + quantization (Phase 3)
+## Notes
 
-```bash
-# Export trained model to ONNX
-python scripts/export_onnx.py \
-  --model-dir models/adhan \
-  --output-dir models/adhan_onnx
-
-# INT8 dynamic quantization (no calibration data required)
-python scripts/quantize_model.py \
-  --model-dir models/adhan_onnx \
-  --mode int8-dynamic \
-  --benchmark
-
-# INT4 weight-only quantization (requires optimum[onnxruntime])
-python scripts/quantize_model.py \
-  --model-dir models/adhan_onnx \
-  --mode int4
-```
-
-## 8) Sentiment analysis fine-tuning (Phase 4)
-
-```bash
-python src/models/sentiment/train_sentiment.py \
-  --train-file data/sentiment/train.jsonl \
-  --val-file   data/sentiment/val.jsonl \
-  --model-name xlm-roberta-base \
-  --output-dir models/adhan_sentiment \
-  --num-labels 2 \
-  --num-epochs 5
-```
+- Run from repository root.
+- Use `python scripts/run_scraper.py --help`, `python scripts/prepare_slm_corpus.py --help`,
+  and `python scripts/generate_slm.py --help`.
+- The legacy PyTorch fine-tuning pipeline (Gemma LoRA, XLM-RoBERTa MLM,
+  sangam_gpt, sentiment fine-tuning) has been removed — the project now
+  stands on the from-scratch JAX SLM plus this Phase 2 data-collection
+  pipeline only. See `ROADMAP_JAX_SLM.md` §0 for the rationale.
+- `scripts/export_onnx.py` / `scripts/quantize_model.py` still exist but are
+  written against HF/transformers model dirs from the removed pipeline; they
+  need reworking for the JAX SLM before they're usable again (tracked in
+  `docs/CI_WORKFLOW_CLEANUP.md`'s sibling cleanup notes, not yet done).
