@@ -16,6 +16,7 @@ JAX-accelerated in batch via `adhan_slm.tokenizer.jax_encode`.
 CLI:
     python -m adhan_slm.tokenizer.aksharam_tokenizer "पढ़ रहा था"
 """
+
 from __future__ import annotations
 
 import sys
@@ -28,13 +29,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer  # noqa: E402
 
 # --- Devanagari Unicode (block U+0900–U+097F) ----------------------------------
-_DEVA_MATRAS = set(range(0x093E, 0x094D))      # vowel signs ा ि ी … ौ
-_DEVA_VIRAMA = 0x094D                           # halant ् (forms conjuncts)
-_DEVA_NUKTA = 0x093C                            # ़
-_DEVA_SIGNS = {0x0900, 0x0901, 0x0902, 0x0903} # chandrabindu/anusvara/visarga
+_DEVA_MATRAS = set(range(0x093E, 0x094D))  # vowel signs ा ि ी … ौ
+_DEVA_VIRAMA = 0x094D  # halant ् (forms conjuncts)
+_DEVA_NUKTA = 0x093C  # ़
+_DEVA_SIGNS = {0x0900, 0x0901, 0x0902, 0x0903}  # chandrabindu/anusvara/visarga
 _COMBINING = _DEVA_MATRAS | {_DEVA_VIRAMA, _DEVA_NUKTA} | _DEVA_SIGNS
 
-VOWELS = list("अआइईउऊऋएऐओऔ")                    # independent vowels (svara)
+VOWELS = list("अआइईउऊऋएऐओऔ")  # independent vowels (svara)
 _CONSONANTS = list("कखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह")
 _DEVA_DIGITS = list("०१२३४५६७८९")
 
@@ -48,9 +49,9 @@ def default_aksharam_inventory() -> List[str]:
     inv: List[str] = list(VOWELS) + list(_DEVA_DIGITS)
     matras = [chr(cp) for cp in range(0x093E, 0x094D)]
     for c in _CONSONANTS:
-        inv.append(c)                             # bare consonant (inherent 'a')
-        inv.append(c + chr(_DEVA_VIRAMA))         # half-consonant क्
-        for m in matras:                          # क + matra
+        inv.append(c)  # bare consonant (inherent 'a')
+        inv.append(c + chr(_DEVA_VIRAMA))  # half-consonant क्
+        for m in matras:  # क + matra
             inv.append(c + m)
     seen, out = set(), []
     for a in inv:
@@ -74,7 +75,7 @@ def segment_devanagari(text: str) -> List[str]:
         cp = ord(ch)
         if out and _is_combining(cp):
             out[-1] += ch
-            prev_was_virama = (cp == _DEVA_VIRAMA)
+            prev_was_virama = cp == _DEVA_VIRAMA
         elif out and prev_was_virama and 0x0915 <= cp <= 0x0939:
             # consonant right after a halant → conjunct, stays in current cluster
             out[-1] += ch

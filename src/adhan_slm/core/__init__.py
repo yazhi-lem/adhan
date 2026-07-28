@@ -4,8 +4,8 @@ Provides logging, error handling, configuration validation, and metrics tracking
 """
 
 from .config_validator import (
-    ConfigValidationError,
     ConfigSchema,
+    ConfigValidationError,
     DataConfigSchema,
     ModelConfigSchema,
     TrainingConfigSchema,

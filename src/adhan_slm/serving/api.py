@@ -16,19 +16,11 @@ class AdhanRequest(BaseModel):
     """Request schema for Adhan inference endpoints."""
 
     text: str = Field(..., description="Input Tamil text to process")
-    max_length: Optional[int] = Field(
-        None, description="Maximum length for generation"
-    )
-    temperature: Optional[float] = Field(
-        0.7, ge=0.0, le=2.0, description="Sampling temperature"
-    )
+    max_length: Optional[int] = Field(None, description="Maximum length for generation")
+    temperature: Optional[float] = Field(0.7, ge=0.0, le=2.0, description="Sampling temperature")
     top_k: Optional[int] = Field(50, ge=1, description="Top-k sampling")
-    top_p: Optional[float] = Field(
-        0.9, ge=0.0, le=1.0, description="Top-p nucleus sampling"
-    )
-    repetition_penalty: Optional[float] = Field(
-        1.0, ge=1.0, description="Repetition penalty"
-    )
+    top_p: Optional[float] = Field(0.9, ge=0.0, le=1.0, description="Top-p nucleus sampling")
+    repetition_penalty: Optional[float] = Field(1.0, ge=1.0, description="Repetition penalty")
 
 
 class TokensResponse(BaseModel):

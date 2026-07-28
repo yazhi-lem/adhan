@@ -14,7 +14,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -61,12 +60,20 @@ def main() -> None:
         default=None,
         help="Run social-media scraper(s) before corpus build.",
     )
-    parser.add_argument("--social-output-dir", default="data/raw/social",
-                        help="Base output dir for social scrapers.")
-    parser.add_argument("--social-max-posts", type=int, default=500,
-                        help="Max posts per subreddit (Reddit scraper).")
-    parser.add_argument("--social-max-requests", type=int, default=100,
-                        help="Max HTTP requests (Twitter scraper).")
+    parser.add_argument(
+        "--social-output-dir",
+        default="data/raw/social",
+        help="Base output dir for social scrapers.",
+    )
+    parser.add_argument(
+        "--social-max-posts",
+        type=int,
+        default=500,
+        help="Max posts per subreddit (Reddit scraper).",
+    )
+    parser.add_argument(
+        "--social-max-requests", type=int, default=100, help="Max HTTP requests (Twitter scraper)."
+    )
 
     args = parser.parse_args()
 
@@ -75,8 +82,10 @@ def main() -> None:
         reddit_cmd = [
             sys.executable,
             str(ROOT / "src/data_scraper/raw_extractors/reddit_scraper.py"),
-            "--output-dir", str(Path(args.social_output_dir) / "reddit"),
-            "--max-posts", str(args.social_max_posts),
+            "--output-dir",
+            str(Path(args.social_output_dir) / "reddit"),
+            "--max-posts",
+            str(args.social_max_posts),
         ]
         run_command(reddit_cmd, args.dry_run)
 
@@ -84,8 +93,10 @@ def main() -> None:
         twitter_cmd = [
             sys.executable,
             str(ROOT / "src/data_scraper/raw_extractors/twitter_scraper.py"),
-            "--output-dir", str(Path(args.social_output_dir) / "twitter"),
-            "--max-requests", str(args.social_max_requests),
+            "--output-dir",
+            str(Path(args.social_output_dir) / "twitter"),
+            "--max-requests",
+            str(args.social_max_requests),
         ]
         run_command(twitter_cmd, args.dry_run)
 

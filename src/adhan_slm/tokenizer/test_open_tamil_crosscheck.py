@@ -8,6 +8,7 @@ open-tamil isn't installed, instead of gating the whole test suite on it.
 
 Run: python -m pytest (or python this_file.py)
 """
+
 import sys
 from pathlib import Path
 
@@ -40,9 +41,9 @@ def test_agrees_with_open_tamil_reference_segmenter():
     for s in SAMPLES:
         ours = segment_aksharas(s)
         reference = reference_segment_aksharas(s)
-        assert ours == reference, (
-            f"segmentation mismatch for {s!r}: ours={ours} open-tamil={reference}"
-        )
+        assert (
+            ours == reference
+        ), f"segmentation mismatch for {s!r}: ours={ours} open-tamil={reference}"
 
 
 def _run():

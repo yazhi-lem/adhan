@@ -5,6 +5,7 @@ every run logs the full config, the code git SHA, and the dataset version, so an
 run can be re-derived. If mlflow is not installed, a no-op tracker is returned so
 smoke runs still work.
 """
+
 from __future__ import annotations
 
 import subprocess
@@ -14,8 +15,7 @@ from typing import Any, Dict, Optional
 
 def _git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"], text=True).strip()
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
     except Exception:
         return "unknown"
 
@@ -28,11 +28,13 @@ class _NoOpRun:
 
 
 @contextmanager
-def track_run(experiment: str = "adhan-slm",
-              run_name: Optional[str] = None,
-              params: Optional[Dict[str, Any]] = None,
-              data_version: Optional[str] = None,
-              tracking_uri: Optional[str] = None):
+def track_run(
+    experiment: str = "adhan-slm",
+    run_name: Optional[str] = None,
+    params: Optional[Dict[str, Any]] = None,
+    data_version: Optional[str] = None,
+    tracking_uri: Optional[str] = None,
+):
     """Context manager yielding a tracker with .log_metric / .log_artifact.
 
     Usage:
@@ -55,8 +57,10 @@ def track_run(experiment: str = "adhan-slm",
             mlflow.set_tag("data_version", data_version)
         if params:
             # flatten one level for MLflow param table
-            flat = {k: (str(v) if not isinstance(v, (int, float, str, bool)) else v)
-                    for k, v in params.items()}
+            flat = {
+                k: (str(v) if not isinstance(v, (int, float, str, bool)) else v)
+                for k, v in params.items()
+            }
             mlflow.log_params(flat)
 
         class _Run:

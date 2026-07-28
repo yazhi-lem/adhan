@@ -27,6 +27,7 @@ The swaram/aksharam tokenizer *cores* stay pure-python and dependency-free (see
 their module docstrings) — open-tamil is only used in eval/, corpus tooling, and
 tests, never imported by the hot encode/decode path.
 """
+
 from __future__ import annotations
 
 import importlib.resources
@@ -35,13 +36,13 @@ from pathlib import Path
 from typing import List
 
 try:
-    import tamil.utf8 as _ot_utf8
+    import solthiruthi
     import tamil.numeral as _ot_numeral
     import tamil.txt2unicode as _ot_txt2unicode
-    import tamilstemmer as _ot_stemmer_mod
+    import tamil.utf8 as _ot_utf8
     import tamilsandhi as _ot_sandhi
+    import tamilstemmer as _ot_stemmer_mod
     import transliterate.azhagi as _ot_azhagi
-    import solthiruthi
 
     HAS_OPEN_TAMIL = True
 except ImportError:  # open-tamil is optional; callers must check HAS_OPEN_TAMIL

@@ -2,6 +2,7 @@
 
 Run: PYTHONPATH=src python -m adhan_slm.data.test_data_pipeline
 """
+
 from __future__ import annotations
 
 import json
@@ -11,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from adhan_slm.data import corpus, packing, loader
+from adhan_slm.data import corpus, loader, packing
 from adhan_slm.tokenizer import SwaramTokenizer, default_akshara_inventory
 
 TAMIL_LINES = [
@@ -78,7 +79,9 @@ def test_loader_batches_deterministic():
     seqs = packing.pack_documents(TAMIL_LINES * 50, tok, seq_len=seq_len)
     ds = loader.PackedDataset(seqs, batch_size=bs, shuffle=True, seed=7, infinite=False)
     b1 = [b for b in ds]
-    b2 = [b for b in loader.PackedDataset(seqs, batch_size=bs, shuffle=True, seed=7, infinite=False)]
+    b2 = [
+        b for b in loader.PackedDataset(seqs, batch_size=bs, shuffle=True, seed=7, infinite=False)
+    ]
     assert b1 == b2, "same seed must give identical batch order"
     assert all(len(batch) == bs for batch in b1), "drop_last must keep batches full"
     for batch in b1:

@@ -7,23 +7,22 @@ gpu_lora_train.py – GPU-optimised LoRA fine-tuning for Gemma 3 1B-it
 Optimized for Google Colab (T4 GPU) or any CUDA-enabled environment.
 """
 
-import os
 import json
+import os
 from pathlib import Path
-from datetime import datetime
 
 import numpy as np
 import torch
 import transformers
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    TrainingArguments,
-    Trainer,
-    DataCollatorForLanguageModeling,
-)
-from peft import LoraConfig, get_peft_model, TaskType
 from datasets import Dataset
+from peft import LoraConfig, TaskType, get_peft_model
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
 
 # ── Reproducibility ──────────────────────────────────────────────────────────
 torch.manual_seed(42)
@@ -32,24 +31,24 @@ os.environ["PYTHONHASHSEED"] = "42"
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 PROJECT_ROOT = Path(os.environ.get("ADHAN_PROJECT_ROOT", Path(__file__).resolve().parent.parent))
-DATA_DIR    = PROJECT_ROOT / "data" / "final" / "tamil_texts" / "full_hf"
-MODELS_DIR  = PROJECT_ROOT / "models" / "adhan-gemma-v1-gpu"
+DATA_DIR = PROJECT_ROOT / "data" / "final" / "tamil_texts" / "full_hf"
+MODELS_DIR = PROJECT_ROOT / "models" / "adhan-gemma-v1-gpu"
 ADAPTER_DIR = MODELS_DIR / "lora_adapter"
-CKPT_DIR    = PROJECT_ROOT / "models" / "checkpoints" / "gemma-gpu"
+CKPT_DIR = PROJECT_ROOT / "models" / "checkpoints" / "gemma-gpu"
 
 for d in [MODELS_DIR, ADAPTER_DIR, CKPT_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # ── GPU-optimised hyperparameters ────────────────────────────────────────────
-MODEL_NAME    = "google/gemma-3-1b-it"
-MAX_LENGTH    = 512    # Higher context for better coherence
-LORA_R        = 16     # Higher rank for better knowledge capture
-LORA_ALPHA    = 32     # alpha = 2 * r
-LORA_DROPOUT  = 0.1
-EPOCHS        = 3      # Standard for instruction tuning
-BATCH_SIZE    = 4      # Fits easily on T4 for 1B model
-GRAD_ACCUM    = 4      # Effective batch = 16
-LEARNING_RATE = 2e-4   # Standard for LoRA
+MODEL_NAME = "google/gemma-3-1b-it"
+MAX_LENGTH = 512  # Higher context for better coherence
+LORA_R = 16  # Higher rank for better knowledge capture
+LORA_ALPHA = 32  # alpha = 2 * r
+LORA_DROPOUT = 0.1
+EPOCHS = 3  # Standard for instruction tuning
+BATCH_SIZE = 4  # Fits easily on T4 for 1B model
+GRAD_ACCUM = 4  # Effective batch = 16
+LEARNING_RATE = 2e-4  # Standard for LoRA
 
 print(f"PyTorch Version:       {torch.__version__}")
 print(f"Transformers Version:  {transformers.__version__}")
@@ -57,6 +56,7 @@ print(f"CUDA Available:        {torch.cuda.is_available()}")
 print(f"Project root:  {PROJECT_ROOT}")
 print(f"Data dir:      {DATA_DIR}")
 print(f"Output dir:    {MODELS_DIR}")
+
 
 # ── 1. Data loading ──────────────────────────────────────────────────────────
 def load_jsonl(path: Path) -> list[dict]:
@@ -71,10 +71,11 @@ def load_jsonl(path: Path) -> list[dict]:
                 records.append(json.loads(line))
     return records
 
+
 print("\nLoading JSONL splits...")
 train_records = load_jsonl(DATA_DIR / "train.jsonl")
-val_records   = load_jsonl(DATA_DIR / "validation.jsonl")
-test_records  = load_jsonl(DATA_DIR / "test.jsonl")
+val_records = load_jsonl(DATA_DIR / "validation.jsonl")
+test_records = load_jsonl(DATA_DIR / "test.jsonl")
 
 print(f"  Train:      {len(train_records):,} records")
 print(f"  Validation: {len(val_records):,} records")
@@ -84,10 +85,11 @@ if not train_records:
     print("❌ No training data found. Check your DATA_DIR.")
     exit(1)
 
+
 # ── 2. Format & tokenise ─────────────────────────────────────────────────────
 def to_gemma_format(text: str) -> str:
     # We use a user/model turn format to simulate instruction data
-    # even though our data is mostly sentences. 
+    # even though our data is mostly sentences.
     # This helps the model stay in character.
     return (
         "<start_of_turn>user\n"
@@ -97,18 +99,21 @@ def to_gemma_format(text: str) -> str:
         f"{text}<end_of_turn>"
     )
 
+
 def records_to_dataset(records: list[dict]) -> Dataset:
     texts = [to_gemma_format(r["text"]) for r in records]
     return Dataset.from_dict({"text": texts})
 
+
 raw_train = records_to_dataset(train_records)
-raw_val   = records_to_dataset(val_records)
-raw_test  = records_to_dataset(test_records)
+raw_val = records_to_dataset(val_records)
+raw_test = records_to_dataset(test_records)
 
 print(f"\nLoading tokenizer for {MODEL_NAME} ...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-tokenizer.pad_token    = tokenizer.eos_token
+tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
+
 
 def tokenize(batch):
     return tokenizer(
@@ -118,18 +123,19 @@ def tokenize(batch):
         padding="max_length",
     )
 
+
 print("Tokenising datasets...")
 train_dataset = raw_train.map(tokenize, batched=True, remove_columns=["text"])
-val_dataset   = raw_val.map(tokenize,   batched=True, remove_columns=["text"])
-test_dataset  = raw_test.map(tokenize,  batched=True, remove_columns=["text"])
+val_dataset = raw_val.map(tokenize, batched=True, remove_columns=["text"])
+test_dataset = raw_test.map(tokenize, batched=True, remove_columns=["text"])
 
 train_dataset = train_dataset.map(lambda ex: {"labels": ex["input_ids"]})
-val_dataset   = val_dataset.map(lambda ex:   {"labels": ex["input_ids"]})
-test_dataset  = test_dataset.map(lambda ex:  {"labels": ex["input_ids"]})
+val_dataset = val_dataset.map(lambda ex: {"labels": ex["input_ids"]})
+test_dataset = test_dataset.map(lambda ex: {"labels": ex["input_ids"]})
 
 train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
-val_dataset.set_format(  type="torch", columns=["input_ids", "attention_mask", "labels"])
-test_dataset.set_format( type="torch", columns=["input_ids", "attention_mask", "labels"])
+val_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
+test_dataset.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
 
 # ── 3. Load model ────────────────────────────────────────────────────────────
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -188,7 +194,7 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-print(f"\nStarting GPU LoRA fine-tuning...")
+print("\nStarting GPU LoRA fine-tuning...")
 train_result = trainer.train()
 
 # ── 6. Save ──────────────────────────────────────────────────────────────────
