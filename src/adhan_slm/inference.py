@@ -8,6 +8,7 @@ Ties together the three artifacts a run produces:
 Everything JAX-side is imported lazily so importing this module never forces the JAX
 stack; ``load_model`` raises a clear message if it's missing.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -37,7 +38,9 @@ def _config_from_yaml(config_path: str | Path, vocab_size: Optional[int] = None)
     return AdhanConfig(**{k: v for k, v in m.items() if k != "size"})
 
 
-def load_model(config_path, checkpoint_dir, vocab_size: Optional[int] = None, step: Optional[int] = None):
+def load_model(
+    config_path, checkpoint_dir, vocab_size: Optional[int] = None, step: Optional[int] = None
+):
     """Rebuild the model and restore params from the latest (or given) Orbax step.
 
     Returns ``(model, params, model_cfg)``.
@@ -49,7 +52,8 @@ def load_model(config_path, checkpoint_dir, vocab_size: Optional[int] = None, st
         from adhan_slm.model import AdhanSLM
     except ImportError as e:
         raise ImportError(
-            f"load_model needs the JAX stack ({e}). pip install -r requirements-jax.txt")
+            f"load_model needs the JAX stack ({e}). pip install -r requirements-jax.txt"
+        )
 
     model_cfg = _config_from_yaml(config_path, vocab_size=vocab_size)
     model = AdhanSLM(model_cfg)
@@ -57,6 +61,7 @@ def load_model(config_path, checkpoint_dir, vocab_size: Optional[int] = None, st
     # Restore the params-only checkpoint item (train_jax saves it alongside the full
     # state for exactly this reason) — no optimizer pytree to reconstruct.
     import jax
+
     key = jax.random.PRNGKey(0)
     dummy = jnp.ones((1, min(8, model_cfg.max_seq_len)), dtype=jnp.int32)
     params_template = model.init(key, dummy)["params"]
@@ -66,7 +71,8 @@ def load_model(config_path, checkpoint_dir, vocab_size: Optional[int] = None, st
     if step is None:
         raise FileNotFoundError(f"no checkpoint found in {checkpoint_dir}")
     restored = mgr.restore(
-        step, args=ocp.args.Composite(params=ocp.args.StandardRestore(params_template)))
+        step, args=ocp.args.Composite(params=ocp.args.StandardRestore(params_template))
+    )
     return model, restored["params"], model_cfg
 
 

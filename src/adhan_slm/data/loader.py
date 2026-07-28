@@ -7,6 +7,7 @@ seed-driven shuffling. It is the concrete object `train_jax.data_iterator()` ret
 numpy is used when present (fast contiguous batches for XLA); a pure-python fallback
 keeps the loader importable and unit-testable in a minimal environment.
 """
+
 from __future__ import annotations
 
 import random
@@ -87,7 +88,7 @@ class PackedDataset:
                 random.Random(self.seed + epoch).shuffle(order)
             last = self.n - (self.n % self.batch_size) if self.drop_last else self.n
             for start in range(0, last, self.batch_size):
-                idx = order[start:start + self.batch_size]
+                idx = order[start : start + self.batch_size]
                 yield _to_batch([self._row(i) for i in idx], self._use_numpy)
             epoch += 1
             if not self.infinite:

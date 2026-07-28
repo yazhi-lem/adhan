@@ -17,6 +17,7 @@ including on-device.
 CLI:
     python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
 """
+
 from __future__ import annotations
 
 import json
@@ -26,19 +27,22 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Tuple
+from adhan_slm.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 from adhan_slm.core.logging import get_logger
 
 logger = get_logger(__name__)
 
 # --- Tamil Unicode ranges (block U+0B80–U+0BFF) --------------------------------
-_TAMIL_MATRAS = set(range(0x0BBE, 0x0BCD))      # vowel signs ா ி ீ … ௌ
-_TAMIL_PULLI = 0x0BCD                           # virama ் (makes a pure consonant)
-_COMBINING = _TAMIL_MATRAS | {_TAMIL_PULLI}     # marks that attach to a base
+_TAMIL_MATRAS = set(range(0x0BBE, 0x0BCD))  # vowel signs ா ி ீ … ௌ
+_TAMIL_PULLI = 0x0BCD  # virama ் (makes a pure consonant)
+_COMBINING = _TAMIL_MATRAS | {_TAMIL_PULLI}  # marks that attach to a base
 
 # Standalone building blocks used to seed the closed base inventory.
-UYIR = list("அஆஇஈஉஊஎஏஐஒஓஔ")                    # 12 vowels (swaram)
-_CONSONANTS = list("கஙசஜஞடணதநனபமயரறலளழவஶஷஸஹ")   # base consonants (+ Grantha)
+UYIR = list("அஆஇஈஉஊஎஏஐஒஓஔ")  # 12 vowels (swaram)
+_CONSONANTS = list("கஙசஜஞடணதநனபமயரறலளழவஶஷஸஹ")  # base consonants (+ Grantha)
 AYTHAM = "ஃ"
 
 SPECIAL_TOKENS = ["<pad>", "<bos>", "<eos>", "<unk>", "<mask>"]
@@ -58,9 +62,9 @@ def default_akshara_inventory() -> List[str]:
     inv: List[str] = list(UYIR) + [AYTHAM]
     matras = [chr(cp) for cp in range(0x0BBE, 0x0BCD)]
     for c in _CONSONANTS:
-        inv.append(c)                       # inherent-'a' uyirmey (க)
-        inv.append(c + chr(_TAMIL_PULLI))   # pure consonant / mey (க்)
-        for m in matras:                    # க + matra → காகிகீ …
+        inv.append(c)  # inherent-'a' uyirmey (க)
+        inv.append(c + chr(_TAMIL_PULLI))  # pure consonant / mey (க்)
+        for m in matras:  # க + matra → காகிகீ …
             inv.append(c + m)
     # de-dup, keep order
     seen, out = set(), []
@@ -167,8 +171,7 @@ class SwaramTokenizer:
         pieces = self.tokenize(text)
         ids = [self.vocab.get(p, self.unk_id) for p in pieces]
         if add_special:
-            ids = [self.vocab.get("<bos>", self.unk_id), *ids,
-                   self.vocab.get("<eos>", self.unk_id)]
+            ids = [self.vocab.get("<bos>", self.unk_id), *ids, self.vocab.get("<eos>", self.unk_id)]
         return ids
 
     def decode(self, ids: List[int], skip_special: bool = True) -> str:
@@ -191,8 +194,9 @@ class SwaramTokenizer:
 
     # -- training --------------------------------------------------------------
     @classmethod
-    def train(cls, corpus: List[str], vocab_size: int = 8000,
-              min_freq: int = 2) -> "SwaramTokenizer":
+    def train(
+        cls, corpus: List[str], vocab_size: int = 8000, min_freq: int = 2
+    ) -> "SwaramTokenizer":
         """Train the merge layer over aksharas (bounded BPE).
 
         Base vocab = specials + full closed akshara inventory + any aksharas seen
@@ -252,9 +256,11 @@ class SwaramTokenizer:
     # -- persistence -----------------------------------------------------------
     def save(self, vocab_path: str, merges_path: str) -> None:
         Path(vocab_path).write_text(
-            json.dumps(self.vocab, ensure_ascii=False, indent=2), encoding="utf-8")
+            json.dumps(self.vocab, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         Path(merges_path).write_text(
-            "\n".join(f"{a}\t{b}" for a, b in self.merges), encoding="utf-8")
+            "\n".join(f"{a}\t{b}" for a, b in self.merges), encoding="utf-8"
+        )
 
     @classmethod
     def from_files(cls, vocab_path: str, merges_path: str) -> "SwaramTokenizer":

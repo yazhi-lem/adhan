@@ -3,6 +3,7 @@ prompts, n-gram baseline). Skip cleanly if open-tamil isn't installed.
 
 Run: python -m pytest (or python this_file.py)
 """
+
 import sys
 from pathlib import Path
 
@@ -11,9 +12,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
 from adhan_slm.external.open_tamil_bridge import HAS_OPEN_TAMIL  # noqa: E402
 
 INFLECTED_WORDS = [
-    "படித்துக்கொண்டிருந்தேன்", "எழுதினேன்", "பேசினோம்", "வந்தார்கள்",
-    "சொன்னாள்", "ஓடுகிறான்", "படிக்கிறாள்", "வருவேன்", "செய்தார்",
-    "நடந்தது", "பார்த்தேன்", "கேட்டான்",
+    "படித்துக்கொண்டிருந்தேன்",
+    "எழுதினேன்",
+    "பேசினோம்",
+    "வந்தார்கள்",
+    "சொன்னாள்",
+    "ஓடுகிறான்",
+    "படிக்கிறாள்",
+    "வருவேன்",
+    "செய்தார்",
+    "நடந்தது",
+    "பார்த்தேன்",
+    "கேட்டான்",
 ]
 
 GRAMMATICAL_PHRASES = [
@@ -23,9 +33,12 @@ GRAMMATICAL_PHRASES = [
 ]
 
 CORPUS = [
-    "தமிழ் ஒரு அழகான மொழி", "நான் தமிழில் படிக்கிறேன்",
-    "இது ஒரு நல்ல நாள்", "அவன் பள்ளிக்கு சென்றான்",
-    "நாய் ஓடுகிறது", "பூனை பாலைக் குடிக்கிறது",
+    "தமிழ் ஒரு அழகான மொழி",
+    "நான் தமிழில் படிக்கிறேன்",
+    "இது ஒரு நல்ல நாள்",
+    "அவன் பள்ளிக்கு சென்றான்",
+    "நாய் ஓடுகிறது",
+    "பூனை பாலைக் குடிக்கிறது",
 ]
 
 
@@ -86,7 +99,9 @@ def test_ngram_baseline_perplexity_is_finite_and_positive():
 
     baseline = AksharaUnigramBaseline(CORPUS)
     ppl = baseline.perplexity("நான் தமிழில் படிக்கிறேன்")
-    assert ppl > 0 and ppl == ppl, f"expected finite positive perplexity, got {ppl}"  # ppl==ppl false for NaN
+    assert (
+        ppl > 0 and ppl == ppl
+    ), f"expected finite positive perplexity, got {ppl}"  # ppl==ppl false for NaN
 
 
 def _run():

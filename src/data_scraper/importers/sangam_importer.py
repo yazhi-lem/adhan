@@ -29,9 +29,7 @@ class SangamImporter:
         self.yazhi_api_endpoint = yazhi_api_endpoint
         self.logger = logger
 
-    def import_from_yazhi_api(
-        self, query: Optional[str] = None
-    ) -> Generator[dict, None, None]:
+    def import_from_yazhi_api(self, query: Optional[str] = None) -> Generator[dict, None, None]:
         """Query Yazhi API for Sangam works.
 
         Note: This is a placeholder for when Yazhi API is available.
@@ -44,9 +42,7 @@ class SangamImporter:
             dict: Corpus records from Yazhi API.
         """
         if not self.yazhi_api_endpoint:
-            self.logger.warning(
-                "Yazhi API endpoint not configured, skipping API import"
-            )
+            self.logger.warning("Yazhi API endpoint not configured, skipping API import")
             return
 
         try:
@@ -56,9 +52,7 @@ class SangamImporter:
             return
 
         # Placeholder for actual API implementation
-        self.logger.info(
-            "Yazhi API import not yet implemented (awaiting API credentials)"
-        )
+        self.logger.info("Yazhi API import not yet implemented (awaiting API credentials)")
 
         # When implemented, would look like:
         # endpoint = urljoin(self.yazhi_api_endpoint, "/sangam/texts")
@@ -140,9 +134,7 @@ class SangamImporter:
                     break
 
         if not pmworks_path:
-            self.logger.info(
-                "No Project Madurai pmworks found. Provide pmworks_path if available."
-            )
+            self.logger.info("No Project Madurai pmworks found. Provide pmworks_path if available.")
             return
 
         pmworks_path = Path(pmworks_path)
@@ -189,9 +181,7 @@ class SangamImporter:
                             continue
                         try:
                             record = json.loads(line)
-                            yield self._convert_sangam_record(
-                                record, line_idx, jsonl_file.stem
-                            )
+                            yield self._convert_sangam_record(record, line_idx, jsonl_file.stem)
                         except json.JSONDecodeError:
                             continue
             except Exception as e:

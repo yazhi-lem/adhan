@@ -26,12 +26,8 @@ class CorpusFilter:
     TAMIL_UNICODE_END = 0x0BFF  # Tamil block end
 
     # PII detection patterns
-    EMAIL_PATTERN = re.compile(
-        r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", re.IGNORECASE
-    )
-    PHONE_PATTERN = re.compile(
-        r"(?:\+?91[-.\s]?|\b)(?:\d{4,5}[-.\s]?)?\d{3,4}[-.\s]?\d{4}\b"
-    )
+    EMAIL_PATTERN = re.compile(r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", re.IGNORECASE)
+    PHONE_PATTERN = re.compile(r"(?:\+?91[-.\s]?|\b)(?:\d{4,5}[-.\s]?)?\d{3,4}[-.\s]?\d{4}\b")
     URL_PATTERN = re.compile(r"https?://[^\s]+|www\.[^\s]+|\[URL\]", re.IGNORECASE)
 
     def __init__(
@@ -97,24 +93,18 @@ class CorpusFilter:
                 text_len = len(text)
                 if text_len < self.min_length:
                     stats["too_short"] += 1
-                    self.logger.debug(
-                        f"Text too short ({text_len} chars): {doc.get('id')}"
-                    )
+                    self.logger.debug(f"Text too short ({text_len} chars): {doc.get('id')}")
                     continue
 
                 if text_len > self.max_length:
                     stats["too_long"] += 1
-                    self.logger.debug(
-                        f"Text too long ({text_len} chars): {doc.get('id')}"
-                    )
+                    self.logger.debug(f"Text too long ({text_len} chars): {doc.get('id')}")
                     continue
 
                 # Quality score check
                 if quality_score < self.min_quality_score:
                     stats["low_quality_score"] += 1
-                    self.logger.debug(
-                        f"Quality score too low ({quality_score}): {doc.get('id')}"
-                    )
+                    self.logger.debug(f"Quality score too low ({quality_score}): {doc.get('id')}")
                     continue
 
                 # Excessive punctuation check
@@ -122,9 +112,7 @@ class CorpusFilter:
                 punct_ratio = punct_count / text_len if text_len > 0 else 0
                 if punct_ratio > 0.3:  # More than 30% punctuation
                     stats["excessive_punctuation"] += 1
-                    self.logger.debug(
-                        f"Excessive punctuation ({punct_ratio:.1%}): {doc.get('id')}"
-                    )
+                    self.logger.debug(f"Excessive punctuation ({punct_ratio:.1%}): {doc.get('id')}")
                     continue
 
                 # Passed all checks
@@ -132,9 +120,7 @@ class CorpusFilter:
                 yield doc
 
             stats["removed"] = stats["total"] - stats["kept"]
-            stats["removal_rate"] = (
-                stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
-            )
+            stats["removal_rate"] = stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
 
             return stats
 
@@ -174,18 +160,14 @@ class CorpusFilter:
 
                 if tamil_fraction < self.min_tamil_fraction:
                     stats["non_tamil"] += 1
-                    self.logger.debug(
-                        f"Insufficient Tamil ({tamil_fraction:.1%}): {doc.get('id')}"
-                    )
+                    self.logger.debug(f"Insufficient Tamil ({tamil_fraction:.1%}): {doc.get('id')}")
                     continue
 
                 stats["kept"] += 1
                 yield doc
 
             stats["removed"] = stats["total"] - stats["kept"]
-            stats["removal_rate"] = (
-                stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
-            )
+            stats["removal_rate"] = stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
             if stats["tamil_fractions"]:
                 stats["avg_tamil_fraction"] = sum(stats["tamil_fractions"]) / len(
                     stats["tamil_fractions"]
@@ -268,9 +250,7 @@ class CorpusFilter:
                 stats["kept"] += 1
                 yield doc
 
-            stats["removal_rate"] = (
-                stats["had_pii"] / stats["total"] if stats["total"] > 0 else 0.0
-            )
+            stats["removal_rate"] = stats["had_pii"] / stats["total"] if stats["total"] > 0 else 0.0
 
             return stats
 

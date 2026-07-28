@@ -93,9 +93,7 @@ class CorpusValidator:
         # Calculate aggregate stats
         total_chars = sum(len(record.get("text", "")) for record in self.records)
         report["total_characters"] = total_chars
-        report["average_text_length"] = (
-            total_chars / len(self.records) if self.records else 0
-        )
+        report["average_text_length"] = total_chars / len(self.records) if self.records else 0
         report["total_tokens_estimate"] = int(total_chars / 4.5)  # Average token length
 
         return report
@@ -173,9 +171,7 @@ class CorpusValidator:
         return {
             "sample_size": len(records_to_check),
             "records_with_pii": records_with_pii,
-            "pii_rate": (
-                records_with_pii / len(records_to_check) if records_to_check else 0
-            ),
+            "pii_rate": (records_with_pii / len(records_to_check) if records_to_check else 0),
             "pii_types_found": dict(pii_counts),
         }
 
@@ -218,9 +214,7 @@ class CorpusValidator:
             return 0.0
 
         tamil_count = sum(
-            1
-            for char in text
-            if self.TAMIL_UNICODE_START <= ord(char) <= self.TAMIL_UNICODE_END
+            1 for char in text if self.TAMIL_UNICODE_START <= ord(char) <= self.TAMIL_UNICODE_END
         )
         return tamil_count / len(text)
 

@@ -48,12 +48,12 @@
 | Component | Status | Completed | Notes |
 |-----------|--------|-----------|-------|
 | Identify deprecated scripts | ✅ Done | 2026-07-23 | 4 files found |
-| `src/data_scraper/export/export_hf_from_sentences.py` | 🔴 Pending | - | Remove or archive |
-| `src/data_scraper/export/export_modern_hf.py` | 🔴 Pending | - | Remove or archive |
-| `src/data_scraper/processing/build_modern_tamil_sources.py` | 🔴 Pending | - | Remove or archive |
-| `src/data_scraper/processing/build_modern_tamil_corpus.py` | 🔴 Pending | - | Remove or archive |
-| Update documentation references | 🔴 Pending | - | Remove refs to deprecated scripts |
-| **Subtotal A4** | 🟡 | **25%** | Deprecated files identified, removal pending |
+| `src/data_scraper/export/export_hf_from_sentences.py` | ✅ Done | 2026-07-23 | Removed (see commit 59a5edc) |
+| `src/data_scraper/export/export_modern_hf.py` | ✅ Done | 2026-07-23 | Removed (see commit 59a5edc) |
+| `src/data_scraper/processing/build_modern_tamil_sources.py` | ✅ Done | 2026-07-23 | Removed (see commit 59a5edc) |
+| `src/data_scraper/processing/build_modern_tamil_corpus.py` | ✅ Done | 2026-07-23 | Removed (see commit 59a5edc) |
+| Update documentation references | ✅ Done | 2026-07-28 | export/README.md and processing/README.md now marked "Removed" |
+| **Subtotal A4** | ✅ | **100%** | Deprecated files removed and docs synced |
 
 ---
 
@@ -72,7 +72,7 @@
 ## Next Steps
 
 ### Immediate (Today)
-- [ ] Remove 4 deprecated scripts
+- [x] Remove 4 deprecated scripts
 - [ ] Update README with `pip install -e .` instructions
 - [ ] Test package installation
 

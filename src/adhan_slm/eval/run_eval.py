@@ -19,6 +19,7 @@ Probes:
     python -m adhan_slm.eval.run_eval --tokenizer-dir data/final/tamil_slm \
         --config src/adhan_slm/configs/adhan_slm_tiny.yaml --checkpoint checkpoints/nano
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,6 +34,7 @@ from adhan_slm.data import corpus as corpus_mod
 
 def _load_tokenizer(tokenizer_dir):
     from adhan_slm.inference import load_tokenizer
+
     return load_tokenizer(tokenizer_dir)
 
 
@@ -42,8 +44,13 @@ def probe_fertility(tok, texts, cap=500):
     if not vals:
         return {"status": "skipped", "reason": "no eval text"}
     mean = sum(vals) / len(vals)
-    return {"status": "ok", "mean_fertility": round(mean, 4),
-            "target": 1.15, "pass": mean < 1.15, "n_docs": len(vals)}
+    return {
+        "status": "ok",
+        "mean_fertility": round(mean, 4),
+        "target": 1.15,
+        "pass": mean < 1.15,
+        "n_docs": len(vals),
+    }
 
 
 def probe_classical(texts):
@@ -61,8 +68,11 @@ def probe_classical(texts):
     ppls = [p for p in ppls if p == p]  # drop nan
     if not ppls:
         return {"status": "skipped", "reason": "no scorable held-out text"}
-    return {"status": "ok", "unigram_akshara_ppl": round(sum(ppls) / len(ppls), 3),
-            "note": "classical floor; trained model must beat this"}
+    return {
+        "status": "ok",
+        "unigram_akshara_ppl": round(sum(ppls) / len(ppls), 3),
+        "note": "classical floor; trained model must beat this",
+    }
 
 
 def probe_morphology(tok, texts, cap=300):
@@ -78,12 +88,12 @@ def probe_morphology(tok, texts, cap=300):
         return {"status": "skipped", "reason": "no words"}
     agree = stemmer_boundary_agreement(tok, words)
     sandhi = sandhi_correctness_rate(texts[:cap])
-    return {"status": "ok",
-            "boundary_agreement_rate": round(agree.agreement_rate, 4)
-            if agree.n_with_suffix else None,
-            "n_suffixed_words": agree.n_with_suffix,
-            "sandhi_correct_rate": round(sandhi.word_correctness_rate, 4)
-            if sandhi.n_words else None}
+    return {
+        "status": "ok",
+        "boundary_agreement_rate": round(agree.agreement_rate, 4) if agree.n_with_suffix else None,
+        "n_suffixed_words": agree.n_with_suffix,
+        "sandhi_correct_rate": round(sandhi.word_correctness_rate, 4) if sandhi.n_words else None,
+    }
 
 
 def probe_model(config, checkpoint, tokenizer_dir, tok, texts, n_samples=5):
@@ -106,18 +116,26 @@ def probe_model(config, checkpoint, tokenizer_dir, tok, texts, n_samples=5):
     val_bin = Path(tokenizer_dir) / "val.bin"
     if val_bin.exists():
         val_ds = PackedDataset.from_shard(
-            val_bin, batch_size=8, shuffle=False, infinite=False, drop_last=False,
-            manifest=load_manifest(val_bin))
+            val_bin,
+            batch_size=8,
+            shuffle=False,
+            infinite=False,
+            drop_last=False,
+            manifest=load_manifest(val_bin),
+        )
         result["perplexity"] = model_token_perplexity(model, params, val_ds)
     else:
         result["perplexity"] = {"status": "skipped", "reason": "no val.bin"}
 
     samples = []
-    for prompt in (texts[:n_samples] or ["சொல்"]):
+    for prompt in texts[:n_samples] or ["சொல்"]:
         seed_prompt = prompt.split()[0] if prompt.split() else prompt
-        samples.append({"prompt": seed_prompt,
-                        "generation": generate_text(model, params, tok, seed_prompt,
-                                                     max_new_tokens=40)})
+        samples.append(
+            {
+                "prompt": seed_prompt,
+                "generation": generate_text(model, params, tok, seed_prompt, max_new_tokens=40),
+            }
+        )
     result["samples"] = samples
     return result
 
@@ -133,16 +151,18 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
         return {"status": "skipped", "reason": f"lexicon unavailable ({e})"}
     if not prompts:
         return {"status": "skipped", "reason": "no prompts built (open-tamil lexicons?)"}
-    out = {"status": "ok", "n_prompts": len(prompts),
-           "examples": [p.prompt for p in prompts[:5]]}
+    out = {"status": "ok", "n_prompts": len(prompts), "examples": [p.prompt for p in prompts[:5]]}
     if config and checkpoint:
         try:
             from adhan_slm.inference import generate_text, load_model
             model, params, _ = load_model(config, checkpoint, vocab_size=len(tok))
             out["generations"] = [
-                {"prompt": p.prompt,
-                 "generation": generate_text(model, params, tok, p.prompt, max_new_tokens=40)}
-                for p in prompts[:5]]
+                {
+                    "prompt": p.prompt,
+                    "generation": generate_text(model, params, tok, p.prompt, max_new_tokens=40),
+                }
+                for p in prompts[:5]
+            ]
         except (ImportError, FileNotFoundError) as e:
             out["generations"] = {"status": "skipped", "reason": str(e)}
     return out
@@ -150,8 +170,11 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
 
 def main():
     ap = argparse.ArgumentParser(description="Adhan SLM evaluation harness")
-    ap.add_argument("--tokenizer-dir", required=True,
-                    help="dir with vocab.json + merges.txt (+ optional val.bin)")
+    ap.add_argument(
+        "--tokenizer-dir",
+        required=True,
+        help="dir with vocab.json + merges.txt (+ optional val.bin)",
+    )
     ap.add_argument("--eval-text", help="txt/jsonl of held-out Tamil for ppl/fertility")
     ap.add_argument("--config", help="training YAML (to rebuild model for model probe)")
     ap.add_argument("--checkpoint", help="Orbax checkpoint dir (enables model probe)")

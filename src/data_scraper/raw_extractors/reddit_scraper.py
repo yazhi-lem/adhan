@@ -17,6 +17,7 @@ Output:
     <output-dir>/reddit_tamil.jsonl   – one JSON record per line
     <output-dir>/reddit_manifest.json – run statistics
 """
+
 from __future__ import annotations
 
 import argparse
@@ -54,6 +55,7 @@ REQUEST_DELAY = 2.0  # seconds between requests to stay within rate limits
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
+
 
 def sha256_hex(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
@@ -104,16 +106,21 @@ def fetch_json(url: str, retries: int = 3) -> Optional[dict]:
 
 # ── listing fetchers ───────────────────────────────────────────────────────────
 
-def iter_posts(subreddit: str, sort: str = "top", batch: int = 100,
-               max_posts: int = 500) -> Generator[dict, None, None]:
+
+def iter_posts(
+    subreddit: str, sort: str = "top", batch: int = 100, max_posts: int = 500
+) -> Generator[dict, None, None]:
     """Yield raw post dicts from a subreddit listing."""
     after = ""
     fetched = 0
     while fetched < max_posts:
         limit = min(batch, max_posts - fetched)
         url = LISTING_URL.format(
-            base=REDDIT_BASE, sub=subreddit, sort=sort,
-            limit=limit, after=after,
+            base=REDDIT_BASE,
+            sub=subreddit,
+            sort=sort,
+            limit=limit,
+            after=after,
         )
         data = fetch_json(url)
         if not data:
@@ -135,8 +142,9 @@ def iter_posts(subreddit: str, sort: str = "top", batch: int = 100,
         time.sleep(REQUEST_DELAY)
 
 
-def iter_comments(post_id: str, subreddit: str,
-                  max_comments: int = 50) -> Generator[dict, None, None]:
+def iter_comments(
+    post_id: str, subreddit: str, max_comments: int = 50
+) -> Generator[dict, None, None]:
     """Yield raw comment dicts for a single post."""
     url = f"{REDDIT_BASE}/r/{subreddit}/comments/{post_id}.json?limit={max_comments}"
     data = fetch_json(url)
@@ -157,6 +165,7 @@ def iter_comments(post_id: str, subreddit: str,
 
 
 # ── main extraction ────────────────────────────────────────────────────────────
+
 
 def extract_records(
     subreddits: list[str],
@@ -179,25 +188,26 @@ def extract_records(
                     h = sha256_hex(raw)
                     if h not in seen:
                         seen.add(h)
-                        records.append({
-                            "id": h,
-                            "text": raw,
-                            "source": "reddit",
-                            "subreddit": sub,
-                            "post_id": post.get("id"),
-                            "url": f"https://reddit.com{post.get('permalink', '')}",
-                            "tamil_fraction": round(tamil_fraction(raw), 3),
-                            "upvotes": post.get("score", 0),
-                            "record_type": "post_" + field,
-                        })
+                        records.append(
+                            {
+                                "id": h,
+                                "text": raw,
+                                "source": "reddit",
+                                "subreddit": sub,
+                                "post_id": post.get("id"),
+                                "url": f"https://reddit.com{post.get('permalink', '')}",
+                                "tamil_fraction": round(tamil_fraction(raw), 3),
+                                "upvotes": post.get("score", 0),
+                                "record_type": "post_" + field,
+                            }
+                        )
 
             # --- comments ---
             if include_comments:
                 post_id = post.get("id")
                 if post_id:
                     time.sleep(REQUEST_DELAY)
-                    for comment in iter_comments(post_id, sub,
-                                                 max_comments=max_comments_per_post):
+                    for comment in iter_comments(post_id, sub, max_comments=max_comments_per_post):
                         body = clean_text(comment.get("body") or "")
                         if body in ("[deleted]", "[removed]", ""):
                             continue
@@ -205,40 +215,46 @@ def extract_records(
                             h = sha256_hex(body)
                             if h not in seen:
                                 seen.add(h)
-                                records.append({
-                                    "id": h,
-                                    "text": body,
-                                    "source": "reddit",
-                                    "subreddit": sub,
-                                    "post_id": post_id,
-                                    "url": f"https://reddit.com{post.get('permalink', '')}",
-                                    "tamil_fraction": round(tamil_fraction(body), 3),
-                                    "upvotes": comment.get("score", 0),
-                                    "record_type": "comment",
-                                })
+                                records.append(
+                                    {
+                                        "id": h,
+                                        "text": body,
+                                        "source": "reddit",
+                                        "subreddit": sub,
+                                        "post_id": post_id,
+                                        "url": f"https://reddit.com{post.get('permalink', '')}",
+                                        "tamil_fraction": round(tamil_fraction(body), 3),
+                                        "upvotes": comment.get("score", 0),
+                                        "record_type": "comment",
+                                    }
+                                )
 
             post_count += 1
 
-        logger.info("  r/%s: processed %d posts, %d records so far",
-                    sub, post_count, len(records))
+        logger.info("  r/%s: processed %d posts, %d records so far", sub, post_count, len(records))
 
     return records
 
 
 # ── entry point ────────────────────────────────────────────────────────────────
 
+
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Scrape Tamil content from Reddit subreddits."
+    parser = argparse.ArgumentParser(description="Scrape Tamil content from Reddit subreddits.")
+    parser.add_argument(
+        "--output-dir", default="data/raw/reddit", help="Directory to write output files."
     )
-    parser.add_argument("--output-dir", default="data/raw/reddit",
-                        help="Directory to write output files.")
-    parser.add_argument("--subreddits", default=",".join(SUBREDDITS),
-                        help="Comma-separated list of subreddits to scrape.")
-    parser.add_argument("--max-posts", type=int, default=500,
-                        help="Maximum posts to fetch per subreddit.")
-    parser.add_argument("--include-comments", action="store_true",
-                        help="Also collect top comments for each post.")
+    parser.add_argument(
+        "--subreddits",
+        default=",".join(SUBREDDITS),
+        help="Comma-separated list of subreddits to scrape.",
+    )
+    parser.add_argument(
+        "--max-posts", type=int, default=500, help="Maximum posts to fetch per subreddit."
+    )
+    parser.add_argument(
+        "--include-comments", action="store_true", help="Also collect top comments for each post."
+    )
     parser.add_argument("--max-comments-per-post", type=int, default=50)
     args = parser.parse_args()
 

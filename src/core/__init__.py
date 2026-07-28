@@ -2,6 +2,7 @@
 """
 Adhan Core - Unified constants and keys.
 """
+
 from .keys import (
     COLLOQUIAL_PATTERNS,
     ENGLISH_HASHTAGS,

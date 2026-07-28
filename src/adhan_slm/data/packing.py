@@ -12,6 +12,7 @@ manifest — the classic nanoGPT-style shard layout. It needs no numpy to *write
 ``array`` + struct), and reads back with or without numpy. Keeping it dependency-free
 means corpus prep runs in the same minimal environment as the tokenizer.
 """
+
 from __future__ import annotations
 
 import array
@@ -120,9 +121,7 @@ def write_shard(
 
 
 def load_manifest(bin_path: str | Path) -> PackedShard:
-    meta = json.loads(
-        Path(str(bin_path) + ".manifest.json").read_text(encoding="utf-8")
-    )
+    meta = json.loads(Path(str(bin_path) + ".manifest.json").read_text(encoding="utf-8"))
     return PackedShard(**meta)
 
 
@@ -145,4 +144,4 @@ def read_shard(bin_path: str | Path, manifest: Optional[PackedShard] = None):
         with Path(bin_path).open("rb") as fh:
             flat.frombytes(fh.read())
         sl = manifest.seq_len
-        return [list(flat[i * sl:(i + 1) * sl]) for i in range(manifest.n_sequences)]
+        return [list(flat[i * sl : (i + 1) * sl]) for i in range(manifest.n_sequences)]

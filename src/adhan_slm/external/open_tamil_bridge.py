@@ -27,6 +27,7 @@ The swaram/aksharam tokenizer *cores* stay pure-python and dependency-free (see
 their module docstrings) — open-tamil is only used in eval/, corpus tooling, and
 tests, never imported by the hot encode/decode path.
 """
+
 from __future__ import annotations
 
 import importlib.resources

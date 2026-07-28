@@ -35,8 +35,7 @@ from transformers import (
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -44,6 +43,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelConfig:
     """Configuration for model training"""
+
     # Model settings
     model_name: str = "sangam/IndianLanguages-Tamil-BERT-v0.1"
     model_type: str = "causal_lm"  # causal_lm or masked_lm
@@ -90,19 +90,19 @@ class ModelConfig:
     def save(self, path: str):
         """Save configuration to file"""
         config_path = Path(path)
-        with config_path.open('w') as f:
-            if path.endswith('.yaml') or path.endswith('.yml'):
+        with config_path.open("w") as f:
+            if path.endswith(".yaml") or path.endswith(".yml"):
                 yaml.dump(asdict(self), f)
             else:
                 json.dump(asdict(self), f, indent=2)
         logger.info(f"Configuration saved to {path}")
 
     @classmethod
-    def load(cls, path: str) -> 'ModelConfig':
+    def load(cls, path: str) -> "ModelConfig":
         """Load configuration from file"""
         config_path = Path(path)
-        with config_path.open('r') as f:
-            if path.endswith('.yaml') or path.endswith('.yml'):
+        with config_path.open("r") as f:
+            if path.endswith(".yaml") or path.endswith(".yml"):
                 data = yaml.safe_load(f)
             else:
                 data = json.load(f)
@@ -154,9 +154,7 @@ class TamilModelTrainer:
 
             # Fallback to download
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.config.model_name,
-                use_fast=True,
-                force_download=True
+                self.config.model_name, use_fast=True, force_download=True
             )
 
         # Add special tokens if needed
@@ -172,9 +170,7 @@ class TamilModelTrainer:
         try:
             # Load model
             if self.config.model_type == "causal_lm":
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    self.config.model_name
-                )
+                self.model = AutoModelForCausalLM.from_pretrained(self.config.model_name)
             else:
                 # For masked LM or other types
                 from transformers import AutoModelForMaskedLM
@@ -184,7 +180,9 @@ class TamilModelTrainer:
 
             # Resize embeddings if vocab size changed
             if self.config.vocab_size and len(self.tokenizer) != self.model.config.vocab_size:
-                logger.info(f"Resizing embeddings from {self.model.config.vocab_size} to {len(self.tokenizer)}")
+                logger.info(
+                    f"Resizing embeddings from {self.model.config.vocab_size} to {len(self.tokenizer)}"
+                )
                 self.model.resize_token_embeddings(len(self.tokenizer))
 
             self.model.to(self.device)
@@ -215,9 +213,9 @@ class TamilModelTrainer:
         # Load dataset
         data_files = {}
         if train_path.exists():
-            data_files['train'] = str(train_path)
+            data_files["train"] = str(train_path)
         if val_path.exists():
-            data_files['validation'] = str(val_path)
+            data_files["validation"] = str(val_path)
         if test_path.exists():
             data_files['test'] = str(test_path)
 
@@ -236,10 +234,10 @@ class TamilModelTrainer:
         def tokenize_function(examples):
             return self.tokenizer(
                 examples[self.config.text_column],
-                padding='max_length',
+                padding="max_length",
                 truncation=True,
                 max_length=self.config.max_length,
-                return_special_tokens_mask=True
+                return_special_tokens_mask=True,
             )
 
         tokenized_dataset = dataset.map(
@@ -247,7 +245,7 @@ class TamilModelTrainer:
             batched=True,
             num_proc=self.config.num_workers,
             remove_columns=dataset["train"].column_names,
-            desc="Tokenizing dataset"
+            desc="Tokenizing dataset",
         )
 
         logger.info("Tokenization complete")
@@ -262,6 +260,7 @@ class TamilModelTrainer:
         if self.config.use_wandb:
             try:
                 import wandb
+
                 report_to = ["wandb"]
                 if self.config.wandb_run_name:
                     os.environ["WANDB_NAME"] = self.config.wandb_run_name
@@ -306,7 +305,7 @@ class TamilModelTrainer:
             callbacks.append(
                 EarlyStoppingCallback(
                     early_stopping_patience=self.config.early_stopping_patience,
-                    early_stopping_threshold=self.config.early_stopping_threshold
+                    early_stopping_threshold=self.config.early_stopping_threshold,
                 )
             )
 
@@ -436,5 +435,5 @@ def main():
         trainer.evaluate()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

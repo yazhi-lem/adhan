@@ -10,6 +10,7 @@ samples a continuation for one or more prompts (the Phase 5 demo / Phase 4 read-
         --checkpoint checkpoints/nano \
         --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?" --temperature 0.8
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,8 +26,9 @@ def main() -> None:
     ap.add_argument("--tokenizer-dir", required=True)
     ap.add_argument("--config", required=True)
     ap.add_argument("--checkpoint", required=True)
-    ap.add_argument("--prompt", action="append", required=True,
-                    help="prompt text (repeat for several)")
+    ap.add_argument(
+        "--prompt", action="append", required=True, help="prompt text (repeat for several)"
+    )
     ap.add_argument("--max-new-tokens", type=int, default=64)
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--top-k", type=int, default=40)
@@ -42,9 +44,16 @@ def main() -> None:
 
     for prompt in args.prompt:
         text = generate_text(
-            model, params, tok, prompt,
-            max_new_tokens=args.max_new_tokens, temperature=args.temperature,
-            top_k=args.top_k, top_p=args.top_p, seed=args.seed)
+            model,
+            params,
+            tok,
+            prompt,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            seed=args.seed,
+        )
         print(f"prompt : {prompt}")
         print(f"output : {text}\n")
 

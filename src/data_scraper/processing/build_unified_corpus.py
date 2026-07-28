@@ -4,6 +4,7 @@
 Unified corpus builder with configurable modern/classical balancing.
 Consolidates build_modern_tamil_corpus.py and build_modern_tamil_sources.py.
 """
+
 import argparse
 import hashlib
 import json
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def sentence_split(text: str) -> List[str]:
     """Split text into sentences by Tamil punctuation and newlines."""
-    sentences = re.split(r'[।!?.\n]+', text)
+    sentences = re.split(r"[।!?.\n]+", text)
     return [s.strip() for s in sentences if len(s.strip()) > 10]
 
 
@@ -29,19 +30,19 @@ def detect_modern_markers(text: str) -> int:
     score = 0
 
     # Modern pronouns and conversational markers
-    if re.search(r'\b(நீ|என்|அவன்|அவங்க|எனக்கு|உனக்கு|சொன்னேன்|என்றீங்க)\b', text):
+    if re.search(r"\b(நீ|என்|அவன்|அவங்க|எனக்கு|உனக்கு|சொன்னேன்|என்றீங்க)\b", text):
         score += 3
 
     # Modern verbs/tenses
-    if re.search(r'(ற|ட்ட|வை|கூறுகிறோம்|பேசுகிறேன்|இருக்கிறது)', text):
+    if re.search(r"(ற|ட்ட|வை|கூறுகிறோம்|பேசுகிறேன்|இருக்கிறது)", text):
         score += 2
 
     # Colloquial markers
-    if re.search(r'(ங்க|ச்சா|டா|யா|யோ)', text):
+    if re.search(r"(ங்க|ச்சா|டா|யா|யோ)", text):
         score += 2
 
     # Modern/news vocabulary
-    if re.search(r'(கடந்த|இந்த|வரும்|கூறினார்|தெரிவித்தார்)', text):
+    if re.search(r"(கடந்த|இந்த|வரும்|கூறினார்|தெரிவித்தார்)", text):
         score += 1
 
     return min(score, 5)  # cap at 5
@@ -50,22 +51,24 @@ def detect_modern_markers(text: str) -> int:
 def load_social_sources(data_dir: Path) -> List[Dict]:
     """Load Tamil social media sources."""
     records = []
-    social_file = data_dir / 'tamil_social_sample.jsonl'
+    social_file = data_dir / "tamil_social_sample.jsonl"
 
     if social_file.exists():
-        with social_file.open('r', encoding='utf-8') as fh:
+        with social_file.open("r", encoding="utf-8") as fh:
             for line in fh:
                 try:
                     obj = json.loads(line)
-                    txt = obj.get('text', '').replace('tamil ', '').strip()
+                    txt = obj.get("text", "").replace("tamil ", "").strip()
                     if len(txt) > 15:
-                        records.append({
-                            'text': txt,
-                            'source': 'social',
-                            'quality_score': 0.6,
-                            'tamil_fraction': 1.0,
-                            'url': None,
-                        })
+                        records.append(
+                            {
+                                "text": txt,
+                                "source": "social",
+                                "quality_score": 0.6,
+                                "tamil_fraction": 1.0,
+                                "url": None,
+                            }
+                        )
                 except Exception:
                     pass
 
@@ -75,12 +78,12 @@ def load_social_sources(data_dir: Path) -> List[Dict]:
 def load_news_corpus(data_dir: Path) -> List[Dict]:
     """Load Tamil news corpus."""
     records = []
-    corpus_file = data_dir / 'tamil_corpus.txt'
+    corpus_file = data_dir / "tamil_corpus.txt"
 
     if corpus_file.exists():
-        with corpus_file.open('r', encoding='utf-8') as fh:
+        with corpus_file.open("r", encoding="utf-8") as fh:
             text = fh.read()
-            for para in text.split('\n\n'):
+            for para in text.split("\n\n"):
                 sentences = sentence_split(para)
                 for sent in sentences:
                     if 20 < len(sent) < 400:
@@ -103,7 +106,8 @@ def get_conversational_phrases() -> List[Dict]:
     if config_file.exists():
         try:
             import yaml
-            with config_file.open('r', encoding='utf-8') as f:
+
+            with config_file.open("r", encoding="utf-8") as f:
                 config = yaml.safe_load(f)
 
             phrases = config.get('phrases', [])
@@ -114,13 +118,15 @@ def get_conversational_phrases() -> List[Dict]:
             records = []
             for phrase in phrases:
                 if len(phrase) > 10:
-                    records.append({
-                        'text': phrase,
-                        'source': source,
-                        'quality_score': quality_score,
-                        'tamil_fraction': tamil_fraction,
-                        'url': None,
-                    })
+                    records.append(
+                        {
+                            "text": phrase,
+                            "source": source,
+                            "quality_score": quality_score,
+                            "tamil_fraction": tamil_fraction,
+                            "url": None,
+                        }
+                    )
             return records
         except Exception as e:
             logger.warning(f"Failed to load phrases from config: {e}. Using fallback.")
@@ -157,7 +163,7 @@ def load_existing_corpus(corpus_file: Path) -> List[Dict]:
     """Load existing corpus from JSONL file."""
     records = []
     if corpus_file.exists():
-        with corpus_file.open('r', encoding='utf-8') as fh:
+        with corpus_file.open("r", encoding="utf-8") as fh:
             for line in fh:
                 try:
                     obj = json.loads(line)
@@ -170,11 +176,11 @@ def load_existing_corpus(corpus_file: Path) -> List[Dict]:
 def apply_source_weights(records: List[Dict], weight_map: Dict[str, float]) -> List[Dict]:
     """Apply source-based weights to records."""
     for r in records:
-        src = r.get('source', 'unknown')
+        src = r.get("source", "unknown")
         weight = weight_map.get(src, 1.0)
 
         # Boost weight if sentence has modern markers
-        txt = r.get('text', '')
+        txt = r.get("text", "")
         modern_score = detect_modern_markers(txt)
 
         if modern_score > 0:
@@ -194,7 +200,7 @@ def deduplicate_records(records: List[Dict]) -> List[Dict]:
     unique = []
 
     for r in records:
-        txt = r.get('text', '')
+        txt = r.get("text", "")
         if not txt:
             continue
 
@@ -215,10 +221,10 @@ def select_top_records(records: List[Dict], max_count: int = None) -> List[Dict]
     # Sort by weight * quality_score, then by quality_score
     records.sort(
         key=lambda x: (
-            x.get('_weight', 1.0) * x.get('quality_score', 0.0),
-            x.get('quality_score', 0.0)
+            x.get("_weight", 1.0) * x.get("quality_score", 0.0),
+            x.get("quality_score", 0.0),
         ),
-        reverse=True
+        reverse=True,
     )
 
     if max_count:
@@ -232,7 +238,7 @@ def print_source_distribution(records: List[Dict], title: str = "Distribution"):
     src_dist = defaultdict(int)
 
     for r in records:
-        src = r.get('source', 'unknown')
+        src = r.get("source", "unknown")
         src_dist[src] += 1
 
     for src, cnt in sorted(src_dist.items(), key=lambda x: -x[1]):
@@ -267,30 +273,30 @@ def main():
 
     # Define weight maps for different strategies
     weight_maps = {
-        'balanced': {
-            'news': 1.0,
-            'social': 1.0,
-            'wikipedia': 1.0,
-            'literature': 1.0,
-            'local': 1.0,
-            'modern_conversational': 1.0,
+        "balanced": {
+            "news": 1.0,
+            "social": 1.0,
+            "wikipedia": 1.0,
+            "literature": 1.0,
+            "local": 1.0,
+            "modern_conversational": 1.0,
         },
-        'modern': {
-            'news': 3.0,
-            'social': 2.5,
-            'modern_conversational': 3.0,
-            'wikipedia': 1.5,
-            'literature': 0.5,
-            'local': 0.3,
+        "modern": {
+            "news": 3.0,
+            "social": 2.5,
+            "modern_conversational": 3.0,
+            "wikipedia": 1.5,
+            "literature": 0.5,
+            "local": 0.3,
         },
-        'rebalanced': {
-            'news': 3.0,
-            'social': 2.5,
-            'modern_conversational': 2.5,
-            'wikipedia': 1.0,
-            'literature': 0.5,
-            'local': 0.3,
-        }
+        "rebalanced": {
+            "news": 3.0,
+            "social": 2.5,
+            "modern_conversational": 2.5,
+            "wikipedia": 1.0,
+            "literature": 0.5,
+            "local": 0.3,
+        },
     }
 
     weight_map = weight_maps[args.strategy]
@@ -346,7 +352,7 @@ def main():
 
     # Write output
     print(f"\nWriting output to {output_file}...")
-    with output_file.open('w', encoding='utf-8') as fh:
+    with output_file.open("w", encoding="utf-8") as fh:
         for r in final_unique:
             # Remove internal fields
             clean = {k: v for k, v in r.items() if not k.startswith('_')}
@@ -370,5 +376,5 @@ def main():
     print(f"  Records with modern markers: {modern_count} ({modern_pct:.1f}%)")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

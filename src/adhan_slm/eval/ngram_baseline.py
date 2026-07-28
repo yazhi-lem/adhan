@@ -9,6 +9,7 @@ trained SLM should clear it easily; it exists to catch broken training runs
 (loss not beating a unigram frequency model means something is badly wrong)
 without waiting on a distilgpt2 comparison run.
 """
+
 from __future__ import annotations
 
 import math

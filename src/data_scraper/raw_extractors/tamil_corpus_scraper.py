@@ -3,6 +3,7 @@
 """
 Tamil Corpus Scraper for AADHAN Model Training
 """
+
 import argparse
 import hashlib
 import json
@@ -29,6 +30,7 @@ from src.core import TAMIL_HASHTAGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class TamilCorpusScraper:
     """Scraper for collecting Tamil text data from various sources"""
 
@@ -49,11 +51,11 @@ class TamilCorpusScraper:
             # Get category members
             url = "https://ta.wikipedia.org/w/api.php"
             params = {
-                'action': 'query',
-                'format': 'json',
-                'list': 'categorymembers',
-                'cmtitle': f"Category:{category}",
-                'cmlimit': 50
+                "action": "query",
+                "format": "json",
+                "list": "categorymembers",
+                "cmtitle": f"Category:{category}",
+                "cmlimit": 50,
             }
 
             response = self.session.get(url, params=params)
@@ -81,16 +83,16 @@ class TamilCorpusScraper:
             soup = BeautifulSoup(response.content, 'html.parser')
 
             # Extract main content
-            content_div = soup.find('div', {'id': 'mw-content-text'})
+            content_div = soup.find("div", {"id": "mw-content-text"})
             if not content_div:
                 return None
 
             # Remove unwanted elements
-            for element in content_div.find_all(['table', 'img', 'script', 'style']):
+            for element in content_div.find_all(["table", "img", "script", "style"]):
                 element.decompose()
 
             # Extract text
-            paragraphs = content_div.find_all('p')
+            paragraphs = content_div.find_all("p")
             text = "\n".join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
 
             # Clean text
@@ -130,7 +132,7 @@ class TamilCorpusScraper:
 
             # Find text content
             texts = []
-            for element in soup.find_all(['p', 'div', 'span']):
+            for element in soup.find_all(["p", "div", "span"]):
                 text = element.get_text().strip()
                 if self._is_tamil_text(text):
                     texts.append(self._clean_tamil_text(text))
@@ -149,7 +151,7 @@ class TamilCorpusScraper:
         news_sites = [
             "https://tamil.oneindia.com",
             "https://tamil.samayam.com",
-            "https://tamil.indianexpress.com"
+            "https://tamil.indianexpress.com",
         ]
 
         for site in news_sites:
@@ -168,7 +170,7 @@ class TamilCorpusScraper:
 
             # Find news articles
             articles = []
-            for article in soup.find_all('article'):
+            for article in soup.find_all("article"):
                 text = article.get_text().strip()
                 if self._is_tamil_text(text):
                     articles.append(self._clean_tamil_text(text))
@@ -192,7 +194,7 @@ class TamilCorpusScraper:
                 text = response.text
             else:
                 # Read local file
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, "r", encoding="utf-8") as f:
                     text = f.read()
 
             if text:
@@ -215,7 +217,7 @@ class TamilCorpusScraper:
                 f"#{hashtag} தமிழ் ",
                 f"#{hashtag} தமிழ் ",
                 f"#{hashtag} நமது தமிழ் மொழி மிகவும் சிறப்பு",
-                f"#{hashtag} தமிழ் பண்பாடு பேணுங்கள்"
+                f"#{hashtag} தமிழ் பண்பாடு பேணுங்கள்",
             ]
             texts.extend(sample_texts)
             time.sleep(1)  # Rate limiting
@@ -224,14 +226,14 @@ class TamilCorpusScraper:
 
     def _is_tamil_text(self, text: str) -> bool:
         """Check if text contains Tamil characters"""
-        tamil_pattern = re.compile(r'[\u0B80-\u0BFF]+')
+        tamil_pattern = re.compile(r"[\u0B80-\u0BFF]+")
         return bool(tamil_pattern.search(text))
 
     def _clean_tamil_text(self, text: str) -> str:
         """Clean and preprocess Tamil text"""
         # Remove unwanted characters
-        text = re.sub(r'\s+', ' ', text)  # Normalize whitespace
-        text = re.sub(r'[^\w\s\u0B80-\u0BFF.,!?]', '', text)  # Remove special chars
+        text = re.sub(r"\s+", " ", text)  # Normalize whitespace
+        text = re.sub(r"[^\w\s\u0B80-\u0BFF.,!?]", "", text)  # Remove special chars
         text = text.strip()
 
         return text
@@ -262,7 +264,7 @@ class TamilCorpusScraper:
             if not txt:
                 continue
             h = hashlib.sha256(txt.encode("utf-8")).hexdigest()
-            norm = re.sub(r'\s+', ' ', re.sub(r'[^\w\u0B80-\u0BFF]', '', txt)).strip()[:512]
+            norm = re.sub(r"\s+", " ", re.sub(r"[^\w\u0B80-\u0BFF]", "", txt)).strip()[:512]
             if h in seen_hashes or norm in seen_norm:
                 continue
             seen_hashes.add(h)
@@ -279,7 +281,7 @@ class TamilCorpusScraper:
             "இலக்கியம்": ["கவிதை", "கதை", "செந்தமிழ்", "இலக்கியம்", "பாடல்"],
             "தொழில்நுட்பம்": ["தொழில்நுட்ப", "யாண்டு", "எய்ஐ", "ஐடி", "மென்பொருள்"],
             "மதம்": ["திருச்சபை", "ஆன்மிக", "பழமொழி", "பரம்பரை"],
-            "பண்பாடு": ["பண்பாடு", "கலை", "பண்டிகை", "பாடல்"]
+            "பண்பாடு": ["பண்பாடு", "கலை", "பண்டிகை", "பாடல்"],
         }
         labels = []
         lower = text.lower()
@@ -294,18 +296,28 @@ class TamilCorpusScraper:
         """Heuristic quality scoring and simple flags."""
         char_count = len(text)
         word_count = len(text.split())
-        tamil_chars = len(re.findall(r'[\u0B80-\u0BFF]', text))
+        tamil_chars = len(re.findall(r"[\u0B80-\u0BFF]", text))
         tamil_fraction = tamil_chars / max(1, char_count)
         length_score = min(1.0, word_count / 50)
         tamil_score = 1.0 if tamil_fraction > 0.6 else tamil_fraction
         quality_score = 0.6 * length_score + 0.4 * tamil_score
-        flags = {
-            "too_short": word_count < 5,
-            "is_tamil": tamil_fraction > 0.5
+        flags = {"too_short": word_count < 5, "is_tamil": tamil_fraction > 0.5}
+        return {
+            "quality_score": round(quality_score, 3),
+            "flags": flags,
+            "char_count": char_count,
+            "word_count": word_count,
         }
-        return {"quality_score": round(quality_score, 3), "flags": flags, "char_count": char_count, "word_count": word_count}
 
-    def filter_records(self, records: List[Dict], min_quality: float = 0.0, min_chars: int = 0, min_tamil_fraction: float = 0.0, require_tamil: bool = False, apply_fineweb: bool = False) -> List[Dict]:
+    def filter_records(
+        self,
+        records: List[Dict],
+        min_quality: float = 0.0,
+        min_chars: int = 0,
+        min_tamil_fraction: float = 0.0,
+        require_tamil: bool = False,
+        apply_fineweb: bool = False,
+    ) -> List[Dict]:
         """Filter records using simple heuristics inspired by FineWeb.
 
         Heuristics implemented:
@@ -318,17 +330,17 @@ class TamilCorpusScraper:
         out = []
         removed = 0
         for r in records:
-            txt = (r.get('text') or '').strip()
+            txt = (r.get("text") or "").strip()
             if not txt:
                 removed += 1
                 continue
 
             # ensure meta fields available
-            if 'quality_score' not in r:
+            if "quality_score" not in r:
                 r.update(self.score_quality(txt))
 
-            q = float(r.get('quality_score', 0.0))
-            cc = int(r.get('char_count', len(txt)))
+            q = float(r.get("quality_score", 0.0))
+            cc = int(r.get("char_count", len(txt)))
 
             # thresholds
             if min_quality and q < float(min_quality):
@@ -339,7 +351,7 @@ class TamilCorpusScraper:
                 continue
 
             # Tamil fraction check
-            tamil_chars = len(re.findall(r'[\u0B80-\u0BFF]', txt))
+            tamil_chars = len(re.findall(r"[\u0B80-\u0BFF]", txt))
             tamil_frac = tamil_chars / max(1, len(txt))
             if require_tamil and tamil_frac < max(0.5, float(min_tamil_fraction)):
                 removed += 1
@@ -350,13 +362,23 @@ class TamilCorpusScraper:
 
             lowtxt = txt.lower()
             # remove obvious boilerplate / nav / policy pages
-            boilerplate_tokens = ('copyright', 'all rights reserved', 'terms of use', 'privacy policy', 'contact us', 'login', 'sign in', 'cookie', 'sitemap')
+            boilerplate_tokens = (
+                "copyright",
+                "all rights reserved",
+                "terms of use",
+                "privacy policy",
+                "contact us",
+                "login",
+                "sign in",
+                "cookie",
+                "sitemap",
+            )
             if any(tok in lowtxt for tok in boilerplate_tokens):
                 removed += 1
                 continue
 
             # remove pages with too high latin fraction when Tamil required
-            latin_chars = len(re.findall(r'[A-Za-z]', txt))
+            latin_chars = len(re.findall(r"[A-Za-z]", txt))
             latin_frac = latin_chars / max(1, len(txt))
             if require_tamil and latin_frac > 0.25:
                 removed += 1
@@ -365,7 +387,7 @@ class TamilCorpusScraper:
             # optional FineWeb-like extra checks
             if apply_fineweb:
                 # require at least 3 sentences
-                sentences = re.split(r'[\.|\?|\!|\n]+', txt)
+                sentences = re.split(r"[\.|\?|\!|\n]+", txt)
                 sentences = [s for s in sentences if s.strip()]
                 if len(sentences) < 3:
                     removed += 1
@@ -378,9 +400,9 @@ class TamilCorpusScraper:
                     continue
 
                 # punctuation / letter ratio (noisy pages often have odd ratios)
-                letters = len(re.findall(r'[\w\u0B80-\u0BFF]', txt))
+                letters = len(re.findall(r"[\w\u0B80-\u0BFF]", txt))
                 # Python `re` does not support \p{P}/\p{S}; use [^\w\s] as a practical fallback
-                punctuation = len(re.findall(r'[^\w\s]', txt, flags=re.UNICODE))
+                punctuation = len(re.findall(r"[^\w\s]", txt, flags=re.UNICODE))
                 if letters > 0 and (punctuation / letters) > 0.5:
                     removed += 1
                     continue
@@ -403,11 +425,16 @@ class TamilCorpusScraper:
 
     def _extract_text_from_html(self, html: str) -> str:
         """Generic HTML -> cleaned Tamil text extractor."""
-        soup = BeautifulSoup(html, 'html.parser')
-        for element in soup.find_all(['script', 'style', 'img', 'noscript', 'svg', 'header', 'footer', 'nav']):
+        soup = BeautifulSoup(html, "html.parser")
+        for element in soup.find_all(
+            ["script", "style", "img", "noscript", "svg", "header", "footer", "nav"]
+        ):
             element.decompose()
-        paragraphs = [p.get_text(separator=' ', strip=True) for p in soup.find_all(['p', 'div', 'article', 'section'])]
-        text = '\n'.join([t for t in paragraphs if t])
+        paragraphs = [
+            p.get_text(separator=" ", strip=True)
+            for p in soup.find_all(["p", "div", "article", "section"])
+        ]
+        text = "\n".join([t for t in paragraphs if t])
         return self._clean_tamil_text(text)
 
     def fetch_sitemap_urls(self, domain: str) -> List[str]:
@@ -415,24 +442,28 @@ class TamilCorpusScraper:
 
         Tries common sitemap locations and follows sitemap index files.
         """
-        domain = domain.rstrip('/')
-        candidates = [f"{domain}/sitemap.xml", f"{domain}/sitemap_index.xml", f"{domain}/sitemap/sitemap-index.xml"]
+        domain = domain.rstrip("/")
+        candidates = [
+            f"{domain}/sitemap.xml",
+            f"{domain}/sitemap_index.xml",
+            f"{domain}/sitemap/sitemap-index.xml",
+        ]
         found_urls = []
         visited_sitemaps = set()
 
         def parse_sitemap(content: bytes):
             try:
                 root = ET.fromstring(content)
-                for loc in root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc'):
+                for loc in root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc"):
                     found_urls.append(loc.text.strip())
                 # fallback: find any <loc> without namespace
-                for loc in root.findall('.//loc'):
+                for loc in root.findall(".//loc"):
                     if loc.text and loc.text.strip() not in found_urls:
                         found_urls.append(loc.text.strip())
             except ET.ParseError:
                 # last-resort: regex
-                txt = content.decode('utf-8', errors='ignore')
-                for m in re.findall(r'<loc>(.*?)</loc>', txt, flags=re.I):
+                txt = content.decode("utf-8", errors="ignore")
+                for m in re.findall(r"<loc>(.*?)</loc>", txt, flags=re.I):
                     if m.strip() not in found_urls:
                         found_urls.append(m.strip())
 
@@ -444,7 +475,7 @@ class TamilCorpusScraper:
                     parse_sitemap(resp.content)
                     # If sitemap index, try to fetch nested sitemaps
                     for s in list(found_urls):
-                        if s.endswith('.xml') and s not in visited_sitemaps:
+                        if s.endswith(".xml") and s not in visited_sitemaps:
                             try:
                                 r2 = self.session.get(s, timeout=15)
                                 if r2.status_code == 200:
@@ -458,21 +489,28 @@ class TamilCorpusScraper:
 
         return list(dict.fromkeys(found_urls))
 
-    def crawl_sitemap(self, domain: str, limit: int = 0, save_raw: bool = True, extract_text: bool = True, rate_limit_seconds: float = 1.0) -> List[Dict]:
+    def crawl_sitemap(
+        self,
+        domain: str,
+        limit: int = 0,
+        save_raw: bool = True,
+        extract_text: bool = True,
+        rate_limit_seconds: float = 1.0,
+    ) -> List[Dict]:
         """Crawl all URLs discovered in a site's sitemap and return extracted records.
 
         - Respects `robots.txt` via urllib.robotparser.
         - Saves raw HTML under `data/raw_html/<domain>/...` when `save_raw` is True.
         - Extracts text and returns `make_record(...)` entries when `extract_text` is True.
         """
-        if not domain.startswith('http'):
-            domain = 'https://' + domain
+        if not domain.startswith("http"):
+            domain = "https://" + domain
         parsed = urlparse(domain)
         base = f"{parsed.scheme}://{parsed.netloc}"
 
         # robots.txt check
         rp = robotparser.RobotFileParser()
-        rp.set_url(urljoin(base, '/robots.txt'))
+        rp.set_url(urljoin(base, "/robots.txt"))
         try:
             rp.read()
         except Exception:
@@ -494,7 +532,7 @@ class TamilCorpusScraper:
                 # robots check
                 allowed = True
                 try:
-                    allowed = rp.can_fetch('*', u)
+                    allowed = rp.can_fetch("*", u)
                 except Exception:
                     allowed = True
                 if not allowed:
@@ -507,26 +545,28 @@ class TamilCorpusScraper:
                     continue
 
                 # save raw HTML
-                local_rel = urlparse(u).path.lstrip('/') or 'index.html'
-                if local_rel.endswith('/'):
-                    local_rel = local_rel + 'index.html'
-                save_dir = self.base_dir / 'raw_html' / parsed.netloc / os.path.dirname(local_rel)
+                local_rel = urlparse(u).path.lstrip("/") or "index.html"
+                if local_rel.endswith("/"):
+                    local_rel = local_rel + "index.html"
+                save_dir = self.base_dir / "raw_html" / parsed.netloc / os.path.dirname(local_rel)
                 save_dir.mkdir(parents=True, exist_ok=True)
-                local_path = self.base_dir / 'raw_html' / parsed.netloc / local_rel
-                with open(local_path, 'wb') as fh:
+                local_path = self.base_dir / "raw_html" / parsed.netloc / local_rel
+                with open(local_path, "wb") as fh:
                     fh.write(resp.content)
 
                 # extract text
-                text = ''
+                text = ""
                 if extract_text:
                     text = self._extract_text_from_html(resp.text)
                     if not text:
                         # fallback: use visible text
-                        text = BeautifulSoup(resp.content, 'html.parser').get_text(separator=' ', strip=True)
+                        text = BeautifulSoup(resp.content, "html.parser").get_text(
+                            separator=" ", strip=True
+                        )
 
                 rec = self.make_record(text, source=parsed.netloc, url=u)
-                rec['raw_html_path'] = str(local_path)
-                rec['status_code'] = resp.status_code
+                rec["raw_html_path"] = str(local_path)
+                rec["status_code"] = resp.status_code
                 records.append(rec)
                 count += 1
 
@@ -538,7 +578,9 @@ class TamilCorpusScraper:
         logger.info(f"Crawled {len(records)} pages from {base}")
         return records
 
-    def extract_pdfs_from_sitemap(self, domain: str, limit: int = 0, rate_limit_seconds: float = 1.0) -> List[Dict]:
+    def extract_pdfs_from_sitemap(
+        self, domain: str, limit: int = 0, rate_limit_seconds: float = 1.0
+    ) -> List[Dict]:
         """Find PDF URLs from sitemap, download them, extract text and return records.
 
         This now logs progress for each PDF and attempts best-effort conversion from
@@ -547,33 +589,35 @@ class TamilCorpusScraper:
         try:
             from pdfminer.high_level import extract_text
         except Exception as e:
-            raise RuntimeError("pdfminer.six is required for PDF extraction. Install with `pip install pdfminer.six`") from e
+            raise RuntimeError(
+                "pdfminer.six is required for PDF extraction. Install with `pip install pdfminer.six`"
+            ) from e
 
-        if not domain.startswith('http'):
-            domain = 'https://' + domain
+        if not domain.startswith("http"):
+            domain = "https://" + domain
         parsed = urlparse(domain)
         base = f"{parsed.scheme}://{parsed.netloc}"
 
         # robots.txt parser
         rp = robotparser.RobotFileParser()
-        rp.set_url(urljoin(base, '/robots.txt'))
+        rp.set_url(urljoin(base, "/robots.txt"))
         try:
             rp.read()
         except Exception:
             logger.warning(f"Could not read robots.txt for {base}; proceeding carefully")
 
         urls = self.fetch_sitemap_urls(base)
-        pdf_urls = [u for u in urls if u.lower().endswith('.pdf') or '/pdf/' in u.lower()]
+        pdf_urls = [u for u in urls if u.lower().endswith(".pdf") or "/pdf/" in u.lower()]
         logger.info(f"Found {len(pdf_urls)} PDF URLs in sitemap for {base}")
 
         def _looks_like_legacy(txt: str) -> bool:
             if not txt:
                 return False
             low = txt[:4096].lower()
-            if 'tscii' in low or 'mylai' in low or 'mylai' in low or 'mylai font' in low:
+            if "tscii" in low or "mylai" in low or "mylai" in low or "mylai font" in low:
                 return True
             # heuristic: presence of high-latin glyphs commonly seen in TSCII/Mylai dumps
-            if any(ch in txt for ch in ('¾', '¢', 'Õ', 'Ã', 'õ')):
+            if any(ch in txt for ch in ("¾", "¢", "Õ", "Ã", "õ")):
                 return True
             return False
 
@@ -586,7 +630,7 @@ class TamilCorpusScraper:
             try:
                 allowed = True
                 try:
-                    allowed = rp.can_fetch('*', u)
+                    allowed = rp.can_fetch("*", u)
                 except Exception:
                     allowed = True
                 if not allowed:
@@ -599,11 +643,11 @@ class TamilCorpusScraper:
                     continue
 
                 # save PDF
-                local_rel = urlparse(u).path.lstrip('/') or 'file.pdf'
-                save_dir = self.base_dir / 'raw_pdf' / parsed.netloc / os.path.dirname(local_rel)
+                local_rel = urlparse(u).path.lstrip("/") or "file.pdf"
+                save_dir = self.base_dir / "raw_pdf" / parsed.netloc / os.path.dirname(local_rel)
                 save_dir.mkdir(parents=True, exist_ok=True)
-                local_pdf_path = self.base_dir / 'raw_pdf' / parsed.netloc / local_rel
-                with open(local_pdf_path, 'wb') as fh:
+                local_pdf_path = self.base_dir / "raw_pdf" / parsed.netloc / local_rel
+                with open(local_pdf_path, "wb") as fh:
                     for chunk in resp.iter_content(chunk_size=8192):
                         if chunk:
                             fh.write(chunk)
@@ -614,34 +658,45 @@ class TamilCorpusScraper:
                     extracted = extract_text(str(local_pdf_path))
                 except Exception as e:
                     logger.error(f"Failed to extract PDF text for {u}: {e}")
-                    extracted = ''
+                    extracted = ""
 
                 # detect legacy encoding and convert (TSCII / Mylai)
                 if _looks_like_legacy(extracted):
-                    logger.info(f"[PDF {idx}] detected legacy encoding in extracted text; attempting conversion")
+                    logger.info(
+                        f"[PDF {idx}] detected legacy encoding in extracted text; attempting conversion"
+                    )
                     try:
                         import tamil
-                        if 'mylai' in extracted.lower() and hasattr(tamil.txt2unicode, 'mylai2unicode'):
+
+                        if "mylai" in extracted.lower() and hasattr(
+                            tamil.txt2unicode, "mylai2unicode"
+                        ):
                             extracted = tamil.txt2unicode.mylai2unicode(extracted)
                             logger.info(f"[PDF {idx}] Mylai -> Unicode conversion applied")
-                        elif hasattr(tamil, 'tscii') and hasattr(tamil.tscii, 'convert_to_unicode'):
+                        elif hasattr(tamil, "tscii") and hasattr(tamil.tscii, "convert_to_unicode"):
                             extracted = tamil.tscii.convert_to_unicode(extracted)
                             logger.info(f"[PDF {idx}] TSCII -> Unicode conversion applied")
-                        elif hasattr(tamil, 'txt2unicode') and hasattr(tamil.txt2unicode, 'tscii2unicode'):
+                        elif hasattr(tamil, "txt2unicode") and hasattr(
+                            tamil.txt2unicode, "tscii2unicode"
+                        ):
                             extracted = tamil.txt2unicode.tscii2unicode(extracted)
-                            logger.info(f"[PDF {idx}] TSCII (fallback) -> Unicode conversion applied")
+                            logger.info(
+                                f"[PDF {idx}] TSCII (fallback) -> Unicode conversion applied"
+                            )
                     except Exception as e:
                         logger.warning(f"[PDF {idx}] legacy conversion failed: {e}")
 
-                text_path = self.base_dir / 'pdf_texts' / parsed.netloc / (Path(local_rel).stem + '.txt')
+                text_path = (
+                    self.base_dir / "pdf_texts" / parsed.netloc / (Path(local_rel).stem + ".txt")
+                )
                 text_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(text_path, 'w', encoding='utf-8') as tf:
+                with open(text_path, "w", encoding="utf-8") as tf:
                     tf.write(extracted)
 
                 rec = self.make_record(extracted, source=parsed.netloc, url=u)
-                rec['raw_pdf_path'] = str(local_pdf_path)
-                rec['text_path'] = str(text_path)
-                rec['status_code'] = resp.status_code
+                rec["raw_pdf_path"] = str(local_pdf_path)
+                rec["text_path"] = str(text_path)
+                rec["status_code"] = resp.status_code
                 records.append(rec)
                 count += 1
 
@@ -660,92 +715,125 @@ class TamilCorpusScraper:
         - Writes a manifest JSON and per-work JSONL under `out_dir` (defaults to `data/raw/projectmadurai_manifests`).
         - Returns the manifest mapping.
         """
-        out_dir = Path(out_dir or (self.base_dir / 'projectmadurai_manifests'))
+        out_dir = Path(out_dir or (self.base_dir / "projectmadurai_manifests"))
         out_dir.mkdir(parents=True, exist_ok=True)
 
         groups: Dict[str, List[Dict]] = {}
         for r in records:
             # coerce `url` into a safe string (handle None/bytes/Path)
-            url = r.get('url', '')
+            url = r.get("url", "")
             if isinstance(url, bytes):
                 try:
-                    url = url.decode('utf-8', errors='ignore')
+                    url = url.decode("utf-8", errors="ignore")
                 except Exception:
                     url = str(url)
             if url is None:
-                url = ''
+                url = ""
             url = str(url)
 
             stem = Path(urlparse(url).path).stem
-            m = re.match(r'^([a-zA-Z]+\d+)', stem)
-            work_id = m.group(1) if m else (stem or r.get('source', 'unknown'))
+            m = re.match(r"^([a-zA-Z]+\d+)", stem)
+            work_id = m.group(1) if m else (stem or r.get("source", "unknown"))
             groups.setdefault(work_id, []).append(r)
 
         manifest = {}
         for work_id, items in groups.items():
-            combined_text = '\n\n'.join([it.get('text','') for it in items if it.get('text')])
+            combined_text = "\n\n".join([it.get("text", "") for it in items if it.get("text")])
             entry = {
-                'work_id': work_id,
-                'n_pages': len(items),
-                'char_count': sum(it.get('char_count',0) for it in items),
-                'word_count': sum(it.get('word_count',0) for it in items),
-                'topics': list({t for it in items for t in it.get('topics',[]) if t}),
-                'records': [{k: it.get(k) for k in ('id','url','raw_html_path','raw_pdf_path','text_path','char_count','word_count')} for it in items]
+                "work_id": work_id,
+                "n_pages": len(items),
+                "char_count": sum(it.get("char_count", 0) for it in items),
+                "word_count": sum(it.get("word_count", 0) for it in items),
+                "topics": list({t for it in items for t in it.get("topics", []) if t}),
+                "records": [
+                    {
+                        k: it.get(k)
+                        for k in (
+                            "id",
+                            "url",
+                            "raw_html_path",
+                            "raw_pdf_path",
+                            "text_path",
+                            "char_count",
+                            "word_count",
+                        )
+                    }
+                    for it in items
+                ],
             }
             manifest[work_id] = entry
 
             # write per-work JSONL + combined text file
             work_jsonl = out_dir / f"{work_id}.jsonl"
-            with open(work_jsonl, 'w', encoding='utf-8') as wf:
+            with open(work_jsonl, "w", encoding="utf-8") as wf:
                 for it in items:
-                    wf.write(json.dumps(it, ensure_ascii=False) + '\n')
-            with open(out_dir / f"{work_id}.txt", 'w', encoding='utf-8') as tf:
+                    wf.write(json.dumps(it, ensure_ascii=False) + "\n")
+            with open(out_dir / f"{work_id}.txt", "w", encoding="utf-8") as tf:
                 tf.write(combined_text)
 
         # write master manifest
-        with open(out_dir / 'manifest_index.json', 'w', encoding='utf-8') as mf:
+        with open(out_dir / "manifest_index.json", "w", encoding="utf-8") as mf:
             json.dump(manifest, mf, ensure_ascii=False, indent=2)
 
         logger.info(f"Wrote {len(manifest)} work manifests to {out_dir}")
         return manifest
 
-    def convert_to_hf_dataset(self, records: List[Dict], out_dir: str = None, split=(0.8,0.1,0.1), min_quality: float = 0.0):
+    def convert_to_hf_dataset(
+        self,
+        records: List[Dict],
+        out_dir: str = None,
+        split=(0.8, 0.1, 0.1),
+        min_quality: float = 0.0,
+    ):
         """Export records into a simple HuggingFace-style JSONL dataset (train/val/test).
 
         - Filters by `min_quality` (quality_score), shuffles deterministically, and writes `train.jsonl`, `validation.jsonl`, `test.jsonl`.
         - Saves to `out_dir` (defaults to `data/raw/projectmadurai_hf`).
         """
-        out_dir = Path(out_dir or (self.base_dir / 'projectmadurai_hf'))
+        out_dir = Path(out_dir or (self.base_dir / "projectmadurai_hf"))
         out_dir.mkdir(parents=True, exist_ok=True)
 
         # filter
-        good = [r for r in records if r.get('quality_score', 0.0) >= min_quality and r.get('text')]
+        good = [r for r in records if r.get("quality_score", 0.0) >= min_quality and r.get("text")]
         # deterministic shuffle
-        good.sort(key=lambda x: x.get('id'))
+        good.sort(key=lambda x: x.get("id"))
 
         n = len(good)
         n_train = int(n * split[0])
         n_val = int(n * split[1])
         train = good[:n_train]
-        val = good[n_train:n_train+n_val]
-        test = good[n_train+n_val:]
+        val = good[n_train : n_train + n_val]
+        test = good[n_train + n_val :]
 
         def write_split(name, arr):
             path = out_dir / f"{name}.jsonl"
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 for r in arr:
                     # minimal schema for HF ingestion
-                    obj = {"id": r.get('id'), "text": r.get('text'), "meta": {"source": r.get('source'), "url": r.get('url'), "topics": r.get('topics', []), "quality_score": r.get('quality_score', 0.0)}}
-                    f.write(json.dumps(obj, ensure_ascii=False) + '\n')
+                    obj = {
+                        "id": r.get("id"),
+                        "text": r.get("text"),
+                        "meta": {
+                            "source": r.get("source"),
+                            "url": r.get("url"),
+                            "topics": r.get("topics", []),
+                            "quality_score": r.get("quality_score", 0.0),
+                        },
+                    }
+                    f.write(json.dumps(obj, ensure_ascii=False) + "\n")
             logger.info(f"Wrote {len(arr)} records to {path}")
 
-        write_split('train', train)
-        write_split('validation', val)
-        write_split('test', test)
+        write_split("train", train)
+        write_split("validation", val)
+        write_split("test", test)
 
         # write README
-        with open(out_dir / 'README.md', 'w', encoding='utf-8') as rf:
-            rf.write(f"Project Madurai HF export — total={n}, train={len(train)}, val={len(val)}, test={len(test)}\n")
+        with open(out_dir / "README.md", "w", encoding="utf-8") as rf:
+            rf.write(
+                f"Project Madurai HF export — total={n}, train={len(train)}, val={len(val)}, test={len(test)}\n"
+            )
+
+        return {"train": len(train), "validation": len(val), "test": len(test), "total": n}
 
         return {'train': len(train), 'validation': len(val), 'test': len(test), 'total': n}
 
@@ -767,7 +855,7 @@ class TamilCorpusScraper:
         # Make sure destination directory exists
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             for text in texts:
                 if text:  # Skip empty strings
                     f.write(text + "\n\n")
@@ -777,11 +865,11 @@ class TamilCorpusScraper:
     def get_language_packages(self) -> Dict[str, str]:
         """Check and install required language packages"""
         packages = {
-            'tamil': 'pip install tamil',
-            'indic-trans': 'pip install indic-trans',
-            'indic-nlp-library': 'pip install indic-nlp-library',
-            'sentencepiece': 'pip install sentencepiece',
-            'fasttext': 'pip install fasttext'
+            "tamil": "pip install tamil",
+            "indic-trans": "pip install indic-trans",
+            "indic-nlp-library": "pip install indic-nlp-library",
+            "sentencepiece": "pip install sentencepiece",
+            "fasttext": "pip install fasttext",
         }
 
         installed = {}
@@ -826,13 +914,22 @@ class TamilCorpusScraper:
         logger.info(f"Scraping complete! Total texts: {len(all_texts)}")
         return all_texts
 
+
 # Command line interface
 def main():
     parser = argparse.ArgumentParser(description="Tamil Corpus Scraper for AADHAN")
-    parser.add_argument("--output", type=str, default="tamil_corpus.txt",
-                       help="Output file for scraped Tamil text (relative to scraper base_dir by default)")
-    parser.add_argument("--format", choices=["text","jsonl"], default="text",
-                       help="Save format: plain text or jsonl with metadata")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="tamil_corpus.txt",
+        help="Output file for scraped Tamil text (relative to scraper base_dir by default)",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "jsonl"],
+        default="text",
+        help="Save format: plain text or jsonl with metadata",
+    )
     parser.add_argument("--dedupe", action="store_true", help="Deduplicate collected items")
     parser.add_argument("--classify", action="store_true", help="Run topic classification and quality scoring")
     parser.add_argument("--limit", type=int, default=0, help="Limit number of items saved (0 = all)")
@@ -878,17 +975,19 @@ def main():
     # If crawl-sitemap is provided, run sitemap crawler first (specialized flow)
     # --basic: one-shot sitemap crawl across configured sites
     if args.basic:
-        domains = ['projectmadurai.org', 'tamilvu.org', 'sangam.org']
+        domains = ["projectmadurai.org", "tamilvu.org", "sangam.org"]
         all_records: List[Dict] = []
-        per_site_dir = scraper.base_dir / 'basic_crawl'
+        per_site_dir = scraper.base_dir / "basic_crawl"
         per_site_dir.mkdir(parents=True, exist_ok=True)
 
         for d in domains:
             logger.info(f"[basic] crawling sitemap for {d} (limit={args.basic_limit})")
-            recs = scraper.crawl_sitemap(d, limit=args.basic_limit or 0, save_raw=args.save_raw_html, extract_text=True)
+            recs = scraper.crawl_sitemap(
+                d, limit=args.basic_limit or 0, save_raw=args.save_raw_html, extract_text=True
+            )
 
             # fallback for literature sites when sitemap/robots block access
-            if not recs and d in ('tamilvu.org', 'projectmadurai.org', 'sangam.org'):
+            if not recs and d in ("tamilvu.org", "projectmadurai.org", "sangam.org"):
                 logger.info(f"No sitemap results for {d}; falling back to literature-site scraper")
                 texts = scraper._scrape_literature_site(f"https://{d}")
                 recs = [scraper.make_record(t, source=d) for t in texts]
@@ -903,13 +1002,25 @@ def main():
 
             if args.classify:
                 for r in recs:
-                    r['topics'] = scraper.classify_topic(r.get('text',''))
-                    r.update(scraper.score_quality(r.get('text','')))
+                    r["topics"] = scraper.classify_topic(r.get("text", ""))
+                    r.update(scraper.score_quality(r.get("text", "")))
 
             # optional FineWeb-style filtering per-site
-            if (args.min_quality and args.min_quality > 0) or args.min_chars > 0 or args.require_tamil or args.apply_fineweb:
+            if (
+                (args.min_quality and args.min_quality > 0)
+                or args.min_chars > 0
+                or args.require_tamil
+                or args.apply_fineweb
+            ):
                 before_f = len(recs)
-                recs = scraper.filter_records(recs, min_quality=args.min_quality, min_chars=args.min_chars, min_tamil_fraction=0.6 if args.require_tamil else 0.0, require_tamil=args.require_tamil, apply_fineweb=args.apply_fineweb)
+                recs = scraper.filter_records(
+                    recs,
+                    min_quality=args.min_quality,
+                    min_chars=args.min_chars,
+                    min_tamil_fraction=0.6 if args.require_tamil else 0.0,
+                    require_tamil=args.require_tamil,
+                    apply_fineweb=args.apply_fineweb,
+                )
                 logger.info(f"[basic] filtered {d}: {before_f} -> {len(recs)}")
 
             # save per-site jsonl
@@ -924,22 +1035,34 @@ def main():
             logger.info(f"[basic] combined dedupe: {all_before} -> {len(all_records)}")
 
         # combined FineWeb-style filtering
-        if (args.min_quality and args.min_quality > 0) or args.min_chars > 0 or args.require_tamil or args.apply_fineweb:
+        if (
+            (args.min_quality and args.min_quality > 0)
+            or args.min_chars > 0
+            or args.require_tamil
+            or args.apply_fineweb
+        ):
             before_f = len(all_records)
-            all_records = scraper.filter_records(all_records, min_quality=args.min_quality, min_chars=args.min_chars, min_tamil_fraction=0.6 if args.require_tamil else 0.0, require_tamil=args.require_tamil, apply_fineweb=args.apply_fineweb)
+            all_records = scraper.filter_records(
+                all_records,
+                min_quality=args.min_quality,
+                min_chars=args.min_chars,
+                min_tamil_fraction=0.6 if args.require_tamil else 0.0,
+                require_tamil=args.require_tamil,
+                apply_fineweb=args.apply_fineweb,
+            )
             logger.info(f"[basic] combined filtered: {before_f} -> {len(all_records)}")
 
         if args.build_manifest:
-            scraper.build_manifests(all_records, out_dir=str(per_site_dir / 'manifests'))
+            scraper.build_manifests(all_records, out_dir=str(per_site_dir / "manifests"))
 
         if args.to_hf:
             scraper.convert_to_hf_dataset(all_records, out_dir=str(per_site_dir / 'hf'), min_quality=args.min_quality)
 
         # save combined
-        if args.format == 'jsonl':
+        if args.format == "jsonl":
             scraper.save_jsonl(all_records, args.output)
         else:
-            scraper.save_to_file([r.get('text','') for r in all_records], args.output)
+            scraper.save_to_file([r.get("text", "") for r in all_records], args.output)
 
         print(f"Basic crawl complete. Sites={len(domains)}, records={len(all_records)}")
         return
@@ -947,10 +1070,12 @@ def main():
     # single-domain sitemap crawl (existing flow)
     if args.crawl_sitemap:
         domain = args.crawl_sitemap
-        records = scraper.crawl_sitemap(domain, limit=args.limit or 0, save_raw=args.save_raw_html, extract_text=True)
+        records = scraper.crawl_sitemap(
+            domain, limit=args.limit or 0, save_raw=args.save_raw_html, extract_text=True
+        )
 
         # fallback for known literature sites when sitemap returns nothing
-        if not records and domain in ("tamilvu.org","projectmadurai.org","sangam.org"):
+        if not records and domain in ("tamilvu.org", "projectmadurai.org", "sangam.org"):
             logger.info(f"No sitemap results for {domain}; falling back to literature-site scraper")
             texts = scraper._scrape_literature_site(f"https://{domain}")
             records = [scraper.make_record(t, source=domain) for t in texts]
@@ -972,9 +1097,21 @@ def main():
                 r.update(scraper.score_quality(r["text"]))
 
         # optional FineWeb-style filtering for single-domain crawl
-        if (args.min_quality and args.min_quality > 0) or args.min_chars > 0 or args.require_tamil or args.apply_fineweb:
+        if (
+            (args.min_quality and args.min_quality > 0)
+            or args.min_chars > 0
+            or args.require_tamil
+            or args.apply_fineweb
+        ):
             before_f = len(records)
-            records = scraper.filter_records(records, min_quality=args.min_quality, min_chars=args.min_chars, min_tamil_fraction=0.6 if args.require_tamil else 0.0, require_tamil=args.require_tamil, apply_fineweb=args.apply_fineweb)
+            records = scraper.filter_records(
+                records,
+                min_quality=args.min_quality,
+                min_chars=args.min_chars,
+                min_tamil_fraction=0.6 if args.require_tamil else 0.0,
+                require_tamil=args.require_tamil,
+                apply_fineweb=args.apply_fineweb,
+            )
             logger.info(f"Filtered crawl {domain}: {before_f} -> {len(records)}")
 
         # build manifests if requested
@@ -1005,17 +1142,17 @@ def main():
         texts = scraper.run_full_scrape()
         add_many(texts, "full")
     else:
-        if 'wikipedia' in args.sources:
+        if "wikipedia" in args.sources:
             add_many(scraper.scrape_wikipedia(), "wikipedia")
-        if 'literature' in args.sources:
+        if "literature" in args.sources:
             add_many(scraper.scrape_tamil_literature_sites(), "literature")
-        if 'news' in args.sources:
+        if "news" in args.sources:
             add_many(scraper.scrape_tamil_news_sites(), "news")
-        if 'books' in args.sources:
+        if "books" in args.sources:
             book_paths = []
             add_many(scraper.scrape_tamil_books(book_paths), "books")
-        if 'social' in args.sources:
-            hashtags = ['#' + tag for tag in TAMIL_HASHTAGS[:5]]  # Use core hashtags
+        if "social" in args.sources:
+            hashtags = ["#" + tag for tag in TAMIL_HASHTAGS[:5]]  # Use core hashtags
             add_many(scraper.scrape_social_media(hashtags), "social")
 
     initial_count = len(records)
@@ -1030,13 +1167,25 @@ def main():
             r.update(scraper.score_quality(r["text"]))
 
     # optional FineWeb-style filtering for default flow
-    if (args.min_quality and args.min_quality > 0) or args.min_chars > 0 or args.require_tamil or args.apply_fineweb:
+    if (
+        (args.min_quality and args.min_quality > 0)
+        or args.min_chars > 0
+        or args.require_tamil
+        or args.apply_fineweb
+    ):
         before_f = len(records)
-        records = scraper.filter_records(records, min_quality=args.min_quality, min_chars=args.min_chars, min_tamil_fraction=0.6 if args.require_tamil else 0.0, require_tamil=args.require_tamil, apply_fineweb=args.apply_fineweb)
+        records = scraper.filter_records(
+            records,
+            min_quality=args.min_quality,
+            min_chars=args.min_chars,
+            min_tamil_fraction=0.6 if args.require_tamil else 0.0,
+            require_tamil=args.require_tamil,
+            apply_fineweb=args.apply_fineweb,
+        )
         logger.info(f"Filtered default flow: {before_f} -> {len(records)}")
 
     if args.limit and args.limit > 0:
-        records = records[:args.limit]
+        records = records[: args.limit]
 
     # Save output
     if args.format == "jsonl":
@@ -1046,6 +1195,7 @@ def main():
         scraper.save_to_file([r["text"] for r in records], args.output)
 
     print(f"Scraping complete! Total records collected: {len(records)}")
+
 
 if __name__ == "__main__":
     main()

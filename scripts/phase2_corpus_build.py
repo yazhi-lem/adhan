@@ -93,9 +93,7 @@ class Phase2CorpusBuilder:
                 importer = VazhiImporter(str(vazhi_path))
                 count = 0
                 for record in importer.import_from_repo():
-                    self.stats["sources"]["vazhi"] = (
-                        self.stats["sources"].get("vazhi", 0) + 1
-                    )
+                    self.stats["sources"]["vazhi"] = self.stats["sources"].get("vazhi", 0) + 1
                     self.stats["total_ingested"] += 1
                     count += 1
                     yield record
@@ -131,9 +129,7 @@ class Phase2CorpusBuilder:
                 importer = SangamImporter()
                 count = 0
                 for record in importer.import_from_open_sangam(str(sangam_path)):
-                    self.stats["sources"]["sangam"] = (
-                        self.stats["sources"].get("sangam", 0) + 1
-                    )
+                    self.stats["sources"]["sangam"] = self.stats["sources"].get("sangam", 0) + 1
                     self.stats["total_ingested"] += 1
                     count += 1
                     yield record

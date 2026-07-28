@@ -11,6 +11,7 @@ Key improvements:
 - Rate limiting configuration
 - Progress tracking
 """
+
 import argparse
 import hashlib
 import json
@@ -28,8 +29,7 @@ from urllib3.util.retry import Retry
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class ScraperConfig:
         retry_backoff: float = 2.0,
         timeout: int = 30,
         user_agent: str = None,
-        enable_cache: bool = True
+        enable_cache: bool = True,
     ):
         self.base_dir = Path(base_dir)
         self.cache_dir = Path(cache_dir)
@@ -55,9 +55,9 @@ class ScraperConfig:
         self.retry_backoff = retry_backoff
         self.timeout = timeout
         self.user_agent = user_agent or (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-            'AppleWebKit/537.36 (KHTML, like Gecko) '
-            'Chrome/91.0.4472.124 Safari/537.36'
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/91.0.4472.124 Safari/537.36"
         )
         self.enable_cache = enable_cache
 
@@ -77,12 +77,12 @@ def rate_limit(func: Callable) -> Callable:
         rate_limit_seconds = getattr(self.config, 'rate_limit', 1.0)
 
         # Calculate time since last call
-        elapsed = time.time() - last_call['time']
+        elapsed = time.time() - last_call["time"]
         if elapsed < rate_limit_seconds:
             time.sleep(rate_limit_seconds - elapsed)
 
         result = func(self, *args, **kwargs)
-        last_call['time'] = time.time()
+        last_call["time"] = time.time()
         return result
 
     return wrapper
@@ -101,8 +101,10 @@ def retry_on_error(max_retries: int = 3, backoff: float = 2.0) -> Callable:
                     if attempt == max_retries - 1:
                         logger.error(f"Failed after {max_retries} attempts: {e}")
                         raise
-                    wait_time = backoff ** attempt
-                    logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {wait_time}s...")
+                    wait_time = backoff**attempt
+                    logger.warning(
+                        f"Attempt {attempt + 1} failed: {e}. Retrying in {wait_time}s..."
+                    )
                     time.sleep(wait_time)
 
         return wrapper
@@ -127,7 +129,7 @@ class BaseScraper:
             total=self.config.max_retries,
             backoff_factor=self.config.retry_backoff,
             status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"]
+            allowed_methods=["HEAD", "GET", "OPTIONS"],
         )
 
         adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -156,14 +158,14 @@ class BaseScraper:
             return None
 
         try:
-            with cache_path.open('r', encoding='utf-8') as f:
+            with cache_path.open("r", encoding="utf-8") as f:
                 data = json.load(f)
                 # Check if cache is expired (7 days)
-                cached_time = datetime.fromisoformat(data['timestamp'])
+                cached_time = datetime.fromisoformat(data["timestamp"])
                 if datetime.now() - cached_time > timedelta(days=7):
                     logger.debug(f"Cache expired for {url}")
                     return None
-                return data['content']
+                return data["content"]
         except Exception as e:
             logger.warning(f"Error loading cache for {url}: {e}")
             return None
@@ -175,12 +177,12 @@ class BaseScraper:
 
         cache_path = self._get_cache_path(url)
         try:
-            with cache_path.open('w', encoding='utf-8') as f:
-                json.dump({
-                    'url': url,
-                    'content': content,
-                    'timestamp': datetime.now().isoformat()
-                }, f, ensure_ascii=False)
+            with cache_path.open("w", encoding="utf-8") as f:
+                json.dump(
+                    {"url": url, "content": content, "timestamp": datetime.now().isoformat()},
+                    f,
+                    ensure_ascii=False,
+                )
         except Exception as e:
             logger.warning(f"Error saving cache for {url}: {e}")
 
@@ -210,12 +212,12 @@ class BaseScraper:
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error fetching {url}: {e}")
-            self.progress['failed'] += 1
+            self.progress["failed"] += 1
             raise
 
     def _count_tamil_chars(self, text: str) -> tuple:
         """Count Tamil and total characters in text.
-        
+
         Returns:
             tuple: (tamil_chars, total_chars)
         """
@@ -260,13 +262,13 @@ class BaseScraper:
             soup = BeautifulSoup(html, 'html.parser')
 
             # Remove unwanted elements
-            for element in soup.find_all(['script', 'style', 'nav', 'footer', 'header']):
+            for element in soup.find_all(["script", "style", "nav", "footer", "header"]):
                 element.decompose()
 
             # Extract text
             if selector:
                 elements = soup.select(selector)
-                text = '\n'.join([el.get_text().strip() for el in elements])
+                text = "\n".join([el.get_text().strip() for el in elements])
             else:
                 text = soup.get_text()
 
@@ -277,21 +279,17 @@ class BaseScraper:
             return ""
 
     def make_record(
-        self,
-        text: str,
-        source: str,
-        url: Optional[str] = None,
-        metadata: Optional[Dict] = None
+        self, text: str, source: str, url: Optional[str] = None, metadata: Optional[Dict] = None
     ) -> Dict:
         """Create a standardized record"""
         record = {
-            'id': hashlib.sha256(text.encode()).hexdigest()[:16],
-            'text': text,
-            'source': source,
-            'url': url,
-            'timestamp': datetime.now().isoformat(),
-            'char_count': len(text),
-            'tamil_fraction': self._calculate_tamil_fraction(text),
+            "id": hashlib.sha256(text.encode()).hexdigest()[:16],
+            "text": text,
+            "source": source,
+            "url": url,
+            "timestamp": datetime.now().isoformat(),
+            "char_count": len(text),
+            "tamil_fraction": self._calculate_tamil_fraction(text),
         }
 
         if metadata:
@@ -309,7 +307,7 @@ class BaseScraper:
         output_path = self.config.base_dir / filename
 
         try:
-            with output_path.open('w', encoding='utf-8') as f:
+            with output_path.open("w", encoding="utf-8") as f:
                 for record in records:
                     f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
@@ -325,8 +323,7 @@ class BaseScraper:
         failed = self.progress['failed']
 
         logger.info(
-            f"Progress: {success + failed}/{total} "
-            f"(Success: {success}, Failed: {failed})"
+            f"Progress: {success + failed}/{total} " f"(Success: {success}, Failed: {failed})"
         )
 
 
@@ -337,9 +334,7 @@ class TamilCorpusScraper(BaseScraper):
         super().__init__(config)
 
     def scrape_wikipedia_category(
-        self,
-        category: str = "Tamil_language",
-        max_articles: int = 50
+        self, category: str = "Tamil_language", max_articles: int = 50
     ) -> List[Dict]:
         """Scrape articles from Tamil Wikipedia category"""
         logger.info(f"Scraping Tamil Wikipedia category: {category}")
@@ -349,11 +344,11 @@ class TamilCorpusScraper(BaseScraper):
             # Get category members using API
             url = "https://ta.wikipedia.org/w/api.php"
             params = {
-                'action': 'query',
-                'format': 'json',
-                'list': 'categorymembers',
-                'cmtitle': f"Category:{category}",
-                'cmlimit': max_articles
+                "action": "query",
+                "format": "json",
+                "list": "categorymembers",
+                "cmtitle": f"Category:{category}",
+                "cmlimit": max_articles,
             }
 
             content = self.fetch_url(
@@ -369,16 +364,18 @@ class TamilCorpusScraper(BaseScraper):
             self.progress['total'] = len(members)
 
             for member in members:
-                if member.get('ns') == 0:  # Only articles
-                    article_url = f"https://ta.wikipedia.org/wiki/{member['title'].replace(' ', '_')}"
+                if member.get("ns") == 0:  # Only articles
+                    article_url = (
+                        f"https://ta.wikipedia.org/wiki/{member['title'].replace(' ', '_')}"
+                    )
                     article_text = self._scrape_wikipedia_article(article_url)
 
                     if article_text:
                         record = self.make_record(
                             text=article_text,
-                            source='wikipedia',
+                            source="wikipedia",
                             url=article_url,
-                            metadata={'category': category, 'title': member['title']}
+                            metadata={"category": category, "title": member["title"]},
                         )
                         records.append(record)
 
@@ -399,12 +396,12 @@ class TamilCorpusScraper(BaseScraper):
             soup = BeautifulSoup(html, 'html.parser')
 
             # Extract main content
-            content_div = soup.find('div', {'id': 'mw-content-text'})
+            content_div = soup.find("div", {"id": "mw-content-text"})
             if not content_div:
                 return None
 
             # Remove unwanted elements
-            for element in content_div.find_all(['table', 'img', 'script', 'style', 'sup']):
+            for element in content_div.find_all(["table", "img", "script", "style", "sup"]):
                 element.decompose()
 
             # Extract paragraphs
@@ -440,11 +437,7 @@ class TamilCorpusScraper(BaseScraper):
             text = self.extract_text_from_html(html, selector)
 
             if text and self.is_tamil_text(text):
-                record = self.make_record(
-                    text=text,
-                    source='literature',
-                    url=url
-                )
+                record = self.make_record(text=text, source="literature", url=url)
                 records.append(record)
 
         except Exception as e:
@@ -480,7 +473,7 @@ def main():
         rate_limit=args.rate_limit,
         max_retries=args.max_retries,
         timeout=args.timeout,
-        enable_cache=not args.no_cache
+        enable_cache=not args.no_cache,
     )
 
     # Create scraper
@@ -488,10 +481,9 @@ def main():
 
     # Scrape based on source
     records = []
-    if args.source == 'wikipedia':
+    if args.source == "wikipedia":
         records = scraper.scrape_wikipedia_category(
-            category=args.category,
-            max_articles=args.max_articles
+            category=args.category, max_articles=args.max_articles
         )
 
     # Save results
@@ -502,5 +494,5 @@ def main():
         logger.warning("No records scraped")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

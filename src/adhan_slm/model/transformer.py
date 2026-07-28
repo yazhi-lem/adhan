@@ -12,6 +12,7 @@ Ship nano first (see roadmap Phase 6).
 This module imports jax/flax lazily so the rest of the package (tokenizer) works
 without the JAX stack installed. Install it with `pip install -r requirements-jax.txt`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,33 +24,31 @@ class AdhanConfig:
     d_model: int = 256
     n_layers: int = 6
     n_heads: int = 4
-    d_ff: int = 1024          # SwiGLU hidden (per-gate); ~ 8/3 * d_model is typical
+    d_ff: int = 1024  # SwiGLU hidden (per-gate); ~ 8/3 * d_model is typical
     max_seq_len: int = 512
     rope_theta: float = 10000.0
     dropout: float = 0.0
-    use_boundary_emb: bool = False   # add morpheme-boundary signal (tokenizer Layer C)
-    dtype: str = "bfloat16"          # compute dtype; master weights stay fp32
+    use_boundary_emb: bool = False  # add morpheme-boundary signal (tokenizer Layer C)
+    dtype: str = "bfloat16"  # compute dtype; master weights stay fp32
 
     @classmethod
     def nano(cls, vocab_size: int = 8000) -> "AdhanConfig":
-        return cls(vocab_size, d_model=256, n_layers=6, n_heads=4,
-                   d_ff=1024, max_seq_len=512)
+        return cls(vocab_size, d_model=256, n_layers=6, n_heads=4, d_ff=1024, max_seq_len=512)
 
     @classmethod
     def tiny(cls, vocab_size: int = 12000) -> "AdhanConfig":
-        return cls(vocab_size, d_model=512, n_layers=8, n_heads=8,
-                   d_ff=1536, max_seq_len=1024)
+        return cls(vocab_size, d_model=512, n_layers=8, n_heads=8, d_ff=1536, max_seq_len=1024)
 
     @classmethod
     def mini(cls, vocab_size: int = 16000) -> "AdhanConfig":
-        return cls(vocab_size, d_model=768, n_layers=12, n_heads=12,
-                   d_ff=2048, max_seq_len=2048)
+        return cls(vocab_size, d_model=768, n_layers=12, n_heads=12, d_ff=2048, max_seq_len=2048)
 
     def approx_params(self) -> int:
         """Rough parameter count (tied embeddings)."""
         emb = self.vocab_size * self.d_model
-        per_layer = (4 * self.d_model * self.d_model          # attn qkvo
-                     + 3 * self.d_model * self.d_ff)          # SwiGLU (gate,up,down)
+        per_layer = (
+            4 * self.d_model * self.d_model + 3 * self.d_model * self.d_ff  # attn qkvo
+        )  # SwiGLU (gate,up,down)
         return emb + self.n_layers * per_layer
 
 
@@ -84,7 +83,7 @@ try:
         half = dh // 2
         freqs = 1.0 / (theta ** (jnp.arange(0, half) / half))
         t = x.shape[1]
-        ang = jnp.arange(t)[:, None] * freqs[None, :]           # [T, half], fp32
+        ang = jnp.arange(t)[:, None] * freqs[None, :]  # [T, half], fp32
         # cos/sin computed in fp32 for precision, then cast to x's compute dtype
         # (bf16) so q/k/v stay uniform — dot_product_attention requires matching
         # dtypes across q/k/v, and mixed fp32/bf16 here would force an upcast.
@@ -139,8 +138,9 @@ try:
         uniq = jnp.unique(prev_tokens, size=prev_tokens.size, fill_value=-1)
         mask = jnp.zeros_like(logits).at[uniq.clip(0)].set(jnp.where(uniq >= 0, 1.0, 0.0))
         pos = logits > 0
-        return jnp.where(mask.astype(bool),
-                         jnp.where(pos, logits / penalty, logits * penalty), logits)
+        return jnp.where(
+            mask.astype(bool), jnp.where(pos, logits / penalty, logits * penalty), logits
+        )
 
     def _sample_next(logits, key, temperature, top_k, top_p):
         """Sample one token id from a [vocab] logit vector (greedy if temp==0)."""
@@ -169,12 +169,10 @@ try:
         def __call__(self, tokens, boundaries=None):
             c = self.cfg
             dt = jnp.dtype(c.dtype)
-            emb = self.param("tok_emb", nn.initializers.normal(0.02),
-                             (c.vocab_size, c.d_model))
+            emb = self.param("tok_emb", nn.initializers.normal(0.02), (c.vocab_size, c.d_model))
             x = emb[tokens]
             if c.use_boundary_emb and boundaries is not None:
-                bmark = self.param("boundary_emb", nn.initializers.normal(0.02),
-                                   (2, c.d_model))
+                bmark = self.param("boundary_emb", nn.initializers.normal(0.02), (2, c.d_model))
                 x = x + bmark[boundaries]
             x = x.astype(dt)
             t = tokens.shape[1]
@@ -188,8 +186,18 @@ try:
             # weight-tied head
             return x.astype(jnp.float32) @ emb.T
 
-    def generate(model, params, prompt_ids, max_new_tokens=64, temperature=0.8,
-                 top_k=40, top_p=0.95, repetition_penalty=1.1, eos_id=None, seed=0):
+    def generate(
+        model,
+        params,
+        prompt_ids,
+        max_new_tokens=64,
+        temperature=0.8,
+        top_k=40,
+        top_p=0.95,
+        repetition_penalty=1.1,
+        eos_id=None,
+        seed=0,
+    ):
         """Autoregressive sampling from a trained AdhanSLM.
 
         `prompt_ids` is a 1-D python list / array of token ids. Returns the full id
@@ -208,7 +216,8 @@ try:
             logits = model.apply({"params": params}, jnp.asarray([window], dtype=jnp.int32))
             next_logits = logits[0, -1]
             next_logits = _apply_repetition_penalty(
-                next_logits, jnp.asarray(window, dtype=jnp.int32), repetition_penalty)
+                next_logits, jnp.asarray(window, dtype=jnp.int32), repetition_penalty
+            )
             key, sub = jax.random.split(key)
             nxt = int(_sample_next(next_logits, sub, temperature, top_k, top_p))
             ids.append(nxt)
@@ -217,19 +226,24 @@ try:
         return ids
 
 except ImportError:  # JAX/Flax not installed — tokenizer-only usage still works.
+
     class AdhanSLM:  # type: ignore
         def __init__(self, *_a, **_k):
             raise ImportError(
-                "AdhanSLM requires jax + flax. Install: pip install -r requirements-jax.txt")
+                "AdhanSLM requires jax + flax. Install: pip install -r requirements-jax.txt"
+            )
 
     def generate(*_a, **_k):  # type: ignore
         raise ImportError(
-            "generate() requires jax + flax. Install: pip install -r requirements-jax.txt")
+            "generate() requires jax + flax. Install: pip install -r requirements-jax.txt"
+        )
 
 
 if __name__ == "__main__":
     for name in ("nano", "tiny", "mini"):
         cfg = getattr(AdhanConfig, name)()
-        print(f"{name:5s}  d_model={cfg.d_model:4d}  layers={cfg.n_layers:2d}  "
-              f"heads={cfg.n_heads:2d}  ctx={cfg.max_seq_len:4d}  "
-              f"~{cfg.approx_params()/1e6:.1f}M params")
+        print(
+            f"{name:5s}  d_model={cfg.d_model:4d}  layers={cfg.n_layers:2d}  "
+            f"heads={cfg.n_heads:2d}  ctx={cfg.max_seq_len:4d}  "
+            f"~{cfg.approx_params()/1e6:.1f}M params"
+        )

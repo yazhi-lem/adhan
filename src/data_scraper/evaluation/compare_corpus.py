@@ -3,6 +3,7 @@
 """
 Compare old vs. modern corpus composition.
 """
+
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -11,7 +12,7 @@ from pathlib import Path
 def analyze_corpus(jsonl_path):
     """Analyze a corpus JSONL file."""
     records = []
-    with Path(jsonl_path).open('r', encoding='utf-8') as fh:
+    with Path(jsonl_path).open("r", encoding="utf-8") as fh:
         for line in fh:
             try:
                 records.append(json.loads(line))
@@ -23,15 +24,18 @@ def analyze_corpus(jsonl_path):
     quality_by_src = defaultdict(list)
 
     for r in records:
-        src = r.get('source', 'unknown')
+        src = r.get("source", "unknown")
         src_dist[src] += 1
-        quality_by_src[src].append(r.get('quality_score', 0))
+        quality_by_src[src].append(r.get("quality_score", 0))
 
     return records, src_dist, quality_by_src
 
+
 # Load both versions
-old_records, old_src, old_q = analyze_corpus('data/pre_training/tamil_texts/all_sentences.jsonl')
-new_records, new_src, new_q = analyze_corpus('data/pre_training/tamil_texts/all_sentences_modern.jsonl')
+old_records, old_src, old_q = analyze_corpus("data/pre_training/tamil_texts/all_sentences.jsonl")
+new_records, new_src, new_q = analyze_corpus(
+    "data/pre_training/tamil_texts/all_sentences_modern.jsonl"
+)
 
 print("=" * 70)
 print("CORPUS COMPARISON: Original vs. Modern-Enhanced")
@@ -54,10 +58,12 @@ for src in sorted(all_sources, key=lambda x: new_src.get(x, 0), reverse=True):
     delta_pct = new_pct - old_pct
     delta_sign = "↑" if delta_pct > 0 else "↓" if delta_pct < 0 else "—"
 
-    print(f"{src:<20} {old_cnt:>5} ({old_pct:>5.1f}%)      {new_cnt:>5} ({new_pct:>5.1f}%)       {delta_sign} {abs(delta_pct):>5.1f}%")
+    print(
+        f"{src:<20} {old_cnt:>5} ({old_pct:>5.1f}%)      {new_cnt:>5} ({new_pct:>5.1f}%)       {delta_sign} {abs(delta_pct):>5.1f}%"
+    )
 
 print("\n💡 MODERN vs. CLASSICAL SPLIT:")
-modern_sources = ['news', 'social', 'modern_conversational']
+modern_sources = ["news", "social", "modern_conversational"]
 old_modern = sum(old_src.get(s, 0) for s in modern_sources)
 new_modern = sum(new_src.get(s, 0) for s in modern_sources)
 old_classical = len(old_records) - old_modern
@@ -66,8 +72,12 @@ new_classical = len(new_records) - new_modern
 old_modern_pct = round(100 * old_modern / len(old_records), 1)
 new_modern_pct = round(100 * new_modern / len(new_records), 1)
 
-print(f"  Original:      {old_modern} modern ({old_modern_pct}%) | {old_classical} classical ({100-old_modern_pct}%)")
-print(f"  Modern-Enhanced: {new_modern} modern ({new_modern_pct}%) | {new_classical} classical ({100-new_modern_pct}%)")
+print(
+    f"  Original:      {old_modern} modern ({old_modern_pct}%) | {old_classical} classical ({100-old_modern_pct}%)"
+)
+print(
+    f"  Modern-Enhanced: {new_modern} modern ({new_modern_pct}%) | {new_classical} classical ({100-new_modern_pct}%)"
+)
 print(f"  Improvement:   +{new_modern_pct - old_modern_pct:.1f}% modern sources")
 
 print("\n⭐ QUALITY METRICS:")

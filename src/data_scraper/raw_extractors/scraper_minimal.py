@@ -8,6 +8,7 @@ Simplified architecture with focus on:
 - Security best practices
 - Core functionality only
 """
+
 import json
 import logging
 import re
@@ -19,7 +20,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -39,8 +40,8 @@ class TamilScraper:
         """Create secure session with retry logic"""
         session = requests.Session()
         retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-        session.mount('https://', HTTPAdapter(max_retries=retry))
-        session.headers.update({'User-Agent': 'TamilScraper/1.0'})
+        session.mount("https://", HTTPAdapter(max_retries=retry))
+        session.headers.update({"User-Agent": "TamilScraper/1.0"})
         return session
 
     def _validate_url(self, url: str) -> bool:
@@ -53,7 +54,7 @@ class TamilScraper:
 
     def _is_tamil(self, text: str) -> bool:
         """Check if text contains Tamil characters"""
-        tamil_chars = sum(1 for c in text if '\u0B80' <= c <= '\u0BFF')
+        tamil_chars = sum(1 for c in text if "\u0b80" <= c <= "\u0bff")
         return tamil_chars > len(text) * 0.3  # 30% threshold
 
     def fetch_wikipedia_articles(self, category: str = "Tamil_language", limit: int = 50) -> List[Dict]:
@@ -67,12 +68,12 @@ class TamilScraper:
 
         records = []
         params = {
-            'action': 'query',
-            'format': 'json',
-            'list': 'categorymembers',
-            'cmtitle': f'Category:{category}',
-            'cmlimit': min(limit, 50),  # Security: Cap limit
-            'cmtype': 'page'
+            "action": "query",
+            "format": "json",
+            "list": "categorymembers",
+            "cmtitle": f"Category:{category}",
+            "cmlimit": min(limit, 50),  # Security: Cap limit
+            "cmtype": "page",
         }
 
         try:
@@ -98,19 +99,19 @@ class TamilScraper:
         """Fetch content of a single Wikipedia page"""
         url = "https://ta.wikipedia.org/w/api.php"
         params = {
-            'action': 'query',
-            'format': 'json',
-            'pageids': page_id,
-            'prop': 'extracts',
-            'explaintext': True
+            "action": "query",
+            "format": "json",
+            "pageids": page_id,
+            "prop": "extracts",
+            "explaintext": True,
         }
 
         try:
             response = self.session.get(url, params=params, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
-            pages = data.get('query', {}).get('pages', {})
-            return pages.get(str(page_id), {}).get('extract', '')
+            pages = data.get("query", {}).get("pages", {})
+            return pages.get(str(page_id), {}).get("extract", "")
         except Exception as e:
             logger.error(f"Error fetching page {page_id}: {e}")
             return None
@@ -120,15 +121,15 @@ class TamilScraper:
         output_path = self.output_dir / filename
 
         # Security: Validate filename
-        if not re.match(r'^[\w\-. ]+$', filename):
+        if not re.match(r"^[\w\-. ]+$", filename):
             raise ValueError("Invalid filename")
 
         try:
-            with output_path.open('w', encoding='utf-8') as f:
+            with output_path.open("w", encoding="utf-8") as f:
                 for record in records:
                     # Security: Validate record structure
-                    if isinstance(record, dict) and 'text' in record:
-                        f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                    if isinstance(record, dict) and "text" in record:
+                        f.write(json.dumps(record, ensure_ascii=False) + "\n")
             logger.info(f"Saved {len(records)} records to {output_path}")
         except Exception as e:
             logger.error(f"Error saving records: {e}")
@@ -138,10 +139,11 @@ class TamilScraper:
 def main():
     """Simple CLI"""
     import argparse
-    parser = argparse.ArgumentParser(description='Minimal Tamil Scraper')
-    parser.add_argument('--category', default='Tamil_language', help='Wikipedia category')
-    parser.add_argument('--limit', type=int, default=50, help='Max articles (max 50)')
-    parser.add_argument('--output', default='tamil_corpus.jsonl', help='Output file')
+
+    parser = argparse.ArgumentParser(description="Minimal Tamil Scraper")
+    parser.add_argument("--category", default="Tamil_language", help="Wikipedia category")
+    parser.add_argument("--limit", type=int, default=50, help="Max articles (max 50)")
+    parser.add_argument("--output", default="tamil_corpus.jsonl", help="Output file")
     args = parser.parse_args()
 
     # Security: Cap limit
@@ -153,5 +155,5 @@ def main():
     logger.info(f"Complete. Scraped {len(records)} articles.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

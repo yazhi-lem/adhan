@@ -12,6 +12,7 @@ as well as ad-hoc dumps:
 Everything is NFC-normalized and whitespace-trimmed; empty docs are dropped. This is
 deliberately dependency-free (pure stdlib) so it runs anywhere.
 """
+
 from __future__ import annotations
 
 import json
@@ -90,9 +91,7 @@ def iter_documents(
     files: List[Path] = []
     for p in paths:
         if p.is_dir():
-            files.extend(
-                sorted(f for f in p.rglob("*") if f.is_file() and f.suffix in _SUFFIXES)
-            )
+            files.extend(sorted(f for f in p.rglob("*") if f.is_file() and f.suffix in _SUFFIXES))
         elif p.is_file():
             files.append(p)
         else:

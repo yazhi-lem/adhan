@@ -8,6 +8,7 @@ better than a classical/literary corpus (e.g. Thirukkural) would.
 
 Requires open-tamil; see adhan_slm.external.open_tamil_bridge.
 """
+
 from __future__ import annotations
 
 import random
@@ -36,8 +37,9 @@ class KidLevelPrompt:
     prompt: str
 
 
-def build_kid_level_prompts(n: int = 50, seed: int = 0,
-                             max_word_len: int = 12) -> List[KidLevelPrompt]:
+def build_kid_level_prompts(
+    n: int = 50, seed: int = 0, max_word_len: int = 12
+) -> List[KidLevelPrompt]:
     """Deterministically sample `n` kid-level prompts across all categories.
 
     `max_word_len` filters out long/compound lexicon entries (e.g. multi-word
@@ -49,10 +51,14 @@ def build_kid_level_prompts(n: int = 50, seed: int = 0,
         for word in load_lexicon(category):
             if " " in word or len(word) > max_word_len:
                 continue
-            pool.append(KidLevelPrompt(
-                category=category, task_type=task_type, word=word,
-                prompt=template.format(word=word),
-            ))
+            pool.append(
+                KidLevelPrompt(
+                    category=category,
+                    task_type=task_type,
+                    word=word,
+                    prompt=template.format(word=word),
+                )
+            )
 
     rng = random.Random(seed)
     rng.shuffle(pool)

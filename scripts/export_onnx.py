@@ -19,6 +19,7 @@ If ``optimum`` is available the script delegates to its ONNX exporter, which
 handles architecture-specific edge-cases automatically.  If ``optimum`` is not
 installed, a manual ``torch.onnx.export`` path is used as fallback.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,17 +34,18 @@ logger = logging.getLogger(__name__)
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
+
 def _require(name: str) -> None:
     """Exit with a clear message when an optional dependency is missing."""
     logger.error(
         "Missing dependency '%s'. Install it with: pip install %s",
-        name, name,
+        name,
+        name,
     )
     sys.exit(1)
 
 
-def export_with_optimum(model_dir: Path, output_dir: Path, opset: int,
-                        task: str) -> None:
+def export_with_optimum(model_dir: Path, output_dir: Path, opset: int, task: str) -> None:
     """Use HuggingFace Optimum for a robust, architecture-aware ONNX export."""
     try:
         from optimum.exporters.onnx import main_export  # type: ignore
@@ -62,8 +64,7 @@ def export_with_optimum(model_dir: Path, output_dir: Path, opset: int,
     logger.info("Optimum export complete → %s", output_dir)
 
 
-def export_with_torch(model_dir: Path, output_dir: Path, opset: int,
-                      max_length: int) -> None:
+def export_with_torch(model_dir: Path, output_dir: Path, opset: int, max_length: int) -> None:
     """Fallback: manual torch.onnx.export for encoder-only models."""
     try:
         import torch  # type: ignore
@@ -145,27 +146,39 @@ def verify_onnx(output_dir: Path) -> None:
     for f in onnx_files:
         model_proto = onnx.load(str(f))
         onnx.checker.check_model(model_proto)
-        logger.info("✓ ONNX model %s is valid (IR version %d, opset %d)",
-                    f.name,
-                    model_proto.ir_version,
-                    model_proto.opset_import[0].version)
+        logger.info(
+            "✓ ONNX model %s is valid (IR version %d, opset %d)",
+            f.name,
+            model_proto.ir_version,
+            model_proto.opset_import[0].version,
+        )
 
 
 # ── entry point ────────────────────────────────────────────────────────────────
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Export a trained Adhan Tamil model to ONNX.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--model-dir", default="models/adhan",
-                        help="Path to the trained HuggingFace model directory.")
-    parser.add_argument("--output-dir", default="models/adhan_onnx",
-                        help="Directory to write the ONNX model and tokenizer.")
-    parser.add_argument("--opset", type=int, default=17,
-                        help="ONNX opset version.")
-    parser.add_argument("--max-length", type=int, default=512,
-                        help="Sequence length for dummy input (torch fallback).")
+    parser.add_argument(
+        "--model-dir",
+        default="models/adhan",
+        help="Path to the trained HuggingFace model directory.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="models/adhan_onnx",
+        help="Directory to write the ONNX model and tokenizer.",
+    )
+    parser.add_argument("--opset", type=int, default=17, help="ONNX opset version.")
+    parser.add_argument(
+        "--max-length",
+        type=int,
+        default=512,
+        help="Sequence length for dummy input (torch fallback).",
+    )
     parser.add_argument(
         "--task",
         default="feature-extraction",
@@ -175,10 +188,14 @@ def main() -> None:
             "Ignored when optimum is not installed."
         ),
     )
-    parser.add_argument("--no-verify", action="store_true",
-                        help="Skip post-export ONNX verification.")
-    parser.add_argument("--force-torch", action="store_true",
-                        help="Use the torch.onnx fallback even if optimum is installed.")
+    parser.add_argument(
+        "--no-verify", action="store_true", help="Skip post-export ONNX verification."
+    )
+    parser.add_argument(
+        "--force-torch",
+        action="store_true",
+        help="Use the torch.onnx fallback even if optimum is installed.",
+    )
     args = parser.parse_args()
 
     model_dir = Path(args.model_dir)

@@ -38,6 +38,7 @@ STICKY_HEADERS = [
     r"^விளையாட்டு",
 ]
 
+
 def clean_text(text):
     if not text:
         return ""
@@ -50,6 +51,7 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
 
     return text
+
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
