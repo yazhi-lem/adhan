@@ -3,7 +3,7 @@
 Validates YAML configs and model parameters at load time.
 """
 
-from typing import Any, Dict, Optional, Set, Type, Union
+from typing import Any, Dict, Set, Type, Union
 
 import yaml
 

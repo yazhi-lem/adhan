@@ -12,14 +12,14 @@ Example:
   python src/data_scraper/pdf_book_scraper.py --domains projectmadurai.org,tamilvu.org --limit 20 --translate
 
 """
+
 from __future__ import annotations
+
 import argparse
-import json
-import os
 import hashlib
-import re
+import json
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
@@ -35,12 +35,15 @@ def looks_like_tscii(s: str) -> bool:
     if not s:
         return False
     low = s[:4096].lower()
-    if any(tok in low for tok in ('tscii', 'x-user-defined', 'x-tscii', 'mylai', 'mylai font', 'mylai format')):
+    if any(
+        tok in low
+        for tok in ("tscii", "x-user-defined", "x-tscii", "mylai", "mylai font", "mylai format")
+    ):
         return True
     cnt = sum(1 for ch in s if 0x80 <= ord(ch) <= 0xFF)
     if len(s) > 200 and (cnt / len(s)) > 0.02:
         return True
-    if any(ch in s for ch in ('¾', '¢', 'Õ', 'Ã', 'õ', 'þ', '±')):
+    if any(ch in s for ch in ("¾", "¢", "Õ", "Ã", "õ", "þ", "±")):
         return True
     return False
 
@@ -48,9 +51,10 @@ def looks_like_tscii(s: str) -> bool:
 def tscii_to_unicode(s: str) -> str:
     try:
         import tamil
-        if hasattr(tamil, 'tscii') and hasattr(tamil.tscii, 'convert_to_unicode'):
+
+        if hasattr(tamil, "tscii") and hasattr(tamil.tscii, "convert_to_unicode"):
             return tamil.tscii.convert_to_unicode(s)
-        if hasattr(tamil, 'txt2unicode') and hasattr(tamil.txt2unicode, 'tscii2unicode'):
+        if hasattr(tamil, "txt2unicode") and hasattr(tamil.txt2unicode, "tscii2unicode"):
             return tamil.txt2unicode.tscii2unicode(s)
     except Exception:
         pass
@@ -71,7 +75,7 @@ def try_translate_ta_to_en(text: str) -> Optional[str]:
         return None
     try:
         tr = Translator()
-        out = tr.translate(text, src='ta', dest='en')
+        out = tr.translate(text, src="ta", dest="en")
         return out.text
     except Exception:
         return None
@@ -80,7 +84,7 @@ def try_translate_ta_to_en(text: str) -> Optional[str]:
 def build_and_save(records: List[Dict], out_dir: Path, domain: str):
     # write domain JSONL
     domain_file = out_dir / f"{domain}.jsonl"
-    with domain_file.open('w', encoding='utf-8') as fh:
+    with domain_file.open("w", encoding="utf-8") as fh:
         for r in records:
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
     print(f"[INFO] Wrote {len(records)} records to {domain_file}")
@@ -89,37 +93,46 @@ def build_and_save(records: List[Dict], out_dir: Path, domain: str):
     groups: Dict[str, List[Dict]] = {}
     for r in records:
         stem = None
-        if r.get('raw_pdf_path'):
-            stem = Path(r['raw_pdf_path']).stem
+        if r.get("raw_pdf_path"):
+            stem = Path(r["raw_pdf_path"]).stem
         else:
-            stem = Path(r.get('url','')).stem
-        wid = stem or 'unknown'
+            stem = Path(r.get("url", "")).stem
+        wid = stem or "unknown"
         groups.setdefault(wid, []).append(r)
 
     manifest_index = {}
     for wid, items in groups.items():
-        combined = "\n\n".join([it.get('text','') for it in items if it.get('text')])
+        combined = "\n\n".join([it.get("text", "") for it in items if it.get("text")])
         manifest_index[wid] = {
-            'work_id': wid,
-            'n_pages': len(items),
-            'char_count': sum(it.get('char_count',0) for it in items),
-            'records': [{ 'id': it.get('id'), 'raw_pdf_path': it.get('raw_pdf_path'), 'char_count': it.get('char_count', 0) } for it in items]
+            "work_id": wid,
+            "n_pages": len(items),
+            "char_count": sum(it.get("char_count", 0) for it in items),
+            "records": [
+                {
+                    "id": it.get("id"),
+                    "raw_pdf_path": it.get("raw_pdf_path"),
+                    "char_count": it.get("char_count", 0),
+                }
+                for it in items
+            ],
         }
-        with (out_dir / f"{wid}.jsonl").open('w', encoding='utf-8') as wf:
+        with (out_dir / f"{wid}.jsonl").open("w", encoding="utf-8") as wf:
             for it in items:
                 wf.write(json.dumps(it, ensure_ascii=False) + "\n")
-        with (out_dir / f"{wid}.txt").open('w', encoding='utf-8') as tf:
+        with (out_dir / f"{wid}.txt").open("w", encoding="utf-8") as tf:
             tf.write(combined)
 
     # write per-domain manifest index
-    with (out_dir / f"{domain}_manifest_index.json").open('w', encoding='utf-8') as mf:
+    with (out_dir / f"{domain}_manifest_index.json").open("w", encoding="utf-8") as mf:
         json.dump(manifest_index, mf, ensure_ascii=False, indent=2)
 
     return len(records), len(groups)
 
 
-def scrape_domains(domains: List[str], limit: Optional[int] = None, translate: bool = False) -> Dict[str, Dict]:
-    scraper = TamilCorpusScraper(base_dir='data/raw')
+def scrape_domains(
+    domains: List[str], limit: Optional[int] = None, translate: bool = False
+) -> Dict[str, Dict]:
+    scraper = TamilCorpusScraper(base_dir="data/raw")
     summary = {}
 
     for d in domains:
@@ -132,7 +145,7 @@ def scrape_domains(domains: List[str], limit: Optional[int] = None, translate: b
 
         processed = []
         for r in recs:
-            text = r.get('text', '') or ''
+            text = r.get("text", "") or ""
             # detect/convert legacy encodings
             if looks_like_tscii(text):
                 text_conv = tscii_to_unicode(text)
@@ -140,35 +153,35 @@ def scrape_domains(domains: List[str], limit: Optional[int] = None, translate: b
                     print(f"[INFO] Converted legacy encoding for {r.get('url')}")
                     text = text_conv
             # fallback: check text_path if present
-            if not text and r.get('text_path'):
+            if not text and r.get("text_path"):
                 try:
-                    raw = Path(r['text_path']).read_text(encoding='utf-8', errors='ignore')
+                    raw = Path(r["text_path"]).read_text(encoding="utf-8", errors="ignore")
                     if looks_like_tscii(raw):
                         raw = tscii_to_unicode(raw)
                     text = raw
                 except Exception:
                     pass
 
-            r['text'] = text
-            r['char_count'] = len(text)
-            r['word_count'] = len(text.split())
+            r["text"] = text
+            r["char_count"] = len(text)
+            r["word_count"] = len(text.split())
 
             # translate if requested and translator available
             if translate:
                 en = try_translate_ta_to_en(text)
                 if en:
-                    r['en_text'] = en
+                    r["en_text"] = en
                 else:
-                    r['en_text'] = None
+                    r["en_text"] = None
 
             # ensure id
-            if not r.get('id'):
-                r['id'] = sha256_hex((r.get('text') or '') + (r.get('url') or ''))
+            if not r.get("id"):
+                r["id"] = sha256_hex((r.get("text") or "") + (r.get("url") or ""))
 
             processed.append(r)
 
-        nrec, nworks = build_and_save(processed, OUT_DIR, d.replace('.', '_'))
-        summary[d] = {'records': nrec, 'works': nworks}
+        nrec, nworks = build_and_save(processed, OUT_DIR, d.replace(".", "_"))
+        summary[d] = {"records": nrec, "works": nworks}
         print(f"[DONE] domain={d} records={nrec} works={nworks}")
 
     return summary
@@ -176,15 +189,21 @@ def scrape_domains(domains: List[str], limit: Optional[int] = None, translate: b
 
 def main():
     parser = argparse.ArgumentParser(description="PDF book scraper for Tamil public-domain sites")
-    parser.add_argument('--domains', type=str, default='projectmadurai.org', help='Comma-separated domains to scan')
-    parser.add_argument('--limit', type=int, default=None, help='Limit number of PDFs per-domain (0=no limit)')
-    parser.add_argument('--translate', action='store_true', help='Attempt Tamil->English translation (best-effort)')
+    parser.add_argument(
+        "--domains", type=str, default="projectmadurai.org", help="Comma-separated domains to scan"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=None, help="Limit number of PDFs per-domain (0=no limit)"
+    )
+    parser.add_argument(
+        "--translate", action="store_true", help="Attempt Tamil->English translation (best-effort)"
+    )
     args = parser.parse_args()
 
-    domains = [d.strip() for d in args.domains.split(',') if d.strip()]
+    domains = [d.strip() for d in args.domains.split(",") if d.strip()]
     res = scrape_domains(domains, limit=args.limit, translate=args.translate)
     print(json.dumps(res, ensure_ascii=False, indent=2))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

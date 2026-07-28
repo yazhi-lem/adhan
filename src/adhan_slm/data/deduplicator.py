@@ -5,7 +5,6 @@ Handles both exact and near-duplicate detection for corpus curation at scale.
 
 import hashlib
 import json
-import logging
 from collections import defaultdict
 from typing import Dict, Generator, List, Optional, Set, Tuple
 
@@ -126,9 +125,7 @@ class TextDeduplicator:
             # Different hash seed for each permutation
             min_hash = float("inf")
             for shingle in shingles:
-                hash_val = int(
-                    hashlib.md5(f"{self.seed + i}{shingle}".encode()).hexdigest(), 16
-                )
+                hash_val = int(hashlib.md5(f"{self.seed + i}{shingle}".encode()).hexdigest(), 16)
                 min_hash = min(min_hash, hash_val)
 
             signature.append(min_hash % (2**32))  # Bound to 32-bit int
@@ -238,9 +235,7 @@ class TextDeduplicator:
                         stats["exact_duplicates"] += 1
                         if track_sources:
                             stats["per_source"][source]["duplicates"] += 1
-                        self.logger.debug(
-                            f"Exact duplicate: {doc_id} (matches {dup_of})"
-                        )
+                        self.logger.debug(f"Exact duplicate: {doc_id} (matches {dup_of})")
                     else:
                         stats["near_duplicates"] += 1
                         if track_sources:
@@ -262,8 +257,7 @@ class TextDeduplicator:
                 "exact_duplicates": stats["exact_duplicates"],
                 "near_duplicates": stats["near_duplicates"],
                 "removal_rate": (
-                    (stats["exact_duplicates"] + stats["near_duplicates"])
-                    / stats["total_seen"]
+                    (stats["exact_duplicates"] + stats["near_duplicates"]) / stats["total_seen"]
                     if stats["total_seen"] > 0
                     else 0.0
                 ),

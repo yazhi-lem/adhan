@@ -27,13 +27,13 @@ Outputs:
     models/adhan_sentiment/          – best checkpoint (HuggingFace format)
     models/adhan_sentiment/metrics.json – val/test evaluation metrics
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import logging
-import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -47,6 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 # ── config ─────────────────────────────────────────────────────────────────────
+
 
 @dataclass
 class SentimentConfig:
@@ -86,14 +87,23 @@ class SentimentConfig:
 # ── label helpers ──────────────────────────────────────────────────────────────
 
 LABEL_MAP_STR = {
-    "negative": 0, "neg": 0, "bad": 0,
-    "neutral": 1, "neu": 1,
-    "positive": 2, "pos": 2, "good": 2,
+    "negative": 0,
+    "neg": 0,
+    "bad": 0,
+    "neutral": 1,
+    "neu": 1,
+    "positive": 2,
+    "pos": 2,
+    "good": 2,
 }
 
 LABEL_MAP_STR_BINARY = {
-    "negative": 0, "neg": 0, "bad": 0,
-    "positive": 1, "pos": 1, "good": 1,
+    "negative": 0,
+    "neg": 0,
+    "bad": 0,
+    "positive": 1,
+    "pos": 1,
+    "good": 1,
 }
 
 
@@ -108,8 +118,10 @@ def normalise_label(raw, num_labels: int) -> int:
 
 # ── dataset loader ─────────────────────────────────────────────────────────────
 
-def load_jsonl(path: str, text_col: str, label_col: str,
-               num_labels: int) -> tuple[list[str], list[int]]:
+
+def load_jsonl(
+    path: str, text_col: str, label_col: str, num_labels: int
+) -> tuple[list[str], list[int]]:
     texts, labels = [], []
     skipped = 0
     with open(path, encoding="utf-8") as fh:
@@ -141,11 +153,15 @@ def load_jsonl(path: str, text_col: str, label_col: str,
 
 # ── metrics ────────────────────────────────────────────────────────────────────
 
+
 def build_compute_metrics(num_labels: int):
     try:
         from sklearn.metrics import (  # type: ignore
-            accuracy_score, f1_score, classification_report,
+            accuracy_score,
+            classification_report,
+            f1_score,
         )
+
         sklearn_available = True
     except ImportError:
         sklearn_available = False
@@ -168,17 +184,18 @@ def build_compute_metrics(num_labels: int):
 
 # ── main training ──────────────────────────────────────────────────────────────
 
+
 def train(cfg: SentimentConfig) -> None:
     try:
         import torch
+        from torch.utils.data import Dataset as TorchDataset
         from transformers import (
-            AutoTokenizer,
             AutoModelForSequenceClassification,
+            AutoTokenizer,
+            EarlyStoppingCallback,
             Trainer,
             TrainingArguments,
-            EarlyStoppingCallback,
         )
-        from torch.utils.data import Dataset as TorchDataset
     except ImportError as exc:
         logger.error("Required dependency missing: %s. Run: pip install transformers torch", exc)
         raise
@@ -231,12 +248,14 @@ def train(cfg: SentimentConfig) -> None:
 
     logger.info("Loading training data from %s …", cfg.train_file)
     train_texts, train_labels = load_jsonl(
-        cfg.train_file, cfg.text_column, cfg.label_column, cfg.num_labels)
+        cfg.train_file, cfg.text_column, cfg.label_column, cfg.num_labels
+    )
     logger.info("  %d training samples", len(train_texts))
 
     logger.info("Loading validation data from %s …", cfg.val_file)
     val_texts, val_labels = load_jsonl(
-        cfg.val_file, cfg.text_column, cfg.label_column, cfg.num_labels)
+        cfg.val_file, cfg.text_column, cfg.label_column, cfg.num_labels
+    )
     logger.info("  %d validation samples", len(val_texts))
 
     train_dataset = SentimentDataset(train_texts, train_labels)
@@ -290,7 +309,8 @@ def train(cfg: SentimentConfig) -> None:
 
     if cfg.test_file and Path(cfg.test_file).exists():
         test_texts, test_labels = load_jsonl(
-            cfg.test_file, cfg.text_column, cfg.label_column, cfg.num_labels)
+            cfg.test_file, cfg.text_column, cfg.label_column, cfg.num_labels
+        )
         test_dataset = SentimentDataset(test_texts, test_labels)
         test_metrics = trainer.evaluate(test_dataset, metric_key_prefix="test")
         logger.info("Test metrics: %s", test_metrics)
@@ -304,18 +324,23 @@ def train(cfg: SentimentConfig) -> None:
 
 # ── entry point ────────────────────────────────────────────────────────────────
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Fine-tune a Tamil sentiment classifier.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--train-file", default="data/sentiment/train.jsonl")
-    parser.add_argument("--val-file",   default="data/sentiment/val.jsonl")
-    parser.add_argument("--test-file",  default=None)
+    parser.add_argument("--val-file", default="data/sentiment/val.jsonl")
+    parser.add_argument("--test-file", default=None)
     parser.add_argument("--model-name", default="xlm-roberta-base")
     parser.add_argument("--output-dir", default="models/adhan_sentiment")
-    parser.add_argument("--num-labels", type=int, default=2,
-                        help="2 for binary (neg/pos), 3 for ternary (neg/neu/pos).")
+    parser.add_argument(
+        "--num-labels",
+        type=int,
+        default=2,
+        help="2 for binary (neg/pos), 3 for ternary (neg/neu/pos).",
+    )
     parser.add_argument("--num-epochs", type=int, default=5)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--learning-rate", type=float, default=2e-5)

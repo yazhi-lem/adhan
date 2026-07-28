@@ -22,6 +22,7 @@ class ThroughputTracker:
         self.tokens_processed = deque(maxlen=self.window_size)
         self.examples_processed = deque(maxlen=self.window_size)
         self.timestamps = deque(maxlen=self.window_size)
+
     def update(self, num_tokens: int, num_examples: int) -> None:
         """Record tokens and examples processed.
 
@@ -168,10 +169,10 @@ class ResourceMonitor:
             Dictionary with memory stats
         """
         return {
-            "peak_memory_mb": self.peak_memory_bytes / (1024 ** 2),
-            "current_memory_mb": self.current_memory_bytes / (1024 ** 2),
-            "peak_gpu_memory_mb": self.peak_gpu_memory_bytes / (1024 ** 2),
-            "current_gpu_memory_mb": self.current_gpu_memory_bytes / (1024 ** 2),
+            "peak_memory_mb": self.peak_memory_bytes / (1024**2),
+            "current_memory_mb": self.current_memory_bytes / (1024**2),
+            "peak_gpu_memory_mb": self.peak_gpu_memory_bytes / (1024**2),
+            "current_gpu_memory_mb": self.current_gpu_memory_bytes / (1024**2),
         }
 
 
@@ -235,9 +236,7 @@ class TrainingMetrics:
             summary["loss_current"] = self.loss_history[-1]
 
         if self.eval_loss_history:
-            summary["eval_loss_mean"] = sum(self.eval_loss_history) / len(
-                self.eval_loss_history
-            )
+            summary["eval_loss_mean"] = sum(self.eval_loss_history) / len(self.eval_loss_history)
             summary["eval_loss_current"] = self.eval_loss_history[-1]
 
         # Resource metrics

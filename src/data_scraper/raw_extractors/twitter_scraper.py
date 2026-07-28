@@ -21,6 +21,7 @@ Usage:
         --output-dir data/raw/twitter \
         --max-requests 100
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,9 +32,9 @@ import re
 import time
 from pathlib import Path
 from typing import Optional
+from urllib.error import HTTPError, URLError
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -65,10 +66,11 @@ MIN_TEXT_LEN = 15
 MAX_TEXT_LEN = 1000
 
 REQUEST_DELAY = 3.0  # seconds between requests
-MAX_BACKOFF = 120    # seconds
+MAX_BACKOFF = 120  # seconds
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
+
 
 def sha256_hex(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
@@ -140,18 +142,21 @@ def extract_tweets_from_html(html: str, source_url: str) -> list[dict]:
         text = clean_text(raw)
         if is_acceptable(text):
             h = sha256_hex(text)
-            records.append({
-                "id": h,
-                "text": text,
-                "source": "twitter",
-                "url": source_url,
-                "tamil_fraction": round(tamil_fraction(text), 3),
-                "record_type": "tweet",
-            })
+            records.append(
+                {
+                    "id": h,
+                    "text": text,
+                    "source": "twitter",
+                    "url": source_url,
+                    "tamil_fraction": round(tamil_fraction(text), 3),
+                    "record_type": "tweet",
+                }
+            )
     return records
 
 
 # ── main collection loop ───────────────────────────────────────────────────────
+
 
 def collect(
     keywords: list[str],
@@ -207,12 +212,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Collect Tamil tweets via Nitter (no API key required)."
     )
-    parser.add_argument("--output-dir", default="data/raw/twitter",
-                        help="Directory to write output files.")
-    parser.add_argument("--keywords", default=",".join(SEARCH_KEYWORDS),
-                        help="Comma-separated search keywords.")
-    parser.add_argument("--max-requests", type=int, default=100,
-                        help="Hard cap on total HTTP requests per run.")
+    parser.add_argument(
+        "--output-dir", default="data/raw/twitter", help="Directory to write output files."
+    )
+    parser.add_argument(
+        "--keywords", default=",".join(SEARCH_KEYWORDS), help="Comma-separated search keywords."
+    )
+    parser.add_argument(
+        "--max-requests", type=int, default=100, help="Hard cap on total HTTP requests per run."
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)

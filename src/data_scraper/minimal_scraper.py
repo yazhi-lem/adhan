@@ -39,8 +39,7 @@ logger = logging.getLogger(__name__)
 
 HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (compatible; MinimalTamilScraper/1.0; "
-        "+https://github.com/yazhi-lem/adhan)"
+        "Mozilla/5.0 (compatible; MinimalTamilScraper/1.0; " "+https://github.com/yazhi-lem/adhan)"
     ),
     "Accept-Language": "ta,en;q=0.9",
 }
@@ -50,7 +49,7 @@ def is_tamil_content(text: str, min_ratio: float = 0.5) -> bool:
     """Return True if *text* has at least *min_ratio* Tamil Unicode characters."""
     if not text:
         return False
-    tamil_chars = sum(1 for c in text if "\u0B80" <= c <= "\u0BFF")
+    tamil_chars = sum(1 for c in text if "\u0b80" <= c <= "\u0bff")
     return (tamil_chars / len(text)) >= min_ratio
 
 
@@ -297,14 +296,10 @@ class MinimalTamilScraper:
             all_records.extend(self.scrape_tn_govt(limit=limit_per_domain))
 
         if "news" in domains:
-            all_records.extend(
-                self.scrape_tamil_news_headlines(limit=limit_per_domain * 2)
-            )
+            all_records.extend(self.scrape_tamil_news_headlines(limit=limit_per_domain * 2))
 
         if "wiki" in domains:
-            all_records.extend(
-                self.scrape_wikipedia_trending(limit=limit_per_domain // 2)
-            )
+            all_records.extend(self.scrape_wikipedia_trending(limit=limit_per_domain // 2))
 
         # Deduplicate by content hash
         seen: set[str] = set()

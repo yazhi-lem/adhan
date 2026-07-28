@@ -93,9 +93,7 @@ class CorpusValidator:
         # Calculate aggregate stats
         total_chars = sum(len(record.get("text", "")) for record in self.records)
         report["total_characters"] = total_chars
-        report["average_text_length"] = (
-            total_chars / len(self.records) if self.records else 0
-        )
+        report["average_text_length"] = total_chars / len(self.records) if self.records else 0
         report["total_tokens_estimate"] = int(total_chars / 4.5)  # Average token length
 
         return report
@@ -173,9 +171,7 @@ class CorpusValidator:
         return {
             "sample_size": len(records_to_check),
             "records_with_pii": records_with_pii,
-            "pii_rate": (
-                records_with_pii / len(records_to_check) if records_to_check else 0
-            ),
+            "pii_rate": (records_with_pii / len(records_to_check) if records_to_check else 0),
             "pii_types_found": dict(pii_counts),
         }
 
@@ -218,9 +214,7 @@ class CorpusValidator:
             return 0.0
 
         tamil_count = sum(
-            1
-            for char in text
-            if self.TAMIL_UNICODE_START <= ord(char) <= self.TAMIL_UNICODE_END
+            1 for char in text if self.TAMIL_UNICODE_START <= ord(char) <= self.TAMIL_UNICODE_END
         )
         return tamil_count / len(text)
 
@@ -311,21 +305,19 @@ Examples:
         print(f"Total characters: {report['total_characters']:,}")
         print(f"Estimated tokens: {report['total_tokens_estimate']:,}")
         print(f"Avg text length: {report['average_text_length']:.0f} chars")
-        print(f"\nQuality Scores:")
+        print("\nQuality Scores:")
         print(f"  Average: {report['quality_scores']['avg_score']:.2f}")
         print(
             f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}"
         )
-        print(f"\nLanguage Mix:")
-        print(
-            f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}"
-        )
-        print(f"\nPII Check:")
+        print("\nLanguage Mix:")
+        print(f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}")
+        print("\nPII Check:")
         pii = report["pii_check"]
         print(
             f"  Records with PII: {pii['records_with_pii']}/{pii['sample_size']} ({pii['pii_rate']:.1%})"
         )
-        print(f"\nFertility (estimate):")
+        print("\nFertility (estimate):")
         fert = report["fertility_estimate"]
         print(f"  Avg: {fert.get('avg_fertility', 0):.3f}")
         print(f"  Meets target (<1.15): {fert.get('meets_target', False)}")

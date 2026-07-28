@@ -10,6 +10,7 @@ samples a continuation for one or more prompts (the Phase 5 demo / Phase 4 read-
         --checkpoint checkpoints/nano \
         --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?" --temperature 0.8
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,8 +26,9 @@ def main() -> None:
     ap.add_argument("--tokenizer-dir", required=True)
     ap.add_argument("--config", required=True)
     ap.add_argument("--checkpoint", required=True)
-    ap.add_argument("--prompt", action="append", required=True,
-                    help="prompt text (repeat for several)")
+    ap.add_argument(
+        "--prompt", action="append", required=True, help="prompt text (repeat for several)"
+    )
     ap.add_argument("--max-new-tokens", type=int, default=64)
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--top-k", type=int, default=40)
@@ -34,7 +36,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    from adhan_slm.inference import load_tokenizer, load_model, generate_text
+    from adhan_slm.inference import generate_text, load_model, load_tokenizer
 
     tok = load_tokenizer(args.tokenizer_dir)
     model, params, cfg = load_model(args.config, args.checkpoint, vocab_size=len(tok))
@@ -42,9 +44,16 @@ def main() -> None:
 
     for prompt in args.prompt:
         text = generate_text(
-            model, params, tok, prompt,
-            max_new_tokens=args.max_new_tokens, temperature=args.temperature,
-            top_k=args.top_k, top_p=args.top_p, seed=args.seed)
+            model,
+            params,
+            tok,
+            prompt,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            seed=args.seed,
+        )
         print(f"prompt : {prompt}")
         print(f"output : {text}\n")
 

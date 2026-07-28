@@ -12,6 +12,7 @@ Flow:
 The heavy morphological logic stays in python (irregular, data-dependent); the
 numeric-shaped work (lookup, pad, pack, mask) is where JAX pays off.
 """
+
 from __future__ import annotations
 
 from typing import List, Sequence, Tuple
@@ -19,22 +20,24 @@ from typing import List, Sequence, Tuple
 try:
     import jax
     import jax.numpy as jnp
+
     _HAS_JAX = True
 except ImportError:  # pure-python fallback keeps the tokenizer usable everywhere
     _HAS_JAX = False
 
 
-def _pad_ids(batch_ids: Sequence[Sequence[int]], pad_id: int,
-             max_len: int | None = None) -> Tuple[list, int]:
+def _pad_ids(
+    batch_ids: Sequence[Sequence[int]], pad_id: int, max_len: int | None = None
+) -> Tuple[list, int]:
     lengths = [len(x) for x in batch_ids]
     target = max_len or (max(lengths) if lengths else 0)
-    padded = [list(x[:target]) + [pad_id] * (target - min(len(x), target))
-              for x in batch_ids]
+    padded = [list(x[:target]) + [pad_id] * (target - min(len(x), target)) for x in batch_ids]
     return padded, target
 
 
-def encode_batch_jax(tokenizer, texts: List[str], max_len: int | None = None,
-                     add_special: bool = True):
+def encode_batch_jax(
+    tokenizer, texts: List[str], max_len: int | None = None, add_special: bool = True
+):
     """Encode a batch of texts to a padded (ids, mask) pair of jnp.int32 arrays.
 
     `tokenizer` is a SwaramTokenizer / AksharamTokenizer (shares the .encode API).
@@ -45,8 +48,7 @@ def encode_batch_jax(tokenizer, texts: List[str], max_len: int | None = None,
     padded, target = _pad_ids(batch_ids, pad_id, max_len)
 
     if not _HAS_JAX:
-        mask = [[1 if j < len(orig) else 0 for j in range(target)]
-                for orig in batch_ids]
+        mask = [[1 if j < len(orig) else 0 for j in range(target)] for orig in batch_ids]
         return padded, mask  # plain python lists
 
     ids = jnp.asarray(padded, dtype=jnp.int32)
@@ -76,6 +78,7 @@ def has_jax() -> bool:
 if __name__ == "__main__":
     import sys
     from pathlib import Path
+
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from adhan_slm.tokenizer import SwaramTokenizer, default_akshara_inventory
 

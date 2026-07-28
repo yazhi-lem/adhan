@@ -12,18 +12,20 @@ import os
 from pathlib import Path
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-PROJECT_ROOT = Path(os.environ.get(
-    "ADHAN_PROJECT_ROOT",
-    Path(__file__).resolve().parent.parent,
-))
-MODELS_DIR   = PROJECT_ROOT / "models" / "adhan-gemma-v1"
-ADAPTER_DIR  = MODELS_DIR / "lora_adapter"
-MERGED_DIR   = MODELS_DIR / "merged"
-BASE_MODEL   = "google/gemma-3-1b-it"
+PROJECT_ROOT = Path(
+    os.environ.get(
+        "ADHAN_PROJECT_ROOT",
+        Path(__file__).resolve().parent.parent,
+    )
+)
+MODELS_DIR = PROJECT_ROOT / "models" / "adhan-gemma-v1"
+ADAPTER_DIR = MODELS_DIR / "lora_adapter"
+MERGED_DIR = MODELS_DIR / "merged"
+BASE_MODEL = "google/gemma-3-1b-it"
 
 MERGED_DIR.mkdir(parents=True, exist_ok=True)
 

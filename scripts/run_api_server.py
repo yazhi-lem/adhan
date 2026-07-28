@@ -5,12 +5,11 @@ Usage:
 """
 
 import argparse
-from typing import Optional
 
 try:
+    import uvicorn
     from fastapi import FastAPI, HTTPException
     from fastapi.responses import JSONResponse
-    import uvicorn
 except ImportError:
     print("FastAPI and uvicorn required. Install with: pip install fastapi uvicorn")
     exit(1)
@@ -19,7 +18,6 @@ from adhan_slm.core.logging import configure_root_logger, get_logger
 from adhan_slm.serving.api import (
     AdhanInferenceAPI,
     AdhanRequest,
-    ErrorResponse,
     TextResponse,
     TokensResponse,
 )
@@ -66,9 +64,7 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
             return await api.tokenize(request)
         except Exception as e:
             logger.error(f"Tokenization error: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Tokenization failed: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Tokenization failed: {str(e)}")
 
     # Decoding endpoint
     @app.post("/decode", response_model=TextResponse, tags=["Tokenization"])
@@ -123,9 +119,7 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Run Adhan SLM inference API server"
-    )
+    parser = argparse.ArgumentParser(description="Run Adhan SLM inference API server")
     parser.add_argument(
         "--model",
         type=str,
@@ -135,9 +129,7 @@ def main():
     parser.add_argument(
         "--host", type=str, default="0.0.0.0", help="Server host (default: 0.0.0.0)"
     )
-    parser.add_argument(
-        "--port", type=int, default=8000, help="Server port (default: 8000)"
-    )
+    parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000)")
     parser.add_argument(
         "--log-level",
         type=str,

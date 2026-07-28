@@ -18,6 +18,7 @@ Everything is pure-python (stdlib only); numpy just speeds up shard I/O if prese
         --corpus data/raw/tamil/ --out data/final/tamil_slm \
         --vocab-size 12000 --seq-len 1024 --val-frac 0.02
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,8 +40,7 @@ _TOKENIZERS = {"swaram": SwaramTokenizer, "aksharam": AksharamTokenizer}
 
 def _git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     except Exception:
         return "unknown"
 
@@ -54,18 +54,19 @@ def _mean_fertility(tok, docs, cap: int = 500) -> float:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Freeze SLM tokenizer + pack shards")
-    ap.add_argument("--corpus", required=True,
-                    help="txt/jsonl file, or directory of them")
+    ap.add_argument("--corpus", required=True, help="txt/jsonl file, or directory of them")
     ap.add_argument("--out", required=True, help="output dir for tokenizer + shards")
     ap.add_argument("--tokenizer", choices=list(_TOKENIZERS), default="swaram")
     ap.add_argument("--vocab-size", type=int, default=12000)
     ap.add_argument("--min-freq", type=int, default=2)
     ap.add_argument("--seq-len", type=int, default=1024)
     ap.add_argument("--val-frac", type=float, default=0.02)
-    ap.add_argument("--limit", type=int, default=None,
-                    help="cap #documents (debug / dry runs)")
-    ap.add_argument("--whole-file-docs", action="store_true",
-                    help="treat each .txt file as one document (default: per line)")
+    ap.add_argument("--limit", type=int, default=None, help="cap #documents (debug / dry runs)")
+    ap.add_argument(
+        "--whole-file-docs",
+        action="store_true",
+        help="treat each .txt file as one document (default: per line)",
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -74,7 +75,8 @@ def main() -> None:
 
     print(f"[1/5] reading corpus from {args.corpus} ...")
     docs = corpus_mod.read_corpus(
-        args.corpus, line_documents=not args.whole_file_docs, limit=args.limit)
+        args.corpus, line_documents=not args.whole_file_docs, limit=args.limit
+    )
     if not docs:
         sys.exit(f"no documents found under {args.corpus}")
     n_val = max(1, int(len(docs) * args.val_frac))
@@ -87,7 +89,9 @@ def main() -> None:
     vocab_path = out / "vocab.json"
     merges_path = out / "merges.txt"
     tok.save(str(vocab_path), str(merges_path))
-    print(f"      froze vocab={len(tok):,} merges={len(tok.merges):,} -> {vocab_path.name}, {merges_path.name}")
+    print(
+        f"      froze vocab={len(tok):,} merges={len(tok.merges):,} -> {vocab_path.name}, {merges_path.name}"
+    )
 
     print("[3/5] measuring fertility on held-out sample ...")
     fert = _mean_fertility(tok, val_docs)
@@ -98,16 +102,25 @@ def main() -> None:
     train_seqs = packing.pack_documents(train_docs, tok, seq_len=args.seq_len)
     val_seqs = packing.pack_documents(val_docs, tok, seq_len=args.seq_len)
     if not train_seqs:
-        sys.exit("corpus too small to fill even one packed sequence; add more text "
-                 "or lower --seq-len")
+        sys.exit(
+            "corpus too small to fill even one packed sequence; add more text " "or lower --seq-len"
+        )
     train_shard = packing.write_shard(
-        train_seqs, out / "train.bin", seq_len=args.seq_len, vocab_size=len(tok))
+        train_seqs, out / "train.bin", seq_len=args.seq_len, vocab_size=len(tok)
+    )
     val_shard = None
     if val_seqs:
         val_shard = packing.write_shard(
-            val_seqs, out / "val.bin", seq_len=args.seq_len, vocab_size=len(tok))
-    print(f"      train.bin: {train_shard.n_sequences:,} seqs / {train_shard.n_tokens:,} tokens"
-          + (f"   val.bin: {val_shard.n_sequences:,} seqs" if val_shard else "   (val too small to pack)"))
+            val_seqs, out / "val.bin", seq_len=args.seq_len, vocab_size=len(tok)
+        )
+    print(
+        f"      train.bin: {train_shard.n_sequences:,} seqs / {train_shard.n_tokens:,} tokens"
+        + (
+            f"   val.bin: {val_shard.n_sequences:,} seqs"
+            if val_shard
+            else "   (val too small to pack)"
+        )
+    )
 
     print("[5/5] writing datasheet.json ...")
     datasheet = {
@@ -127,8 +140,10 @@ def main() -> None:
     }
     (out / "datasheet.json").write_text(json.dumps(datasheet, indent=2), encoding="utf-8")
     print(f"      -> {out / 'datasheet.json'}")
-    print(f"\ndone. train with:\n  python -m adhan_slm.training.train_jax "
-          f"--config <config with data.shards: {out}>")
+    print(
+        f"\ndone. train with:\n  python -m adhan_slm.training.train_jax "
+        f"--config <config with data.shards: {out}>"
+    )
 
 
 if __name__ == "__main__":

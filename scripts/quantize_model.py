@@ -30,6 +30,7 @@ Requirements:
     pip install onnxruntime onnx
     pip install optimum[onnxruntime]  # only for INT4
 """
+
 from __future__ import annotations
 
 import argparse
@@ -44,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
+
 
 def _require(pkg: str) -> None:
     logger.error("Missing dependency '%s'. Install with: pip install %s", pkg, pkg)
@@ -79,9 +81,10 @@ def load_calibration_texts(calib_path: Path, max_samples: int = 200) -> list[str
 
 # ── quantization routines ──────────────────────────────────────────────────────
 
+
 def quantize_int8_dynamic(onnx_path: Path, output_path: Path) -> None:
     try:
-        from onnxruntime.quantization import quantize_dynamic, QuantType  # type: ignore
+        from onnxruntime.quantization import QuantType, quantize_dynamic  # type: ignore
     except ImportError:
         _require("onnxruntime")
 
@@ -104,13 +107,13 @@ def quantize_int8_static(
     max_length: int,
 ) -> None:
     try:
-        from onnxruntime.quantization import (  # type: ignore
-            quantize_static,
-            CalibrationDataReader,
-            QuantType,
-            QuantFormat,
-        )
         import numpy as np  # type: ignore
+        from onnxruntime.quantization import (  # type: ignore
+            CalibrationDataReader,
+            QuantFormat,
+            QuantType,
+            quantize_static,
+        )
     except ImportError:
         _require("onnxruntime")
 
@@ -157,8 +160,8 @@ def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     """INT4 weight-only quantization via HuggingFace Optimum."""
     try:
         from optimum.onnxruntime import ORTModelForFeatureExtraction  # type: ignore
-        from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
         from optimum.onnxruntime import ORTQuantizer  # type: ignore
+        from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
     except ImportError:
         _require("optimum[onnxruntime]")
 
@@ -174,10 +177,13 @@ def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     # Override to INT4 if the installed version supports it
     try:
         from onnxruntime.quantization import QuantType  # type: ignore
+
         qconfig.weights_dtype = QuantType.QInt4
     except (ImportError, AttributeError):
-        logger.warning("INT4 weight type not supported by installed onnxruntime; "
-                       "falling back to INT8 via optimum.")
+        logger.warning(
+            "INT4 weight type not supported by installed onnxruntime; "
+            "falling back to INT8 via optimum."
+        )
 
     quantizer.quantize(
         save_dir=str(output_dir),
@@ -188,20 +194,19 @@ def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
 
 # ── benchmark helper ───────────────────────────────────────────────────────────
 
-def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int,
-              n_runs: int = 20) -> dict:
+
+def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int, n_runs: int = 20) -> dict:
     """Return mean/std latency (ms) for a dummy inference pass."""
     import time  # noqa: PLC0415
 
     try:
-        import onnxruntime as ort  # type: ignore
         import numpy as np  # type: ignore
+        import onnxruntime as ort  # type: ignore
         from transformers import AutoTokenizer  # type: ignore
     except ImportError:
         return {}
 
-    sess = ort.InferenceSession(str(onnx_path),
-                                providers=["CPUExecutionProvider"])
+    sess = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
     tokenizer = AutoTokenizer.from_pretrained(str(tokenizer_dir))
     enc = tokenizer(
         "நான் தமிழ் கற்கிறேன்",
@@ -223,6 +228,7 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int,
         times.append((time.perf_counter() - t0) * 1000)
 
     import statistics
+
     return {
         "mean_ms": round(statistics.mean(times), 2),
         "stdev_ms": round(statistics.stdev(times), 2),
@@ -232,27 +238,38 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int,
 
 # ── entry point ────────────────────────────────────────────────────────────────
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Quantize the Adhan Tamil ONNX model.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--model-dir", default="models/adhan_onnx",
-                        help="Directory containing the ONNX model (from export_onnx.py).")
-    parser.add_argument("--output-dir", default=None,
-                        help="Output directory (default: <model-dir>_quantized).")
+    parser.add_argument(
+        "--model-dir",
+        default="models/adhan_onnx",
+        help="Directory containing the ONNX model (from export_onnx.py).",
+    )
+    parser.add_argument(
+        "--output-dir", default=None, help="Output directory (default: <model-dir>_quantized)."
+    )
     parser.add_argument(
         "--mode",
         choices=["int8-dynamic", "int8-static", "int4"],
         default="int8-dynamic",
         help="Quantization mode.",
     )
-    parser.add_argument("--calibration-data", default=None,
-                        help="JSONL file with calibration sentences (required for int8-static).")
+    parser.add_argument(
+        "--calibration-data",
+        default=None,
+        help="JSONL file with calibration sentences (required for int8-static).",
+    )
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--calibration-samples", type=int, default=200)
-    parser.add_argument("--benchmark", action="store_true",
-                        help="Run a simple latency benchmark after quantization.")
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        help="Run a simple latency benchmark after quantization.",
+    )
     args = parser.parse_args()
 
     model_dir = Path(args.model_dir)
@@ -260,8 +277,11 @@ def main() -> None:
         logger.error("Model dir not found: %s", model_dir)
         sys.exit(1)
 
-    output_dir = Path(args.output_dir) if args.output_dir else \
-        model_dir.parent / (model_dir.name + "_quantized")
+    output_dir = (
+        Path(args.output_dir)
+        if args.output_dir
+        else model_dir.parent / (model_dir.name + "_quantized")
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     onnx_path = find_onnx_model(model_dir)
@@ -299,8 +319,12 @@ def main() -> None:
         stats = benchmark(out_path, tokenizer_dir, args.max_length)
         if stats:
             manifest["benchmark"] = stats
-            logger.info("Benchmark: %.1f ms ± %.1f ms (n=%d)",
-                        stats["mean_ms"], stats["stdev_ms"], stats["n_runs"])
+            logger.info(
+                "Benchmark: %.1f ms ± %.1f ms (n=%d)",
+                stats["mean_ms"],
+                stats["stdev_ms"],
+                stats["n_runs"],
+            )
 
     with (output_dir / "quantization_manifest.json").open("w") as mf:
         json.dump(manifest, mf, indent=2)

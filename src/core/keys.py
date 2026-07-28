@@ -3,6 +3,7 @@
 Core constants for Adhan project.
 Unified keys, hashtags, sources, and values across all modules.
 """
+
 from typing import Dict, List
 
 # ============================================================

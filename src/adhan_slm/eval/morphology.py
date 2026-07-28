@@ -10,6 +10,7 @@ Requires open-tamil (`pip install -r requirements-jax.txt`); raises ImportError
 via the bridge if it isn't installed. This module is eval-only — it is never
 imported by the tokenizer's encode/decode hot path.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -30,8 +31,9 @@ class BoundaryAgreementReport:
         return self.n_agree / self.n_with_suffix if self.n_with_suffix else float("nan")
 
 
-def stemmer_boundary_agreement(tokenizer, words: Sequence[str],
-                                max_examples: int = 20) -> BoundaryAgreementReport:
+def stemmer_boundary_agreement(
+    tokenizer, words: Sequence[str], max_examples: int = 20
+) -> BoundaryAgreementReport:
     """Fraction of inflected words where a tokenizer merge boundary lands
     exactly at the stem/suffix split open-tamil's stemmer finds.
 
@@ -63,7 +65,9 @@ def stemmer_boundary_agreement(tokenizer, words: Sequence[str],
             disagreements.append(word)
 
     return BoundaryAgreementReport(
-        n_words=len(words), n_with_suffix=n_with_suffix, n_agree=n_agree,
+        n_words=len(words),
+        n_with_suffix=n_with_suffix,
+        n_agree=n_agree,
         disagreements=disagreements,
     )
 
@@ -80,7 +84,9 @@ class SandhiCorrectnessReport:
         return self.n_correct_words / self.n_words if self.n_words else float("nan")
 
 
-def sandhi_correctness_rate(phrases: Sequence[str], max_examples: int = 20) -> SandhiCorrectnessReport:
+def sandhi_correctness_rate(
+    phrases: Sequence[str], max_examples: int = 20
+) -> SandhiCorrectnessReport:
     """Fraction of words in `phrases` that already satisfy open-tamil's ~40
     sandhi (புணர்ச்சி) grammar rules, per `tamilsandhi.check_sandhi`.
 
@@ -104,6 +110,8 @@ def sandhi_correctness_rate(phrases: Sequence[str], max_examples: int = 20) -> S
             elif len(corrections) < max_examples:
                 corrections.append(f"{orig} -> {checked}")
     return SandhiCorrectnessReport(
-        n_phrases=len(phrases), n_words=n_words, n_correct_words=n_correct,
+        n_phrases=len(phrases),
+        n_words=n_words,
+        n_correct_words=n_correct,
         corrections=corrections,
     )

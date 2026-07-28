@@ -11,6 +11,7 @@ without a corpus; a real run streams packed swaram-tokenized shards (Phase 2/3).
 Full runs plug a Grain/tf.data iterator into `data_iterator()` and enable Orbax
 checkpointing (marked TODO below).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -43,6 +44,7 @@ def _config_from_dict(d: dict) -> AdhanConfig:
 def synthetic_batches(vocab_size, batch, seq_len, n, seed=0):
     """Random token batches for smoke-testing the loop (no corpus needed)."""
     import numpy as np
+
     rng = np.random.default_rng(seed)
     for _ in range(n):
         yield rng.integers(5, vocab_size, size=(batch, seq_len), dtype="int32")
@@ -73,12 +75,16 @@ def data_iterator(cfg: dict, batch_size: int, seed: int = 0, infinite: bool = Tr
     if not train_bin.exists():
         raise FileNotFoundError(
             f"packed shard not found: {train_bin}. Build it first:\n"
-            f"  python scripts/prepare_slm_corpus.py --corpus <path> --out {shard_dir}")
+            f"  python scripts/prepare_slm_corpus.py --corpus <path> --out {shard_dir}"
+        )
     manifest = load_manifest(train_bin)
-    print(f"[train_jax] shard {train_bin.name}: {manifest.n_sequences:,} seqs "
-          f"× {manifest.seq_len} tok  ({manifest.n_tokens:,} tokens, {manifest.dtype})")
-    return PackedDataset.from_shard(train_bin, batch_size, manifest=manifest,
-                                    seed=seed, infinite=infinite)
+    print(
+        f"[train_jax] shard {train_bin.name}: {manifest.n_sequences:,} seqs "
+        f"× {manifest.seq_len} tok  ({manifest.n_tokens:,} tokens, {manifest.dtype})"
+    )
+    return PackedDataset.from_shard(
+        train_bin, batch_size, manifest=manifest, seed=seed, infinite=infinite
+    )
 
 
 def _frozen_vocab_size(cfg: dict):
@@ -91,6 +97,7 @@ def _frozen_vocab_size(cfg: dict):
     if vocab_json is None or not vocab_json.exists():
         return None
     import json
+
     return len(json.loads(vocab_json.read_text(encoding="utf-8")))
 
 
@@ -107,8 +114,9 @@ def _val_iterator(cfg: dict, batch_size: int):
     if val_bin is None or not val_bin.exists():
         return None
     manifest = load_manifest(val_bin)
-    return PackedDataset.from_shard(val_bin, batch_size, manifest=manifest,
-                                    shuffle=False, infinite=False, drop_last=False)
+    return PackedDataset.from_shard(
+        val_bin, batch_size, manifest=manifest, shuffle=False, infinite=False, drop_last=False
+    )
 
 
 def train(config_path: str, smoke: bool = False):
@@ -121,6 +129,7 @@ def train(config_path: str, smoke: bool = False):
         import jax.numpy as jnp
         import optax
         from flax.training import train_state
+
         from adhan_slm.model import AdhanSLM
     except ImportError as e:
         print(f"[train_jax] JAX stack not available ({e}).")
@@ -146,8 +155,10 @@ def train(config_path: str, smoke: bool = False):
         # hits the configured target exactly, so trust vocab.json over the YAML.
         frozen = _frozen_vocab_size(cfg)
         if frozen is not None and frozen != model_cfg.vocab_size:
-            print(f"[train_jax] vocab_size {model_cfg.vocab_size} (config) -> "
-                  f"{frozen} (frozen tokenizer) to match shards")
+            print(
+                f"[train_jax] vocab_size {model_cfg.vocab_size} (config) -> "
+                f"{frozen} (frozen tokenizer) to match shards"
+            )
             model_cfg.vocab_size = frozen
         train_ds = data_iterator(cfg, batch, seed=seed, infinite=True)
         seq_len = train_ds.seq_len
@@ -165,9 +176,12 @@ def train(config_path: str, smoke: bool = False):
     # clamps equal to the tiny smoke step count.
     warmup_steps = min(warmup, max(1, steps - 1))
     sched = optax.warmup_cosine_decay_schedule(
-        0.0, lr, warmup_steps=warmup_steps, decay_steps=steps, end_value=lr * 0.1)
-    tx = optax.chain(optax.clip_by_global_norm(1.0),
-                     optax.adamw(sched, weight_decay=float(tcfg.get("weight_decay", 0.1))))
+        0.0, lr, warmup_steps=warmup_steps, decay_steps=steps, end_value=lr * 0.1
+    )
+    tx = optax.chain(
+        optax.clip_by_global_norm(1.0),
+        optax.adamw(sched, weight_decay=float(tcfg.get("weight_decay", 0.1))),
+    )
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
     def loss_fn(params, batch):
@@ -220,17 +234,21 @@ def train(config_path: str, smoke: bool = False):
                 options=ocp.CheckpointManagerOptions(
                     max_to_keep=int(tcfg.get("keep_checkpoints", 3)),
                     best_fn=lambda m: -m.get("val_loss", m.get("train_loss", 1e9)),
-                    create=True),
+                    create=True,
+                ),
             )
             latest = ckptr.latest_step()
             if latest is not None:
                 restored = ckptr.restore(
-                    latest, args=ocp.args.Composite(state=ocp.args.StandardRestore(state)))
+                    latest, args=ocp.args.Composite(state=ocp.args.StandardRestore(state))
+                )
                 state = restored["state"]
                 print(f"[train_jax] resumed from checkpoint step {latest}")
         except ImportError:
-            print("[train_jax] orbax not installed — checkpointing disabled "
-                  "(pip install orbax-checkpoint).")
+            print(
+                "[train_jax] orbax not installed — checkpointing disabled "
+                "(pip install orbax-checkpoint)."
+            )
 
     def save_ckpt(step, metrics):
         # Save the full TrainState (for exact resume, incl. optimizer momentum) AND a
@@ -239,17 +257,26 @@ def train(config_path: str, smoke: bool = False):
         if ckptr is None:
             return
         import orbax.checkpoint as ocp
-        ckptr.save(step, args=ocp.args.Composite(
-            state=ocp.args.StandardSave(state),
-            params=ocp.args.StandardSave(state.params)), metrics=metrics)
+
+        ckptr.save(
+            step,
+            args=ocp.args.Composite(
+                state=ocp.args.StandardSave(state), params=ocp.args.StandardSave(state.params)
+            ),
+            metrics=metrics,
+        )
 
     eval_every = int(tcfg.get("eval_every", max(1, steps // 10)))
     ckpt_every = int(tcfg.get("checkpoint_every", eval_every))
 
-    run_params = {**{f"model.{k}": v for k, v in vars(model_cfg).items()},
-                  "train.batch_size": batch, "train.seq_len": seq_len,
-                  "train.learning_rate": lr, "train.max_steps": steps,
-                  "params_millions": round(model_cfg.approx_params() / 1e6, 2)}
+    run_params = {
+        **{f"model.{k}": v for k, v in vars(model_cfg).items()},
+        "train.batch_size": batch,
+        "train.seq_len": seq_len,
+        "train.learning_rate": lr,
+        "train.max_steps": steps,
+        "params_millions": round(model_cfg.approx_params() / 1e6, 2),
+    }
 
     # Pulling a JAX array to host (float(), .item(), etc.) blocks until that
     # step's computation finishes — doing it every iteration serializes step
@@ -260,11 +287,13 @@ def train(config_path: str, smoke: bool = False):
     log_every = max(1, int(tcfg.get("log_every", 10)))
     tokens_per_step = batch * seq_len
 
-    with track_run(experiment=cfg.get("experiment", "adhan-slm"),
-                   run_name=cfg.get("run_name", "smoke" if smoke else None),
-                   params=run_params,
-                   data_version=cfg.get("data", {}).get("version"),
-                   tracking_uri=cfg.get("mlflow_uri")) as run:
+    with track_run(
+        experiment=cfg.get("experiment", "adhan-slm"),
+        run_name=cfg.get("run_name", "smoke" if smoke else None),
+        params=run_params,
+        data_version=cfg.get("data", {}).get("version"),
+        tracking_uri=cfg.get("mlflow_uri"),
+    ) as run:
         pending_losses = []
         pending_steps = []
         window_start = time.perf_counter()
@@ -283,8 +312,10 @@ def train(config_path: str, smoke: bool = False):
                 run.log_metric("learning_rate", float(sched(s)), step=s)
             run.log_metric("tokens_per_sec", toks_per_sec, step=final_step)
             last_lv = float(loss_vals[-1])
-            print(f"step {final_step:6d}  loss {last_lv:.4f}  ppl {math.exp(min(last_lv, 20.0)):.2f}"
-                  f"  tok/s {toks_per_sec:,.0f}")
+            print(
+                f"step {final_step:6d}  loss {last_lv:.4f}  ppl {math.exp(min(last_lv, 20.0)):.2f}"
+                f"  tok/s {toks_per_sec:,.0f}"
+            )
 
         best_val = float("inf")
         last_train_loss = float("nan")
@@ -317,7 +348,7 @@ def train(config_path: str, smoke: bool = False):
                         metrics["val_loss"] = vl
                 save_ckpt(step, metrics)
 
-            if step + 1 >= steps:   # infinite loader — stop at max_steps
+            if step + 1 >= steps:  # infinite loader — stop at max_steps
                 break
 
         if ckptr is not None:
@@ -328,8 +359,11 @@ def train(config_path: str, smoke: bool = False):
 def main():
     ap = argparse.ArgumentParser(description="Adhan SLM JAX trainer")
     ap.add_argument("--config", required=True)
-    ap.add_argument("--smoke", action="store_true",
-                    help="train a few steps on synthetic data to verify the loop")
+    ap.add_argument(
+        "--smoke",
+        action="store_true",
+        help="train a few steps on synthetic data to verify the loop",
+    )
     args = ap.parse_args()
     train(args.config, smoke=args.smoke)
 
