@@ -42,13 +42,16 @@ python src/data_scraper/export/export_unified_hf.py \
 - Deterministic train/val/test splits
 - Detailed statistics and README generation
 
-## Legacy Scripts (Deprecated - To Be Removed)
+## Legacy Scripts (Removed)
 
-### export_hf_from_sentences.py
+`export_hf_from_sentences.py` and `export_modern_hf.py` have been removed from
+the repository. Their functionality is fully covered by `export_unified_hf.py`:
+
+### export_hf_from_sentences.py (removed)
 - Basic export with 80/10/10 split
 - **Use `export_unified_hf.py --strategy standard` instead**
 
-### export_modern_hf.py
+### export_modern_hf.py (removed)
 - Export with modern source boosting
 - **Use `export_unified_hf.py --strategy modern` instead**
 

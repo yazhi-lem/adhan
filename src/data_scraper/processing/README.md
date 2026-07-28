@@ -73,14 +73,18 @@ python src/data_scraper/processing/build_unified_corpus.py \
 - Deduplication
 - Detailed statistics
 
-## Legacy Scripts (Deprecated - To Be Removed)
+## Legacy Scripts (Removed)
 
-### build_modern_tamil_corpus.py
+`build_modern_tamil_corpus.py` and `build_modern_tamil_sources.py` have been
+removed from the repository. Their functionality is fully covered by
+`build_unified_corpus.py`:
+
+### build_modern_tamil_corpus.py (removed)
 - Rebalances corpus by source weighting
 - Filters archaic texts
 - **Use `build_unified_corpus.py --strategy rebalanced` instead**
 
-### build_modern_tamil_sources.py
+### build_modern_tamil_sources.py (removed)
 - Builds corpus from modern sources
 - Adds conversational phrases
 - **Use `build_unified_corpus.py --strategy modern` instead**
