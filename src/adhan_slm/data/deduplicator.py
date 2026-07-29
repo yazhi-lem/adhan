@@ -125,7 +125,12 @@ class TextDeduplicator:
             # Different hash seed for each permutation
             min_hash = float("inf")
             for shingle in shingles:
-                hash_val = int(hashlib.md5(f"{self.seed + i}{shingle}".encode()).hexdigest(), 16)
+                hash_val = int(
+                    hashlib.md5(
+                        f"{self.seed + i}{shingle}".encode(), usedforsecurity=False
+                    ).hexdigest(),
+                    16,
+                )
                 min_hash = min(min_hash, hash_val)
 
             signature.append(min_hash % (2**32))  # Bound to 32-bit int

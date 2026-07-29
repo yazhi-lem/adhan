@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 
 # Import core constants
 import sys
@@ -860,22 +861,25 @@ class TamilCorpusScraper:
 
     def get_language_packages(self) -> Dict[str, str]:
         """Check and install required language packages"""
-        packages = {
-            "tamil": "pip install tamil",
-            "indic-trans": "pip install indic-trans",
-            "indic-nlp-library": "pip install indic-nlp-library",
-            "sentencepiece": "pip install sentencepiece",
-            "fasttext": "pip install fasttext",
-        }
+        packages = [
+            "tamil",
+            "indic-trans",
+            "indic-nlp-library",
+            "sentencepiece",
+            "fasttext",
+        ]
 
         installed = {}
-        for pkg, install_cmd in packages.items():
+        for pkg in packages:
             try:
                 __import__(pkg)
                 installed[pkg] = "installed"
             except ImportError:
                 logger.info(f"Installing {pkg}...")
-                os.system(install_cmd)
+                subprocess.run(
+                    [sys.executable, "-m", "pip", "install", pkg],
+                    check=False,
+                )
                 try:
                     __import__(pkg)
                     installed[pkg] = "installed"
