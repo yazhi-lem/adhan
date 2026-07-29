@@ -72,17 +72,17 @@ class CorpusFilter:
         Returns:
             dict: Quality filter statistics.
         """
+        stats = {
+            "total": 0,
+            "kept": 0,
+            "too_short": 0,
+            "too_long": 0,
+            "low_quality_score": 0,
+            "excessive_punctuation": 0,
+        }
 
         def quality_generator():
             """Inner generator for quality filtering."""
-            stats = {
-                "total": 0,
-                "kept": 0,
-                "too_short": 0,
-                "too_long": 0,
-                "low_quality_score": 0,
-                "excessive_punctuation": 0,
-            }
 
             for doc in documents:
                 stats["total"] += 1
@@ -122,9 +122,7 @@ class CorpusFilter:
             stats["removed"] = stats["total"] - stats["kept"]
             stats["removal_rate"] = stats["removed"] / stats["total"] if stats["total"] > 0 else 0.0
 
-            return stats
-
-        return quality_generator(), {}
+        return quality_generator(), stats
 
     def filter_language(
         self, documents: Generator[dict, None, None]
@@ -140,15 +138,15 @@ class CorpusFilter:
         Returns:
             dict: Language filter statistics.
         """
+        stats = {
+            "total": 0,
+            "kept": 0,
+            "non_tamil": 0,
+            "tamil_fractions": [],
+        }
 
         def language_generator():
             """Inner generator for language filtering."""
-            stats = {
-                "total": 0,
-                "kept": 0,
-                "non_tamil": 0,
-                "tamil_fractions": [],
-            }
 
             for doc in documents:
                 stats["total"] += 1
@@ -173,9 +171,7 @@ class CorpusFilter:
                     stats["tamil_fractions"]
                 )
 
-            return stats
-
-        return language_generator(), {}
+        return language_generator(), stats
 
     def scrub_pii(
         self, documents: Generator[dict, None, None], anonymize_level: str = "standard"
@@ -197,17 +193,17 @@ class CorpusFilter:
         Returns:
             dict: PII scrubbing statistics.
         """
+        stats = {
+            "total": 0,
+            "kept": 0,
+            "emails_removed": 0,
+            "phones_removed": 0,
+            "urls_anonymized": 0,
+            "had_pii": 0,
+        }
 
         def pii_generator():
             """Inner generator for PII scrubbing."""
-            stats = {
-                "total": 0,
-                "kept": 0,
-                "emails_removed": 0,
-                "phones_removed": 0,
-                "urls_anonymized": 0,
-                "had_pii": 0,
-            }
 
             if anonymize_level == "none":
                 # No scrubbing, pass through
@@ -215,7 +211,7 @@ class CorpusFilter:
                     yield doc
                     stats["total"] += 1
                     stats["kept"] += 1
-                return stats
+                return
 
             for doc in documents:
                 stats["total"] += 1
@@ -252,9 +248,7 @@ class CorpusFilter:
 
             stats["removal_rate"] = stats["had_pii"] / stats["total"] if stats["total"] > 0 else 0.0
 
-            return stats
-
-        return pii_generator(), {}
+        return pii_generator(), stats
 
     def _estimate_tamil_fraction(self, text: str) -> float:
         """Estimate fraction of Tamil characters in text.
