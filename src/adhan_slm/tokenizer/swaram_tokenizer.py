@@ -27,6 +27,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Tuple
+
 from adhan_slm.core.logging import get_logger
 
 logger = get_logger(__name__)
