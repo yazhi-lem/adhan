@@ -28,4 +28,5 @@ jobs:
       - name: Run mypy type checker
         continue-on-error: true
         run: |
+          set -o pipefail
           mypy src/adhan_slm --ignore-missing-imports --no-error-summary 2>&1 | head -100
