@@ -1,10 +1,16 @@
-"""Tests for the swaram tokenizer. Run: python -m pytest (or python this_file.py)."""
+"""Tests for the Swaram (Tamil/Dravidian) akshara tokenizer.
+
+Pure python — no pytest/numpy/JAX needed, matching the tokenizer core itself.
+
+Run: PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer_tests
+"""
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
 
+from adhan_slm.core.selftest import run_module_tests  # noqa: E402
 from adhan_slm.tokenizer import (  # noqa: E402
     SwaramTokenizer,
     default_akshara_inventory,
@@ -63,13 +69,5 @@ def test_fertility_at_most_one_before_merges_helps():
     assert 0.99 <= f <= 1.01, f"expected ~1 token/akshara, got {f}"
 
 
-def _run():
-    fns = [v for k, v in globals().items() if k.startswith("test_")]
-    for fn in fns:
-        fn()
-        print(f"PASS {fn.__name__}")
-    print(f"\n{len(fns)} passed")
-
-
 if __name__ == "__main__":
-    _run()
+    run_module_tests(globals(), "swaram tokenizer")

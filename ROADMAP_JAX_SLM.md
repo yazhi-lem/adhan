@@ -145,10 +145,10 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
   - `Dockerfile` (JAX + CUDA base, API server CMD)
   - `docker-compose.yml` for local testing
 - 🚧 **Integration tests** (`tests/integration/`):
-  - ✅ E2E training on CPU (`test_train_cpu.py`): corpus → frozen tokenizer → packed
+  - ✅ E2E training on CPU (`train_cpu_*_tests.py`): corpus → frozen tokenizer → packed
     shards → smoke / overfit-a-batch / real run with validation / gradient
     accumulation / checkpoint-resume / context-length rejection. ~1 min, no GPU.
-  - ✅ API tokenize / generate / health (`test_api_inference.py`)
+  - ✅ API tokenize / generate / health (`api_inference_tests.py`)
   - 📋 Checkpoint → inference round-trip from a separate process
 - 📋 **Deployment guide** (`docs/DEPLOYMENT.md`):
   - Serving, Docker, Kubernetes, edge deployment (TFLite/ONNX on RPi 5)
@@ -191,7 +191,7 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
   clean NFC document stream; `packing.py` tokenizes + packs into full fixed-length
   sequences (no padding) and writes flat `.bin` shards + manifests; `loader.py` yields
   deterministic, seed-shuffled batches. Pure-python core (numpy optional), unit-tested
-  in `data/test_data_pipeline.py`. This is the concrete, Grain-free "tokenize → packed
+  in `data/{corpus,packing,loader}_tests.py`. This is the concrete, Grain-free "tokenize → packed
   fixed-length sequences → sharded" path — it replaces the old `NotImplementedError`.
 - 📋 Dedup (MinHash/LSH), quality + language-ID filter, PII scrub
 - 📋 Target **300M–1B clean Tamil tokens** (nano/tiny need far less than a big LLM)
@@ -336,7 +336,7 @@ src/adhan_slm/
               adhan_slm_nano_cpu.yaml            # CPU/laptop preset (nano, bf16, grad accum)
 scripts/prepare_slm_corpus.py    # freeze tokenizer + pack shards + datasheet
 scripts/generate_slm.py          # sample text from a trained checkpoint
-tests/integration/test_train_cpu.py  # E2E CPU training (overfit-a-batch, resume)
+tests/integration/train_cpu_*_tests.py  # E2E CPU training (overfit gate, resume)
 requirements-jax.txt
 docs/ARCHITECTURE_SWARAM_SLM.md, docs/EVAL_TAMIL.md, docs/CPU_TRAINING.md
 ```
@@ -355,7 +355,7 @@ pip install -r requirements-jax.txt
 python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
 
 # End-to-end data pipeline unit tests (pure-python, no JAX needed)
-python -m adhan_slm.data.test_data_pipeline
+python -m adhan_slm.data.packing_tests
 
 # 1. Freeze the tokenizer + pack a corpus into train/val shards (+ datasheet)
 python scripts/prepare_slm_corpus.py \

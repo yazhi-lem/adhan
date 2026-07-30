@@ -67,4 +67,4 @@ jobs:
       - name: Run E2E CPU training tests
         env:
           JAX_PLATFORMS: cpu
-        run: pytest tests/integration/test_train_cpu.py -v
+        run: pytest tests/integration/train_cpu_*_tests.py -v

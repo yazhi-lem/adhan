@@ -25,7 +25,8 @@ The existing PyTorch pipeline below is reused for corpus building and as baselin
   accumulation, resume-aware step budget, and a CPU install path with no CUDA
   (`pip install -e ".[jax]"`). See [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md).
 - Structured logging + MLflow wired through the training / corpus-prep / eval path
-- E2E CPU training integration tests (`tests/integration/test_train_cpu.py`)
+- E2E CPU training integration tests (`tests/integration/train_cpu_*_tests.py`)
+- Tests renamed to the `<module>_tests.py` convention and split per module under test
 - Added shared constants in `src/core/`
 - Added corpus merger: `src/data_scraper/merge_corpora.py`
 - Added Gemma training notebook: `src/notebooks/03_gemma_training.ipynb`

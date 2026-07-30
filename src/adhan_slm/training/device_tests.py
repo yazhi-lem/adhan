@@ -3,7 +3,7 @@
 Pure-python: no JAX needed except for the one `describe_backend` test, which skips
 if the stack is absent. Run standalone with:
 
-    PYTHONPATH=src python -m adhan_slm.training.test_device
+    PYTHONPATH=src python -m adhan_slm.training.device_tests
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from adhan_slm.core.exceptions import ConfigError  # noqa: E402
+from adhan_slm.core.selftest import run_module_tests, skip_unless  # noqa: E402
 from adhan_slm.training.device import (  # noqa: E402
     configure_backend,
     describe_backend,
@@ -97,12 +98,16 @@ def test_configure_backend_sets_env():
                 os.environ[k] = v
 
 
-def test_describe_backend_reports_a_real_device():
+def _has_jax() -> bool:
     try:
         import jax  # noqa: F401
     except ImportError:
-        print("skip: jax not installed")
-        return
+        return False
+    return True
+
+
+@skip_unless(_has_jax(), "jax not installed")
+def test_describe_backend_reports_a_real_device():
     info = describe_backend("bfloat16")
     assert info.platform in ("cpu", "gpu", "tpu")
     assert info.device_count >= 1
@@ -111,8 +116,4 @@ def test_describe_backend_reports_a_real_device():
 
 
 if __name__ == "__main__":
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
-    for fn in fns:
-        fn()
-        print(f"ok  {fn.__name__}")
-    print(f"\n{len(fns)} device tests passed.")
+    run_module_tests(globals(), "training backend/precision resolution")

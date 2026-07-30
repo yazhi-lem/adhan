@@ -167,17 +167,31 @@ make every step *before* that one free.
 
 ## 7. Tests
 
-The CPU path is covered end-to-end and runs in about a minute:
+Tests live next to the module they cover, named `<module>_tests.py`. The CPU training
+path is split by concern under `tests/integration/`:
+
+| Module | Covers |
+|---|---|
+| `train_cpu_smoke_tests.py` | backend really is CPU; `--smoke` with no corpus; context clamping |
+| `train_cpu_overfit_tests.py` | the overfit-a-batch gate passes and writes no checkpoint |
+| `train_cpu_pretrain_tests.py` | real run over shards: frozen vocab, validation, throughput, gradient accumulation |
+| `train_cpu_checkpoint_tests.py` | Orbax resume continues the global step budget |
+| `train_cpu_config_tests.py` | bad configs rejected up front (float16, over-long shards, missing shards) |
+
+The corpus → tokenizer → shard fixtures are shared session-wide in
+`tests/integration/conftest.py`, so the whole set builds them once.
 
 ```bash
-pytest tests/integration/test_train_cpu.py -v        # corpus -> shards -> train
-python -m adhan_slm.training.test_device             # dtype/backend resolution
-```
+# CPU training end-to-end (~3 min: each distinct config pays an XLA compile)
+pytest tests/integration/train_cpu_*_tests.py -v
 
-`tests/integration/test_train_cpu.py` asserts the backend really is CPU, that
-overfit-a-batch collapses the loss, that gradient accumulation scales the effective
-batch, that resume continues the step budget, and that a shard packed longer than
-`model.max_seq_len` is rejected instead of silently mis-training.
+# Everything except the training runs (~1s)
+pytest -m "not integration"
+
+# Any test module standalone, no pytest needed
+PYTHONPATH=src python -m adhan_slm.training.device_tests
+PYTHONPATH=src python -m adhan_slm.data.packing_tests
+```
 
 ## 8. Troubleshooting
 

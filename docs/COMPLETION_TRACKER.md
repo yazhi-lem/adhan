@@ -190,10 +190,36 @@ D4. Phase 5-7: Edge & Distributed ........ 📋 Planned
 - **Trainable without a GPU**: ✅ (`configs/adhan_slm_nano_cpu.yaml`, ~3k tok/s on 4 cores)
 
 ### Code Quality
-- **Test Files**: 5 existing (392 lines)
-- **Unit Test Coverage**: ~60% (tokenizer/data)
-- **Integration Test Coverage**: 0% (Phase C adds)
-- **Type Annotations**: ~30% (Phase B completes)
+- **Test Files**: 15, one per module under test (`<module>_tests.py`)
+- **Test Count**: 86 collected — 44 unit (~1s) + 32 integration (~3 min) + 11 skipped
+  (open-tamil absent). Skips are now reported as skips; they used to pass silently.
+- **Unit Test Coverage**: tokenizer, data pipeline, core, training backend
+- **Integration Test Coverage**: CPU training E2E + serving API
+- **Type Annotations**: ~30% (Phase B3 completes)
+
+### Test Layout Convention
+Tests sit beside the module they cover and mirror its name:
+
+| Module | Tests |
+|---|---|
+| `core/exceptions.py` | `core/exceptions_tests.py` |
+| `core/config_validator.py` | `core/config_validator_tests.py` |
+| `core/metrics.py` | `core/metrics_tests.py` |
+| `data/corpus.py` | `data/corpus_tests.py` |
+| `data/packing.py` | `data/packing_tests.py` |
+| `data/loader.py` | `data/loader_tests.py` |
+| `eval/morphology.py` | `eval/morphology_tests.py` |
+| `eval/kid_level_prompts.py` | `eval/kid_level_prompts_tests.py` |
+| `eval/ngram_baseline.py` | `eval/ngram_baseline_tests.py` |
+| `tokenizer/swaram_tokenizer.py` | `tokenizer/swaram_tokenizer_tests.py` |
+| `tokenizer/aksharam_tokenizer.py` | `tokenizer/aksharam_tokenizer_tests.py` |
+| `training/device.py` | `training/device_tests.py` |
+| `training/train_jax.py` | `tests/integration/train_cpu_*_tests.py` |
+| `serving/api.py` | `tests/integration/api_inference_tests.py` |
+
+Shared helpers: `core/selftest.py` (standalone runner + optional-dependency skip
+guard), `data/_test_fixtures.py`, `eval/_test_fixtures.py`,
+`tests/integration/conftest.py` (session-scoped corpus/shard/config fixtures).
 
 ### Deployment Readiness
 - **Local Development**: 🟢 Works (pip/venv, CPU-only supported)

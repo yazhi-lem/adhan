@@ -145,6 +145,6 @@ Useful overrides (no config edit needed):
 Tests for the CPU path (~1 min, no GPU):
 
 ```bash
-pytest tests/integration/test_train_cpu.py -v
-python -m adhan_slm.training.test_device
+pytest tests/integration/train_cpu_*_tests.py -v   # ~3 min (XLA compiles per config)
+python -m adhan_slm.training.device_tests          # dtype/backend resolution, <1s
 ```
