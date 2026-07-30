@@ -106,10 +106,19 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
   - `ColoredFormatter`: Human-readable console output
   - `get_logger()`: Unified logger factory
   - Environment config: `ADHAN_LOG_LEVEL`, `ADHAN_JSON_LOGS`
-- 📋 Replace all `print()` statements (26+) with structured logging
-- 📋 Remove deprecated scripts (4 files in `src/data_scraper/`)
-- 📋 Wire MLflow logging integration
-- 📋 Update `README.md` with `pip install -e .` instructions
+- ✅ 📦 **Structured logging wired through the pipeline**: every diagnostic `print()` in
+  the training / corpus-prep / tokenizer path now goes through `core.logging`
+  (`train_jax.py`, `mlflow_utils.py`, `scripts/prepare_slm_corpus.py`,
+  `eval/run_eval.py`, `scripts/generate_slm.py`, the tokenizer + model demos), so
+  `ADHAN_JSON_LOGS=true` gives machine-readable run logs. Command *output* — the eval
+  JSON report, generated text — deliberately stays on stdout so it is still pipeable.
+- ✅ 📦 **MLflow integration wired**: runs log the resolved runtime (backend, device
+  kind, jax version, compute dtype, host cores), the effective batch / accumulation
+  factor, the resume step, an ETA estimate, `mode` and `backend` tags, and attach the
+  config YAML + corpus `datasheet.json` as artifacts — the roadmap §5 reproducibility
+  contract, not just a metric stream. The active run id is logged at startup.
+- ✅ Remove deprecated scripts (4 files in `src/data_scraper/`)
+- ✅ Update `README.md` with `pip install -e .` instructions
 - 🎯 **All GitHub Actions workflows passing**, package pip-installable, deprecated code removed
 
 ### Phase B — Robustness & Observability  📋 (Week 2–3, NEW)
@@ -135,8 +144,12 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 - 📋 **Containerization**:
   - `Dockerfile` (JAX + CUDA base, API server CMD)
   - `docker-compose.yml` for local testing
-- 📋 **Integration tests** (`tests/integration/`):
-  - E2E training (overfit-a-batch), model loading, inference, API
+- 🚧 **Integration tests** (`tests/integration/`):
+  - ✅ E2E training on CPU (`test_train_cpu.py`): corpus → frozen tokenizer → packed
+    shards → smoke / overfit-a-batch / real run with validation / gradient
+    accumulation / checkpoint-resume / context-length rejection. ~1 min, no GPU.
+  - ✅ API tokenize / generate / health (`test_api_inference.py`)
+  - 📋 Checkpoint → inference round-trip from a separate process
 - 📋 **Deployment guide** (`docs/DEPLOYMENT.md`):
   - Serving, Docker, Kubernetes, edge deployment (TFLite/ONNX on RPi 5)
 - 🎯 Ready for deployment via **yazhi-api** (private repo)
@@ -203,8 +216,24 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
   Each checkpoint stores both the full `TrainState` (exact resume, incl. optimizer
   momentum) and a params-only item (clean load for inference/eval). Verified
   end-to-end on CPU: train loss ↓, val-ppl ↓, resume, and generate-from-checkpoint.
-- 📋 Mixed precision (bf16, already wired) tuned on real data; Optax schedule sweep
-- 📋 Overfit-a-batch sanity → 100M-token dry run → full nano run on GPU
+- ✅ 📦 **CPU training is a first-class path** (`docs/CPU_TRAINING.md`): a nano CPU
+  config (`configs/adhan_slm_nano_cpu.yaml`), backend/precision resolution
+  (`training/device.py` — `--device cpu|gpu|tpu|auto`, pre-flight device + ETA banner,
+  a loud warning on multi-hour CPU runs), **gradient accumulation** via
+  `optax.MultiSteps` so effective batch is decoupled from CPU memory, and
+  checkpoint resume that continues the *global* step budget instead of restarting it.
+  `pip install -e ".[jax]"` now installs CPU wheels (GPU moved to `[jax-cuda]`), so
+  the whole pipeline runs with no CUDA toolchain.
+- ✅ 📦 **Mixed precision measured, not assumed**: bf16 is ~1.5× float32 on XLA:CPU
+  (3.0k vs 2.0k tok/s, nano @ batch 8×256 on 4 cores), so bf16 stays the CPU default;
+  `float16` is *rejected* on CPU rather than silently upcast, because a run whose
+  logged precision is wrong is a run that cannot be reproduced (§5).
+- ✅ 📦 **Overfit-a-batch sanity gate** (`--overfit-batch`): repeats one real batch and
+  fails non-zero unless the loss collapses below half its start. Verified on CPU:
+  6.459 → 0.004. This is the gate before any long run — a model that cannot memorise
+  one batch has a wiring bug, not a hyperparameter problem.
+- 📋 Optax schedule sweep on real data
+- 📋 100M-token dry run → full nano run on GPU
 - 🎯 **`adhan-nano` val perplexity beats a distilgpt2 baseline on Tamil** per-akshara ppl
 - 📦 `adhan-nano-base` checkpoint + eval report
 
@@ -297,16 +326,19 @@ src/adhan_slm/
 ├── tokenizer/   swaram_tokenizer.py  (+ tests)   # akshara + morpheme tokens (Dravidian prototype)
 ├── model/       transformer.py                    # Flax SLM (nano/tiny/mini) + generate()
 ├── data/        corpus.py, packing.py, loader.py  # corpus → packed shards → batches (+ tests)
-├── training/    train_jax.py, mlflow_utils.py     # JAX loop, val, Orbax ckpt, MLflow
+├── training/    train_jax.py, device.py,           # JAX loop, val, Orbax ckpt, MLflow,
+│                mlflow_utils.py (+ tests)          # backend/precision + grad accum (CPU-ready)
 ├── eval/        morphology.py, kid_level_prompts.py, ngram_baseline.py,
 │                perplexity.py, run_eval.py         # probes + one-shot eval harness
 ├── external/    open_tamil_bridge.py               # base Tamil-NLP layer (open-tamil)
 ├── inference.py                                    # load tokenizer + checkpoint → generate
-└── configs/     adhan_slm_tiny.yaml               # model+train+data+ckpt config
+└── configs/     adhan_slm_tiny.yaml,              # model+train+data+ckpt config
+              adhan_slm_nano_cpu.yaml            # CPU/laptop preset (nano, bf16, grad accum)
 scripts/prepare_slm_corpus.py    # freeze tokenizer + pack shards + datasheet
 scripts/generate_slm.py          # sample text from a trained checkpoint
+tests/integration/test_train_cpu.py  # E2E CPU training (overfit-a-batch, resume)
 requirements-jax.txt
-docs/ARCHITECTURE_SWARAM_SLM.md, docs/EVAL_TAMIL.md
+docs/ARCHITECTURE_SWARAM_SLM.md, docs/EVAL_TAMIL.md, docs/CPU_TRAINING.md
 ```
 
 **Deployment (Phase 6+):**

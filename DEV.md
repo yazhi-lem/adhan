@@ -108,3 +108,43 @@ python src/models/sentiment/train_sentiment.py \
   --num-labels 2 \
   --num-epochs 5
 ```
+
+## 9) Native SLM: CPU training (no GPU)
+
+Full guide: [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md).
+
+```bash
+# Install the CPU JAX stack (GPU is opt-in via ".[jax-cuda]")
+pip install -e ".[jax,dev]"
+
+# 1. Freeze the swaram tokenizer + pack shards at the CPU sequence length
+python scripts/prepare_slm_corpus.py \
+  --corpus data/raw/tamil/ \
+  --out data/final/tamil_slm_cpu \
+  --vocab-size 4000 --seq-len 256
+
+# 2. Sanity-gate the wiring: one batch, repeated, loss must collapse
+python -m adhan_slm.training.train_jax \
+  --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml \
+  --device cpu --overfit-batch
+
+# 3. Train (resumable; re-running continues the global step budget)
+python -m adhan_slm.training.train_jax \
+  --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
+
+# 4. Inspect runs
+mlflow ui   # http://localhost:5000
+```
+
+Useful overrides (no config edit needed):
+
+```bash
+--max-steps 500 --batch-size 4 --grad-accum-steps 16 --learning-rate 1e-3
+```
+
+Tests for the CPU path (~1 min, no GPU):
+
+```bash
+pytest tests/integration/test_train_cpu.py -v
+python -m adhan_slm.training.test_device
+```

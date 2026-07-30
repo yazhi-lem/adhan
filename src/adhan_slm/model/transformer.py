@@ -239,9 +239,12 @@ except ImportError:  # JAX/Flax not installed — tokenizer-only usage still wor
 
 
 if __name__ == "__main__":
+    from adhan_slm.core.logging import get_logger
+
+    logger = get_logger(__name__)
     for name in ("nano", "tiny", "mini"):
         cfg = getattr(AdhanConfig, name)()
-        print(
+        logger.info(
             f"{name:5s}  d_model={cfg.d_model:4d}  layers={cfg.n_layers:2d}  "
             f"heads={cfg.n_heads:2d}  ctx={cfg.max_seq_len:4d}  "
             f"~{cfg.approx_params()/1e6:.1f}M params"

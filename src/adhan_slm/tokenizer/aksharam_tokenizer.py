@@ -26,7 +26,10 @@ from typing import List
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer  # noqa: E402
+
+logger = get_logger(__name__)
 
 # --- Devanagari Unicode (block U+0900–U+097F) ----------------------------------
 _DEVA_MATRAS = set(range(0x093E, 0x094D))  # vowel signs ा ि ी … ौ
@@ -99,15 +102,15 @@ class AksharamTokenizer(SwaramTokenizer):
 
 def _demo(text: str) -> None:
     clusters = segment_devanagari(text)
-    print(f"input      : {text}")
-    print(f"aksharas   : {clusters}")
-    print(f"n_aksharas : {sum(1 for a in clusters if a.strip())}")
+    logger.info(f"input      : {text}")
+    logger.info(f"aksharas   : {clusters}")
+    logger.info(f"n_aksharas : {sum(1 for a in clusters if a.strip())}")
     tok = AksharamTokenizer.train([text], vocab_size=len(default_aksharam_inventory()) + 64)
     ids = tok.encode(text, add_special=True)
     back = tok.decode(ids)
-    print(f"n_tokens   : {len(ids)}  (with <bos>/<eos>)")
-    print(f"fertility  : {tok.fertility(text):.3f} tokens/akshara")
-    print(f"round-trip : {'OK' if back == text else 'LOSSY'}  -> {back!r}")
+    logger.info(f"n_tokens   : {len(ids)}  (with <bos>/<eos>)")
+    logger.info(f"fertility  : {tok.fertility(text):.3f} tokens/akshara")
+    logger.info(f"round-trip : {'OK' if back == text else 'LOSSY'}  -> {back!r}")
 
 
 if __name__ == "__main__":
