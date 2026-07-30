@@ -28,7 +28,7 @@ class TamilScraper:
     """Minimal, secure Tamil corpus scraper"""
 
     # Security: Whitelist of allowed domains
-    ALLOWED_DOMAINS = {"ta.wikipedia.org", "api.wikimedia.org"}
+    ALLOWED_DOMAINS = {'ta.wikipedia.org', 'api.wikimedia.org'}
 
     def __init__(self, output_dir: str = "data/raw", timeout: int = 10):
         self.output_dir = Path(output_dir)
@@ -57,9 +57,7 @@ class TamilScraper:
         tamil_chars = sum(1 for c in text if "\u0b80" <= c <= "\u0bff")
         return tamil_chars > len(text) * 0.3  # 30% threshold
 
-    def fetch_wikipedia_articles(
-        self, category: str = "Tamil_language", limit: int = 50
-    ) -> List[Dict]:
+    def fetch_wikipedia_articles(self, category: str = "Tamil_language", limit: int = 50) -> List[Dict]:
         """Fetch Tamil Wikipedia articles from category"""
         url = "https://ta.wikipedia.org/w/api.php"
 
@@ -83,16 +81,14 @@ class TamilScraper:
             response.raise_for_status()
             data = response.json()
 
-            for page in data.get("query", {}).get("categorymembers", []):
-                text = self._fetch_page_content(page["pageid"])
+            for page in data.get('query', {}).get('categorymembers', []):
+                text = self._fetch_page_content(page['pageid'])
                 if text and self._is_tamil(text):
-                    records.append(
-                        {
-                            "text": text[:1000],  # Security: Limit text size
-                            "source": "wikipedia",
-                            "title": page["title"],
-                        }
-                    )
+                    records.append({
+                        'text': text[:1000],  # Security: Limit text size
+                        'source': 'wikipedia',
+                        'title': page['title']
+                    })
 
         except Exception as e:
             logger.error(f"Error fetching articles: {e}")

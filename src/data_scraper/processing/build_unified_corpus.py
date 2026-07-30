@@ -87,15 +87,13 @@ def load_news_corpus(data_dir: Path) -> List[Dict]:
                 sentences = sentence_split(para)
                 for sent in sentences:
                     if 20 < len(sent) < 400:
-                        records.append(
-                            {
-                                "text": sent,
-                                "source": "news",
-                                "quality_score": 0.55,
-                                "tamil_fraction": 0.95,
-                                "url": None,
-                            }
-                        )
+                        records.append({
+                            'text': sent,
+                            'source': 'news',
+                            'quality_score': 0.55,
+                            'tamil_fraction': 0.95,
+                            'url': None,
+                        })
 
     return records
 
@@ -103,7 +101,7 @@ def load_news_corpus(data_dir: Path) -> List[Dict]:
 def get_conversational_phrases() -> List[Dict]:
     """Get sample modern conversational Tamil phrases from config file."""
     # Try to load from config file first
-    config_file = Path(__file__).parent / "conversational_phrases.yaml"
+    config_file = Path(__file__).parent / 'conversational_phrases.yaml'
 
     if config_file.exists():
         try:
@@ -112,10 +110,10 @@ def get_conversational_phrases() -> List[Dict]:
             with config_file.open("r", encoding="utf-8") as f:
                 config = yaml.safe_load(f)
 
-            phrases = config.get("phrases", [])
-            source = config.get("source", "modern_conversational")
-            quality_score = config.get("quality_score", 0.7)
-            tamil_fraction = config.get("tamil_fraction", 1.0)
+            phrases = config.get('phrases', [])
+            source = config.get('source', 'modern_conversational')
+            quality_score = config.get('quality_score', 0.7)
+            tamil_fraction = config.get('tamil_fraction', 1.0)
 
             records = []
             for phrase in phrases:
@@ -150,15 +148,13 @@ def get_conversational_phrases() -> List[Dict]:
     records = []
     for phrase in phrases:
         if len(phrase) > 10:
-            records.append(
-                {
-                    "text": phrase,
-                    "source": "modern_conversational",
-                    "quality_score": 0.7,
-                    "tamil_fraction": 1.0,
-                    "url": None,
-                }
-            )
+            records.append({
+                'text': phrase,
+                'source': 'modern_conversational',
+                'quality_score': 0.7,
+                'tamil_fraction': 1.0,
+                'url': None,
+            })
 
     return records
 
@@ -192,8 +188,8 @@ def apply_source_weights(records: List[Dict], weight_map: Dict[str, float]) -> L
         else:
             weight_adj = weight
 
-        r["_weight"] = weight_adj
-        r["modern_score"] = modern_score
+        r['_weight'] = weight_adj
+        r['modern_score'] = modern_score
 
     return records
 
@@ -209,7 +205,7 @@ def deduplicate_records(records: List[Dict]) -> List[Dict]:
             continue
 
         norm = txt.strip()[:256]
-        h = hashlib.sha256(norm.encode("utf-8")).hexdigest()
+        h = hashlib.sha256(norm.encode('utf-8')).hexdigest()
 
         if h in seen:
             continue
@@ -251,39 +247,22 @@ def print_source_distribution(records: List[Dict], title: str = "Distribution"):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Unified Tamil corpus builder")
-    parser.add_argument(
-        "--data-dir", type=str, default="data/raw", help="Directory containing raw data files"
-    )
-    parser.add_argument(
-        "--existing-corpus",
-        type=str,
-        default="data/pre_training/tamil_texts/all_sentences.jsonl",
-        help="Path to existing corpus JSONL file",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/pre_training/tamil_texts/all_sentences_modern.jsonl",
-        help="Output JSONL file path",
-    )
-    parser.add_argument(
-        "--strategy",
-        choices=["balanced", "modern", "rebalanced"],
-        default="modern",
-        help="Corpus building strategy",
-    )
-    parser.add_argument(
-        "--max-records",
-        type=int,
-        default=None,
-        help="Maximum number of records to keep (None = all)",
-    )
-    parser.add_argument(
-        "--modern-only",
-        action="store_true",
-        help="Only use modern sources (ignore existing corpus)",
-    )
+    parser = argparse.ArgumentParser(description='Unified Tamil corpus builder')
+    parser.add_argument('--data-dir', type=str, default='data/raw',
+                        help='Directory containing raw data files')
+    parser.add_argument('--existing-corpus', type=str,
+                        default='data/pre_training/tamil_texts/all_sentences.jsonl',
+                        help='Path to existing corpus JSONL file')
+    parser.add_argument('--output', type=str,
+                        default='data/pre_training/tamil_texts/all_sentences_modern.jsonl',
+                        help='Output JSONL file path')
+    parser.add_argument('--strategy', choices=['balanced', 'modern', 'rebalanced'],
+                        default='modern',
+                        help='Corpus building strategy')
+    parser.add_argument('--max-records', type=int, default=None,
+                        help='Maximum number of records to keep (None = all)')
+    parser.add_argument('--modern-only', action='store_true',
+                        help='Only use modern sources (ignore existing corpus)')
 
     args = parser.parse_args()
 
@@ -376,8 +355,8 @@ def main():
     with output_file.open("w", encoding="utf-8") as fh:
         for r in final_unique:
             # Remove internal fields
-            clean = {k: v for k, v in r.items() if not k.startswith("_")}
-            fh.write(json.dumps(clean, ensure_ascii=False) + "\n")
+            clean = {k: v for k, v in r.items() if not k.startswith('_')}
+            fh.write(json.dumps(clean, ensure_ascii=False) + '\n')
 
     # Print statistics
     print(f"\n✅ Corpus ready at {output_file}")
@@ -385,14 +364,14 @@ def main():
     print_source_distribution(final_unique, "Source distribution")
 
     # Calculate quality metrics
-    avg_quality = sum(r.get("quality_score", 0) for r in final_unique) / len(final_unique)
-    avg_modern = sum(r.get("modern_score", 0) for r in final_unique) / len(final_unique)
+    avg_quality = sum(r.get('quality_score', 0) for r in final_unique) / len(final_unique)
+    avg_modern = sum(r.get('modern_score', 0) for r in final_unique) / len(final_unique)
 
     print("\n📊 Quality metrics:")
     print(f"  Average quality score: {avg_quality:.3f}")
     print(f"  Average modern score: {avg_modern:.2f}")
 
-    modern_count = sum(1 for r in final_unique if r.get("modern_score", 0) > 0)
+    modern_count = sum(1 for r in final_unique if r.get('modern_score', 0) > 0)
     modern_pct = (modern_count / len(final_unique) * 100) if final_unique else 0
     print(f"  Records with modern markers: {modern_count} ({modern_pct:.1f}%)")
 

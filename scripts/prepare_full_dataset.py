@@ -48,7 +48,7 @@ def clean_text(text):
         text = re.sub(pattern, "", text).strip()
 
     # Clean up multiple spaces/newlines
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
 
     return text
 
@@ -98,10 +98,7 @@ def main():
 
     print(f"\nTotal unique records: {len(records)}")
     print("Now run the unified exporter to generate splits:")
-    print(
-        f"python src/data_scraper/export/export_unified_hf.py --input {merged_output_file} --output {OUTPUT_DIR} --strategy modern"
-    )
-
+    print(f"python src/data_scraper/export/export_unified_hf.py --input {merged_output_file} --output {OUTPUT_DIR} --strategy modern")
 
 if __name__ == "__main__":
     main()
