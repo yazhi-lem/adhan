@@ -29,6 +29,7 @@ import time
 from pathlib import Path
 from typing import Generator, Optional
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -82,10 +83,13 @@ def is_acceptable(text: str) -> bool:
 
 
 def fetch_json(url: str, retries: int = 3) -> Optional[dict]:
+    if urlparse(url).scheme not in ("http", "https"):
+        logger.warning("Refusing to fetch URL with disallowed scheme: %s", url)
+        return None
     req = Request(url, headers=HEADERS)
     for attempt in range(retries):
         try:
-            with urlopen(req, timeout=15) as resp:
+            with urlopen(req, timeout=15) as resp:  # nosec B310 - scheme validated above
                 return json.loads(resp.read().decode("utf-8"))
         except HTTPError as exc:
             if exc.code == 429:
