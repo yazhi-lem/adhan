@@ -38,13 +38,25 @@ python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install the package in development mode with all dependencies
+# (CPU-only JAX — works on macOS, Windows, and CUDA-less Linux/CI)
 pip install -e ".[dev,jax,tamil-nlp]"
+```
+
+On a machine with an NVIDIA GPU, add the `jax-gpu` extra to pull in CUDA 12
+wheels (Linux only):
+
+```bash
+pip install -e ".[dev,jax,jax-gpu,tamil-nlp]"
 ```
 
 ### Option 2: JAX Stack Only (for training)
 
 ```bash
+# CPU
 pip install -e ".[jax]"
+
+# GPU (Linux + NVIDIA CUDA 12 only)
+pip install -e ".[jax,jax-gpu]"
 ```
 
 ### Option 3: PyTorch Stack Only (for baselines)
