@@ -18,7 +18,6 @@ from __future__ import annotations
 from typing import List, Sequence, Tuple
 
 try:
-    import jax
     import jax.numpy as jnp
 
     _HAS_JAX = True

@@ -32,10 +32,6 @@ from adhan_slm.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-from adhan_slm.core.logging import get_logger
-
-logger = get_logger(__name__)
-
 # --- Tamil Unicode ranges (block U+0B80–U+0BFF) --------------------------------
 _TAMIL_MATRAS = set(range(0x0BBE, 0x0BCD))  # vowel signs ா ி ீ … ௌ
 _TAMIL_PULLI = 0x0BCD  # virama ் (makes a pure consonant)
