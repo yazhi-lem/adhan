@@ -15,7 +15,10 @@ import random
 from dataclasses import dataclass
 from typing import List
 
+from adhan_slm.core.logging import get_logger
 from adhan_slm.external.open_tamil_bridge import load_lexicon
+
+logger = get_logger(__name__)
 
 # category -> (task_type, prompt template with {word})
 _TEMPLATES = {
@@ -67,7 +70,7 @@ def build_kid_level_prompts(
 
 def _demo() -> None:
     for p in build_kid_level_prompts(n=10):
-        print(f"[{p.category}/{p.task_type}] {p.prompt}")
+        logger.info(f"[{p.category}/{p.task_type}] {p.prompt}")
 
 
 if __name__ == "__main__":

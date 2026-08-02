@@ -3,8 +3,9 @@
 #   python3 -m venv .venv-jax && source .venv-jax/bin/activate
 #   pip install -r requirements-jax.txt
 #
-# For GPU/TPU, install the matching jax wheel per https://github.com/google/jax
-# (e.g. pip install "jax[cuda12]") instead of the CPU jax pinned below.
+# The jax pinned below is the CPU wheel — training works with no CUDA toolchain
+# (see docs/CPU_TRAINING.md). For GPU/TPU use the packaged extra instead:
+#   pip install -e ".[jax-cuda]"        # or: pip install "jax[cuda12]"
 
 jax>=0.4.30
 jaxlib>=0.4.30

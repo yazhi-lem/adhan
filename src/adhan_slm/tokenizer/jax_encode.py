@@ -17,6 +17,10 @@ from __future__ import annotations
 
 from typing import List, Sequence, Tuple
 
+from adhan_slm.core.logging import get_logger
+
+logger = get_logger(__name__)
+
 try:
     import jax
     import jax.numpy as jnp
@@ -85,7 +89,7 @@ if __name__ == "__main__":
     samples = ["தமிழ் கற்போம்", "வணக்கம்", "ஆதன் நல்ல பையன்"]
     tok = SwaramTokenizer.train(samples, vocab_size=len(default_akshara_inventory()) + 64)
     ids, mask = encode_batch_jax(tok, samples, max_len=16)
-    print(f"jax available : {has_jax()}")
-    print(f"ids shape     : {getattr(ids, 'shape', (len(ids), len(ids[0])))}")
-    print(f"first row ids : {ids[0] if not has_jax() else ids[0].tolist()}")
-    print(f"first row mask: {mask[0] if not has_jax() else mask[0].tolist()}")
+    logger.info(f"jax available : {has_jax()}")
+    logger.info(f"ids shape     : {getattr(ids, 'shape', (len(ids), len(ids[0])))}")
+    logger.info(f"first row ids : {ids[0] if not has_jax() else ids[0].tolist()}")
+    logger.info(f"first row mask: {mask[0] if not has_jax() else mask[0].tolist()}")

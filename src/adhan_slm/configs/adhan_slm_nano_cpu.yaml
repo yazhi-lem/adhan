@@ -1,0 +1,45 @@
+# Adhan SLM — CPU training config (nano tier, ~8M params at a 4k vocab)
+#
+# The tier the roadmap ships first (`adhan-nano`, Phase 6), sized so a run makes
+# real progress on a laptop / CI-class CPU instead of a 24GB GPU. See
+# docs/CPU_TRAINING.md for the measured numbers behind these values.
+#
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
+#
+# Sanity-gate the wiring first (should take ~2 min and drive the loss toward 0):
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --overfit-batch
+
+experiment: adhan-slm-cpu
+run_name: null                            # null -> MLflow autogenerates
+mlflow_uri: file:./mlruns                  # local file store; no server needed on CPU
+checkpoint_dir: checkpoints/adhan-nano-cpu # Orbax dir (resumable, best-by-val)
+
+model:
+  size: nano              # 6 layers x d_model 256 — the shippable tier
+  vocab_size: 4000        # small frozen swaram vocab keeps the tied head cheap on CPU
+  max_seq_len: 256        # short context: attention + activations scale with this
+  use_boundary_emb: false
+  dtype: bfloat16         # measured ~1.5x faster than float32 on XLA:CPU (see docs)
+
+train:
+  batch_size: 8           # micro-batch: what one CPU step holds
+  grad_accum_steps: 8     # effective batch 64 without the memory of batch 64
+  learning_rate: 6.0e-4   # small model + small batch tolerates a higher LR than tiny
+  warmup_steps: 200
+  max_steps: 3000         # counts OPTIMIZER UPDATES (not micro-batches); ~49M tokens, ~4.5h on 4 cores
+  weight_decay: 0.1
+  seed: 0
+  log_every: 10
+  eval_every: 200
+  checkpoint_every: 200
+  keep_checkpoints: 3
+
+data:
+  version: adhan-corpus-v1
+  # Pack the corpus at the same seq_len as model.max_seq_len above:
+  #   python scripts/prepare_slm_corpus.py --corpus data/raw/tamil/ \
+  #       --out data/final/tamil_slm_cpu --vocab-size 4000 --seq-len 256
+  shards: data/final/tamil_slm_cpu/
+  seq_packing: true
