@@ -69,12 +69,12 @@ class ScraperConfig:
 
 def rate_limit(func: Callable) -> Callable:
     """Decorator to enforce rate limiting"""
-    last_call = {"time": 0}
+    last_call = {'time': 0}
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         # Get rate limit from config
-        rate_limit_seconds = getattr(self.config, "rate_limit", 1.0)
+        rate_limit_seconds = getattr(self.config, 'rate_limit', 1.0)
 
         # Calculate time since last call
         elapsed = time.time() - last_call["time"]
@@ -118,7 +118,7 @@ class BaseScraper:
     def __init__(self, config: ScraperConfig = None):
         self.config = config or ScraperConfig()
         self.session = self._create_session()
-        self.progress = {"total": 0, "success": 0, "failed": 0}
+        self.progress = {'total': 0, 'success': 0, 'failed': 0}
 
     def _create_session(self) -> requests.Session:
         """Create a requests session with retry logic"""
@@ -137,7 +137,9 @@ class BaseScraper:
         session.mount("https://", adapter)
 
         # Set headers
-        session.headers.update({"User-Agent": self.config.user_agent})
+        session.headers.update({
+            'User-Agent': self.config.user_agent
+        })
 
         return session
 
@@ -205,7 +207,7 @@ class BaseScraper:
             if use_cache:
                 self._save_to_cache(url, content)
 
-            self.progress["success"] += 1
+            self.progress['success'] += 1
             return content
 
         except requests.exceptions.RequestException as e:
@@ -222,7 +224,7 @@ class BaseScraper:
         if not text:
             return (0, 0)
 
-        tamil_chars = sum(1 for c in text if "\u0b80" <= c <= "\u0bff")
+        tamil_chars = sum(1 for c in text if '\u0B80' <= c <= '\u0BFF')
         total_chars = len([c for c in text if c.strip()])
 
         return (tamil_chars, total_chars)
@@ -243,22 +245,21 @@ class BaseScraper:
             return ""
 
         # Remove extra whitespace
-        text = " ".join(text.split())
+        text = ' '.join(text.split())
 
         # Remove control characters
-        text = "".join(char for char in text if ord(char) >= 32 or char in "\n\t")
+        text = ''.join(char for char in text if ord(char) >= 32 or char in '\n\t')
 
         # Normalize Unicode (NFC normalization)
         import unicodedata
-
-        text = unicodedata.normalize("NFC", text)
+        text = unicodedata.normalize('NFC', text)
 
         return text.strip()
 
     def extract_text_from_html(self, html: str, selector: str = None) -> str:
         """Extract text from HTML"""
         try:
-            soup = BeautifulSoup(html, "html.parser")
+            soup = BeautifulSoup(html, 'html.parser')
 
             # Remove unwanted elements
             for element in soup.find_all(["script", "style", "nav", "footer", "header"]):
@@ -308,7 +309,7 @@ class BaseScraper:
         try:
             with output_path.open("w", encoding="utf-8") as f:
                 for record in records:
-                    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                    f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
             logger.info(f"Saved {len(records)} records to {output_path}")
         except Exception as e:
@@ -317,9 +318,9 @@ class BaseScraper:
 
     def print_progress(self):
         """Print scraping progress"""
-        total = self.progress["total"]
-        success = self.progress["success"]
-        failed = self.progress["failed"]
+        total = self.progress['total']
+        success = self.progress['success']
+        failed = self.progress['failed']
 
         logger.info(
             f"Progress: {success + failed}/{total} " f"(Success: {success}, Failed: {failed})"
@@ -350,15 +351,17 @@ class TamilCorpusScraper(BaseScraper):
                 "cmlimit": max_articles,
             }
 
-            content = self.fetch_url(f"{url}?{'&'.join([f'{k}={v}' for k, v in params.items()])}")
+            content = self.fetch_url(
+                f"{url}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+            )
 
             if not content:
                 return records
 
             data = json.loads(content)
-            members = data.get("query", {}).get("categorymembers", [])
+            members = data.get('query', {}).get('categorymembers', [])
 
-            self.progress["total"] = len(members)
+            self.progress['total'] = len(members)
 
             for member in members:
                 if member.get("ns") == 0:  # Only articles
@@ -390,7 +393,7 @@ class TamilCorpusScraper(BaseScraper):
             if not html:
                 return None
 
-            soup = BeautifulSoup(html, "html.parser")
+            soup = BeautifulSoup(html, 'html.parser')
 
             # Extract main content
             content_div = soup.find("div", {"id": "mw-content-text"})
@@ -402,8 +405,8 @@ class TamilCorpusScraper(BaseScraper):
                 element.decompose()
 
             # Extract paragraphs
-            paragraphs = content_div.find_all("p")
-            text = "\n".join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+            paragraphs = content_div.find_all('p')
+            text = '\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
 
             # Clean and validate
             text = self.clean_tamil_text(text)
@@ -417,7 +420,11 @@ class TamilCorpusScraper(BaseScraper):
             logger.error(f"Error scraping Wikipedia article {url}: {e}")
             return None
 
-    def scrape_literature_site(self, url: str, selector: str = None) -> List[Dict]:
+    def scrape_literature_site(
+        self,
+        url: str,
+        selector: str = None
+    ) -> List[Dict]:
         """Scrape Tamil literature from a website"""
         logger.info(f"Scraping literature site: {url}")
         records = []
@@ -441,22 +448,21 @@ class TamilCorpusScraper(BaseScraper):
 
 def main():
     """Main function for command-line usage"""
-    parser = argparse.ArgumentParser(description="Enhanced Tamil Corpus Scraper")
-    parser.add_argument("--base-dir", default="data/raw", help="Base directory for output")
-    parser.add_argument("--cache-dir", default="data/raw/.cache", help="Cache directory")
-    parser.add_argument("--rate-limit", type=float, default=1.0, help="Rate limit in seconds")
-    parser.add_argument("--max-retries", type=int, default=3, help="Maximum retries")
-    parser.add_argument("--timeout", type=int, default=30, help="Request timeout")
-    parser.add_argument("--no-cache", action="store_true", help="Disable caching")
-    parser.add_argument(
-        "--source",
-        choices=["wikipedia", "literature"],
-        default="wikipedia",
-        help="Source to scrape",
-    )
-    parser.add_argument("--category", default="Tamil_language", help="Wikipedia category to scrape")
-    parser.add_argument("--max-articles", type=int, default=50, help="Maximum articles to scrape")
-    parser.add_argument("--output", default="tamil_corpus_enhanced.jsonl", help="Output filename")
+    parser = argparse.ArgumentParser(description='Enhanced Tamil Corpus Scraper')
+    parser.add_argument('--base-dir', default='data/raw', help='Base directory for output')
+    parser.add_argument('--cache-dir', default='data/raw/.cache', help='Cache directory')
+    parser.add_argument('--rate-limit', type=float, default=1.0, help='Rate limit in seconds')
+    parser.add_argument('--max-retries', type=int, default=3, help='Maximum retries')
+    parser.add_argument('--timeout', type=int, default=30, help='Request timeout')
+    parser.add_argument('--no-cache', action='store_true', help='Disable caching')
+    parser.add_argument('--source', choices=['wikipedia', 'literature'],
+                       default='wikipedia', help='Source to scrape')
+    parser.add_argument('--category', default='Tamil_language',
+                       help='Wikipedia category to scrape')
+    parser.add_argument('--max-articles', type=int, default=50,
+                       help='Maximum articles to scrape')
+    parser.add_argument('--output', default='tamil_corpus_enhanced.jsonl',
+                       help='Output filename')
 
     args = parser.parse_args()
 

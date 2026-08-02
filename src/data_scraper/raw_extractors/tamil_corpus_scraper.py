@@ -39,9 +39,9 @@ class TamilCorpusScraper:
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.session = requests.Session()
-        self.session.headers.update(
-            {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        )
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
 
     def scrape_wikipedia(self, category: str = "Tamil_language") -> List[str]:
         """Scrape Tamil Wikipedia articles"""
@@ -62,11 +62,9 @@ class TamilCorpusScraper:
             response = self.session.get(url, params=params)
             data = response.json()
 
-            for member in data.get("query", {}).get("categorymembers", []):
-                if member["ns"] == 0:  # Only articles
-                    article_url = (
-                        f"https://ta.wikipedia.org/wiki/{member['title'].replace(' ', '_')}"
-                    )
+            for member in data.get('query', {}).get('categorymembers', []):
+                if member['ns'] == 0:  # Only articles
+                    article_url = f"https://ta.wikipedia.org/wiki/{member['title'].replace(' ', '_')}"
                     article_text = self._scrape_wikipedia_article(article_url)
                     if article_text:
                         articles.append(article_text)
@@ -83,7 +81,7 @@ class TamilCorpusScraper:
             response = self.session.get(url)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(response.content, 'html.parser')
 
             # Extract main content
             content_div = soup.find("div", {"id": "mw-content-text"})
@@ -113,7 +111,11 @@ class TamilCorpusScraper:
         texts = []
 
         # Sangam literature sites
-        sites = ["https://sangam.org", "https://tamilvu.org", "https://projectmadurai.org"]
+        sites = [
+            "https://sangam.org",
+            "https://tamilvu.org",
+            "https://projectmadurai.org"
+        ]
 
         for site in sites:
             texts.extend(self._scrape_literature_site(site))
@@ -127,7 +129,7 @@ class TamilCorpusScraper:
             response = self.session.get(url)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(response.content, 'html.parser')
 
             # Find text content
             texts = []
@@ -165,7 +167,7 @@ class TamilCorpusScraper:
             response = self.session.get(url)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(response.content, 'html.parser')
 
             # Find news articles
             articles = []
@@ -393,7 +395,7 @@ class TamilCorpusScraper:
                     continue
 
                 # reject extremely repetitive pages
-                lines = [l.strip() for l in txt.splitlines() if l.strip()]
+                lines = [line.strip() for line in txt.splitlines() if line.strip()]
                 if lines and (len(set(lines)) / len(lines) < 0.5):
                     removed += 1
                     continue
@@ -834,6 +836,8 @@ class TamilCorpusScraper:
 
         return {"train": len(train), "validation": len(val), "test": len(test), "total": n}
 
+        return {'train': len(train), 'validation': len(val), 'test': len(test), 'total': n}
+
     def save_to_file(self, texts: List[str], filename: str = "tamil_corpus.txt"):
         """Save collected texts to file.
 
@@ -931,79 +935,37 @@ def main():
         help="Save format: plain text or jsonl with metadata",
     )
     parser.add_argument("--dedupe", action="store_true", help="Deduplicate collected items")
-    parser.add_argument(
-        "--classify", action="store_true", help="Run topic classification and quality scoring"
-    )
-    parser.add_argument(
-        "--limit", type=int, default=0, help="Limit number of items saved (0 = all)"
-    )
-    parser.add_argument(
-        "--crawl-sitemap",
-        type=str,
-        default=None,
-        help="Crawl sitemap for a domain (e.g. projectmadurai.org)",
-    )
-    parser.add_argument(
-        "--basic",
-        action="store_true",
-        help="Run a basic one-shot sitemap crawl across configured data sites",
-    )
-    parser.add_argument(
-        "--basic-limit",
-        type=int,
-        default=50,
-        help="Per-site page limit when running `--basic` (0 = all)",
-    )
-    parser.add_argument(
-        "--save-raw-html",
-        action="store_true",
-        help="Save raw HTML files when crawling (under data/raw_html/<domain>)",
-    )
-    parser.add_argument(
-        "--extract-pdfs",
-        action="store_true",
-        help="Download PDF files found in sitemap and extract text (requires pdfminer)",
-    )
-    parser.add_argument(
-        "--build-manifest",
-        action="store_true",
-        help="Build per-work manifests from collected records",
-    )
-    parser.add_argument(
-        "--to-hf",
-        action="store_true",
-        help="Convert collected records to a simple HuggingFace JSONL dataset",
-    )
-    parser.add_argument(
-        "--sources",
-        nargs="+",
-        choices=["wikipedia", "literature", "news", "books", "social"],
-        default=["wikipedia", "literature", "news"],
-        help="Sources to scrape from",
-    )
+    parser.add_argument("--classify", action="store_true", help="Run topic classification and quality scoring")
+    parser.add_argument("--limit", type=int, default=0, help="Limit number of items saved (0 = all)")
+    parser.add_argument("--crawl-sitemap", type=str, default=None,
+                       help="Crawl sitemap for a domain (e.g. projectmadurai.org)")
+    parser.add_argument("--basic", action="store_true",
+                       help="Run a basic one-shot sitemap crawl across configured data sites")
+    parser.add_argument("--basic-limit", type=int, default=50,
+                       help="Per-site page limit when running `--basic` (0 = all)")
+    parser.add_argument("--save-raw-html", action="store_true",
+                       help="Save raw HTML files when crawling (under data/raw_html/<domain>)")
+    parser.add_argument("--extract-pdfs", action="store_true",
+                       help="Download PDF files found in sitemap and extract text (requires pdfminer)")
+    parser.add_argument("--build-manifest", action="store_true",
+                       help="Build per-work manifests from collected records")
+    parser.add_argument("--to-hf", action="store_true",
+                       help="Convert collected records to a simple HuggingFace JSONL dataset")
+    parser.add_argument("--sources", nargs='+',
+                       choices=['wikipedia', 'literature', 'news', 'books', 'social'],
+                       default=['wikipedia', 'literature', 'news'],
+                       help="Sources to scrape from")
     parser.add_argument("--full", action="store_true", help="Run full scraping pipeline")
-    parser.add_argument(
-        "--check_packages", action="store_true", help="Check and install language packages"
-    )
-    parser.add_argument(
-        "--min-quality",
-        type=float,
-        default=0.0,
-        help="Minimum quality_score to keep a record (0.0-1.0)",
-    )
-    parser.add_argument(
-        "--min-chars", type=int, default=0, help="Minimum character length for records to keep"
-    )
-    parser.add_argument(
-        "--require-tamil",
-        action="store_true",
-        help="Require Tamil-dominant text (filters out pages with low Tamil fraction)",
-    )
-    parser.add_argument(
-        "--apply-fineweb",
-        action="store_true",
-        help="Apply additional FineWeb-style heuristics during filtering",
-    )
+    parser.add_argument("--check_packages", action="store_true",
+                       help="Check and install language packages")
+    parser.add_argument("--min-quality", type=float, default=0.0,
+                       help="Minimum quality_score to keep a record (0.0-1.0)")
+    parser.add_argument("--min-chars", type=int, default=0,
+                       help="Minimum character length for records to keep")
+    parser.add_argument("--require-tamil", action="store_true",
+                       help="Require Tamil-dominant text (filters out pages with low Tamil fraction)")
+    parser.add_argument("--apply-fineweb", action="store_true",
+                       help="Apply additional FineWeb-style heuristics during filtering")
 
     args = parser.parse_args()
 
@@ -1098,9 +1060,7 @@ def main():
             scraper.build_manifests(all_records, out_dir=str(per_site_dir / "manifests"))
 
         if args.to_hf:
-            scraper.convert_to_hf_dataset(
-                all_records, out_dir=str(per_site_dir / "hf"), min_quality=args.min_quality
-            )
+            scraper.convert_to_hf_dataset(all_records, out_dir=str(per_site_dir / 'hf'), min_quality=args.min_quality)
 
         # save combined
         if args.format == "jsonl":
@@ -1160,7 +1120,7 @@ def main():
 
         # build manifests if requested
         if args.build_manifest:
-            manifest = scraper.build_manifests(records)
+            scraper.build_manifests(records)
 
         # export HF dataset if requested
         if args.to_hf:

@@ -158,7 +158,6 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
     if config and checkpoint:
         try:
             from adhan_slm.inference import generate_text, load_model
-
             model, params, _ = load_model(config, checkpoint, vocab_size=len(tok))
             out["generations"] = [
                 {

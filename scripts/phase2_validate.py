@@ -311,7 +311,9 @@ Examples:
             f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}"
         )
         print("\nLanguage Mix:")
-        print(f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}")
+        print(
+            f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}"
+        )
         print("\nPII Check:")
         pii = report["pii_check"]
         print(

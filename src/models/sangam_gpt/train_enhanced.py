@@ -174,8 +174,9 @@ class TamilModelTrainer:
             else:
                 # For masked LM or other types
                 from transformers import AutoModelForMaskedLM
-
-                self.model = AutoModelForMaskedLM.from_pretrained(self.config.model_name)
+                self.model = AutoModelForMaskedLM.from_pretrained(
+                    self.config.model_name
+                )
 
             # Resize embeddings if vocab size changed
             if self.config.vocab_size and len(self.tokenizer) != self.model.config.vocab_size:
@@ -189,9 +190,7 @@ class TamilModelTrainer:
             # Print model info
             num_params = sum(p.numel() for p in self.model.parameters())
             num_trainable = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-            logger.info(
-                f"Model loaded: {num_params:,} total parameters, {num_trainable:,} trainable"
-            )
+            logger.info(f"Model loaded: {num_params:,} total parameters, {num_trainable:,} trainable")
 
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
@@ -218,9 +217,9 @@ class TamilModelTrainer:
         if val_path.exists():
             data_files["validation"] = str(val_path)
         if test_path.exists():
-            data_files["test"] = str(test_path)
+            data_files['test'] = str(test_path)
 
-        dataset = load_dataset("json", data_files=data_files)
+        dataset = load_dataset('json', data_files=data_files)
 
         logger.info("Dataset loaded:")
         for split, data in dataset.items():
@@ -386,15 +385,15 @@ class TamilModelTrainer:
 
 def main():
     parser = argparse.ArgumentParser(description="Enhanced Tamil Model Training")
-    parser.add_argument("--config", type=str, help="Path to configuration file (JSON/YAML)")
-    parser.add_argument("--model-name", type=str, help="Model name/path")
-    parser.add_argument("--data-dir", type=str, help="Data directory")
-    parser.add_argument("--output-dir", type=str, help="Output directory")
-    parser.add_argument("--num-epochs", type=int, help="Number of training epochs")
-    parser.add_argument("--batch-size", type=int, help="Batch size")
-    parser.add_argument("--learning-rate", type=float, help="Learning rate")
-    parser.add_argument("--use-wandb", action="store_true", help="Enable Weights & Biases")
-    parser.add_argument("--create-config", type=str, help="Create default config file")
+    parser.add_argument('--config', type=str, help='Path to configuration file (JSON/YAML)')
+    parser.add_argument('--model-name', type=str, help='Model name/path')
+    parser.add_argument('--data-dir', type=str, help='Data directory')
+    parser.add_argument('--output-dir', type=str, help='Output directory')
+    parser.add_argument('--num-epochs', type=int, help='Number of training epochs')
+    parser.add_argument('--batch-size', type=int, help='Batch size')
+    parser.add_argument('--learning-rate', type=float, help='Learning rate')
+    parser.add_argument('--use-wandb', action='store_true', help='Enable Weights & Biases')
+    parser.add_argument('--create-config', type=str, help='Create default config file')
 
     args = parser.parse_args()
 

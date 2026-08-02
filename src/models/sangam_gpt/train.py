@@ -72,9 +72,7 @@ class TamilTextDataset:
 class TamilSangamGPT:
     """SangamGPT model for Tamil text generation"""
 
-    def __init__(
-        self, model_name="sangam/IndianLanguages-Tamil-BERT-v0.1", output_dir="sangam_gpt_model"
-    ):
+    def __init__(self, model_name="sangam/IndianLanguages-Tamil-BERT-v0.1", output_dir="sangam_gpt_model"):
         self.model_name = model_name
         self.output_dir = output_dir
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -172,9 +170,7 @@ class TamilSangamGPT:
     def generate_text(self, prompt, max_length=100, num_return_sequences=1):
         """Generate Tamil text"""
         if not self.tokenizer or not self.model:
-            raise ValueError(
-                "Model not initialized. Call setup_tokenizer() and setup_model() first."
-            )
+            raise ValueError("Model not initialized. Call setup_tokenizer() and setup_model() first.")
 
         # Create pipeline
         generator = pipeline(
