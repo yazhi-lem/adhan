@@ -250,6 +250,17 @@ def train(config_path: str, smoke: bool = False):
                 "(pip install orbax-checkpoint)."
             )
 
+    # Self-describing checkpoint: the architecture (AdhanConfig) and the frozen
+    # tokenizer dir it was trained against, carried as a JSON item inside the
+    # checkpoint itself instead of a separately-passed --config/--tokenizer-dir.
+    # adhan_slm.inference.load_model reads this back so a checkpoint dir alone is
+    # enough to reconstruct and restore the model — see docs/ARCHITECTURE_SWARAM_SLM.md.
+    _shards = cfg.get("data", {}).get("shards")
+    ckpt_metadata = {
+        "model_config": {k: v for k, v in vars(model_cfg).items()},
+        "tokenizer_dir": str(_resolve(_shards)) if _shards else None,
+    }
+
     def save_ckpt(step, metrics):
         # Save the full TrainState (for exact resume, incl. optimizer momentum) AND a
         # params-only item, so inference/eval can restore weights without having to
@@ -261,7 +272,9 @@ def train(config_path: str, smoke: bool = False):
         ckptr.save(
             step,
             args=ocp.args.Composite(
-                state=ocp.args.StandardSave(state), params=ocp.args.StandardSave(state.params)
+                state=ocp.args.StandardSave(state),
+                params=ocp.args.StandardSave(state.params),
+                metadata=ocp.args.JsonSave(ckpt_metadata),
             ),
             metrics=metrics,
         )
