@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       - name: Install dependencies
@@ -41,8 +41,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run bandit security scan
-        continue-on-error: true
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install bandit
         run: |
+          python -m pip install --upgrade pip
           pip install bandit
-          bandit -r src/ -ll
+
+      - name: Run bandit (blocking — High severity)
+        # This is the actual gate: a High-severity finding fails the build.
+        # Kept strict-but-achievable on purpose — as of this workflow being
+        # written, High-severity findings are at zero. Do not add `|| true`
+        # here; that defeats the purpose of the check.
+        run: bandit -r src/ -lll -f json -o bandit-report-high.json
+
+      - name: Run bandit (informational — Medium+Low severity)
+        # Non-blocking. Surfaces existing/emerging Medium and Low severity
+        # findings for visibility and triage without blocking merges on
+        # pre-existing debt. See docs/SECURITY_HARDENING.md.
+        if: always()
+        run: bandit -r src/ -ll -f json -o bandit-report-full.json || true
+
+      - name: Upload bandit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-reports
+          path: bandit-report-*.json
+          retention-days: 30

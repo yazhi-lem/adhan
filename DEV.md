@@ -71,6 +71,46 @@ python scripts/run_scraper.py --social twitter --social-max-requests 100
 python scripts/run_scraper.py --social all
 ```
 
+## 8) Native SLM: CPU training (no GPU)
+
+Full guide: [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md).
+
+```bash
+# Install the CPU JAX stack (GPU is opt-in via ".[jax-cuda]")
+pip install -e ".[jax,dev]"
+
+# 1. Freeze the swaram tokenizer + pack shards at the CPU sequence length
+python scripts/prepare_slm_corpus.py \
+  --corpus data/raw/tamil/ \
+  --out data/final/tamil_slm_cpu \
+  --vocab-size 4000 --seq-len 256
+
+# 2. Sanity-gate the wiring: one batch, repeated, loss must collapse
+python -m adhan_slm.training.train_jax \
+  --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml \
+  --device cpu --overfit-batch
+
+# 3. Train (resumable; re-running continues the global step budget)
+python -m adhan_slm.training.train_jax \
+  --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
+
+# 4. Inspect runs
+mlflow ui   # http://localhost:5000
+```
+
+Useful overrides (no config edit needed):
+
+```bash
+--max-steps 500 --batch-size 4 --grad-accum-steps 16 --learning-rate 1e-3
+```
+
+Tests for the CPU path (~1 min, no GPU):
+
+```bash
+pytest tests/integration/train_cpu_*_tests.py -v   # ~3 min (XLA compiles per config)
+python -m adhan_slm.training.device_tests          # dtype/backend resolution, <1s
+```
+
 ## Notes
 
 - Run from repository root.
@@ -82,5 +122,4 @@ python scripts/run_scraper.py --social all
   pipeline only. See `ROADMAP_JAX_SLM.md` §0 for the rationale.
 - `scripts/export_onnx.py` / `scripts/quantize_model.py` still exist but are
   written against HF/transformers model dirs from the removed pipeline; they
-  need reworking for the JAX SLM before they're usable again (tracked in
-  `docs/CI_WORKFLOW_CLEANUP.md`'s sibling cleanup notes, not yet done).
+  need reworking for the JAX SLM before they're usable again.

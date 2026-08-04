@@ -107,7 +107,6 @@ def quantize_int8_static(
     max_length: int,
 ) -> None:
     try:
-        import numpy as np  # type: ignore
         from onnxruntime.quantization import (  # type: ignore
             CalibrationDataReader,
             QuantFormat,
@@ -159,8 +158,10 @@ def quantize_int8_static(
 def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     """INT4 weight-only quantization via HuggingFace Optimum."""
     try:
-        from optimum.onnxruntime import ORTModelForFeatureExtraction  # type: ignore
-        from optimum.onnxruntime import ORTQuantizer  # type: ignore
+        from optimum.onnxruntime import (
+            ORTModelForFeatureExtraction,  # type: ignore
+            ORTQuantizer,  # type: ignore
+        )
         from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
     except ImportError:
         _require("optimum[onnxruntime]")
@@ -200,7 +201,6 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int, n_runs: int
     import time  # noqa: PLC0415
 
     try:
-        import numpy as np  # type: ignore
         import onnxruntime as ort  # type: ignore
         from transformers import AutoTokenizer  # type: ignore
     except ImportError:

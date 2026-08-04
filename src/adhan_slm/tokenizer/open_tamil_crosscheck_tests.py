@@ -6,7 +6,7 @@ tokenizer cores stay pure-python and dependency-free by design (see their
 module docstrings), so these tests skip cleanly rather than fail when
 open-tamil isn't installed, instead of gating the whole test suite on it.
 
-Run: python -m pytest (or python this_file.py)
+Run: PYTHONPATH=src python -m adhan_slm.tokenizer.open_tamil_crosscheck_tests
 """
 
 import sys
@@ -14,6 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
 
+from adhan_slm.core.selftest import run_module_tests, skip_unless  # noqa: E402
 from adhan_slm.external.open_tamil_bridge import (  # noqa: E402
     HAS_OPEN_TAMIL,
     reference_segment_aksharas,
@@ -34,10 +35,8 @@ SAMPLES = [
 ]
 
 
+@skip_unless(HAS_OPEN_TAMIL, "open-tamil not installed")
 def test_agrees_with_open_tamil_reference_segmenter():
-    if not HAS_OPEN_TAMIL:
-        print("SKIP (open-tamil not installed)")
-        return
     for s in SAMPLES:
         ours = segment_aksharas(s)
         reference = reference_segment_aksharas(s)
@@ -46,13 +45,5 @@ def test_agrees_with_open_tamil_reference_segmenter():
         ), f"segmentation mismatch for {s!r}: ours={ours} open-tamil={reference}"
 
 
-def _run():
-    fns = [v for k, v in globals().items() if k.startswith("test_")]
-    for fn in fns:
-        fn()
-        print(f"PASS {fn.__name__}")
-    print(f"\n{len(fns)} passed")
-
-
 if __name__ == "__main__":
-    _run()
+    run_module_tests(globals(), "open-tamil segmentation crosscheck")

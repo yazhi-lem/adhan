@@ -125,7 +125,12 @@ class TextDeduplicator:
             # Different hash seed for each permutation
             min_hash = float("inf")
             for shingle in shingles:
-                hash_val = int(hashlib.md5(f"{self.seed + i}{shingle}".encode()).hexdigest(), 16)
+                hash_val = int(
+                    hashlib.md5(
+                        f"{self.seed + i}{shingle}".encode(), usedforsecurity=False
+                    ).hexdigest(),
+                    16,
+                )
                 min_hash = min(min_hash, hash_val)
 
             signature.append(min_hash % (2**32))  # Bound to 32-bit int
@@ -206,16 +211,22 @@ class TextDeduplicator:
             Dict: Deduplication statistics (counts, rates, per-source breakdown).
         """
 
+        # Created here (not inside the generator) so the caller's reference to
+        # `stats` is the same dict object the generator mutates in place. A
+        # generator's `return` value is only reachable via StopIteration.value,
+        # not through normal iteration, so it can never be handed back through
+        # a simple `gen, stats = self.deduplicate(...)` unpack — mutating a
+        # shared dict is what makes the stats visible once `gen` is exhausted.
+        stats = {
+            "total_seen": 0,
+            "exact_duplicates": 0,
+            "near_duplicates": 0,
+            "kept": 0,
+            "per_source": defaultdict(lambda: {"seen": 0, "duplicates": 0}),
+        }
+
         def deduplicate_generator():
             """Inner generator for deduplication."""
-            stats = {
-                "total_seen": 0,
-                "exact_duplicates": 0,
-                "near_duplicates": 0,
-                "kept": 0,
-                "per_source": defaultdict(lambda: {"seen": 0, "duplicates": 0}),
-            }
-
             for doc in documents:
                 stats["total_seen"] += 1
                 text = doc.get("text", "")
@@ -249,33 +260,18 @@ class TextDeduplicator:
                     stats["kept"] += 1
                     yield doc
 
-            # Yield stats before returning
-            dedup_report = {
-                "total_seen": stats["total_seen"],
-                "kept": stats["kept"],
-                "removed": stats["exact_duplicates"] + stats["near_duplicates"],
-                "exact_duplicates": stats["exact_duplicates"],
-                "near_duplicates": stats["near_duplicates"],
-                "removal_rate": (
-                    (stats["exact_duplicates"] + stats["near_duplicates"]) / stats["total_seen"]
-                    if stats["total_seen"] > 0
-                    else 0.0
-                ),
-                "per_source": dict(stats["per_source"]),
-            }
+            # Finalize the shared stats dict in place once the stream is exhausted.
+            removed = stats["exact_duplicates"] + stats["near_duplicates"]
+            stats["removed"] = removed
+            stats["removal_rate"] = removed / stats["total_seen"] if stats["total_seen"] > 0 else 0.0
+            stats["per_source"] = dict(stats["per_source"])
 
             self.logger.info(
                 f"Deduplication complete: {stats['kept']}/{stats['total_seen']} kept, "
-                f"{dedup_report['removal_rate']:.1%} removal rate"
+                f"{stats['removal_rate']:.1%} removal rate"
             )
 
-            return dedup_report
-
-        return deduplicate_generator(), self._dedup_stats_placeholder()
-
-    def _dedup_stats_placeholder(self) -> Dict:
-        """Placeholder for stats (actual stats returned from generator)."""
-        return {}
+        return deduplicate_generator(), stats
 
     def per_source_dedup(
         self, documents: Generator[dict, None, None]

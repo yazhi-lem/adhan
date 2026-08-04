@@ -1,10 +1,17 @@
-"""Tests for the Aksharam (Hindi/Devanagari) tokenizer."""
+"""Tests for the Aksharam (Hindi/Devanagari) akshara tokenizer.
+
+Sibling of the Swaram tests; same two-layer contract, Devanagari script rules
+(conjuncts, matras, anusvara/chandrabindu).
+
+Run: PYTHONPATH=src python -m adhan_slm.tokenizer.aksharam_tokenizer_tests
+"""
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from adhan_slm.core.selftest import run_module_tests  # noqa: E402
 from adhan_slm.tokenizer import (  # noqa: E402
     AksharamTokenizer,
     default_aksharam_inventory,
@@ -50,13 +57,5 @@ def test_encode_decode_round_trip():
         assert tok.decode(tok.encode(s, add_special=True)) == s, f"round-trip: {s!r}"
 
 
-def _run():
-    fns = [v for k, v in globals().items() if k.startswith("test_")]
-    for fn in fns:
-        fn()
-        print(f"PASS {fn.__name__}")
-    print(f"\n{len(fns)} passed")
-
-
 if __name__ == "__main__":
-    _run()
+    run_module_tests(globals(), "aksharam tokenizer")

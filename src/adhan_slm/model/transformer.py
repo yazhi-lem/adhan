@@ -109,7 +109,8 @@ try:
             b, t = x.shape[0], x.shape[1]
             # (B, T, H, Dh) directly — no transpose needed, matches the layout
             # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
-            shp = lambda a: a.reshape(b, t, c.n_heads, dh)
+            def shp(a):
+                return a.reshape(b, t, c.n_heads, dh)
             q, k, v = _rope(shp(q), c.rope_theta), _rope(shp(k), c.rope_theta), shp(v)
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
@@ -239,9 +240,12 @@ except ImportError:  # JAX/Flax not installed — tokenizer-only usage still wor
 
 
 if __name__ == "__main__":
+    from adhan_slm.core.logging import get_logger
+
+    logger = get_logger(__name__)
     for name in ("nano", "tiny", "mini"):
         cfg = getattr(AdhanConfig, name)()
-        print(
+        logger.info(
             f"{name:5s}  d_model={cfg.d_model:4d}  layers={cfg.n_layers:2d}  "
             f"heads={cfg.n_heads:2d}  ctx={cfg.max_seq_len:4d}  "
             f"~{cfg.approx_params()/1e6:.1f}M params"

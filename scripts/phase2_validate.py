@@ -190,7 +190,6 @@ class CorpusValidator:
         sample_size = min(sample_size or 100, len(self.records))
 
         for record in random.sample(self.records, sample_size):
-            text = record.get("text", "")
             # Rough estimate: Tamil text has ~0.8-1.2 chars per akshara
             # Tokenizer fertility: tokens per akshara
             # Estimate: 0.9 tokens/akshara (very rough)
@@ -311,7 +310,9 @@ Examples:
             f"  Range: {report['quality_scores']['min_score']:.2f} - {report['quality_scores']['max_score']:.2f}"
         )
         print("\nLanguage Mix:")
-        print(f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}")
+        print(
+            f"  Avg Tamil fraction: {report['language_mix'].get('avg_tamil_fraction', 0):.1%}"
+        )
         print("\nPII Check:")
         pii = report["pii_check"]
         print(

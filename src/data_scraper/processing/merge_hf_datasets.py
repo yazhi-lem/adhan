@@ -23,7 +23,7 @@ for f in files_to_merge:
             try:
                 obj = json.loads(line)
                 all_records.append(obj)
-            except ExcepAdhanTamilCorpustion:
+            except json.JSONDecodeError:
                 continue
     print(f"Loaded {f}, {len(all_records)} total records so far")
 
@@ -53,5 +53,5 @@ with OUT_FILE.open("w", encoding="utf-8") as fh:
     for r in uniq:
         fh.write(json.dumps(r, ensure_ascii=False) + "\n")
 
-print(f"Wrote {len(uniq)} records to {OUT_FILE}")
-print("Ready for HF export")
+print(f'Wrote {len(uniq)} records to {OUT_FILE}')
+print('Ready for HF export')

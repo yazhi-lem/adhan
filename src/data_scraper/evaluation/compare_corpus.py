@@ -16,7 +16,7 @@ def analyze_corpus(jsonl_path):
         for line in fh:
             try:
                 records.append(json.loads(line))
-            except:
+            except json.JSONDecodeError:
                 pass
 
     # Source distribution

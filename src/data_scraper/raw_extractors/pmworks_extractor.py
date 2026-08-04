@@ -103,23 +103,23 @@ def fast_extract_text(html: str, max_chars: int = 50000) -> str:
 
     # Truncate if too large (avoid regex backtracking)
     if len(html) > max_chars * 10:
-        html = html[: max_chars * 10]
+        html = html[:max_chars * 10]
 
     try:
         soup = BeautifulSoup(html[: max_chars * 10], "html.parser", features="html.parser")
     except Exception:
         # fallback: raw strip
-        return re.sub(r"<[^>]+>", " ", html)
+        return re.sub(r'<[^>]+>', ' ', html)
 
     # decompose script/style/etc
     for el in soup.find_all(["script", "style", "svg", "noscript"]):
         el.decompose()
 
     # extract text
-    text = soup.get_text(separator=" ", strip=True)
+    text = soup.get_text(separator=' ', strip=True)
 
     # normalize whitespace
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
 
     # cap final result
     if len(text) > max_chars:

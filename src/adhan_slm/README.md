@@ -31,18 +31,22 @@ Adhan is the **foundational model** of the Yazh ecosystem — see
 # tokenizers work with zero extra deps (pure python)
 PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"   # Tamil
 PYTHONPATH=src python -m adhan_slm.tokenizer.aksharam_tokenizer "पढ़ रहा था"               # Hindi
-PYTHONPATH=src python src/adhan_slm/tokenizer/test_swaram_tokenizer.py     # 5 tests
-PYTHONPATH=src python src/adhan_slm/tokenizer/test_aksharam_tokenizer.py   # 5 tests
+PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer_tests     # 5 tests
+PYTHONPATH=src python -m adhan_slm.tokenizer.aksharam_tokenizer_tests   # 5 tests
 
 # model size table (no JAX needed for configs)
 PYTHONPATH=src python -m adhan_slm.model.transformer
 
 # data pipeline unit tests (pure-python, no JAX/numpy needed)
-PYTHONPATH=src python -m adhan_slm.data.test_data_pipeline
+PYTHONPATH=src python -m adhan_slm.data.corpus_tests
+PYTHONPATH=src python -m adhan_slm.data.packing_tests
+PYTHONPATH=src python -m adhan_slm.data.loader_tests
 
 # open-tamil-backed eval (needs: pip install open-tamil, or requirements-jax.txt)
-PYTHONPATH=src python src/adhan_slm/tokenizer/test_open_tamil_crosscheck.py  # segmenter cross-check
-PYTHONPATH=src python src/adhan_slm/eval/test_open_tamil_eval.py            # morphology/prompts/baseline
+PYTHONPATH=src python -m adhan_slm.tokenizer.open_tamil_crosscheck_tests   # segmenter cross-check
+PYTHONPATH=src python -m adhan_slm.eval.morphology_tests                   # morphology probes
+PYTHONPATH=src python -m adhan_slm.eval.kid_level_prompts_tests            # prompt set
+PYTHONPATH=src python -m adhan_slm.eval.ngram_baseline_tests               # classical floor
 PYTHONPATH=src python -m adhan_slm.eval.kid_level_prompts                   # preview 10 kid-level prompts
 
 # full pipeline needs the JAX stack
@@ -58,6 +62,32 @@ python scripts/generate_slm.py --tokenizer-dir data/final/tamil_slm --config src
 PYTHONPATH=src python -m adhan_slm.eval.run_eval --tokenizer-dir data/final/tamil_slm --eval-text data/final/tamil_slm --config src/adhan_slm/configs/adhan_slm_tiny.yaml --checkpoint checkpoints/adhan-tiny
 mlflow ui   # http://localhost:5000
 ```
+
+## Tests
+
+Every test module sits next to the code it covers and mirrors its name —
+`device.py` → `device_tests.py`, `packing.py` → `packing_tests.py`. Each one runs two
+ways: under pytest, and standalone via `python -m <module>` (the tokenizer and data
+cores are dependency-free by design, so their tests must run in that same minimal
+environment).
+
+```bash
+pytest                     # everything (~3 min; the CPU training runs dominate)
+pytest -m "not integration"  # unit only (~1s)
+PYTHONPATH=src python -m adhan_slm.data.packing_tests   # one module, no pytest
+```
+
+Shared pieces, so the boilerplate lives in one place:
+
+| Helper | Purpose |
+|---|---|
+| `core/selftest.py` | standalone `run_module_tests()` runner + `skip_unless()` optional-dependency guard |
+| `data/_test_fixtures.py` | Tamil sample lines + a tiny frozen tokenizer |
+| `eval/_test_fixtures.py` | inflected words / phrases / mini-corpus + the open-tamil skip guard |
+| `../../tests/integration/conftest.py` | session-scoped corpus → shards → config fixtures for the CPU training suite |
+
+`skip_unless` is used instead of `if not HAS_X: return` because a bare early return
+makes pytest report a probe that never ran as a **pass**.
 
 ## Status
 - ✅ Swaram tokenizer: Layer A (akshara segmentation, lossless) + Layer B (merge BPE), tested.

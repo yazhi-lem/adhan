@@ -1,8 +1,8 @@
 # Adhan SLM - Completion Tracker
 
-**Project Status**: v0.1.0.dev0 - Phase A (Foundation) In Progress  
-**Last Updated**: 2026-07-23  
-**Next Milestone**: Phase A completion → Phase B (Robustness)
+**Project Status**: v0.1.0.dev0 - Phase A closed; CPU training path ready  
+**Last Updated**: 2026-07-30  
+**Next Milestone**: Phase B3 (type hints) → Phase 3 (nano pretrain on real corpus)
 
 ---
 
@@ -11,21 +11,21 @@
 | Phase | Name | Status | Completion | Target | ETA |
 |-------|------|--------|------------|--------|-----|
 | **Phase 0** | Foundation & Scaffolding | ✅ Done | 100% | - | - |
-| **Phase A** | CI/CD & Logging | 🚀 In Progress | 41% | Week 1-2 | 2026-07-23 |
-| **Phase B** | Observability & Robustness | ⏳ Queued | 0% | Week 2-3 | TBD |
-| **Phase C** | Deployment & Serving | ⏳ Queued | 0% | Week 3-4 | TBD |
+| **Phase A** | CI/CD & Logging | ✅ Done | 100% | Week 1-2 | 2026-07-30 |
+| **Phase B** | Observability & Robustness | 🟡 Partial | 75% | Week 2-3 | TBD |
+| **Phase C** | Deployment & Serving | 🟡 Partial | 95% | Week 3-4 | TBD |
 | **Phase D** | Roadmap Completion | ⏳ Future | 0% | Ongoing | TBD |
 | **Phase 1** | Tokenizer to Production | 🟡 Partial | 85% | - | - |
 | **Phase 2** | Corpus at Scale | 🔴 Blocked | 10% | - | - |
-| **Phase 3** | Pretrain `adhan-nano` | 🟡 Partial | 50% | - | - |
+| **Phase 3** | Pretrain `adhan-nano` | 🟡 Partial | 70% | - | - |
 | **Phase 4** | Evaluation & Probes | ✅ Done | 95% | - | - |
 
 ---
 
-## Phase A: Foundation (CI/CD & Logging) - 🚀 In Progress
+## Phase A: Foundation (CI/CD & Logging) - ✅ Done
 
 **Goal**: Enable quality gates and reproducibility  
-**Status**: 41% complete (Infrastructure tasks)
+**Status**: ✅ 100% complete
 
 ### Tasks Breakdown
 
@@ -35,20 +35,21 @@ A1. Add CI/CD Pipeline ...................... ✅ 100% (DONE)
     ├─ pytest configuration ................. ✅ Done
     └─ test fixtures ........................ ✅ Done
 
-A2. Add Structured Logging .................. 🟡 14% (IN PROGRESS)
+A2. Add Structured Logging .................. ✅ 100% (DONE)
     ├─ Logging module factory ............... ✅ Done
-    ├─ Replace prints (29 occurrences) ...... 🔴 Pending
-    └─ MLflow integration ................... 🔴 Pending
+    ├─ Replace diagnostic prints ............ ✅ Done (0 left in src/ + scripts/)
+    └─ MLflow integration ................... ✅ Done (runtime params + artifacts)
 
-A3. Add Package Installation ................ 🟡 25% (IN PROGRESS)
+A3. Add Package Installation ................ ✅ 100% (DONE)
     ├─ pyproject.toml ....................... ✅ Done
-    ├─ README updates ....................... 🔴 Pending
-    └─ Installation testing ................. 🔴 Pending
+    ├─ README updates ....................... ✅ Done
+    ├─ CPU-installable [jax] extra .......... ✅ Done ([jax-cuda] for GPU)
+    └─ Installation testing ................. ✅ Done (pip install -e . verified)
 
-A4. Remove Deprecated Code .................. 🟡 25% (IN PROGRESS)
+A4. Remove Deprecated Code .................. ✅ 100% (DONE)
     ├─ Identify deprecated files ............ ✅ Done (4 files)
-    ├─ Remove deprecated scripts ............ 🔴 Pending
-    └─ Update documentation ................. 🔴 Pending
+    ├─ Remove deprecated scripts ............ ✅ Done
+    └─ Update documentation ................. ✅ Done
 ```
 
 ### Detailed Status by File
@@ -62,13 +63,13 @@ A4. Remove Deprecated Code .................. 🟡 25% (IN PROGRESS)
 - ✅ `pyproject.toml` - Package definition
 - ✅ `src/adhan_slm/core/logging.py` - Logging module
 
-**Integration (🔴 Pending)**
-- 🔴 Replace print statements (26+ in critical modules)
-- 🔴 Update README.md with installation guide
-- 🔴 Test `pip install -e .` locally
-- 🔴 Remove 4 deprecated scripts
-- 🔴 Update ROADMAP_JAX_SLM.md with Phase A status
-- 🔴 Wire MLflow logging integration
+**Integration (✅ Done)**
+- ✅ Replace print statements (26+ in critical modules → 0 diagnostics remaining)
+- ✅ Update README.md with installation guide
+- ✅ Test `pip install -e .` locally
+- ✅ Remove 4 deprecated scripts
+- ✅ Update ROADMAP_JAX_SLM.md with Phase A status
+- ✅ Wire MLflow logging integration (runtime params, tags, config + datasheet artifacts)
 
 ---
 
@@ -134,6 +135,11 @@ C3. Deployment Documentation ............... ✅ 100% (DONE)
     └─ API reference ....................... ✅ Done
 
 C4. Integration Tests ....................... ✅ 100% (DONE)
+    ├─ E2E CPU training tests ............. ✅ Done (7 tests, ~1 min, no GPU)
+    │   ├─ overfit-a-batch sanity gate .... ✅ Done
+    │   ├─ gradient accumulation .......... ✅ Done
+    │   ├─ checkpoint resume budget ....... ✅ Done
+    │   └─ context-length rejection ....... ✅ Done
     ├─ API tokenization tests ............. ✅ Done
     ├─ API generation tests ............... ✅ Done
     ├─ API health check tests ............. ✅ Done
@@ -153,7 +159,11 @@ D1. Phase 2: Full Corpus Curation .......... 📋 Planned
     ├─ Language-ID filtering .............
     └─ PII scrubbing .....................
 
-D2. Phase 3: Full Pretrain on GPU ......... 📋 Planned
+D2. Phase 3: Full Pretrain on GPU ......... 🟡 In Progress
+    ├─ CPU training path ready .......... ✅ Done (docs/CPU_TRAINING.md)
+    ├─ Overfit-a-batch sanity gate ...... ✅ Done (--overfit-batch)
+    ├─ Mixed precision measured ......... ✅ Done (bf16 1.5x fp32 on CPU)
+    ├─ Gradient accumulation ............ ✅ Done (optax.MultiSteps)
     ├─ Freeze adhan-tok-v1 ..............
     ├─ 300M+ token corpus ................
     └─ Baseline comparison ...............
@@ -174,22 +184,50 @@ D4. Phase 5-7: Edge & Distributed ........ 📋 Planned
 
 ### Infrastructure Health
 - **CI/CD Coverage**: 0% → 100% (GitHub Actions workflows)
-- **Type Safety**: ~30% → Target 100% (incremental)
-- **Logging Coverage**: 0% → Target 100% (print → structured logs)
-- **Package Maturity**: v0 (scripts) → v0.1 (pip-installable)
+- **Type Safety**: ~30% → Target 100% (incremental; Phase B3 open)
+- **Logging Coverage**: 100% — no diagnostic `print()` left in `src/` or `scripts/`
+- **Package Maturity**: v0.1, pip-installable, CPU install needs no CUDA
+- **Trainable without a GPU**: ✅ (`configs/adhan_slm_nano_cpu.yaml`, ~3k tok/s on 4 cores)
 
 ### Code Quality
-- **Test Files**: 5 existing (392 lines)
-- **Unit Test Coverage**: ~60% (tokenizer/data)
-- **Integration Test Coverage**: 0% (Phase C adds)
-- **Type Annotations**: ~30% (Phase B completes)
+- **Test Files**: 15, one per module under test (`<module>_tests.py`)
+- **Test Count**: 86 collected — 44 unit (~1s) + 32 integration (~3 min) + 11 skipped
+  (open-tamil absent). Skips are now reported as skips; they used to pass silently.
+- **Unit Test Coverage**: tokenizer, data pipeline, core, training backend
+- **Integration Test Coverage**: CPU training E2E + serving API
+- **Type Annotations**: ~30% (Phase B3 completes)
+
+### Test Layout Convention
+Tests sit beside the module they cover and mirror its name:
+
+| Module | Tests |
+|---|---|
+| `core/exceptions.py` | `core/exceptions_tests.py` |
+| `core/config_validator.py` | `core/config_validator_tests.py` |
+| `core/metrics.py` | `core/metrics_tests.py` |
+| `data/corpus.py` | `data/corpus_tests.py` |
+| `data/packing.py` | `data/packing_tests.py` |
+| `data/loader.py` | `data/loader_tests.py` |
+| `eval/morphology.py` | `eval/morphology_tests.py` |
+| `eval/kid_level_prompts.py` | `eval/kid_level_prompts_tests.py` |
+| `eval/ngram_baseline.py` | `eval/ngram_baseline_tests.py` |
+| `tokenizer/swaram_tokenizer.py` | `tokenizer/swaram_tokenizer_tests.py` |
+| `tokenizer/aksharam_tokenizer.py` | `tokenizer/aksharam_tokenizer_tests.py` |
+| `training/device.py` | `training/device_tests.py` |
+| `training/train_jax.py` | `tests/integration/train_cpu_*_tests.py` |
+| `serving/api.py` | `tests/integration/api_inference_tests.py` |
+
+Shared helpers: `core/selftest.py` (standalone runner + optional-dependency skip
+guard), `data/_test_fixtures.py`, `eval/_test_fixtures.py`,
+`tests/integration/conftest.py` (session-scoped corpus/shard/config fixtures).
 
 ### Deployment Readiness
-- **Local Development**: 🟢 Works (pip/venv)
+- **Local Development**: 🟢 Works (pip/venv, CPU-only supported)
 - **CI/CD Pipeline**: 🟢 Added (Phase A)
-- **Container Support**: 🔴 Not yet (Phase C)
-- **Serving API**: 🔴 Not yet (Phase C)
-- **Production Deployment**: 🔴 Not yet (Phase C → yazhi-api)
+- **CPU Training**: 🟢 Ready (see docs/CPU_TRAINING.md)
+- **Container Support**: 🟢 Added (Phase C)
+- **Serving API**: 🟢 Added (Phase C)
+- **Production Deployment**: 🔴 Not yet (→ yazhi-api)
 
 ---
 
@@ -218,10 +256,10 @@ End Users (Python SDK, REST)
 **Must Complete Before Phase C (Deployment)**:
 1. ✅ Phase A1: CI/CD workflows
 2. ✅ Phase A3: Package installation
-3. 🔴 Phase A2: Logging integration
-4. 🔴 Phase A4: Deprecated code removal
-5. 🔴 Phase B1: Error handling
-6. 🔴 Phase B2: Validation
+3. ✅ Phase A2: Logging integration
+4. ✅ Phase A4: Deprecated code removal
+5. ✅ Phase B1: Error handling
+6. ✅ Phase B2: Validation
 
 **Must Complete Before yazhi-api Deployment**:
 1. 🔴 Phase C1: Serving API
@@ -235,10 +273,10 @@ End Users (Python SDK, REST)
 
 ### Phase A (Foundation)
 - ✅ All GitHub Actions workflows created
-- 🔴 Package installable via `pip install -e .`
-- 🔴 Zero print statements (→ structured logging)
-- 🔴 Deprecated code removed
-- 🔴 ROADMAP updated
+- ✅ Package installable via `pip install -e .`
+- ✅ Zero diagnostic print statements (→ structured logging)
+- ✅ Deprecated code removed
+- ✅ ROADMAP updated
 - 🔴 CI passes on all commits
 
 ### Phase B (Robustness)

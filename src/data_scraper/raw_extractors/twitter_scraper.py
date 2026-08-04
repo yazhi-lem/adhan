@@ -33,7 +33,7 @@ import time
 from pathlib import Path
 from typing import Optional
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 from urllib.request import Request, urlopen
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -97,6 +97,9 @@ def is_acceptable(text: str) -> bool:
 
 
 def fetch_html(url: str, retries: int = 4, delay: float = REQUEST_DELAY) -> Optional[str]:
+    if urlparse(url).scheme not in ("http", "https"):
+        logger.warning("Refusing to fetch URL with disallowed scheme: %s", url)
+        return None
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -108,7 +111,7 @@ def fetch_html(url: str, retries: int = 4, delay: float = REQUEST_DELAY) -> Opti
     backoff = delay
     for attempt in range(retries):
         try:
-            with urlopen(req, timeout=20) as resp:
+            with urlopen(req, timeout=20) as resp:  # nosec B310 - scheme validated above
                 return resp.read().decode("utf-8", errors="replace")
         except HTTPError as exc:
             if exc.code == 429 or exc.code >= 500:

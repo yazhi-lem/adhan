@@ -29,6 +29,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from adhan_slm.core.logging import get_logger  # noqa: E402
+
+logger = get_logger(__name__)
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Generate from a trained Adhan SLM")
@@ -69,7 +73,7 @@ def main() -> None:
 
     tok = load_tokenizer(tokenizer_dir)
     model, params, cfg = load_model(args.config, args.checkpoint, vocab_size=len(tok))
-    print(f"loaded model (~{cfg.approx_params()/1e6:.1f}M params), vocab {len(tok)}\n")
+    logger.info("loaded model (~%.1fM params), vocab %d", cfg.approx_params() / 1e6, len(tok))
 
     for prompt in args.prompt:
         text = generate_text(
