@@ -38,13 +38,46 @@ def _config_from_yaml(config_path: str | Path, vocab_size: Optional[int] = None)
     return AdhanConfig(**{k: v for k, v in m.items() if k != "size"})
 
 
+def load_checkpoint_metadata(checkpoint_dir, step: Optional[int] = None) -> dict:
+    """Read back the JSON ``metadata`` item train_jax saves alongside a checkpoint
+    (model_config + tokenizer_dir) — the "metadata transport" that makes a
+    checkpoint dir self-describing instead of needing a separately-passed
+    --config/--tokenizer-dir. Raises FileNotFoundError if the checkpoint (or its
+    metadata item, for checkpoints saved before this existed) isn't present.
+    """
+    import orbax.checkpoint as ocp
+
+    mgr = ocp.CheckpointManager(str(Path(checkpoint_dir).resolve()))
+    step = step if step is not None else mgr.latest_step()
+    if step is None:
+        raise FileNotFoundError(f"no checkpoint found in {checkpoint_dir}")
+    restored = mgr.restore(step, args=ocp.args.Composite(metadata=ocp.args.JsonRestore()))
+    metadata = restored.get("metadata")
+    if not metadata:
+        raise FileNotFoundError(
+            f"checkpoint {checkpoint_dir} (step {step}) has no metadata item — "
+            "it predates self-describing checkpoints; pass --config explicitly."
+        )
+    return metadata
+
+
 def load_model(
-    config_path, checkpoint_dir, vocab_size: Optional[int] = None, step: Optional[int] = None
+    config_path: Optional[str | Path] = None,
+    checkpoint_dir: Optional[str | Path] = None,
+    vocab_size: Optional[int] = None,
+    step: Optional[int] = None,
 ):
     """Rebuild the model and restore params from the latest (or given) Orbax step.
 
+    ``config_path=None`` pulls the architecture out of the checkpoint's own
+    metadata item instead (see ``load_checkpoint_metadata``) — the normal path
+    for checkpoints trained after metadata transport was added; pass an explicit
+    YAML ``config_path`` for older checkpoints that don't have one.
+
     Returns ``(model, params, model_cfg)``.
     """
+    if checkpoint_dir is None:
+        raise ValueError("load_model requires checkpoint_dir")
     try:
         import jax.numpy as jnp
         import orbax.checkpoint as ocp
@@ -55,7 +88,14 @@ def load_model(
             f"load_model needs the JAX stack ({e}). pip install -r requirements-jax.txt"
         )
 
-    model_cfg = _config_from_yaml(config_path, vocab_size=vocab_size)
+    if config_path is not None:
+        model_cfg = _config_from_yaml(config_path, vocab_size=vocab_size)
+    else:
+        meta = load_checkpoint_metadata(checkpoint_dir, step=step)
+        model_cfg = AdhanConfig(**meta["model_config"])
+        if vocab_size is not None:
+            model_cfg.vocab_size = vocab_size
+
     model = AdhanSLM(model_cfg)
 
     # Restore the params-only checkpoint item (train_jax saves it alongside the full

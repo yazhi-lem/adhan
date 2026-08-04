@@ -17,7 +17,8 @@ We are building a **from-scratch, pure-Tamil small language model** — akshara
 PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
 ```
 
-The existing PyTorch pipeline below is reused for corpus building and as baselines.
+Corpus building (Phase 2 data collection) lives in `src/data_scraper/` — see
+`scripts/run_scraper.py` below.
 
 ## Recent changes
 
@@ -29,7 +30,9 @@ The existing PyTorch pipeline below is reused for corpus building and as baselin
 - Tests renamed to the `<module>_tests.py` convention and split per module under test
 - Added shared constants in `src/core/`
 - Added corpus merger: `src/data_scraper/merge_corpora.py`
-- Added Gemma training notebook: `src/notebooks/03_gemma_training.ipynb`
+- Removed the legacy PyTorch fine-tuning pipeline (Gemma LoRA, XLM-RoBERTa MLM,
+  sangam_gpt) — the project now stands on the from-scratch JAX SLM plus the
+  Phase 2 data-collection pipeline only.
 
 ## Installation
 
@@ -68,10 +71,10 @@ pip install -e ".[jax]"        # CPU wheels — works on any machine, no CUDA ne
 pip install -e ".[jax-cuda]"   # GPU (CUDA 12) instead
 ```
 
-### Option 3: PyTorch Stack Only (for baselines)
+### Option 3: Data Collection Only (Phase 2 scraping/corpus tools)
 
 ```bash
-pip install -e ".[pytorch]"
+pip install -e ".[data-collection]"
 ```
 
 ## Quick Start
@@ -128,21 +131,13 @@ python -m adhan_slm.eval.run_eval \
 
 ## Run scripts
 
-Use dedicated scripts:
-
-- `scripts/run_scraper.py` for corpus build + HF export
-- `scripts/run_training.py` for training
-- `scripts/run_model.py` for full orchestration
+- `scripts/run_scraper.py` — Phase 2 corpus build + HF export
+- `scripts/prepare_slm_corpus.py` — freeze the swaram tokenizer + pack shards
+- `scripts/generate_slm.py` — sample text from a trained JAX checkpoint
 
 ```bash
 # Build corpus + export HF splits
 python scripts/run_scraper.py --strategy modern --max-records 80000
-
-# Train model
-python scripts/run_training.py --num-epochs 3 --batch-size 4
-
-# Full run (build + train, optional merge)
-python scripts/run_model.py --strategy modern --num-epochs 3 --batch-size 4
 ```
 
 For full command sequence and examples, see `DEV.md`.
@@ -152,10 +147,9 @@ For full command sequence and examples, see `DEV.md`.
 - `src/data_scraper/processing/build_unified_corpus.py`
 - `src/data_scraper/export/export_unified_hf.py`
 - `src/data_scraper/merge_corpora.py`
-- `src/models/sangam_gpt/train_enhanced.py`
 - `scripts/run_scraper.py`
-- `scripts/run_training.py`
-- `scripts/run_model.py`
+- `scripts/prepare_slm_corpus.py`
+- `src/adhan_slm/training/train_jax.py`
 
 ## License
 

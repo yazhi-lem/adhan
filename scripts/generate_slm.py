@@ -4,6 +4,15 @@
 Closes the "no inference path" gap: loads the frozen tokenizer + Orbax checkpoint and
 samples a continuation for one or more prompts (the Phase 5 demo / Phase 4 read-through).
 
+Checkpoints trained after metadata transport was added (see train_jax.save_ckpt)
+are self-describing — --checkpoint alone is enough:
+
+    python scripts/generate_slm.py \
+        --checkpoint checkpoints/nano \
+        --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?" --temperature 0.8
+
+For older checkpoints, pass --tokenizer-dir/--config explicitly:
+
     python scripts/generate_slm.py \
         --tokenizer-dir data/final/tamil_slm \
         --config src/adhan_slm/configs/adhan_slm_tiny.yaml \
@@ -27,8 +36,14 @@ logger = get_logger(__name__)
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Generate from a trained Adhan SLM")
-    ap.add_argument("--tokenizer-dir", required=True)
-    ap.add_argument("--config", required=True)
+    ap.add_argument(
+        "--tokenizer-dir",
+        help="frozen tokenizer dir; defaults to the checkpoint's own metadata if omitted",
+    )
+    ap.add_argument(
+        "--config",
+        help="training YAML; defaults to the checkpoint's own metadata if omitted",
+    )
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument(
         "--prompt", action="append", required=True, help="prompt text (repeat for several)"
@@ -40,9 +55,23 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    from adhan_slm.inference import generate_text, load_model, load_tokenizer
+    from adhan_slm.inference import (
+        generate_text,
+        load_checkpoint_metadata,
+        load_model,
+        load_tokenizer,
+    )
 
-    tok = load_tokenizer(args.tokenizer_dir)
+    tokenizer_dir = args.tokenizer_dir
+    if tokenizer_dir is None:
+        tokenizer_dir = load_checkpoint_metadata(args.checkpoint)["tokenizer_dir"]
+        if tokenizer_dir is None:
+            raise SystemExit(
+                "checkpoint metadata has no tokenizer_dir (config had no data.shards "
+                "at train time) — pass --tokenizer-dir explicitly."
+            )
+
+    tok = load_tokenizer(tokenizer_dir)
     model, params, cfg = load_model(args.config, args.checkpoint, vocab_size=len(tok))
     logger.info("loaded model (~%.1fM params), vocab %d", cfg.approx_params() / 1e6, len(tok))
 
