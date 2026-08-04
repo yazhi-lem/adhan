@@ -247,9 +247,9 @@ class SangamImporter:
             dict: Corpus records.
         """
         try:
-            import xml.etree.ElementTree as ET
+            import defusedxml.ElementTree as ET
         except ImportError:
-            self.logger.warning("xml.etree not available for PMWorks XML parsing")
+            self.logger.warning("defusedxml not available for PMWorks XML parsing")
             return
 
         try:
