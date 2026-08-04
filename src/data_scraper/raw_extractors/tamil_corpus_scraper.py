@@ -15,13 +15,13 @@ import subprocess
 # Import core constants
 import sys
 import time
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 from urllib import robotparser
 from urllib.parse import urljoin, urlparse
 
+import defusedxml.ElementTree as ET
 import requests
 from bs4 import BeautifulSoup
 

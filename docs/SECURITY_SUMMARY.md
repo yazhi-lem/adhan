@@ -1,5 +1,16 @@
 # Security Summary
 
+> **Scope note:** this document reflects a single point-in-time CodeQL
+> scan of a specific set of files (see below), not blanket, ongoing
+> coverage of the whole codebase. Every PR is separately checked by the
+> `bandit` job in `.github/workflows/lint.yml`, which currently blocks
+> merges on High-severity findings (0 as of this writing) and surfaces
+> Medium/Low-severity findings as a downloadable, non-blocking report —
+> see that workflow's "informational" bandit step. As of this writing
+> there are 18 known Medium-severity bandit findings across `src/`
+> (mostly unpinned Hugging Face model/dataset revisions), tracked as
+> follow-up work rather than blocking merges immediately.
+
 ## CodeQL Security Scan Results
 
 **Date**: 2026-02-18  

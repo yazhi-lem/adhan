@@ -14,6 +14,7 @@ Key improvements:
 """
 
 import argparse
+import importlib.util
 import json
 import logging
 import os
@@ -258,14 +259,12 @@ class TamilModelTrainer:
         # Setup Weights & Biases if enabled
         report_to = []
         if self.config.use_wandb:
-            try:
-                import wandb
-
+            if importlib.util.find_spec("wandb") is not None:
                 report_to = ["wandb"]
                 if self.config.wandb_run_name:
                     os.environ["WANDB_NAME"] = self.config.wandb_run_name
                 logger.info("Weights & Biases integration enabled")
-            except ImportError:
+            else:
                 logger.warning("wandb not installed. Disabling W&B integration.")
 
         # Training arguments

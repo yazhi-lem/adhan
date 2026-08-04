@@ -32,26 +32,26 @@ dependencies = [
     "pyyaml>=6.0",
     "numpy>=1.24.0",
     "pydantic>=2.0",
+    "defusedxml>=0.7.1",
 ]
 
 [project.optional-dependencies]
-# CPU-only by default so `pip install -e ".[dev,jax,tamil-nlp]"` works on any
-# machine (macOS, Windows, CUDA-less Linux/CI). For GPU/TPU training, install
-# the `jax-gpu` extra instead (or add JAX's own extra manually, see
-# https://github.com/google/jax#installation) — mirrors the guidance already
-# documented in requirements-jax.txt.
+# Default JAX stack: CPU wheels. This is what `pip install -e ".[jax]"` gives you,
+# so training works on any machine (laptop, CI runner, RPi) without a CUDA toolchain.
+# The old `jax[cuda12]` pin here made the default extra unusable on CPU-only hosts:
+# it drags in ~2.5 GB of NVIDIA wheels and fails outright where they have no build.
 jax = [
-    "jax>=0.4.20",
-    "jaxlib>=0.4.20",
-    "flax>=0.7.4",
-    "optax>=0.1.5",
+    "jax>=0.4.30",
+    "jaxlib>=0.4.30",
+    "flax>=0.8.5",
+    "optax>=0.2.2",
     "orbax-checkpoint>=0.5.0",
     "mlflow>=2.10.0",
 ]
-# NVIDIA CUDA 12 wheels — Linux only. Install alongside `jax` on a GPU machine:
-#   pip install -e ".[dev,jax-gpu,tamil-nlp]"
-jax-gpu = [
-    "jax[cuda12]>=0.4.20",
+# GPU training: opt in explicitly with `pip install -e ".[jax-cuda]"`.
+jax-cuda = [
+    "adhan-slm[jax]",
+    "jax[cuda12]>=0.4.30",
 ]
 pytorch = [
     "torch>=2.1.0",
@@ -112,6 +112,8 @@ sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]  # Line too long (handled by black)
 
@@ -127,7 +129,7 @@ show_error_context = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "src"]
-python_files = ["test_*.py", "*_test.py"]
+python_files = ["*_tests.py", "test_*.py", "*_test.py"]  # convention: <module>_tests.py
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "--strict-markers -v --tb=short"

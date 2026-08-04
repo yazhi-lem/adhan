@@ -29,7 +29,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from adhan_slm.data import corpus as corpus_mod
+from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.data import corpus as corpus_mod  # noqa: E402
+
+logger = get_logger(__name__)
 
 
 def _load_tokenizer(tokenizer_dir):
@@ -197,10 +200,10 @@ def main():
         },
     }
     text = json.dumps(report, indent=2, ensure_ascii=False)
-    print(text)
+    print(text)  # the report IS this command's output — keep it on stdout, pipeable
     if args.out:
         Path(args.out).write_text(text, encoding="utf-8")
-        print(f"\nwrote {args.out}", file=sys.stderr)
+        logger.info("wrote %s", args.out)
 
 
 if __name__ == "__main__":

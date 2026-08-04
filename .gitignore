@@ -47,7 +47,21 @@ checkpoints/
 wandb/
 
 # Model checkpoints (except final models)
-models/*/checkpoint-*/
+# `models/*/checkpoint-*/` only matched one directory level, e.g.
+# `models/adhan-gemma-v1/checkpoint-5/`, not deeper nesting like
+# `models/checkpoints/gemma/checkpoint-21/`. Broadened defensively with `**`
+# so a checkpoint-* dir is excluded at any depth under models/, regardless of
+# what its parent directories are named.
+models/**/checkpoint-*/
+
+# Model weight files — never commit trained weights regardless of directory.
+# Config/tokenizer/adapter-config files are fine to check in as scaffolding;
+# the actual weight blobs (*.bin is already covered above) are not.
+*.safetensors
+*.gguf
+*.ckpt
+*.h5
+*.msgpack
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/

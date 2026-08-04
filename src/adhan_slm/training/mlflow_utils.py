@@ -12,6 +12,10 @@ import subprocess
 from contextlib import contextmanager
 from typing import Any, Dict, Optional
 
+from adhan_slm.core.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def _git_sha() -> str:
     try:
@@ -21,6 +25,8 @@ def _git_sha() -> str:
 
 
 class _NoOpRun:
+    """Tracker stand-in when mlflow is absent, so training still runs unchanged."""
+
     def log_params(self, *_a, **_k): ...
     def log_metric(self, *_a, **_k): ...
     def log_artifact(self, *_a, **_k): ...
@@ -44,14 +50,20 @@ def track_run(
     try:
         import mlflow
     except ImportError:
-        print("[mlflow-utils] mlflow not installed — metrics will not be tracked.")
+        logger.warning("mlflow not installed — metrics will not be tracked (pip install mlflow)")
         yield _NoOpRun()
         return
 
     if tracking_uri:
         mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment)
-    with mlflow.start_run(run_name=run_name):
+    with mlflow.start_run(run_name=run_name) as active:
+        logger.info(
+            "mlflow run %s in experiment %r (uri %s)",
+            active.info.run_id,
+            experiment,
+            mlflow.get_tracking_uri(),
+        )
         mlflow.set_tag("code_git_sha", _git_sha())
         if data_version:
             mlflow.set_tag("data_version", data_version)
@@ -64,6 +76,9 @@ def track_run(
             mlflow.log_params(flat)
 
         class _Run:
+            def log_params(self, params):
+                mlflow.log_params(params)
+
             def log_metric(self, key, value, step=None):
                 mlflow.log_metric(key, float(value), step=step)
 

@@ -44,6 +44,7 @@ from .metrics import (
     ThroughputTracker,
     TrainingMetrics,
 )
+from .selftest import collect_module_tests, run_module_tests, skip_unless
 
 __all__ = [
     # Logging
@@ -83,4 +84,8 @@ __all__ = [
     "LatencyTracker",
     "ResourceMonitor",
     "TrainingMetrics",
+    # Test helpers (shared by the *_tests.py modules)
+    "run_module_tests",
+    "collect_module_tests",
+    "skip_unless",
 ]

@@ -31,6 +31,7 @@ Outputs:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import logging
 from dataclasses import asdict, dataclass
@@ -155,16 +156,9 @@ def load_jsonl(
 
 
 def build_compute_metrics(num_labels: int):
-    try:
-        from sklearn.metrics import (  # type: ignore
-            accuracy_score,
-            classification_report,
-            f1_score,
-        )
-
-        sklearn_available = True
-    except ImportError:
-        sklearn_available = False
+    sklearn_available = importlib.util.find_spec("sklearn") is not None
+    if sklearn_available:
+        from sklearn.metrics import f1_score  # type: ignore
 
     def compute_metrics(eval_pred):
         logits, labels = eval_pred

@@ -220,7 +220,7 @@ cores stay pure-python and dependency-free (§2 design goal).
 
 | open-tamil piece | Adhan use | Where |
 |---|---|---|
-| `tamil.utf8.get_letters` | Reference akshara segmenter — differential test against Layer A on every commit | `tokenizer/test_open_tamil_crosscheck.py` |
+| `tamil.utf8.get_letters` | Reference akshara segmenter — differential test against Layer A on every commit | `tokenizer/open_tamil_crosscheck_tests.py` |
 | `tamilstemmer.TamilStemmer` | Suffix-stripping stemmer — morpheme-boundary signal for scoring Layer B (BPE) merges | `eval/morphology.py::stemmer_boundary_agreement` |
 | `tamilsandhi.check_sandhi` | Rule-based ~40-rule சந்தி grammar checker — scores model generations, satisfies the Phase 1 "morphological analyzer" requirement | `eval/morphology.py::sandhi_correctness_rate` |
 | `ngram.LetterModels.Unigram` | Classical per-akshara frequency baseline — the floor `adhan-nano` perplexity must clear | `eval/ngram_baseline.py::AksharaUnigramBaseline` |

@@ -1,5 +1,6 @@
 """Importer for classical Tamil literature from Yazhi API and open Sangam sources."""
 
+import importlib.util
 import json
 from pathlib import Path
 from typing import Generator, Optional
@@ -45,9 +46,7 @@ class SangamImporter:
             self.logger.warning("Yazhi API endpoint not configured, skipping API import")
             return
 
-        try:
-            import requests
-        except ImportError:
+        if importlib.util.find_spec("requests") is None:
             self.logger.warning("requests library not available for Yazhi API queries")
             return
 
@@ -248,9 +247,9 @@ class SangamImporter:
             dict: Corpus records.
         """
         try:
-            import xml.etree.ElementTree as ET
+            import defusedxml.ElementTree as ET
         except ImportError:
-            self.logger.warning("xml.etree not available for PMWorks XML parsing")
+            self.logger.warning("defusedxml not available for PMWorks XML parsing")
             return
 
         try:
