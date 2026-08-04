@@ -22,7 +22,6 @@ from adhan_slm.core.logging import get_logger
 logger = get_logger(__name__)
 
 try:
-    import jax
     import jax.numpy as jnp
 
     _HAS_JAX = True

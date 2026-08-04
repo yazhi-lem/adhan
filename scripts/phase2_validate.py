@@ -190,7 +190,6 @@ class CorpusValidator:
         sample_size = min(sample_size or 100, len(self.records))
 
         for record in random.sample(self.records, sample_size):
-            text = record.get("text", "")
             # Rough estimate: Tamil text has ~0.8-1.2 chars per akshara
             # Tokenizer fertility: tokens per akshara
             # Estimate: 0.9 tokens/akshara (very rough)

@@ -107,7 +107,6 @@ def quantize_int8_static(
     max_length: int,
 ) -> None:
     try:
-        import numpy as np  # type: ignore
         from onnxruntime.quantization import (  # type: ignore
             CalibrationDataReader,
             QuantFormat,
@@ -202,7 +201,6 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int, n_runs: int
     import time  # noqa: PLC0415
 
     try:
-        import numpy as np  # type: ignore
         import onnxruntime as ort  # type: ignore
         from transformers import AutoTokenizer  # type: ignore
     except ImportError:
