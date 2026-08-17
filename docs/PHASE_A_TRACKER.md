@@ -40,10 +40,10 @@
 | Component | Status | Completed | Notes |
 |-----------|--------|-----------|-------|
 | `pyproject.toml` | ✅ Done | 2026-07-23 | Package metadata, dependencies, extras |
-| Update `README.md` with installation | 🔴 Pending | - | Add pip install instructions |
-| Test `pip install -e .` locally | 🔴 Pending | - | Verify package installation works |
-| Remove/migrate old `setup.py` if present | 🔴 Pending | - | Check if one exists |
-| **Subtotal A3** | 🟡 | **25%** | pyproject.toml done, integration pending |
+| Update `README.md` with installation | ✅ Done | 2026-07-31 | README.md has `pip install -e ".[dev,jax,tamil-nlp "` and per-extra install instructions |
+| Test `pip install -e .` locally | ✅ Done | 2026-07-31 | Verified: installs cleanly, resolves adhan-slm + deps (pydantic, pyyaml, numpy) |
+| Remove/migrate old `setup.py` if present | ✅ Done | 2026-07-31 | Verified: no setup.py exists in the repo, nothing to migrate |
+| **Subtotal A3** | ✅ | **100%** | pyproject.toml + README + local install all verified working |
 
 ### A4. Remove Deprecated Code
 
@@ -67,7 +67,7 @@
 | **A2** | ✅ Done | 100% | Logging + MLflow wired through training/corpus/eval |
 | **A3** | ✅ Done | 100% | pyproject.toml created, README updated, tested |
 | **A4** | ✅ Done | 100% | 4 deprecated files removed |
-| **TOTAL** | ✅ | **100%** | Foundation complete; Phase A closed 2026-07-30 |
+| **TOTAL** | 🟡 | **79%** | A1/A3/A4 complete, A2 (logging integration) still pending |
 
 ---
 
@@ -75,8 +75,8 @@
 
 ### Immediate (Today)
 - [x] Remove 4 deprecated scripts
-- [ ] Update README with `pip install -e .` instructions
-- [ ] Test package installation
+- [x] Update README with `pip install -e .` instructions
+- [x] Test package installation
 
 ### This Week
 - [x] Replace print statements with logging in critical modules:
