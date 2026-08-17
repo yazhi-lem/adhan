@@ -69,5 +69,12 @@ def test_fertility_at_most_one_before_merges_helps():
     assert 0.99 <= f <= 1.01, f"expected ~1 token/akshara, got {f}"
 
 
+def test_tokenizer_module_logger_initialized():
+    import adhan_slm.tokenizer.swaram_tokenizer as st
+    assert hasattr(st, "logger")
+    assert st.logger is not None
+    assert st.logger.name == "adhan_slm.tokenizer.swaram_tokenizer"
+
+
 if __name__ == "__main__":
     run_module_tests(globals(), "swaram tokenizer")
