@@ -81,8 +81,10 @@ with vocab size since embeddings are tied.)
 | Tamil-NLP foundation | **open-tamil** (MIT, Ezhil Language Foundation) | segmentation oracle, stemmer, sandhi checker, encoding/transliteration, lexicons — eval/tooling only, never the hot path |
 | Serving | ONNX / GGUF / TFLite export + INT8/INT4 | reuse existing `scripts/quantize_model.py` path |
 
-JAX is additive — it lives in `src/adhan_slm/` and `requirements-jax.txt`; the
-existing PyTorch pipeline stays intact for corpus building and baselines.
+JAX is the only training stack now (`src/adhan_slm/`, `requirements-jax.txt`).
+The legacy PyTorch fine-tuning pipeline (Gemma LoRA, XLM-RoBERTa MLM,
+sangam_gpt) has been removed; `src/data_scraper/` remains for corpus building
+(Phase 2 data collection) only.
 
 ---
 
@@ -265,7 +267,7 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 ### Phase 5 — Instruct / chat alignment (light)  📋  (Week 6–8)
 - 📋 Small native-Tamil instruction set (translate + author + templated tasks)
 - 📋 SFT of `adhan-nano` → `adhan-nano-instruct`; optional DPO if data allows
-- 📦 Chat template + inference demo (reuse `scripts/run_model.py` pattern)
+- 📦 Chat template + inference demo (extend `scripts/generate_slm.py`)
 
 ### Phase 6 — Compress & ship light  📋  (Week 7–9)  🚀 **Launch**
 - 📋 Export to ONNX/GGUF/TFLite; INT8 + INT4 (existing `scripts/quantize_model.py`)
@@ -276,7 +278,9 @@ Legend: 🎯 milestone · 📦 deliverable · ✅ done · 🚧 in progress · �
 
 ### Phase 7 — Scale up  📋  (post-launch)
 - 📋 Pretrain `adhan-tiny` / `adhan-mini` on TPU/multi-GPU (pjit sharding)
-- 📋 Longer context, retrieval option, domain packs (news, literature, code-mix)
+- 🚧 Longer context, retrieval (**RAG layer landed early**: `src/adhan_slm/rag/` +
+  `docs/RAG_YAZH.md` + Colab retriever training `04_yazh_rag_colab.ipynb` — the
+  generator hook awaits a fluent checkpoint), domain packs (news, literature, code-mix)
 
 ---
 

@@ -53,16 +53,13 @@ jax-cuda = [
     "adhan-slm[jax]",
     "jax[cuda12]>=0.4.30",
 ]
-pytorch = [
-    "torch>=2.1.0",
-    "transformers>=4.35.0",
-    "datasets>=2.14.0",
-    "accelerate>=0.25.0",
-    "peft>=0.7.0",
-    "bitsandbytes>=0.41.0",
-]
 tamil-nlp = [
     "open-tamil>=1.1",
+]
+data-collection = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "datasets>=2.14.0",
 ]
 dev = [
     "pytest>=7.4.0",
@@ -74,7 +71,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,pytorch,tamil-nlp,dev]",
+    "adhan-slm[jax,tamil-nlp,data-collection,dev]",
 ]
 
 [project.urls]
