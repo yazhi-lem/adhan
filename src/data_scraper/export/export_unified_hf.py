@@ -194,7 +194,7 @@ from datasets import load_dataset
 
 dataset = load_dataset("json", data_files={{
     "train": "train.jsonl",
-    "validation": "validation.jsonl", 
+    "validation": "validation.jsonl",
     "test": "test.jsonl"
 }})
 ```

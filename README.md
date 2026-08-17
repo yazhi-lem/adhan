@@ -10,19 +10,29 @@ We are building a **from-scratch, pure-Tamil small language model** — akshara
 
 - **Roadmap:** [`ROADMAP_JAX_SLM.md`](ROADMAP_JAX_SLM.md)
 - **Architecture:** [`docs/ARCHITECTURE_SWARAM_SLM.md`](docs/ARCHITECTURE_SWARAM_SLM.md)
+- **CPU training:** [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md) — **no GPU required**
 - **Code:** [`src/adhan_slm/`](src/adhan_slm/) (working swaram tokenizer + Flax SLM + JAX/MLflow trainer)
 
 ```bash
 PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
 ```
 
-The existing PyTorch pipeline below is reused for corpus building and as baselines.
+Corpus building (Phase 2 data collection) lives in `src/data_scraper/` — see
+`scripts/run_scraper.py` below.
 
 ## Recent changes
 
+- **CPU training ready**: nano CPU config, `--device`/`--overfit-batch` flags, gradient
+  accumulation, resume-aware step budget, and a CPU install path with no CUDA
+  (`pip install -e ".[jax]"`). See [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md).
+- Structured logging + MLflow wired through the training / corpus-prep / eval path
+- E2E CPU training integration tests (`tests/integration/train_cpu_*_tests.py`)
+- Tests renamed to the `<module>_tests.py` convention and split per module under test
 - Added shared constants in `src/core/`
 - Added corpus merger: `src/data_scraper/merge_corpora.py`
-- Added Gemma training notebook: `src/notebooks/03_gemma_training.ipynb`
+- Removed the legacy PyTorch fine-tuning pipeline (Gemma LoRA, XLM-RoBERTa MLM,
+  sangam_gpt) — the project now stands on the from-scratch JAX SLM plus the
+  Phase 2 data-collection pipeline only.
 
 ## Installation
 
@@ -38,19 +48,33 @@ python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install the package in development mode with all dependencies
+# (CPU-only JAX — works on macOS, Windows, and CUDA-less Linux/CI)
 pip install -e ".[dev,jax,tamil-nlp]"
+```
+
+On a machine with an NVIDIA GPU, add the `jax-gpu` extra to pull in CUDA 12
+wheels (Linux only):
+
+```bash
+pip install -e ".[dev,jax,jax-gpu,tamil-nlp]"
 ```
 
 ### Option 2: JAX Stack Only (for training)
 
 ```bash
+# CPU
 pip install -e ".[jax]"
+
+# GPU (Linux + NVIDIA CUDA 12 only)
+pip install -e ".[jax,jax-gpu]"
+pip install -e ".[jax]"        # CPU wheels — works on any machine, no CUDA needed
+pip install -e ".[jax-cuda]"   # GPU (CUDA 12) instead
 ```
 
-### Option 3: PyTorch Stack Only (for baselines)
+### Option 3: Data Collection Only (Phase 2 scraping/corpus tools)
 
 ```bash
-pip install -e ".[pytorch]"
+pip install -e ".[data-collection]"
 ```
 
 ## Quick Start
@@ -76,6 +100,14 @@ python scripts/prepare_slm_corpus.py \
 python -m adhan_slm.training.train_jax \
     --config src/adhan_slm/configs/adhan_slm_tiny.yaml --smoke
 
+# 2b. Train on a CPU box (nano tier, bf16, gradient accumulation)
+python -m adhan_slm.training.train_jax \
+    --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
+
+# 2c. Sanity-gate the wiring first — one batch, loss must collapse
+python -m adhan_slm.training.train_jax \
+    --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --overfit-batch
+
 # 3. Generate text from a checkpoint
 python scripts/generate_slm.py \
     --tokenizer-dir data/final/tamil_slm \
@@ -91,28 +123,21 @@ python -m adhan_slm.eval.run_eval \
 
 ## Documentation
 
-- **[Roadmap](ROADMAP_JAX_SLM.md)** — Phased development plan (Phase 0 done, Phase A in progress)
+- **[Roadmap](ROADMAP_JAX_SLM.md)** — Phased development plan (Phases 0 + A done, Phase 3 in progress)
 - **[Architecture](docs/ARCHITECTURE_SWARAM_SLM.md)** — Swaram tokenizer + JAX/Flax model design
+- **[CPU Training](docs/CPU_TRAINING.md)** — Train `adhan-nano` without a GPU: install, configs, measured throughput, sanity gates
 - **[Completion Tracker](docs/COMPLETION_TRACKER.md)** — Real-time progress on all phases
-- **[Phase A Tracker](docs/PHASE_A_TRACKER.md)** — Current work (CI/CD, logging, packaging)
+- **[Phase A Tracker](docs/PHASE_A_TRACKER.md)** — CI/CD, logging, packaging (closed)
 
 ## Run scripts
 
-Use dedicated scripts:
-
-- `scripts/run_scraper.py` for corpus build + HF export
-- `scripts/run_training.py` for training
-- `scripts/run_model.py` for full orchestration
+- `scripts/run_scraper.py` — Phase 2 corpus build + HF export
+- `scripts/prepare_slm_corpus.py` — freeze the swaram tokenizer + pack shards
+- `scripts/generate_slm.py` — sample text from a trained JAX checkpoint
 
 ```bash
 # Build corpus + export HF splits
 python scripts/run_scraper.py --strategy modern --max-records 80000
-
-# Train model
-python scripts/run_training.py --num-epochs 3 --batch-size 4
-
-# Full run (build + train, optional merge)
-python scripts/run_model.py --strategy modern --num-epochs 3 --batch-size 4
 ```
 
 For full command sequence and examples, see `DEV.md`.
@@ -122,10 +147,9 @@ For full command sequence and examples, see `DEV.md`.
 - `src/data_scraper/processing/build_unified_corpus.py`
 - `src/data_scraper/export/export_unified_hf.py`
 - `src/data_scraper/merge_corpora.py`
-- `src/models/sangam_gpt/train_enhanced.py`
 - `scripts/run_scraper.py`
-- `scripts/run_training.py`
-- `scripts/run_model.py`
+- `scripts/prepare_slm_corpus.py`
+- `src/adhan_slm/training/train_jax.py`
 
 ## License
 

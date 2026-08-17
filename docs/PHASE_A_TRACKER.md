@@ -25,13 +25,15 @@
 | Component | Status | Completed | Notes |
 |-----------|--------|-----------|-------|
 | `src/adhan_slm/core/logging.py` | ✅ Done | 2026-07-23 | Logger factory, formatters |
-| Replace prints in `train_jax.py` | 🔴 Pending | - | ~15 print statements |
-| Replace prints in `corpus_reader.py` | 🔴 Pending | - | ~5 print statements |
-| Replace prints in `swaram_tokenizer.py` | 🔴 Pending | - | ~3 print statements |
-| Replace prints in `run_eval.py` | 🔴 Pending | - | ~3 print statements |
-| Replace prints in other modules | 🔴 Pending | - | ~8 print statements |
-| Wire MLflow logging integration | 🔴 Pending | - | Track metrics via MLflow |
-| **Subtotal A2** | 🟡 | **14%** | Logging module done, integration pending |
+| Replace prints in `train_jax.py` | ✅ Done | 2026-07-30 | 15 → 0; all progress/diagnostics via `get_logger` |
+| Replace prints in `mlflow_utils.py` | ✅ Done | 2026-07-30 | Warn on missing mlflow; log active run id |
+| Replace prints in `scripts/prepare_slm_corpus.py` | ✅ Done | 2026-07-30 | 11 → 0; fertility above target now logs at WARNING |
+| Replace prints in `swaram_tokenizer.py` | ✅ Done | 2026-07-23 | Done earlier in #14 |
+| Replace prints in `aksharam_tokenizer.py` / `jax_encode.py` | ✅ Done | 2026-07-30 | Demos matched to the swaram convention |
+| Replace prints in `run_eval.py` / `generate_slm.py` | ✅ Done | 2026-07-30 | Diagnostics → logger; **report/generation output stays on stdout** (pipeable) |
+| Replace prints in `model/transformer.py`, `eval/kid_level_prompts.py` | ✅ Done | 2026-07-30 | Tier table + prompt demo |
+| Wire MLflow logging integration | ✅ Done | 2026-07-30 | Runtime params (backend/dtype/cores), effective batch, resume step, ETA, mode+backend tags, config + datasheet artifacts |
+| **Subtotal A2** | ✅ | **100%** | `src/adhan_slm/` and `scripts/` carry no diagnostic `print()` |
 
 ### A3. Add Package Installation Support
 
@@ -62,7 +64,7 @@
 | Phase | Status | Completion | Notes |
 |-------|--------|------------|-------|
 | **A1** | ✅ Done | 100% | CI/CD workflows created |
-| **A2** | 🟡 In Progress | 14% | Logging module done, integration needed |
+| **A2** | ✅ Done | 100% | Logging + MLflow wired through training/corpus/eval |
 | **A3** | ✅ Done | 100% | pyproject.toml created, README updated, tested |
 | **A4** | ✅ Done | 100% | 4 deprecated files removed |
 | **TOTAL** | 🟡 | **79%** | A1/A3/A4 complete, A2 (logging integration) still pending |
@@ -77,13 +79,18 @@
 - [x] Test package installation
 
 ### This Week
-- [ ] Replace print statements with logging in critical modules:
-  - [ ] `train_jax.py` (15 statements)
-  - [ ] `corpus_reader.py` (5 statements)
-  - [ ] `swaram_tokenizer.py` (3 statements)
-  - [ ] `run_eval.py` (3 statements)
-- [ ] Wire MLflow logging integration
+- [x] Replace print statements with logging in critical modules:
+  - [x] `train_jax.py` (15 statements)
+  - [x] `scripts/prepare_slm_corpus.py` (11 statements) — `corpus_reader.py` no longer exists; corpus progress lives here
+  - [x] `swaram_tokenizer.py` (3 statements, done in #14)
+  - [x] `run_eval.py`, `generate_slm.py`, `aksharam_tokenizer.py`, `jax_encode.py`, `transformer.py`, `kid_level_prompts.py`
+- [x] Wire MLflow logging integration
 - [ ] Test CI/CD workflows locally and on GitHub
+
+**Deliberately left as `print()`**: `run_eval.py` writes its JSON report and
+`generate_slm.py` writes generated text to **stdout**. Those are the commands'
+*output*, not diagnostics — routing them to a stderr logger would break piping
+(`run_eval ... | jq`). Every diagnostic line around them is now a log record.
 
 ### Success Criteria
 - ✅ All 5 test files pass in CI on commits

@@ -111,21 +111,6 @@ COLLOQUIAL_PATTERNS: List[str] = [
 ]
 
 # ============================================================
-# MODEL CONFIG
-# ============================================================
-
-MODEL_CONFIG: Dict = {
-    "base_model": "xlm-roberta-base",
-    "vocab_size": 250_000,
-    "max_length": 512,
-    "learning_rate": 5e-5,
-    "batch_size": 32,
-    "epochs": 10,
-    "warmup_steps": 100,
-    "masking_prob": 0.15,
-}
-
-# ============================================================
 # DATA PATHS
 # ============================================================
 
@@ -134,7 +119,6 @@ PATHS: Dict[str, str] = {
     "intermediate": "data/intermediate",
     "final": "data/final",
     "models": "models",
-    "checkpoints": "models/checkpoints",
-    "tokenized": "models/tokenized_datasets",
+    "checkpoints": "checkpoints",
     "logs": "logs",
 }

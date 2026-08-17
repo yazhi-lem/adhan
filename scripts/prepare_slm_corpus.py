@@ -30,10 +30,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 from adhan_slm.data import packing  # noqa: E402
 from adhan_slm.tokenizer import SwaramTokenizer  # noqa: E402
 from adhan_slm.tokenizer.aksharam_tokenizer import AksharamTokenizer  # noqa: E402
+
+logger = get_logger(__name__)
 
 _TOKENIZERS = {"swaram": SwaramTokenizer, "aksharam": AksharamTokenizer}
 
@@ -73,7 +76,7 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     TokCls = _TOKENIZERS[args.tokenizer]
 
-    print(f"[1/5] reading corpus from {args.corpus} ...")
+    logger.info("[1/5] reading corpus from %s ...", args.corpus)
     docs = corpus_mod.read_corpus(
         args.corpus, line_documents=not args.whole_file_docs, limit=args.limit
     )
@@ -82,23 +85,33 @@ def main() -> None:
     n_val = max(1, int(len(docs) * args.val_frac))
     val_docs = docs[:n_val]
     train_docs = docs[n_val:]
-    print(f"      {len(docs):,} docs  ->  {len(train_docs):,} train / {len(val_docs):,} val")
+    logger.info(
+        "      %s docs -> %s train / %s val",
+        f"{len(docs):,}",
+        f"{len(train_docs):,}",
+        f"{len(val_docs):,}",
+    )
 
-    print(f"[2/5] training {args.tokenizer} tokenizer (vocab {args.vocab_size}) ...")
+    logger.info("[2/5] training %s tokenizer (vocab %d) ...", args.tokenizer, args.vocab_size)
     tok = TokCls.train(train_docs, vocab_size=args.vocab_size, min_freq=args.min_freq)
     vocab_path = out / "vocab.json"
     merges_path = out / "merges.txt"
     tok.save(str(vocab_path), str(merges_path))
-    print(
-        f"      froze vocab={len(tok):,} merges={len(tok.merges):,} -> {vocab_path.name}, {merges_path.name}"
+    logger.info(
+        "      froze vocab=%s merges=%s -> %s, %s",
+        f"{len(tok):,}",
+        f"{len(tok.merges):,}",
+        vocab_path.name,
+        merges_path.name,
     )
 
-    print("[3/5] measuring fertility on held-out sample ...")
+    logger.info("[3/5] measuring fertility on held-out sample ...")
     fert = _mean_fertility(tok, val_docs)
     flag = "OK" if fert < 1.15 else "ABOVE TARGET (<1.15)"
-    print(f"      mean fertility = {fert:.3f} tokens/akshara  [{flag}]")
+    log = logger.info if fert < 1.15 else logger.warning
+    log("      mean fertility = %.3f tokens/akshara  [%s]", fert, flag)
 
-    print(f"[4/5] tokenizing + packing to seq_len={args.seq_len} ...")
+    logger.info("[4/5] tokenizing + packing to seq_len=%d ...", args.seq_len)
     train_seqs = packing.pack_documents(train_docs, tok, seq_len=args.seq_len)
     val_seqs = packing.pack_documents(val_docs, tok, seq_len=args.seq_len)
     if not train_seqs:
@@ -113,16 +126,18 @@ def main() -> None:
         val_shard = packing.write_shard(
             val_seqs, out / "val.bin", seq_len=args.seq_len, vocab_size=len(tok)
         )
-    print(
-        f"      train.bin: {train_shard.n_sequences:,} seqs / {train_shard.n_tokens:,} tokens"
-        + (
+    logger.info(
+        "      train.bin: %s seqs / %s tokens%s",
+        f"{train_shard.n_sequences:,}",
+        f"{train_shard.n_tokens:,}",
+        (
             f"   val.bin: {val_shard.n_sequences:,} seqs"
             if val_shard
             else "   (val too small to pack)"
-        )
+        ),
     )
 
-    print("[5/5] writing datasheet.json ...")
+    logger.info("[5/5] writing datasheet.json ...")
     datasheet = {
         "corpus_source": str(args.corpus),
         "tokenizer": args.tokenizer,
@@ -139,10 +154,11 @@ def main() -> None:
         "code_sha": _git_sha(),
     }
     (out / "datasheet.json").write_text(json.dumps(datasheet, indent=2), encoding="utf-8")
-    print(f"      -> {out / 'datasheet.json'}")
-    print(
-        f"\ndone. train with:\n  python -m adhan_slm.training.train_jax "
-        f"--config <config with data.shards: {out}>"
+    logger.info("      -> %s", out / "datasheet.json")
+    logger.info(
+        "done. train with:  python -m adhan_slm.training.train_jax "
+        "--config <config with data.shards: %s>",
+        out,
     )
 
 

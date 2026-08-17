@@ -1,0 +1,61 @@
+"""Tests for the Aksharam (Hindi/Devanagari) akshara tokenizer.
+
+Sibling of the Swaram tests; same two-layer contract, Devanagari script rules
+(conjuncts, matras, anusvara/chandrabindu).
+
+Run: PYTHONPATH=src python -m adhan_slm.tokenizer.aksharam_tokenizer_tests
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from adhan_slm.core.selftest import run_module_tests  # noqa: E402
+from adhan_slm.tokenizer import (  # noqa: E402
+    AksharamTokenizer,
+    default_aksharam_inventory,
+    segment_devanagari,
+)
+
+SAMPLES = [
+    "नमस्ते",
+    "पढ़ रहा था",
+    "क्षत्रिय",  # conjuncts क्ष, त्र
+    "मैं हिंदी बोलता हूँ",  # anusvara, chandrabindu
+    "संख्या १२३ / 123",  # Devanagari + ASCII digits
+    "Hindi AI 2026",  # code-switch
+]
+
+
+def test_segmentation_is_lossless():
+    for s in SAMPLES:
+        assert "".join(segment_devanagari(s)) == s, f"lossy: {s!r}"
+
+
+def test_conjuncts_stay_together():
+    # क् + ष -> क्ष (one cluster), त् + र + ि -> त्रि
+    assert segment_devanagari("क्षत्रिय") == ["क्ष", "त्रि", "य"]
+    assert segment_devanagari("नमस्ते") == ["न", "म", "स्ते"]
+
+
+def test_matra_and_signs_attach():
+    assert segment_devanagari("हूँ") == ["हूँ"]  # ह + ू + ँ
+    assert segment_devanagari("हिंदी") == ["हिं", "दी"]
+
+
+def test_inventory_closed_and_deduped():
+    inv = default_aksharam_inventory()
+    assert len(inv) == len(set(inv))
+    assert "क" in inv and "क्" in inv and "कि" in inv
+    assert len(inv) > 300
+
+
+def test_encode_decode_round_trip():
+    tok = AksharamTokenizer.train(SAMPLES, vocab_size=len(default_aksharam_inventory()) + 128)
+    for s in SAMPLES:
+        assert tok.decode(tok.encode(s, add_special=True)) == s, f"round-trip: {s!r}"
+
+
+if __name__ == "__main__":
+    run_module_tests(globals(), "aksharam tokenizer")
