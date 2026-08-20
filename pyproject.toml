@@ -56,6 +56,13 @@ jax-cuda = [
 tamil-nlp = [
     "open-tamil>=1.1",
 ]
+# Second (PyTorch) trainer backend: scripts/train_efficient.py. Opt in explicitly with
+# `pip install -e ".[torch]"`. PyPI Linux wheels bundle CUDA runtime deps automatically
+# in torch 2.x, so this one extra covers both CPU-now and GPU-later — no jax/jax-cuda-style
+# split needed.
+torch = [
+    "torch>=2.2",
+]
 data-collection = [
     "requests>=2.31.0",
     "beautifulsoup4>=4.12.0",
@@ -71,7 +78,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,tamil-nlp,data-collection,dev]",
+    "adhan-slm[jax,torch,tamil-nlp,data-collection,dev]",
 ]
 
 [project.urls]
