@@ -2,6 +2,8 @@
 
 Tamil-first LLM data + training pipeline.
 
+See [NEXT_ACTION.md](./NEXT_ACTION.md) for the roadmap, **October 2026 Pilot**, and **December 2026 Launch** deliverables.
+
 ## 🆕 Native Tamil SLM (swaram tokens + JAX)
 
 We are building a **from-scratch, pure-Tamil small language model** — akshara
