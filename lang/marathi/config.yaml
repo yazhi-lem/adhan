@@ -1,0 +1,10 @@
+language:
+  code: "mr"
+  name_native: "मराठी"
+  name_english: "Marathi"
+  family: "Indo-Aryan"
+  priority: 3
+  status: "planned"
+  script: "Devanagari"
+  unicode_block: "0x0900-0x097F"
+  tokenizer_target: "AksharamTokenizer"

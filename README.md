@@ -1,40 +1,63 @@
 # Adhan
 
-Tamil-first LLM data + training pipeline.
+Tamil-first SLM data, tokenization, training & evaluation pipeline.
 
 See [NEXT_ACTION.md](./NEXT_ACTION.md) for the roadmap, **October 2026 Pilot**, and **December 2026 Launch** deliverables.
 
-## 🆕 Native Tamil SLM (swaram tokens + JAX)
+---
 
-We are building a **from-scratch, pure-Tamil small language model** — akshara
-(உயிர்–மெய் / *swaram*) as the atomic token, agglutination-aware modeling, trained in
-**JAX/Flax** and tracked with **MLflow**, targeting a light, edge-deployable launch.
+## 🆕 Native Tamil SLM (Swaram Tokens + JAX)
+
+We are building a **from-scratch, pure-Tamil small language model** — akshara (உயிர்–மெய் / *swaram*) as the atomic token, agglutination-aware modeling, trained in **JAX/Flax** and tracked with **MLflow**, targeting a light, edge-deployable launch.
 
 - **Roadmap:** [`ROADMAP_JAX_SLM.md`](ROADMAP_JAX_SLM.md)
 - **Architecture:** [`docs/ARCHITECTURE_SWARAM_SLM.md`](docs/ARCHITECTURE_SWARAM_SLM.md)
-- **CPU training:** [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md) — **no GPU required**
-- **Code:** [`src/adhan_slm/`](src/adhan_slm/) (working swaram tokenizer + Flax SLM + JAX/MLflow trainer)
+- **CPU Training:** [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md) — **no GPU required**
+- **Multi-Language Spec:** [`lang/README.md`](lang/README.md) — Tamil flagship (`lang/tamil/`) + English bridge (`lang/english/`)
+
+---
+
+## ⚡ Unified CLI: `adhan`
+
+Adhan comes with a sovereign unified CLI for end-to-end development, training, inference, and mutation:
 
 ```bash
-PYTHONPATH=src python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
+# 1. Start environment & launch MLflow UI dashboard
+adhan start --mlflow
+
+# 2. Check system status, data records & tokenizer readiness
+adhan status
+
+# 3. Run the 1-minute overfit sanity gate before training
+adhan train --overfit-batch
+
+# 4. Train adhan-nano on CPU (or adhan-tiny on GPU) with live tracing
+adhan train --model nano --device cpu --trace
+
+# 5. Launch high-performance REST/Streaming inference server
+adhan serve --port 8000 --model adhan-nano
+
+# 6. Mutate datasets (dedup, distill) or models (quantize, export)
+adhan mutate quantize --checkpoint checkpoints/adhan-nano --format int8
+adhan mutate distill --teacher gemma2-27b
+
+# 7. Run evaluation suite (Thirukkural, Sandhi, Morphology, Kid prompts)
+adhan eval
+
+# 8. Interactive terminal session with live tokenization & fertility tracing
+adhan interact
 ```
 
-Corpus building (Phase 2 data collection) lives in `src/data_scraper/` — see
-`scripts/run_scraper.py` below.
+---
 
-## Recent changes
+## 🔍 Logs & Interactive Tracing
 
-- **CPU training ready**: nano CPU config, `--device`/`--overfit-batch` flags, gradient
-  accumulation, resume-aware step budget, and a CPU install path with no CUDA
-  (`pip install -e ".[jax]"`). See [`docs/CPU_TRAINING.md`](docs/CPU_TRAINING.md).
-- Structured logging + MLflow wired through the training / corpus-prep / eval path
-- E2E CPU training integration tests (`tests/integration/train_cpu_*_tests.py`)
-- Tests renamed to the `<module>_tests.py` convention and split per module under test
-- Added shared constants in `src/core/`
-- Added corpus merger: `src/data_scraper/merge_corpora.py`
-- Removed the legacy PyTorch fine-tuning pipeline (Gemma LoRA, XLM-RoBERTa MLM,
-  sangam_gpt) — the project now stands on the from-scratch JAX SLM plus the
-  Phase 2 data-collection pipeline only.
+Adhan maintains structured logging and interactive tracing by default:
+- **Persistent Log Files:** Automatically rotated under `logs/adhan_cli_YYYYMMDD_HHMMSS.log` with a symlink to `logs/adhan_cli_latest.log`.
+- **Interactive Tracing:** Pass `--trace` to any command for live micro-step timing, token fertility metrics, and JAX memory profiling.
+- **MLflow Tracing:** Integrated experiment tracking in `mlflow.db` (`http://localhost:5000`).
+
+---
 
 ## Installation
 
@@ -49,109 +72,39 @@ cd adhan
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install the package in development mode with all dependencies
-# (CPU-only JAX — works on macOS, Windows, and CUDA-less Linux/CI)
+# Install with CLI and all development extras
 pip install -e ".[dev,jax,tamil-nlp]"
 ```
 
-On a machine with an NVIDIA GPU, add the `jax-gpu` extra to pull in CUDA 12
-wheels (Linux only):
-
+On a machine with an NVIDIA GPU, add the `jax-cuda` extra:
 ```bash
-pip install -e ".[dev,jax,jax-gpu,tamil-nlp]"
+pip install -e ".[dev,jax-cuda,tamil-nlp]"
 ```
 
-### Option 2: JAX Stack Only (for training)
+---
 
-```bash
-# CPU
-pip install -e ".[jax]"
+## Multi-Language Architecture (`lang/`)
 
-# GPU (Linux + NVIDIA CUDA 12 only)
-pip install -e ".[jax,jax-gpu]"
-pip install -e ".[jax]"        # CPU wheels — works on any machine, no CUDA needed
-pip install -e ".[jax-cuda]"   # GPU (CUDA 12) instead
-```
+| Language | Directory | Script / Family | Priority | Status |
+|---|---|---|---|---|
+| **Tamil** | `lang/tamil/` | Dravidian (Tamil script) | **P1 (Flagship)** | **Active / Ingestion & Evaluation Ready** |
+| **English** | `lang/english/` | Germanic (Latin script) | **P1 (Secondary Bridge)**| **Active / Cross-lingual Alignment** |
+| **Telugu** | `lang/telugu/` | Dravidian (Telugu script) | P2 | Planned (Brahmi Akshara base) |
+| **Malayalam** | `lang/malayalam/` | Dravidian (Malayalam script)| P2 | Planned (Chillu & Sandhi base) |
+| **Kannada** | `lang/kannada/` | Dravidian (Kannada script) | P2 | Planned (Vattu conjunct base) |
+| **Odia** | `lang/odia/` | Indo-Aryan (Odia script) | P3 | Planned |
+| **Marathi** | `lang/marathi/` | Indo-Aryan (Devanagari) | P3 | Planned |
+| **Hindi** | `lang/hindi/` | Indo-Aryan (Devanagari) | P3 | Planned (Aksharam prototype) |
 
-### Option 3: Data Collection Only (Phase 2 scraping/corpus tools)
+---
 
-```bash
-pip install -e ".[data-collection]"
-```
+## Evaluation Harnesses
 
-## Quick Start
+- **Classical Thirukkural Harness (`src/adhan_slm/eval/thirukkural_eval.py`):** 1,330 couplets benchmarked on fertility (`0.598` tokens/akshara) and pure Tamil purity (`75.8%`).
+- **Morphology & Sandhi Probes (`src/adhan_slm/eval/morphology.py`):** Word-junction correctness (*புணர்ச்சி*) against *Tholkaappiyam* rules.
+- **50 Kid-Level Conversational Prompts (`src/adhan_slm/eval/kid_level_prompts.py`):** Real-world prompt generation tests.
 
-**Test the swaram tokenizer** (no JAX/PyTorch needed):
-```bash
-python -m adhan_slm.tokenizer.swaram_tokenizer "படித்துக்கொண்டிருந்தேன்"
-```
-
-**Run unit tests** (ensure everything works):
-```bash
-pytest tests/ -v
-```
-
-**Try the full pipeline** (after installing JAX):
-```bash
-# 1. Prepare corpus and freeze tokenizer
-python scripts/prepare_slm_corpus.py \
-    --corpus data/raw/tamil/ --out data/final/tamil_slm \
-    --vocab-size 12000 --seq-len 1024
-
-# 2. Train a model (smoke test)
-python -m adhan_slm.training.train_jax \
-    --config src/adhan_slm/configs/adhan_slm_tiny.yaml --smoke
-
-# 2b. Train on a CPU box (nano tier, bf16, gradient accumulation)
-python -m adhan_slm.training.train_jax \
-    --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
-
-# 2c. Sanity-gate the wiring first — one batch, loss must collapse
-python -m adhan_slm.training.train_jax \
-    --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --overfit-batch
-
-# 3. Generate text from a checkpoint
-python scripts/generate_slm.py \
-    --tokenizer-dir data/final/tamil_slm \
-    --checkpoint checkpoints/adhan-tiny \
-    --prompt "சொல், உனக்கு பிடித்த உணவு என்ன?"
-
-# 4. Run full evaluation suite
-python -m adhan_slm.eval.run_eval \
-    --tokenizer-dir data/final/tamil_slm \
-    --config src/adhan_slm/configs/adhan_slm_tiny.yaml \
-    --checkpoint checkpoints/adhan-tiny
-```
-
-## Documentation
-
-- **[Roadmap](ROADMAP_JAX_SLM.md)** — Phased development plan (Phases 0 + A done, Phase 3 in progress)
-- **[Architecture](docs/ARCHITECTURE_SWARAM_SLM.md)** — Swaram tokenizer + JAX/Flax model design
-- **[CPU Training](docs/CPU_TRAINING.md)** — Train `adhan-nano` without a GPU: install, configs, measured throughput, sanity gates
-- **[Completion Tracker](docs/COMPLETION_TRACKER.md)** — Real-time progress on all phases
-- **[Phase A Tracker](docs/PHASE_A_TRACKER.md)** — CI/CD, logging, packaging (closed)
-
-## Run scripts
-
-- `scripts/run_scraper.py` — Phase 2 corpus build + HF export
-- `scripts/prepare_slm_corpus.py` — freeze the swaram tokenizer + pack shards
-- `scripts/generate_slm.py` — sample text from a trained JAX checkpoint
-
-```bash
-# Build corpus + export HF splits
-python scripts/run_scraper.py --strategy modern --max-records 80000
-```
-
-For full command sequence and examples, see `DEV.md`.
-
-## Core scripts
-
-- `src/data_scraper/processing/build_unified_corpus.py`
-- `src/data_scraper/export/export_unified_hf.py`
-- `src/data_scraper/merge_corpora.py`
-- `scripts/run_scraper.py`
-- `scripts/prepare_slm_corpus.py`
-- `src/adhan_slm/training/train_jax.py`
+---
 
 ## License
 

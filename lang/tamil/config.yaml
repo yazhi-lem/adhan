@@ -1,0 +1,50 @@
+# ==============================================================================
+# Tamil (தமிழ்) Language Specification & Harness Config — Adhan Flagship
+# ==============================================================================
+
+language:
+  code: "ta"
+  name_native: "தமிழ்"
+  name_english: "Tamil"
+  family: "Dravidian"
+  priority: 1  # Primary Focus
+
+tokenizer:
+  engine: "SwaramTokenizer"
+  module: "adhan_slm.tokenizer.swaram_tokenizer"
+  atomic_unit: "akshara_swaram"
+  target_vocab_size: 12000
+  target_fertility: 1.15  # tokens per akshara
+
+unicode_ranges:
+  block_start: "0x0B80"
+  block_end: "0x0BFF"
+  base_aksharas: 247
+  grantha_support: true
+
+eval_harnesses:
+  - name: "thirukkural_eval"
+    module: "adhan_slm.eval.thirukkural_eval"
+    data: "data/raw/thirukkural/thirukkural_harness_data.json"
+    benchmarks: ["couplet_completion", "purity_score", "urai_alignment"]
+  - name: "morphology_sandhi_eval"
+    module: "adhan_slm.eval.morphology"
+    benchmarks: ["sandhi_correctness_rate", "stemmer_boundary_agreement"]
+  - name: "kid_prompts_eval"
+    module: "adhan_slm.eval.kid_level_prompts"
+    benchmarks: ["50_children_prompts", "generative_coherence"]
+  - name: "classical_sangam_probe"
+    module: "adhan_slm.eval.ngram_baseline"
+    benchmarks: ["unigram_akshara_ppl_floor"]
+
+corpora_sources:
+  tier_1:
+    - "open-sangam-classical"
+    - "thirukkural-classical"
+    - "tn-scert-textbooks"
+  tier_2:
+    - "wikipedia-ta"
+    - "project-madurai"
+  tier_3:
+    - "ai4bharat-indiccorp-v2"
+    - "synthetic-distillation-gemma2-kimi"

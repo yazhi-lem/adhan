@@ -1,0 +1,41 @@
+# Adhan SLM — CPU training config (nano architecture on existing tiny data)
+#
+# Uses the already-prepared tamil_slm shards (vocab=12000, seq_len=512).
+# Model is nano-sized (6 layers x 256 d_model) but accepts 512-token contexts.
+#
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_existing.yaml --device cpu
+#
+# Sanity gate:
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_existing.yaml --device cpu --overfit-batch
+
+experiment: adhan-slm-cpu
+run_name: null
+mlflow_uri: sqlite:///mlflow.db
+checkpoint_dir: checkpoints/adhan-nano-existing
+
+model:
+  size: nano
+  vocab_size: 12000        # will auto-adjust to frozen tokenizer size
+  max_seq_len: 512         # must match packed shard seq_len
+  use_boundary_emb: false
+  dtype: bfloat16
+
+train:
+  batch_size: 8
+  grad_accum_steps: 4      # effective batch 32
+  learning_rate: 6.0e-4
+  warmup_steps: 200
+  max_steps: 2000          # ~32M tokens over the 254K-token corpus
+  weight_decay: 0.1
+  seed: 0
+  log_every: 10
+  eval_every: 200
+  checkpoint_every: 200
+  keep_checkpoints: 3
+
+data:
+  version: adhan-corpus-v1
+  shards: data/final/tamil_slm/
+  seq_packing: true
