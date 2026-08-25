@@ -127,7 +127,9 @@ def _demo(text: str) -> None:
     logger.info(f"अक्षर / அக்சரங்கள் (Aksharas): {aks}")
     logger.info(f"अक्षर संख्या / அக்சர எண்ணிக்கை: {len(aks)}")
 
-    tok = AksharamTokenizer.train([text], vocab_size=len(default_aksharam_inventory()) + 32)
+    tok = AksharamTokenizer.train(
+        [text], vocab_size=len(default_aksharam_inventory()) + 32
+    )
     ids = tok.encode(text, add_special=True)
     back = tok.decode(ids)
     logger.info(f"टोकन संख्या / டோக்கன் எண்ணிக்கை : {len(ids)} (with <bos>/<eos>)")
