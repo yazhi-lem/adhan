@@ -1,0 +1,11 @@
+language:
+  code: "hi"
+  name_native: "हिन्दी"
+  name_english: "Hindi"
+  family: "Indo-Aryan"
+  priority: 3
+  status: "prototype"
+  script: "Devanagari"
+  unicode_block: "0x0900-0x097F"
+  tokenizer_target: "AksharamTokenizer"
+  module: "adhan_slm.tokenizer.aksharam_tokenizer"

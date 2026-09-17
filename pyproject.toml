@@ -35,6 +35,9 @@ dependencies = [
     "defusedxml>=0.7.1",
 ]
 
+[project.scripts]
+adhan = "adhan_slm.cli:main"
+
 [project.optional-dependencies]
 # Default JAX stack: CPU wheels. This is what `pip install -e ".[jax]"` gives you,
 # so training works on any machine (laptop, CI runner, RPi) without a CUDA toolchain.

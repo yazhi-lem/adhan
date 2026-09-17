@@ -37,6 +37,12 @@ checkpoints/
 
 # Logs
 *.log
+logs/
+
+# MLflow
+mlflow.db
+mlruns/
+*.db
 
 # Temporary files
 *.tmp

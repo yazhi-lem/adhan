@@ -1,0 +1,10 @@
+language:
+  code: "kn"
+  name_native: "ಕನ್ನಡ"
+  name_english: "Kannada"
+  family: "Dravidian"
+  priority: 2
+  status: "planned"
+  script: "Kannada"
+  unicode_block: "0x0C80-0x0CFF"
+  tokenizer_target: "Swaram-Kannada"

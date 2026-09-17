@@ -107,10 +107,12 @@ try:
             q, k, v = jnp.split(qkv, 3, axis=-1)
             dh = c.d_model // c.n_heads
             b, t = x.shape[0], x.shape[1]
+
             # (B, T, H, Dh) directly — no transpose needed, matches the layout
             # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
             def shp(a):
                 return a.reshape(b, t, c.n_heads, dh)
+
             q, k, v = _rope(shp(q), c.rope_theta), _rope(shp(k), c.rope_theta), shp(v)
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
