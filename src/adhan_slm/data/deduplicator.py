@@ -263,7 +263,9 @@ class TextDeduplicator:
             # Finalize the shared stats dict in place once the stream is exhausted.
             removed = stats["exact_duplicates"] + stats["near_duplicates"]
             stats["removed"] = removed
-            stats["removal_rate"] = removed / stats["total_seen"] if stats["total_seen"] > 0 else 0.0
+            stats["removal_rate"] = (
+                removed / stats["total_seen"] if stats["total_seen"] > 0 else 0.0
+            )
             stats["per_source"] = dict(stats["per_source"])
 
             self.logger.info(

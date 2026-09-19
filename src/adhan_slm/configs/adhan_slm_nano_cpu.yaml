@@ -13,7 +13,7 @@
 
 experiment: adhan-slm-cpu
 run_name: null                            # null -> MLflow autogenerates
-mlflow_uri: file:./mlruns                  # local file store; no server needed on CPU
+mlflow_uri: sqlite:///mlflow.db
 checkpoint_dir: checkpoints/adhan-nano-cpu # Orbax dir (resumable, best-by-val)
 
 model:

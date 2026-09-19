@@ -68,6 +68,12 @@ def main() -> None:
     ap.add_argument("--min-freq", type=int, default=2)
     ap.add_argument("--seq-len", type=int, default=1024)
     ap.add_argument("--val-frac", type=float, default=0.02)
+    ap.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="shuffle seed for the train/val split (fixed for reproducibility)",
+    )
     ap.add_argument("--limit", type=int, default=None, help="cap #documents (debug / dry runs)")
     ap.add_argument(
         "--whole-file-docs",

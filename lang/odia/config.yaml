@@ -1,0 +1,10 @@
+language:
+  code: "or"
+  name_native: "ଓଡ଼ିଆ"
+  name_english: "Odia"
+  family: "Indo-Aryan"
+  priority: 3
+  status: "planned"
+  script: "Odia"
+  unicode_block: "0x0B00-0x0B7F"
+  tokenizer_target: "Aksharam-Odia"

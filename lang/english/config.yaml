@@ -1,0 +1,26 @@
+# ==============================================================================
+# English Language Specification — Adhan Secondary Bridge
+# ==============================================================================
+
+language:
+  code: "en"
+  name_native: "English"
+  name_english: "English"
+  family: "Indo-European"
+  priority: 1  # Always-on Secondary Bridge
+
+role:
+  - "Cross-lingual alignment (Tamil <-> English translation & explanation)"
+  - "Synthetic distillation interface for frontier teacher models (Gemma 2, GLM-4, Kimi)"
+  - "Technical and code explanation bridge"
+
+tokenizer:
+  engine: "BPE / Byte-Fallback"
+  role: "Subword alignment & Latin character fallback"
+  latin_compatibility: true
+
+corpora_sources:
+  - "open-sangam-translations"
+  - "thirukkural-english-glosses"
+  - "bilingual-parallel-scert"
+  - "synthetic-tamil-english-dialogues"
