@@ -41,6 +41,11 @@ adhan serve --port 8000 --model adhan-nano
 adhan mutate quantize --checkpoint checkpoints/adhan-nano --format int8
 adhan mutate distill --teacher gemma2-27b
 
+On a machine with an NVIDIA GPU, add the `jax-cuda` extra to pull in CUDA 12
+wheels (Linux only):
+
+```bash
+pip install -e ".[dev,jax-cuda,tamil-nlp]"
 # 7. Run evaluation suite (Thirukkural, Sandhi, Morphology, Kid prompts)
 adhan eval
 
@@ -50,6 +55,22 @@ adhan interact
 
 ---
 
+```bash
+pip install -e ".[jax]"        # CPU wheels — works on any machine, no CUDA needed
+pip install -e ".[jax-cuda]"   # GPU (CUDA 12) instead
+```
+
+### Option 2b: PyTorch backend (`scripts/train_efficient.py`)
+
+A second, PyTorch-based trainer lives at `scripts/train_efficient.py` — same nano/tiny/mini
+architecture, useful once a CUDA GPU is available for `torch.compile`/AMP-style workflows.
+JAX (`train_jax.py`) remains the primary, documented path.
+
+```bash
+pip install -e ".[torch]"   # PyPI Linux wheels bundle CUDA runtime deps automatically
+```
+
+### Option 3: Data Collection Only (Phase 2 scraping/corpus tools)
 ## 🔍 Logs & Interactive Tracing
 
 Adhan maintains structured logging and interactive tracing by default:
