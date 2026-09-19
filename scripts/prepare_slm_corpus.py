@@ -95,7 +95,7 @@ def main() -> None:
     ap.add_argument(
         "--skip-dedup",
         action="store_true",
-        help="skip near-duplicate removal (not recommended for real training runs)",
+        help="skip exact and near-duplicate removal (not recommended for real training runs)",
     )
     args = ap.parse_args()
 
