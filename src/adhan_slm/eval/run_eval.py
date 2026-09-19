@@ -158,6 +158,7 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
     if config and checkpoint:
         try:
             from adhan_slm.inference import generate_text, load_model
+
             model, params, _ = load_model(config, checkpoint, vocab_size=len(tok))
             out["generations"] = [
                 {
@@ -169,6 +170,20 @@ def probe_kid_prompts(config, checkpoint, tok, n=10):
         except (ImportError, FileNotFoundError) as e:
             out["generations"] = {"status": "skipped", "reason": str(e)}
     return out
+
+
+def probe_thirukkural(tok, harness_path="data/raw/thirukkural/thirukkural_harness_data.json"):
+    path = Path(harness_path)
+    if not path.exists():
+        return {"status": "skipped", "reason": f"harness file not found at {path}"}
+    try:
+        from adhan_slm.eval.thirukkural_eval import ThirukkuralEvaluator
+
+        evaluator = ThirukkuralEvaluator(path)
+        metrics = evaluator.evaluate_tokenizer(tok)
+        return {"status": "ok", **metrics}
+    except Exception as e:
+        return {"status": "skipped", "reason": str(e)}
 
 
 def main():
@@ -193,6 +208,7 @@ def main():
         "n_eval_docs": len(texts),
         "probes": {
             "fertility": probe_fertility(tok, texts),
+            "thirukkural": probe_thirukkural(tok),
             "classical": probe_classical(texts),
             "morphology": probe_morphology(tok, texts),
             "model": probe_model(args.config, args.checkpoint, args.tokenizer_dir, tok, texts),

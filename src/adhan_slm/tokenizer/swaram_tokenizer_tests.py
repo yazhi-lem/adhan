@@ -71,6 +71,7 @@ def test_fertility_at_most_one_before_merges_helps():
 
 def test_tokenizer_module_logger_initialized():
     import adhan_slm.tokenizer.swaram_tokenizer as st
+
     assert hasattr(st, "logger")
     assert st.logger is not None
     assert st.logger.name == "adhan_slm.tokenizer.swaram_tokenizer"

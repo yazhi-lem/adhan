@@ -1,0 +1,10 @@
+language:
+  code: "ml"
+  name_native: "മലയാളം"
+  name_english: "Malayalam"
+  family: "Dravidian"
+  priority: 2
+  status: "planned"
+  script: "Malayalam"
+  unicode_block: "0x0D00-0x0D7F"
+  tokenizer_target: "Swaram-Malayalam (with Chillu support)"

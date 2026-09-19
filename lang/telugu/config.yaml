@@ -1,0 +1,10 @@
+language:
+  code: "te"
+  name_native: "తెలుగు"
+  name_english: "Telugu"
+  family: "Dravidian"
+  priority: 2
+  status: "planned"
+  script: "Telugu"
+  unicode_block: "0x0C00-0x0C7F"
+  tokenizer_target: "AksharamTokenizer / Swaram-Telugu"
