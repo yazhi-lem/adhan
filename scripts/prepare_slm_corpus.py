@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import subprocess
 import sys
 from pathlib import Path
@@ -64,6 +65,12 @@ def main() -> None:
     ap.add_argument("--min-freq", type=int, default=2)
     ap.add_argument("--seq-len", type=int, default=1024)
     ap.add_argument("--val-frac", type=float, default=0.02)
+    ap.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="shuffle seed for the train/val split (fixed for reproducibility)",
+    )
     ap.add_argument("--limit", type=int, default=None, help="cap #documents (debug / dry runs)")
     ap.add_argument(
         "--whole-file-docs",
@@ -82,14 +89,21 @@ def main() -> None:
     )
     if not docs:
         sys.exit(f"no documents found under {args.corpus}")
+    # Shuffle before splitting: read_corpus() yields documents file-by-file in
+    # sorted order, so an unshuffled prefix split would put whichever source
+    # sorts first (e.g. one scraper's output) entirely into val_docs instead of
+    # a representative sample. Fixed seed keeps the split reproducible.
+    rng = random.Random(args.seed)
+    rng.shuffle(docs)
     n_val = max(1, int(len(docs) * args.val_frac))
     val_docs = docs[:n_val]
     train_docs = docs[n_val:]
     logger.info(
-        "      %s docs -> %s train / %s val",
+        "      %s docs -> %s train / %s val (shuffled, seed=%d)",
         f"{len(docs):,}",
         f"{len(train_docs):,}",
         f"{len(val_docs):,}",
+        args.seed,
     )
 
     logger.info("[2/5] training %s tokenizer (vocab %d) ...", args.tokenizer, args.vocab_size)
@@ -147,6 +161,7 @@ def main() -> None:
         "n_documents": len(docs),
         "n_train_documents": len(train_docs),
         "n_val_documents": len(val_docs),
+        "split_seed": args.seed,
         "train_tokens": train_shard.n_tokens,
         "val_tokens": val_shard.n_tokens if val_shard else 0,
         "mean_fertility": round(fert, 4),
