@@ -5,12 +5,13 @@ This closes the Phase 1 ("freeze vocab.json + merges", `adhan-tok-v1` artifact) 
 Phase 2 ("tokenize → packed fixed-length sequences → sharded") gap in
 ROADMAP_JAX_SLM.md. Given a corpus (txt / jsonl / directory), it:
 
-  1. trains the Swaram (Tamil/Dravidian) or Aksharam (Hindi/Indic) tokenizer,
-  2. freezes ``vocab.json`` + ``merges.txt``,
-  3. measures fertility (tokens/akshara) on a held-out sample,
-  4. tokenizes + packs the corpus into ``train.bin`` / ``val.bin`` shards, and
-  5. writes a ``datasheet.json`` (sources, counts, fertility, code SHA) — the data
-     card the roadmap asks for.
+  1. deduplicates (exact + near-duplicate) and scrubs PII (emails/phones/URLs),
+  2. trains the Swaram (Tamil/Dravidian) or Aksharam (Hindi/Indic) tokenizer,
+  3. freezes ``vocab.json`` + ``merges.txt``,
+  4. measures fertility (tokens/akshara) on a held-out sample,
+  5. tokenizes + packs the corpus into ``train.bin`` / ``val.bin`` shards, and
+  6. writes a ``datasheet.json`` (sources, counts, fertility, dedup/PII stats,
+     code SHA) — the data card the roadmap asks for.
 
 Everything is pure-python (stdlib only); numpy just speeds up shard I/O if present.
 
@@ -34,6 +35,8 @@ sys.path.insert(0, str(ROOT / "src"))
 from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 from adhan_slm.data import packing  # noqa: E402
+from adhan_slm.data.deduplicator import TextDeduplicator  # noqa: E402
+from adhan_slm.data.filters import CorpusFilter  # noqa: E402
 from adhan_slm.tokenizer import SwaramTokenizer  # noqa: E402
 from adhan_slm.tokenizer.aksharam_tokenizer import AksharamTokenizer  # noqa: E402
 
@@ -77,18 +80,78 @@ def main() -> None:
         action="store_true",
         help="treat each .txt file as one document (default: per line)",
     )
+    ap.add_argument(
+        "--dedup-threshold",
+        type=float,
+        default=0.85,
+        help="near-duplicate similarity threshold for TextDeduplicator (default: 0.85)",
+    )
+    ap.add_argument(
+        "--pii-level",
+        choices=["none", "standard", "aggressive"],
+        default="standard",
+        help="PII scrubbing level applied before packing (default: standard)",
+    )
+    ap.add_argument(
+        "--skip-dedup",
+        action="store_true",
+        help="skip exact and near-duplicate removal (not recommended for real training runs)",
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     TokCls = _TOKENIZERS[args.tokenizer]
 
-    logger.info("[1/5] reading corpus from %s ...", args.corpus)
+    logger.info("[1/6] reading corpus from %s ...", args.corpus)
     docs = corpus_mod.read_corpus(
         args.corpus, line_documents=not args.whole_file_docs, limit=args.limit
     )
     if not docs:
         sys.exit(f"no documents found under {args.corpus}")
+
+    # Clean before splitting: dedup first (so exact/near-duplicates can't end up
+    # split across train and val, which would leak eval data into training) then
+    # scrub PII. Runs on the raw scraped text below every document eventually
+    # traces back to (Reddit/Twitter/Wikipedia/etc.) since none of those upstream
+    # sources currently filter or scrub before writing here.
+    logger.info("[2/6] cleaning corpus (dedup + PII scrub) ...")
+    dedup_stats: dict = {}
+    pii_stats: dict = {}
+    doc_dicts = [{"id": str(i), "text": t} for i, t in enumerate(docs)]
+
+    if args.skip_dedup:
+        logger.warning("      --skip-dedup set: near-duplicate documents will NOT be removed")
+    else:
+        deduper = TextDeduplicator(threshold=args.dedup_threshold)
+        dedup_gen, dedup_stats = deduper.deduplicate(iter(doc_dicts))
+        doc_dicts = list(dedup_gen)
+        logger.info(
+            "      dedup: %s -> %s docs (%s exact + %s near duplicates removed)",
+            f"{dedup_stats.get('total_seen', 0):,}",
+            f"{dedup_stats.get('kept', 0):,}",
+            f"{dedup_stats.get('exact_duplicates', 0):,}",
+            f"{dedup_stats.get('near_duplicates', 0):,}",
+        )
+
+    if args.pii_level == "none":
+        logger.warning("      --pii-level=none: emails/phones/URLs will NOT be scrubbed")
+    else:
+        pii_filter = CorpusFilter()
+        pii_gen, pii_stats = pii_filter.scrub_pii(iter(doc_dicts), anonymize_level=args.pii_level)
+        doc_dicts = list(pii_gen)
+        logger.info(
+            "      PII scrub (%s): %s emails, %s phones, %s URLs anonymized",
+            args.pii_level,
+            f"{pii_stats.get('emails_removed', 0):,}",
+            f"{pii_stats.get('phones_removed', 0):,}",
+            f"{pii_stats.get('urls_anonymized', 0):,}",
+        )
+
+    docs = [d["text"] for d in doc_dicts]
+    if not docs:
+        sys.exit("no documents left after dedup/PII scrubbing (corpus too small or too repetitive)")
+
     # Shuffle before splitting: read_corpus() yields documents file-by-file in
     # sorted order, so an unshuffled prefix split would put whichever source
     # sorts first (e.g. one scraper's output) entirely into val_docs instead of
@@ -106,7 +169,7 @@ def main() -> None:
         args.seed,
     )
 
-    logger.info("[2/5] training %s tokenizer (vocab %d) ...", args.tokenizer, args.vocab_size)
+    logger.info("[3/6] training %s tokenizer (vocab %d) ...", args.tokenizer, args.vocab_size)
     tok = TokCls.train(train_docs, vocab_size=args.vocab_size, min_freq=args.min_freq)
     vocab_path = out / "vocab.json"
     merges_path = out / "merges.txt"
@@ -119,13 +182,13 @@ def main() -> None:
         merges_path.name,
     )
 
-    logger.info("[3/5] measuring fertility on held-out sample ...")
+    logger.info("[4/6] measuring fertility on held-out sample ...")
     fert = _mean_fertility(tok, val_docs)
     flag = "OK" if fert < 1.15 else "ABOVE TARGET (<1.15)"
     log = logger.info if fert < 1.15 else logger.warning
     log("      mean fertility = %.3f tokens/akshara  [%s]", fert, flag)
 
-    logger.info("[4/5] tokenizing + packing to seq_len=%d ...", args.seq_len)
+    logger.info("[5/6] tokenizing + packing to seq_len=%d ...", args.seq_len)
     train_seqs = packing.pack_documents(train_docs, tok, seq_len=args.seq_len)
     val_seqs = packing.pack_documents(val_docs, tok, seq_len=args.seq_len)
     if not train_seqs:
@@ -151,7 +214,7 @@ def main() -> None:
         ),
     )
 
-    logger.info("[5/5] writing datasheet.json ...")
+    logger.info("[6/6] writing datasheet.json ...")
     datasheet = {
         "corpus_source": str(args.corpus),
         "tokenizer": args.tokenizer,
@@ -162,6 +225,10 @@ def main() -> None:
         "n_train_documents": len(train_docs),
         "n_val_documents": len(val_docs),
         "split_seed": args.seed,
+        "dedup_threshold": None if args.skip_dedup else args.dedup_threshold,
+        "dedup_stats": dedup_stats,
+        "pii_level": args.pii_level,
+        "pii_stats": pii_stats,
         "train_tokens": train_shard.n_tokens,
         "val_tokens": val_shard.n_tokens if val_shard else 0,
         "mean_fertility": round(fert, 4),
