@@ -71,6 +71,10 @@ data-collection = [
     "beautifulsoup4>=4.12.0",
     "datasets>=2.14.0",
 ]
+benchmark = [
+    "tokenizers>=0.15.0",
+    "sentencepiece>=0.1.99",
+]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -81,7 +85,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,torch,tamil-nlp,data-collection,dev]",
+    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,dev]",
 ]
 
 [project.urls]

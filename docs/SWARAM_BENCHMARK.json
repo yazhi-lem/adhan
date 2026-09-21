@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "n_docs": 1330,
+    "n_train": 1197,
+    "n_eval": 133,
+    "vocab_size": 3000
+  },
+  "results": {
+    "Swaram": {
+      "vocab_size": 3000,
+      "tokens_per_word": 2.768248645860201,
+      "vocab_coverage_pct": 99.99068250640578,
+      "fertility_mean": 0.6058580591789456,
+      "fertility_median": 0.6049382716049383,
+      "total_eval_tokens": 21465,
+      "total_eval_docs": 133
+    },
+    "BPE (tokenizers, byte-level)": {
+      "vocab_size": 1678,
+      "tokens_per_word": 6.337632189837503,
+      "vocab_coverage_pct": 100.0,
+      "fertility_mean": 1.3882349579483981,
+      "fertility_median": 1.3910034602076125,
+      "total_eval_tokens": 49142,
+      "total_eval_docs": 133
+    },
+    "SentencePiece (BPE)": {
+      "vocab_size": 3000,
+      "tokens_per_word": 2.05339179778179,
+      "vocab_coverage_pct": 99.88694887576938,
+      "fertility_mean": 0.4496585691669918,
+      "fertility_median": 0.44086021505376344,
+      "total_eval_tokens": 15922,
+      "total_eval_docs": 133
+    }
+  }
+}
