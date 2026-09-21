@@ -32,15 +32,12 @@ from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer, segment_aksharas  # noqa: E402
 from data_scraper.raw_extractors.thirukkural_extractor import (  # noqa: E402
+    THIRUKKURAL_URL,
     build_datasets,
     fetch_thirukkural_data,
 )
 
 logger = get_logger(__name__)
-
-THIRUKKURAL_SOURCE_URL = (
-    "https://raw.githubusercontent.com/tk120404/thirukkural/master/thirukkural.json"
-)
 
 
 def load_frozen_corpus(cache_dir: Path) -> list[str]:
@@ -49,7 +46,7 @@ def load_frozen_corpus(cache_dir: Path) -> list[str]:
     """
     corpus_file = cache_dir / "thirukkural_corpus.jsonl"
     if not corpus_file.exists():
-        logger.info("Fetching frozen benchmark corpus from %s ...", THIRUKKURAL_SOURCE_URL)
+        logger.info("Fetching frozen benchmark corpus from %s ...", THIRUKKURAL_URL)
         kurals = fetch_thirukkural_data()
         build_datasets(kurals, cache_dir)
     else:
@@ -97,8 +94,10 @@ class BPEAdapter:
         with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as f:
             f.write("\n".join(train_docs))
             train_path = f.name
-        self.tok.train([train_path], vocab_size=vocab_size, min_frequency=2)
-        Path(train_path).unlink(missing_ok=True)
+        try:
+            self.tok.train([train_path], vocab_size=vocab_size, min_frequency=2)
+        finally:
+            Path(train_path).unlink(missing_ok=True)
 
     def encode_ids(self, text: str) -> list[int]:
         return self.tok.encode(text).ids
@@ -123,22 +122,24 @@ class SentencePieceAdapter:
             f.write("\n".join(train_docs))
             train_path = f.name
         model_prefix = train_path.replace(".txt", "")
-        spm.SentencePieceTrainer.train(
-            input=train_path,
-            model_prefix=model_prefix,
-            vocab_size=vocab_size,
-            model_type="bpe",
-            character_coverage=0.9995,
-            byte_fallback=False,  # deliberate: see report methodology note
-            unk_id=0,
-            pad_id=1,
-            bos_id=2,
-            eos_id=3,
-        )
-        self.sp = spm.SentencePieceProcessor(model_file=model_prefix + ".model")
-        Path(train_path).unlink(missing_ok=True)
-        Path(model_prefix + ".model").unlink(missing_ok=True)
-        Path(model_prefix + ".vocab").unlink(missing_ok=True)
+        try:
+            spm.SentencePieceTrainer.train(
+                input=train_path,
+                model_prefix=model_prefix,
+                vocab_size=vocab_size,
+                model_type="bpe",
+                character_coverage=0.9995,
+                byte_fallback=False,  # deliberate: see report methodology note
+                unk_id=0,
+                pad_id=1,
+                bos_id=2,
+                eos_id=3,
+            )
+            self.sp = spm.SentencePieceProcessor(model_file=model_prefix + ".model")
+        finally:
+            Path(train_path).unlink(missing_ok=True)
+            Path(model_prefix + ".model").unlink(missing_ok=True)
+            Path(model_prefix + ".vocab").unlink(missing_ok=True)
 
     def encode_ids(self, text: str) -> list[int]:
         return self.sp.encode(text, out_type=int)
@@ -200,7 +201,7 @@ def write_report(out_path: Path, results: dict, meta: dict) -> None:
     lines.append("")
     lines.append(f"- **Corpus:** Thirukkural ({meta['n_docs']} documents: couplet + 3 classical")
     lines.append(
-        f"  commentaries each), fetched from `{THIRUKKURAL_SOURCE_URL}` via "
+        f"  commentaries each), fetched from `{THIRUKKURAL_URL}` via "
         "`src/data_scraper/raw_extractors/thirukkural_extractor.py`."
     )
     lines.append(
