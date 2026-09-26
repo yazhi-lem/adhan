@@ -16,7 +16,7 @@
       "total_eval_docs": 133
     },
     "BPE (tokenizers, byte-level)": {
-      "vocab_size": 1678,
+      "vocab_size": 1677,
       "tokens_per_word": 6.337632189837503,
       "vocab_coverage_pct": 100.0,
       "fertility_mean": 1.3882349579483981,
@@ -32,6 +32,491 @@
       "fertility_median": 0.44086021505376344,
       "total_eval_tokens": 15922,
       "total_eval_docs": 133
+    }
+  },
+  "roundtrip_results": {
+    "Swaram": {
+      "exact_pct": 98.49624060150376,
+      "nfc_pct": 98.49624060150376,
+      "total_checked": 133,
+      "example_failures": [
+        [
+          "திருக்குறள் 870:\nகல்லான் வெகுளும் சிறுபொருள் எஞ்ஞான்றும்\nஒல்லானை ஒல்லா தொளி.\n\nமு. வரதராசனார் உரை: கல்வி கற்காதவனைப் பகைத்துக்கொள்ளும் எளிய செயலைச் செய்ய இயலாத ஒருவனிடம் எக்காலத்திலும் புகழ் வந்து பொருந்தாது.\n\nசாலமன் பாப்பையா உரை: நீதி நூல்களைக் கல்லாதவனைப் பகைப்பதால் கிடைக்கும் பொருள் சிறிது எனினும், அதை விரும்பாத அரசுக்கு ஒருபோது் புகழ் சேராது.\n\nகலைஞர் உரை: போர்முறை கற்றிடாத பகைவர்களைக்கூட எதிர்ப்பதற்குத் தயக்கம் காட்டுகிறவர்கள், உண்மையான வீரர்களை எப்படி எதிர்கொள்வார்கள் எனக் கேலி புரிந்து, புகழ் அவர்களை அணுகாமலே விலகிப் போய்விடும்",
+          "திருக்குறள் 870:\nகல்லான் வெகுளும் சிறுபொருள் எஞ்ஞான்றும்\nஒல்லானை ஒல்லா தொளி.\n\nமு. வரதராசனார் உரை: கல்வி கற்காதவனைப் பகைத்துக்கொள்ளும் எளிய செயலைச் செய்ய இயலாத ஒருவனிடம் எக்காலத்திலும் புகழ் வந்து பொருந்தாது.\n\nசாலமன் பாப்பையா உரை: நீதி நூல்களைக் கல்லாதவனைப் பகைப்பதால் கிடைக்கும் பொருள் சிறிது எனினும், அதை விரும்பாத அரசுக்கு ஒருபோ புகழ் சேராது.\n\nகலைஞர் உரை: போர்முறை கற்றிடாத பகைவர்களைக்கூட எதிர்ப்பதற்குத் தயக்கம் காட்டுகிறவர்கள், உண்மையான வீரர்களை எப்படி எதிர்கொள்வார்கள் எனக் கேலி புரிந்து, புகழ் அவர்களை அணுகாமலே விலகிப் போய்விடும்"
+        ],
+        [
+          "திருக்குறள் 1210:\nவிடாஅது சென்றாரைக் கண்ணினால் காணப்\nபடாஅதி வாழி மதி.\n\nமு. வரதராசனார் உரை: தி்ங்களே! பிரியாமல் இருந்து இறுதியில் பிரிந்து சென்ற காதலரை என் கண்ணால் தேடிக் காணும்படியாக நீ மறைந்து விடாமல் இருப்பாயாக!\n\nசாலமன் பாப்பையா உரை: திங்களே! பிரியாமலிருந்து இறுதியில் பிரிந்து சென்ற காதலரை என் கண்ணால் தேடிக் காணும்படியாக நீ மறைந்து விடாமல் இருப்பாயாக!\n\nகலைஞர் உரை: நிலவே! நீ வாழ்க; இணைபிரியாமலிருந்து, பிரிந்து சென்றுள்ள காதலரை நான் என் கண்களால் தேடிக் கண்டுபிடித்திடத் துணையாக நீ மறையாமல் இருப்பாயாக",
+          "திருக்குறள் 1210:\nவிடாஅது சென்றாரைக் கண்ணினால் காணப்\nபடாஅதி வாழி மதி.\n\nமு. வரதராசனார் உரை: ங்களே! பிரியாமல் இருந்து இறுதியில் பிரிந்து சென்ற காதலரை என் கண்ணால் தேடிக் காணும்படியாக நீ மறைந்து விடாமல் இருப்பாயாக!\n\nசாலமன் பாப்பையா உரை: திங்களே! பிரியாமலிருந்து இறுதியில் பிரிந்து சென்ற காதலரை என் கண்ணால் தேடிக் காணும்படியாக நீ மறைந்து விடாமல் இருப்பாயாக!\n\nகலைஞர் உரை: நிலவே! நீ வாழ்க; இணைபிரியாமலிருந்து, பிரிந்து சென்றுள்ள காதலரை நான் என் கண்களால் தேடிக் கண்டுபிடித்திடத் துணையாக நீ மறையாமல் இருப்பாயாக"
+        ]
+      ]
+    },
+    "BPE (tokenizers, byte-level)": {
+      "exact_pct": 100.0,
+      "nfc_pct": 100.0,
+      "total_checked": 133,
+      "example_failures": []
+    },
+    "SentencePiece (BPE)": {
+      "exact_pct": 0.0,
+      "nfc_pct": 0.0,
+      "total_checked": 133,
+      "example_failures": [
+        [
+          "திருக்குறள் 10:\nபிறவிப் பெருங்கடல் நீந்துவர் நீந்தார்\nஇறைவன் அடிசேரா தார்.\n\nமு. வரதராசனார் உரை: இறைவனுடைய திருவடிகளை பொருந்தி நினைக்கின்றவர் பிறவியாகிய பெரிய கடலைக் கடக்க முடியும். மற்றவர் கடக்க முடியாது\n\nசாலமன் பாப்பையா உரை: கடவுளின் திருவடிகளைச் சேர்ந்தவர் பிறவியாகிய பெருங்கடலை நீந்திக் கடப்பர்; மற்றவர் நீந்தவும் மாட்டார்\n\nகலைஞர் உரை: வாழ்க்கை எனும் பெருங்கடலை நீந்திக் கடக்க முனைவோர், தலையானவனாக இருப்பவனின் அடி தொடர்ந்து செல்லாவிடில் நீந்த முடியாமல் தவிக்க நேரிடும்",
+          "திருக்குறள் 10: பிறவிப் பெருங்கடல் நீந்துவர் நீந்தார் இறைவன் அடிசேரா தார். மு. வரதராசனார் உரை: இறைவனுடைய திருவடிகளை பொருந்தி நினைக்கின்றவர் பிறவியாகிய பெரிய கடலைக் கடக்க முடியும். மற்றவர் கடக்க முடியாது சாலமன் பாப்பையா உரை: கடவுளின் திருவடிகளைச் சேர்ந்தவர் பிறவியாகிய பெருங்கடலை நீந்திக் கடப்பர்; மற்றவர் நீந்தவும் மாட்டார் கலைஞர் உரை: வாழ்க்கை எனும் பெருங்கடலை நீந்திக் கடக்க முனைவோர், தலையானவனாக இருப்பவனின் அடி தொடர்ந்து செல்லாவிடில் நீந்த முடியாமல் தவிக்க நேரிடும்"
+        ],
+        [
+          "திருக்குறள் 20:\nநீர்இன்று அமையாது உலகெனின் யார்யார்க்கும்\nவான்இன்று அமையாது ஒழுக்கு.\n\nமு. வரதராசனார் உரை: எப்படிப்பட்டவர்க்கும் நீர் இல்லாமல் உலக வாழ்க்கை நடைபெறாது என்றால், மழை இல்லையானால் ஒழுக்கமும் நிலைபெறாமல் போகும்\n\nசாலமன் பாப்பையா உரை: எத்தனை பெரியவரானாலும் நீர் இல்லாமல் வாழமுடியாது; அந்த நீரோ மழை இல்லாமல் கிடைக்காது\n\nகலைஞர் உரை: உலகில் மழையே இல்லையென்றால் ஒழுக்கமே கெடக்கூடும் என்ற நிலை இருப்பதால், நீரின் இன்றியமையாமையை உணர்ந்து செயல்பட வேண்டும்",
+          "திருக்குறள் 20: நீர்இன்று அமையாது உலகெனின் யார்யார்க்கும் வான்இன்று அமையாது ஒழுக்கு. மு. வரதராசனார் உரை: எப்படிப்பட்டவர்க்கும் நீர் இல்லாமல் உலக வாழ்க்கை நடைபெறாது என்றால், மழை இல்லையானால் ஒழுக்கமும் நிலைபெறாமல் போகும் சாலமன் பாப்பையா உரை: எத்தனை பெரியவரானாலும் நீர் இல்லாமல் வாழமுடியாது; அந்த நீரோ மழை இல்லாமல் கிடைக்காது கலைஞர் உரை: உலகில் மழையே இல்லையென்றால் ஒழுக்கமே கெடக்கூடும் என்ற நிலை இருப்பதால், நீரின் இன்றியமையாமையை உணர்ந்து செயல்பட வேண்டும்"
+        ],
+        [
+          "திருக்குறள் 30:\nஅந்தணர் என்போர் அறவோர்மற் றெவ்வுயிர்க்கும்\nசெந்தண்மை பூண்டொழுக லான்.\n\nமு. வரதராசனார் உரை: எல்லா உயிர்களிடத்திலும் செம்மையான அருளை மேற்கொண்டு ஒழுகுவதால், அறவோரே அந்தணர் எனப்படுவோர் ஆவர்.\n\nசாலமன் பாப்பையா உரை: எல்லா உயிர்களிடத்திலும் இரக்கம் கொண்டு வாழ்பவரே அறவோர்; அவரே அந்தணர்.\n\nகலைஞர் உரை: அனைத்து உயிர்களிடத்திலும் அன்புகொண்டு அருள் பொழியும் சான்றோர் எவராயினும் அவர் அந்தணர் எனப்படுவார்",
+          "திருக்குறள் 30: அந்தணர் என்போர் அறவோர்மற் றெவ்வுயிர்க்கும் செந்தண்மை பூண்டொழுக லான். மு. வரதராசனார் உரை: எல்லா உயிர்களிடத்திலும் செம்மையான அருளை மேற்கொண்டு ஒழுகுவதால், அறவோரே அந்தணர் எனப்படுவோர் ஆவர். சாலமன் பாப்பையா உரை: எல்லா உயிர்களிடத்திலும் இரக்கம் கொண்டு வாழ்பவரே அறவோர்; அவரே அந்தணர். கலைஞர் உரை: அனைத்து உயிர்களிடத்திலும் அன்புகொண்டு அருள் பொழியும் சான்றோர் எவராயினும் அவர் அந்தணர் எனப்படுவார்"
+        ]
+      ]
+    }
+  },
+  "stress_results": {
+    "Swaram": {
+      "results": [
+        {
+          "label": "empty_string",
+          "input": "",
+          "decoded": "",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "single_vowel",
+          "input": "அ",
+          "decoded": "அ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "all_12_vowels",
+          "input": "அஆஇஈஉஊஎஏஐஒஓஔ",
+          "decoded": "அஆஇஈஉஊஎஏஐஒஓஔ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "all_18_consonants_pulli",
+          "input": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "decoded": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "uyirmei_full_row_ka",
+          "input": "கககாகிகீகுகூகெகேகைகொகோகௌ",
+          "decoded": "கககாகிகீகுகூகெகேகைகொகோகௌ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "aytham",
+          "input": "எஃகு",
+          "decoded": "எஃகு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_ja",
+          "input": "ஜனநாயகம்",
+          "decoded": "ஜனநாயகம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_sha",
+          "input": "விஷயம்",
+          "decoded": "விஷயம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_sa",
+          "input": "ஸ்ரீ",
+          "decoded": "ஸ்ரீ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_ha",
+          "input": "வாஹனம்",
+          "decoded": "வாஹனம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "ksha_conjunct",
+          "input": "லக்ஷ்மி",
+          "decoded": "லக்ஷ்மி",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "tamil_numerals",
+          "input": "௦௧௨௩௪௫௬௭௮௯",
+          "decoded": "",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "western_numerals_mixed",
+          "input": "2024 ஆம் ஆண்டு",
+          "decoded": "2024 ஆம் ஆண்டு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "code_switched_english",
+          "input": "இது ஒரு AI model தான்",
+          "decoded": "இது ஒரு   தான்",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "punctuation_heavy",
+          "input": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "decoded": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "long_agglutinative_word",
+          "input": "வணக்கங்களுக்குரியவர்களே",
+          "decoded": "வணக்கங்களுக்குரியவர்களே",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "repeated_whitespace",
+          "input": "  தமிழ்   மொழி  ",
+          "decoded": "  தமிழ்   மொழி  ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "newline_in_text",
+          "input": "வணக்கம்\nதமிழ் மொழி",
+          "decoded": "வணக்கம்\nதமிழ் மொழி",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "vowel_sign_composed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "vowel_sign_decomposed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": false
+        }
+      ],
+      "n_passed": 18,
+      "n_exact": 17,
+      "n_total": 20
+    },
+    "BPE (tokenizers, byte-level)": {
+      "results": [
+        {
+          "label": "empty_string",
+          "input": "",
+          "decoded": "",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "single_vowel",
+          "input": "அ",
+          "decoded": "அ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "all_12_vowels",
+          "input": "அஆஇஈஉஊஎஏஐஒஓஔ",
+          "decoded": "அஆஇஈஉஊஎஏஐஒஓஔ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "all_18_consonants_pulli",
+          "input": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "decoded": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "uyirmei_full_row_ka",
+          "input": "கககாகிகீகுகூகெகேகைகொகோகௌ",
+          "decoded": "கககாகிகீகுகூகெகேகைகொகோகௌ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "aytham",
+          "input": "எஃகு",
+          "decoded": "எஃகு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_ja",
+          "input": "ஜனநாயகம்",
+          "decoded": "ஜனநாயகம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_sha",
+          "input": "விஷயம்",
+          "decoded": "விஷயம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_sa",
+          "input": "ஸ்ரீ",
+          "decoded": "ஸ்ரீ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "grantha_ha",
+          "input": "வாஹனம்",
+          "decoded": "வாஹனம்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "ksha_conjunct",
+          "input": "லக்ஷ்மி",
+          "decoded": "லக்ஷ்மி",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "tamil_numerals",
+          "input": "௦௧௨௩௪௫௬௭௮௯",
+          "decoded": "௦௧௨௩௪௫௬௭௮௯",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "western_numerals_mixed",
+          "input": "2024 ஆம் ஆண்டு",
+          "decoded": "2024 ஆம் ஆண்டு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "code_switched_english",
+          "input": "இது ஒரு AI model தான்",
+          "decoded": "இது ஒரு AI model தான்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "punctuation_heavy",
+          "input": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "decoded": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "long_agglutinative_word",
+          "input": "வணக்கங்களுக்குரியவர்களே",
+          "decoded": "வணக்கங்களுக்குரியவர்களே",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "repeated_whitespace",
+          "input": "  தமிழ்   மொழி  ",
+          "decoded": "  தமிழ்   மொழி  ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "newline_in_text",
+          "input": "வணக்கம்\nதமிழ் மொழி",
+          "decoded": "வணக்கம்\nதமிழ் மொழி",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "vowel_sign_composed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "vowel_sign_decomposed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": true
+        }
+      ],
+      "n_passed": 20,
+      "n_exact": 20,
+      "n_total": 20
+    },
+    "SentencePiece (BPE)": {
+      "results": [
+        {
+          "label": "empty_string",
+          "input": "",
+          "decoded": "",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "single_vowel",
+          "input": "அ",
+          "decoded": "அ",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "all_12_vowels",
+          "input": "அஆஇஈஉஊஎஏஐஒஓஔ",
+          "decoded": "அஆஇஈஉஊஎஏ ⁇ ஒஓ ⁇ ",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "all_18_consonants_pulli",
+          "input": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "decoded": "க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "uyirmei_full_row_ka",
+          "input": "கககாகிகீகுகூகெகேகைகொகோகௌ",
+          "decoded": "கககாகிகீகுகூகெகேகைகொகோக ⁇ ",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "aytham",
+          "input": "எஃகு",
+          "decoded": "எ ⁇ கு",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "grantha_ja",
+          "input": "ஜனநாயகம்",
+          "decoded": " ⁇ னநாயகம்",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "grantha_sha",
+          "input": "விஷயம்",
+          "decoded": "வி ⁇ யம்",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "grantha_sa",
+          "input": "ஸ்ரீ",
+          "decoded": " ⁇ ்ரீ",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "grantha_ha",
+          "input": "வாஹனம்",
+          "decoded": "வா ⁇ னம்",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "ksha_conjunct",
+          "input": "லக்ஷ்மி",
+          "decoded": "லக் ⁇ ்மி",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "tamil_numerals",
+          "input": "௦௧௨௩௪௫௬௭௮௯",
+          "decoded": " ⁇ ",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "western_numerals_mixed",
+          "input": "2024 ஆம் ஆண்டு",
+          "decoded": "2024 ஆம் ஆண்டு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "code_switched_english",
+          "input": "இது ஒரு AI model தான்",
+          "decoded": "இது ஒரு  ⁇   ⁇  தான்",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "punctuation_heavy",
+          "input": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "decoded": "என்ன, இது சரியா? ஆம்! இல்லை...",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "long_agglutinative_word",
+          "input": "வணக்கங்களுக்குரியவர்களே",
+          "decoded": "வணக்கங்களுக்குரியவர்களே",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "repeated_whitespace",
+          "input": "  தமிழ்   மொழி  ",
+          "decoded": "தமிழ் மொழி",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "newline_in_text",
+          "input": "வணக்கம்\nதமிழ் மொழி",
+          "decoded": "வணக்கம் தமிழ் மொழி",
+          "passed": false,
+          "exact": false
+        },
+        {
+          "label": "vowel_sign_composed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": true
+        },
+        {
+          "label": "vowel_sign_decomposed",
+          "input": "கொடு",
+          "decoded": "கொடு",
+          "passed": true,
+          "exact": false
+        }
+      ],
+      "n_passed": 8,
+      "n_exact": 7,
+      "n_total": 20
     }
   }
 }
