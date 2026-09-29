@@ -55,6 +55,36 @@ def test_encode_decode_round_trip():
         assert tok.decode(ids) == s, f"round-trip failed: {s!r}"
 
 
+# Trained on Tamil-only text, so English letters are out-of-vocabulary. (The
+# round-trip test above trains ON SAMPLES, which include the English/digit
+# strings, so it can never exercise the out-of-vocabulary path.)
+_TAMIL_ONLY = ["இது ஒரு சோதனை வாக்கியம்", "மற்றொரு தமிழ் வாக்கியம் இது"]
+_OOV_TEXT = "இது AI தான்"
+
+
+def test_decode_shows_unk_by_default():
+    # Out-of-vocabulary input must never vanish silently: <unk> stays visible
+    # so lossy encoding can't masquerade as lossless.
+    tok = SwaramTokenizer.train(_TAMIL_ONLY, vocab_size=200)
+    ids = tok.encode(_OOV_TEXT)
+    assert tok.unk_id in ids, "test setup: expected out-of-vocabulary tokens"
+    assert "<unk>" in tok.decode(ids)
+
+
+def test_decode_hide_unk_opt_out():
+    tok = SwaramTokenizer.train(_TAMIL_ONLY, vocab_size=200)
+    ids = tok.encode(_OOV_TEXT)
+    assert "<unk>" not in tok.decode(ids, hide_unk=True)
+
+
+def test_decode_still_hides_structural_specials():
+    # <bos>/<eos>/<pad>/<mask> carry no content, so they stay hidden by default.
+    tok = SwaramTokenizer.train(_TAMIL_ONLY, vocab_size=200)
+    ids = tok.encode("இது", add_special=True)
+    assert tok.decode(ids) == "இது"
+    assert "<bos>" in tok.decode(ids, skip_special=False)
+
+
 def test_fertility_at_most_one_before_merges_helps():
     # A tokenizer with no merges emits exactly one token per akshara (fertility ~1.0).
     tok = SwaramTokenizer(
