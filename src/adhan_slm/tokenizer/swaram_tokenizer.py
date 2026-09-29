@@ -190,13 +190,25 @@ class SwaramTokenizer:
             ids = [self.vocab.get("<bos>", self.unk_id), *ids, self.vocab.get("<eos>", self.unk_id)]
         return ids
 
-    def decode(self, ids: List[int], skip_special: bool = True) -> str:
-        """எண்சார் குறியீடுகளை மீண்டும் தமிழ் உரையாக மாற்றுதல்."""
-        specials = set(SPECIAL_TOKENS)
+    def decode(self, ids: List[int], skip_special: bool = True, hide_unk: bool = False) -> str:
+        """எண்சார் குறியீடுகளை மீண்டும் தமிழ் உரையாக மாற்றுதல்.
+
+        Note: unlike the other special tokens (<pad>/<bos>/<eos>/<mask>,
+        structural markers with no real content of their own), <unk>
+        represents genuine input characters that couldn't be mapped to the
+        trained vocabulary. Silently hiding it by default would make lossy
+        encoding look lossless with zero signal anything was lost -- so
+        <unk> is always rendered visibly (as the literal "<unk>"),
+        regardless of skip_special, unless hide_unk=True is explicitly
+        requested.
+        """
+        structural_specials = set(SPECIAL_TOKENS) - {"<unk>"}
         toks = []
         for i in ids:
             t = self._inv_vocab.get(i, "<unk>")
-            if skip_special and t in specials:
+            if skip_special and t in structural_specials:
+                continue
+            if t == "<unk>" and hide_unk:
                 continue
             toks.append(t)
         return "".join(toks).replace(WORD_MARK, " ")
