@@ -5,10 +5,11 @@ Usage:
 """
 
 import argparse
+from typing import Optional
 
 try:
     import uvicorn
-    from fastapi import FastAPI, HTTPException
+    from fastapi import FastAPI, HTTPException, Request, Response
     from fastapi.responses import JSONResponse
 except ImportError:
     print("FastAPI and uvicorn required. Install with: pip install fastapi uvicorn")
@@ -18,6 +19,7 @@ from adhan_slm.core.logging import configure_root_logger, get_logger
 from adhan_slm.serving.api import (
     AdhanInferenceAPI,
     AdhanRequest,
+    ModelNotLoadedError,
     TextResponse,
     TokensResponse,
 )
@@ -25,11 +27,15 @@ from adhan_slm.serving.api import (
 logger = get_logger(__name__)
 
 
-def create_app(model_name: str = "adhan-nano") -> FastAPI:
+def create_app(
+    model_name: str = "adhan-nano",
+    api: Optional[AdhanInferenceAPI] = None,
+) -> FastAPI:
     """Create FastAPI application.
 
     Args:
         model_name: Name of the model to use
+        api: Optional pre-configured AdhanInferenceAPI instance
 
     Returns:
         FastAPI application instance
@@ -40,14 +46,39 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
         version="0.1.0",
     )
 
-    # Initialize inference API
-    api = AdhanInferenceAPI(model_name=model_name)
+    # Initialize inference API if not provided
+    if api is None:
+        api = AdhanInferenceAPI(model_name=model_name)
+
+    # ModelNotLoadedError handler -> 503 Service Unavailable
+    @app.exception_handler(ModelNotLoadedError)
+    async def model_not_loaded_handler(request: Request, exc: ModelNotLoadedError):
+        """Handle ModelNotLoadedError by returning HTTP 503 Service Unavailable."""
+        logger.warning(f"Inference request rejected because model is not loaded: {exc}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": str(exc),
+                "error_code": "MODEL_NOT_LOADED",
+                "details": {
+                    "model": api.model_name,
+                    "status": "unavailable",
+                    "message": "Inference server is running without a loaded model.",
+                },
+            },
+        )
 
     # Health check endpoint
     @app.get("/health", tags=["System"])
-    async def health_check():
-        """Health check endpoint."""
-        return api.health_check()
+    async def health_check(response: Response):
+        """Health check endpoint.
+
+        Returns 200 with model name when loaded, or 503 when no model is loaded.
+        """
+        health = api.health_check()
+        if not api.is_loaded:
+            response.status_code = 503
+        return health
 
     # Tokenization endpoint
     @app.post("/tokenize", response_model=TokensResponse, tags=["Tokenization"])
@@ -62,6 +93,8 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
         """
         try:
             return await api.tokenize(request)
+        except ModelNotLoadedError:
+            raise
         except Exception as e:
             logger.error(f"Tokenization error: {e}")
             raise HTTPException(status_code=500, detail=f"Tokenization failed: {str(e)}")
@@ -79,6 +112,11 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
         """
         try:
             return await api.decode(request)
+        except ModelNotLoadedError:
+            raise
+        except ValueError as e:
+            logger.warning(f"Decoding input error: {e}")
+            raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             logger.error(f"Decoding error: {e}")
             raise HTTPException(status_code=500, detail=f"Decoding failed: {str(e)}")
@@ -96,13 +134,15 @@ def create_app(model_name: str = "adhan-nano") -> FastAPI:
         """
         try:
             return await api.generate(request)
+        except ModelNotLoadedError:
+            raise
         except Exception as e:
             logger.error(f"Generation error: {e}")
             raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
-    # Error handler
+    # Global error handler
     @app.exception_handler(Exception)
-    async def exception_handler(request, exc):
+    async def exception_handler(request: Request, exc: Exception):
         """Global exception handler."""
         logger.error(f"Unhandled exception: {exc}")
         return JSONResponse(
