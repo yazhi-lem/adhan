@@ -16,9 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
 import re
 import sys
 import unicodedata
@@ -163,7 +161,7 @@ def ingest_open_sangam(sangam_path: Path) -> Generator[Dict, None, None]:
                         "quality_score": 0.95,
                     }
                     count += 1
-        except Exception as exc:
+        except Exception:
             continue
     logger.info(f"Ingested {count:,} high-quality records from Open-Sangam.")
 

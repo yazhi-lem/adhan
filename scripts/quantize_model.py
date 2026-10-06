@@ -158,10 +158,7 @@ def quantize_int8_static(
 def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     """INT4 weight-only quantization via HuggingFace Optimum."""
     try:
-        from optimum.onnxruntime import (
-            ORTModelForFeatureExtraction,  # type: ignore
-            ORTQuantizer,  # type: ignore
-        )
+        from optimum.onnxruntime import ORTModelForFeatureExtraction, ORTQuantizer  # type: ignore
         from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
     except ImportError:
         _require("optimum[onnxruntime]")
