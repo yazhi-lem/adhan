@@ -1,5 +1,11 @@
 # Adhan · Native Tamil SLM Roadmap (JAX + Swaram Tokens)
 
+> **Q4 2026 note (8 Oct 2026):** Adhan's two public Q4 steps are the **Tamil tokenizer benchmark on 31 Oct 2026** and
+> **Adhan Kutty v1 open weights on HuggingFace on 26 Dec 2026**. The Q4 plan builds Kutty v1 from an existing open base
+> model (size proposal ≤1.5B) with continued pre-training, while the from-scratch `adhan-nano` plan below continues as
+> research. The undated "Week 1–9" phases below are not the Q4 schedule. See [NEXT_ACTION.md](./NEXT_ACTION.md) for the
+> milestone table.
+
 > ஆதன் — தமிழ் முதல், தமிழ் என்றும்
 >
 > A **native, pure-Tamil small language model (SLM)** trained from scratch — not a
