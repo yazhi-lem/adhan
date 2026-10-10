@@ -158,10 +158,7 @@ def quantize_int8_static(
 def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
     """INT4 weight-only quantization via HuggingFace Optimum."""
     try:
-        from optimum.onnxruntime import (
-            ORTModelForFeatureExtraction,  # type: ignore
-            ORTQuantizer,  # type: ignore
-        )
+        from optimum.onnxruntime import ORTModelForFeatureExtraction, ORTQuantizer  # type: ignore
         from optimum.onnxruntime.configuration import AutoQuantizationConfig  # type: ignore
     except ImportError:
         _require("optimum[onnxruntime]")
@@ -198,6 +195,7 @@ def quantize_int4(onnx_path: Path, output_dir: Path) -> None:
 
 def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int, n_runs: int = 20) -> dict:
     """Return mean/std latency (ms) for a dummy inference pass."""
+    import statistics
     import time  # noqa: PLC0415
 
     try:
@@ -226,8 +224,6 @@ def benchmark(onnx_path: Path, tokenizer_dir: Path, max_length: int, n_runs: int
         t0 = time.perf_counter()
         sess.run(None, feed)
         times.append((time.perf_counter() - t0) * 1000)
-
-    import statistics
 
     return {
         "mean_ms": round(statistics.mean(times), 2),
