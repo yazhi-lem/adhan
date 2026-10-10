@@ -1,25 +1,78 @@
 """Text deduplication using MinHash/LSH for large-scale corpus processing.
 
-Handles both exact and near-duplicate detection for corpus curation at scale.
+Handles both exact and near-duplicate detection for corpus curation at scale,
+as well as training/evaluation corpus overlap filtering with grapheme-safe
+Unicode NFC normalization.
 """
+
+from __future__ import annotations
 
 import hashlib
 import json
+import unicodedata
 from collections import defaultdict
-from typing import Dict, Generator, List, Optional, Set, Tuple
+from pathlib import Path
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 from adhan_slm.core import get_logger
 
 logger = get_logger(__name__)
 
 
+def extract_graphemes(text: str) -> List[str]:
+    """Segment text into grapheme clusters (aksharas) in a grapheme-safe manner.
+
+    Preserves Tamil aksharas (base consonants + vowel signs/pulli) and
+    Unicode combining marks as atomic clusters so shingles never split them.
+
+    Args:
+        text: Text to segment.
+
+    Returns:
+        List[str]: Grapheme clusters.
+    """
+    text = unicodedata.normalize("NFC", text)
+    clusters: List[str] = []
+    for ch in text:
+        cp = ord(ch)
+        # Tamil matras (0x0BBE-0x0BCC), virama/pulli (0x0BCD), or standard combining marks
+        if clusters and ((0x0BBE <= cp <= 0x0BCD) or unicodedata.combining(ch) > 0):
+            clusters[-1] += ch
+        else:
+            clusters.append(ch)
+    return clusters
+
+
+def _extract_text(item: Any) -> str:
+    """Extract string text from a string or document dictionary."""
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        for k in ("text", "content", "body", "sentence", "tamil"):
+            val = item.get(k)
+            if isinstance(val, str):
+                return val
+    return str(item)
+
+
 class TextDeduplicator:
     """MinHash/LSH-based deduplication for 300M+ token corpus.
 
     Provides efficient deduplication through:
-    1. Exact match detection (SHA-256 hashing)
-    2. Near-duplicate detection (MinHash + LSH)
+    1. Exact match detection (SHA-256 hashing on NFC-normalized text)
+    2. Near-duplicate detection (MinHash + LSH with configurable similarity threshold)
     3. Per-source deduplication
+    4. Train/eval overlap filtering
 
     This is production-grade for large-scale corpus curation.
     """
@@ -53,26 +106,31 @@ class TextDeduplicator:
 
         # Track MinHash signatures for near-duplicate detection
         self.minhash_signatures: Dict[str, List[int]] = {}
-        self.seen_docs: Dict[str, Dict] = {}
+        self.seen_docs: Dict[str, Dict[str, Any]] = {}
 
         self.logger.info(
             f"Deduplicator initialized: num_perm={num_perm}, "
             f"threshold={threshold}, shingle_size={shingle_size}"
         )
 
-    def normalize_text(self, text: str) -> str:
+    @staticmethod
+    def normalize_text(text: str) -> str:
         """Normalize text for consistent hashing.
+
+        Applies Unicode NFC normalization, lowercases, and collapses whitespace.
+        Grapheme-safe for Tamil and multilingual text.
 
         Args:
             text: Raw text to normalize.
 
         Returns:
-            str: Normalized text (lowercase, whitespace collapsed).
+            str: Normalized text (NFC, lowercase, whitespace collapsed).
         """
-        # Lowercase and collapse whitespace
+        # NFC normalization ensures composed and decomposed characters match
+        text = unicodedata.normalize("NFC", text)
         text = text.lower().strip()
-        text = " ".join(text.split())  # Collapse multiple spaces
-        return text
+        text = " ".join(text.split())
+        return unicodedata.normalize("NFC", text)
 
     def _compute_hash(self, text: str) -> str:
         """Compute SHA-256 hash of normalized text.
@@ -84,24 +142,30 @@ class TextDeduplicator:
             str: Hex-encoded SHA-256 hash.
         """
         normalized = self.normalize_text(text)
-        return hashlib.sha256(normalized.encode()).hexdigest()
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
     def _get_shingles(self, text: str) -> Set[str]:
-        """Get character shingles from text.
+        """Get grapheme-safe character shingles from text.
+
+        Preserves Tamil aksharas and combining marks without splitting clusters.
 
         Args:
             text: Text to extract shingles from.
 
         Returns:
-            Set[str]: Character shingles of specified size.
+            Set[str]: Character/grapheme shingles of specified size.
         """
         normalized = self.normalize_text(text)
-        if len(normalized) < self.shingle_size:
-            return {normalized}
+        if not normalized:
+            return set()
 
-        shingles = set()
-        for i in range(len(normalized) - self.shingle_size + 1):
-            shingles.add(normalized[i : i + self.shingle_size])
+        clusters = extract_graphemes(normalized)
+        if len(clusters) < self.shingle_size:
+            return {"".join(clusters)}
+
+        shingles: Set[str] = set()
+        for i in range(len(clusters) - self.shingle_size + 1):
+            shingles.add("".join(clusters[i : i + self.shingle_size]))
         return shingles
 
     def _minhash(self, text: str) -> List[int]:
@@ -120,10 +184,9 @@ class TextDeduplicator:
         if not shingles:
             return [0] * self.num_perm
 
-        signature = []
+        signature: List[int] = []
         for i in range(self.num_perm):
-            # Different hash seed for each permutation
-            min_hash = float("inf")
+            min_hash: int = 1 << 128
             for shingle in shingles:
                 hash_val = int(
                     hashlib.md5(
@@ -133,7 +196,7 @@ class TextDeduplicator:
                 )
                 min_hash = min(min_hash, hash_val)
 
-            signature.append(min_hash % (2**32))  # Bound to 32-bit int
+            signature.append(int(min_hash % (2**32)))
 
         return signature
 
@@ -153,7 +216,9 @@ class TextDeduplicator:
         matches = sum(1 for s1, s2 in zip(sig1, sig2) if s1 == s2)
         return matches / len(sig1)
 
-    def is_duplicate(self, text: str, doc_id: str) -> Tuple[bool, Optional[str]]:
+    def is_duplicate(
+        self, text: str, doc_id: str, check_near: bool = True
+    ) -> Tuple[bool, Optional[str]]:
         """Check if text is a duplicate of previously seen text.
 
         Returns both exact matches and near-duplicates based on threshold.
@@ -161,6 +226,7 @@ class TextDeduplicator:
         Args:
             text: Text to check.
             doc_id: Unique document ID for tracking.
+            check_near: If True, check near-duplicates via MinHash. If False, exact only.
 
         Returns:
             Tuple[bool, Optional[str]]: (is_duplicate, duplicate_of_doc_id)
@@ -169,131 +235,134 @@ class TextDeduplicator:
 
         # Check exact duplicates
         if text_hash in self.exact_hashes:
-            # Find which doc this matches
             for existing_id, existing_doc in self.seen_docs.items():
                 if existing_doc["hash"] == text_hash:
                     return True, existing_id
+            return True, None
 
-        # Compute MinHash for near-duplicate detection
-        signature = self._minhash(text)
+        signature: Optional[List[int]] = None
+        if check_near:
+            # Compute MinHash for near-duplicate detection
+            signature = self._minhash(text)
 
-        # Check against all previously seen signatures
-        for existing_id, existing_sig in self.minhash_signatures.items():
-            similarity = self._jaccard_similarity(signature, existing_sig)
-            if similarity >= self.threshold:
-                return True, existing_id
+            # Check against all previously seen signatures
+            for existing_id, existing_sig in self.minhash_signatures.items():
+                similarity = self._jaccard_similarity(signature, existing_sig)
+                if similarity >= self.threshold:
+                    return True, existing_id
 
         # Not a duplicate - remember this text
         self.exact_hashes.add(text_hash)
-        self.minhash_signatures[doc_id] = signature
+        if signature is not None:
+            self.minhash_signatures[doc_id] = signature
         self.seen_docs[doc_id] = {
             "hash": text_hash,
             "text": text[:200],
-        }  # Store preview
+        }
 
         return False, None
 
     def deduplicate(
-        self, documents: Generator[dict, None, None], track_sources: bool = True
-    ) -> Tuple[Generator[dict, None, None], Dict]:
+        self,
+        documents: Iterable[Dict[str, Any]],
+        track_sources: bool = True,
+        check_near: bool = True,
+    ) -> Tuple[Generator[Dict[str, Any], None, None], Dict[str, Any]]:
         """Remove exact and near-duplicates from document stream.
 
         Yields documents that are NOT duplicates. Returns statistics on removal.
 
         Args:
-            documents: Generator yielding document dicts with 'text' and 'id' fields.
+            documents: Iterable yielding document dicts with 'text' and 'id' fields.
             track_sources: If True, track which sources had duplicates.
+            check_near: If True, check near-duplicates via MinHash. If False, exact only.
 
         Yields:
-            dict: Non-duplicate documents.
+            Dict[str, Any]: Non-duplicate documents.
 
         Returns:
-            Dict: Deduplication statistics (counts, rates, per-source breakdown).
+            Dict[str, Any]: Deduplication statistics (counts, rates, per-source breakdown).
         """
-
-        # Created here (not inside the generator) so the caller's reference to
-        # `stats` is the same dict object the generator mutates in place. A
-        # generator's `return` value is only reachable via StopIteration.value,
-        # not through normal iteration, so it can never be handed back through
-        # a simple `gen, stats = self.deduplicate(...)` unpack — mutating a
-        # shared dict is what makes the stats visible once `gen` is exhausted.
-        stats = {
+        stats: Dict[str, Any] = {
             "total_seen": 0,
             "exact_duplicates": 0,
             "near_duplicates": 0,
             "kept": 0,
+            "removed": 0,
+            "removal_rate": 0.0,
             "per_source": defaultdict(lambda: {"seen": 0, "duplicates": 0}),
         }
 
-        def deduplicate_generator():
+        def deduplicate_generator() -> Generator[Dict[str, Any], None, None]:
             """Inner generator for deduplication."""
             for doc in documents:
-                stats["total_seen"] += 1
+                stats["total_seen"] = int(stats["total_seen"]) + 1
                 text = doc.get("text", "")
                 doc_id = doc.get("id", f"doc-{stats['total_seen']}")
                 source = doc.get("source", "unknown")
 
+                per_source_dict: Dict[str, Dict[str, int]] = stats["per_source"]
                 if track_sources:
-                    stats["per_source"][source]["seen"] += 1
+                    per_source_dict[source]["seen"] += 1
 
                 # Check for duplicates
-                is_dup, dup_of = self.is_duplicate(text, doc_id)
+                is_dup, dup_of = self.is_duplicate(text, doc_id, check_near=check_near)
 
                 if is_dup:
                     # Determine if exact or near-duplicate
                     text_hash = self._compute_hash(text)
                     if text_hash in self.exact_hashes:
-                        stats["exact_duplicates"] += 1
+                        stats["exact_duplicates"] = int(stats["exact_duplicates"]) + 1
                         if track_sources:
-                            stats["per_source"][source]["duplicates"] += 1
+                            per_source_dict[source]["duplicates"] += 1
                         self.logger.debug(f"Exact duplicate: {doc_id} (matches {dup_of})")
                     else:
-                        stats["near_duplicates"] += 1
+                        stats["near_duplicates"] = int(stats["near_duplicates"]) + 1
                         if track_sources:
-                            stats["per_source"][source]["duplicates"] += 1
+                            per_source_dict[source]["duplicates"] += 1
                         self.logger.debug(
                             f"Near-duplicate: {doc_id} (matches {dup_of} "
                             f"at {self.threshold:.1%} similarity)"
                         )
                 else:
                     # Keep this document
-                    stats["kept"] += 1
+                    stats["kept"] = int(stats["kept"]) + 1
                     yield doc
 
             # Finalize the shared stats dict in place once the stream is exhausted.
-            removed = stats["exact_duplicates"] + stats["near_duplicates"]
+            removed = int(stats["exact_duplicates"]) + int(stats["near_duplicates"])
             stats["removed"] = removed
             stats["removal_rate"] = (
-                removed / stats["total_seen"] if stats["total_seen"] > 0 else 0.0
+                removed / int(stats["total_seen"]) if int(stats["total_seen"]) > 0 else 0.0
             )
             stats["per_source"] = dict(stats["per_source"])
 
             self.logger.info(
                 f"Deduplication complete: {stats['kept']}/{stats['total_seen']} kept, "
-                f"{stats['removal_rate']:.1%} removal rate"
+                f"{float(stats['removal_rate']):.1%} removal rate"
             )
 
         return deduplicate_generator(), stats
 
     def per_source_dedup(
-        self, documents: Generator[dict, None, None]
-    ) -> Generator[dict, None, None]:
+        self, documents: Iterable[Dict[str, Any]]
+    ) -> Generator[Dict[str, Any], None, None]:
         """Remove duplicates within each source separately.
 
         Useful when sources might have significant overlap (e.g., duplicate
         Reddit posts across different subreddits).
 
         Args:
-            documents: Generator yielding document dicts.
+            documents: Iterable yielding document dicts.
 
         Yields:
-            dict: Documents without per-source duplicates.
+            Dict[str, Any]: Documents without per-source duplicates.
         """
         source_hashes: Dict[str, Set[str]] = defaultdict(set)
 
         for doc in documents:
-            text = doc.get("text", "")
-            source = doc.get("source", "unknown")
+            text = str(doc.get("text", ""))
+            source = str(doc.get("source", "unknown"))
 
             text_hash = self._compute_hash(text)
 
@@ -305,7 +374,7 @@ class TextDeduplicator:
                 # Duplicate within source
                 self.logger.debug(f"Per-source duplicate in {source}: {doc.get('id')}")
 
-    def write_stats(self, stats: Dict, output_path: str) -> None:
+    def write_stats(self, stats: Dict[str, Any], output_path: Union[str, Path]) -> None:
         """Write deduplication statistics to JSON file.
 
         Args:
@@ -316,3 +385,108 @@ class TextDeduplicator:
             json.dump(stats, f, indent=2, ensure_ascii=False)
 
         self.logger.info(f"Deduplication report written to {output_path}")
+
+    @staticmethod
+    def filter_train_eval_overlap(
+        train_data: Iterable[Any], eval_data: Iterable[Any]
+    ) -> Tuple[List[Any], int]:
+        """Filter out training items that appear in the eval corpus."""
+        return filter_train_eval_overlap(train_data, eval_data)
+
+    @staticmethod
+    def remove_train_eval_overlap(
+        train_data: List[Any], eval_data: Iterable[Any]
+    ) -> int:
+        """Remove training items in-place that appear in the eval corpus."""
+        return remove_train_eval_overlap(train_data, eval_data)
+
+    @staticmethod
+    def compute_train_eval_overlap(
+        train_data: Iterable[Any], eval_data: Iterable[Any]
+    ) -> int:
+        """Count how many training items appear in the evaluation corpus."""
+        return compute_train_eval_overlap(train_data, eval_data)
+
+
+def filter_train_eval_overlap(
+    train_data: Iterable[Any],
+    eval_data: Iterable[Any],
+) -> Tuple[List[Any], int]:
+    """Filter out training lines or documents that appear in the eval corpus.
+
+    Matches lines based on NFC-normalized, whitespace-collapsed text to ensure
+    safe comparison of Tamil Unicode representations (composed vs decomposed).
+
+    Args:
+        train_data: Iterable of training lines (strings) or document dicts.
+        eval_data: Iterable of evaluation lines (strings) or document dicts.
+
+    Returns:
+        Tuple[List[Any], int]: (filtered_train_items, removed_count)
+    """
+    eval_set: Set[str] = set()
+    for item in eval_data:
+        text = _extract_text(item)
+        norm = TextDeduplicator.normalize_text(text)
+        if norm:
+            eval_set.add(norm)
+
+    kept: List[Any] = []
+    removed_count = 0
+    for item in train_data:
+        text = _extract_text(item)
+        norm = TextDeduplicator.normalize_text(text)
+        if norm and norm in eval_set:
+            removed_count += 1
+        else:
+            kept.append(item)
+
+    return kept, removed_count
+
+
+def remove_train_eval_overlap(
+    train_data: List[Any],
+    eval_data: Iterable[Any],
+) -> int:
+    """Remove any training line in-place that also appears in the eval corpus.
+
+    Matching is performed on NFC-normalized text.
+
+    Args:
+        train_data: List of training lines or document dicts (modified in-place).
+        eval_data: Iterable of evaluation lines or document dicts.
+
+    Returns:
+        int: Number of training items removed.
+    """
+    kept, removed = filter_train_eval_overlap(train_data, eval_data)
+    train_data[:] = kept
+    return removed
+
+
+def compute_train_eval_overlap(
+    train_data: Iterable[Any],
+    eval_data: Iterable[Any],
+) -> int:
+    """Count how many training lines appear in the evaluation corpus.
+
+    Matching is performed on NFC-normalized text.
+
+    Args:
+        train_data: Iterable of training lines or document dicts.
+        eval_data: Iterable of evaluation lines or document dicts.
+
+    Returns:
+        int: Number of overlapping lines.
+    """
+    eval_set = {
+        TextDeduplicator.normalize_text(_extract_text(item))
+        for item in eval_data
+        if TextDeduplicator.normalize_text(_extract_text(item))
+    }
+    overlap = 0
+    for item in train_data:
+        norm = TextDeduplicator.normalize_text(_extract_text(item))
+        if norm and norm in eval_set:
+            overlap += 1
+    return overlap
