@@ -90,7 +90,9 @@ def test_exact_duplicates_removed() -> None:
 def test_near_duplicates_removed_different_kept() -> None:
     """Assert near-duplicate lines are removed and clearly different lines are kept."""
     # Long sentences with suffix variation -> Jaccard similarity ~80%
-    line1 = "இயற்கை எழில் கொஞ்சும் அழகிய மலைக்காடு தமிழ்நாட்டில் மேற்கு தொடர்ச்சி மலையில் அமைந்துள்ளது"
+    line1 = (
+        "இயற்கை எழில் கொஞ்சும் அழகிய மலைக்காடு தமிழ்நாட்டில் மேற்கு தொடர்ச்சி மலையில் அமைந்துள்ளது"
+    )
     line2 = "இயற்கை எழில் கொஞ்சும் அழகிய மலைக்காடு தமிழ்நாட்டில் மேற்கு தொடர்ச்சி மலையில் அமைந்திருக்கிறது"
     # Completely different sentence
     line3 = "வானூர்தி பொறியியல் மற்றும் விண்வெளி ஆராய்ச்சி தொழில்நுட்ப வளர்ச்சிக்கு உதவுகிறது"
@@ -330,4 +332,3 @@ def test_deduplicator_class_static_methods() -> None:
     rem = TextDeduplicator.remove_train_eval_overlap(train_mut, eval_set)
     assert rem == 1
     assert train_mut == ["வரி ஒன்று"]
-

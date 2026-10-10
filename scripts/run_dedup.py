@@ -74,9 +74,7 @@ def run_dedup_pipeline(
     exact_before = len(lines)
     exact_deduper = TextDeduplicator()
     exact_docs = [{"id": f"doc-{i}", "text": line} for i, line in enumerate(lines)]
-    exact_gen, _ = exact_deduper.deduplicate(
-        exact_docs, track_sources=False, check_near=False
-    )
+    exact_gen, _ = exact_deduper.deduplicate(exact_docs, track_sources=False, check_near=False)
     lines_after_exact: List[str] = [str(d["text"]) for d in exact_gen]
     exact_after = len(lines_after_exact)
     exact_removed = exact_before - exact_after
@@ -94,9 +92,7 @@ def run_dedup_pipeline(
         seed=seed,
     )
     near_docs = [{"id": f"doc-{i}", "text": line} for i, line in enumerate(lines_after_exact)]
-    near_gen, _ = near_deduper.deduplicate(
-        near_docs, track_sources=False, check_near=True
-    )
+    near_gen, _ = near_deduper.deduplicate(near_docs, track_sources=False, check_near=True)
     lines_after_near: List[str] = [str(d["text"]) for d in near_gen]
     near_after = len(lines_after_near)
     near_removed = near_before - near_after
@@ -192,7 +188,9 @@ def print_report(report: Dict[str, Any]) -> None:
     print(f"  After:             {stages['exact_dedup']['after']}")
     print(f"  Removed:           {stages['exact_dedup']['removed']}")
     print("-" * 60)
-    print(f"[Stage 2] Near-duplicate Deduplication (threshold={stages['near_dedup']['threshold']}):")
+    print(
+        f"[Stage 2] Near-duplicate Deduplication (threshold={stages['near_dedup']['threshold']}):"
+    )
     print(f"  Before:            {stages['near_dedup']['before']}")
     print(f"  After:             {stages['near_dedup']['after']}")
     print(f"  Removed:           {stages['near_dedup']['removed']}")

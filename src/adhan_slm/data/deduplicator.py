@@ -394,16 +394,12 @@ class TextDeduplicator:
         return filter_train_eval_overlap(train_data, eval_data)
 
     @staticmethod
-    def remove_train_eval_overlap(
-        train_data: List[Any], eval_data: Iterable[Any]
-    ) -> int:
+    def remove_train_eval_overlap(train_data: List[Any], eval_data: Iterable[Any]) -> int:
         """Remove training items in-place that appear in the eval corpus."""
         return remove_train_eval_overlap(train_data, eval_data)
 
     @staticmethod
-    def compute_train_eval_overlap(
-        train_data: Iterable[Any], eval_data: Iterable[Any]
-    ) -> int:
+    def compute_train_eval_overlap(train_data: Iterable[Any], eval_data: Iterable[Any]) -> int:
         """Count how many training items appear in the evaluation corpus."""
         return compute_train_eval_overlap(train_data, eval_data)
 
