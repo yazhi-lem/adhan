@@ -44,6 +44,9 @@ def run_dedup_pipeline(
     shingle_size: int = 5,
     num_perm: int = 128,
     seed: int = 42,
+    use_lsh: bool = True,
+    bands: Optional[int] = None,
+    rows: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Execute the full 3-stage deduplication and train/eval filtering pipeline.
 
@@ -56,6 +59,9 @@ def run_dedup_pipeline(
         shingle_size: Character shingle size for MinHash.
         num_perm: Number of hash permutations for MinHash.
         seed: Random seed for MinHash reproducibility.
+        use_lsh: Whether to use LSH banding for candidate lookup.
+        bands: Optional override for LSH bands.
+        rows: Optional override for LSH rows.
 
     Returns:
         Dict[str, Any]: Report dictionary containing before/after counts for all stages.
@@ -81,8 +87,9 @@ def run_dedup_pipeline(
 
     # Stage 2: Near-duplicate deduplication
     logger.info(
-        "[Stage 2/3] Running near-duplicate deduplication (threshold=%.2f)...",
+        "[Stage 2/3] Running near-duplicate deduplication (threshold=%.2f, use_lsh=%s)...",
         threshold,
+        use_lsh,
     )
     near_before = exact_after
     near_deduper = TextDeduplicator(
@@ -90,6 +97,9 @@ def run_dedup_pipeline(
         threshold=threshold,
         shingle_size=shingle_size,
         seed=seed,
+        use_lsh=use_lsh,
+        bands=bands,
+        rows=rows,
     )
     near_docs = [{"id": f"doc-{i}", "text": line} for i, line in enumerate(lines_after_exact)]
     near_gen, _ = near_deduper.deduplicate(near_docs, track_sources=False, check_near=True)
@@ -151,6 +161,9 @@ def run_dedup_pipeline(
                 "threshold": threshold,
                 "shingle_size": shingle_size,
                 "num_perm": num_perm,
+                "use_lsh": use_lsh,
+                "bands": near_deduper.bands,
+                "rows": near_deduper.rows,
             },
             "train_eval_filter": {
                 "before": filter_before,
@@ -267,6 +280,24 @@ def main() -> None:
         default=42,
         help="Random seed (default: 42)",
     )
+    parser.add_argument(
+        "--no-lsh",
+        action="store_true",
+        default=False,
+        help="Disable LSH banding and use brute-force O(n^2) near-duplicate search",
+    )
+    parser.add_argument(
+        "--bands",
+        type=int,
+        default=None,
+        help="Number of LSH bands (optional override, must satisfy bands * rows == num_perm)",
+    )
+    parser.add_argument(
+        "--rows",
+        type=int,
+        default=None,
+        help="Number of rows per LSH band (optional override)",
+    )
 
     args = parser.parse_args()
     corpus_path = args.corpus_flag or args.corpus_pos
@@ -285,6 +316,9 @@ def main() -> None:
             shingle_size=args.shingle_size,
             num_perm=args.num_perm,
             seed=args.seed,
+            use_lsh=not args.no_lsh,
+            bands=args.bands,
+            rows=args.rows,
         )
         print_report(report)
     except Exception as exc:
