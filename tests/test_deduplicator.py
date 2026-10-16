@@ -17,6 +17,8 @@ import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -332,3 +334,163 @@ def test_deduplicator_class_static_methods() -> None:
     rem = TextDeduplicator.remove_train_eval_overlap(train_mut, eval_set)
     assert rem == 1
     assert train_mut == ["வரி ஒன்று"]
+
+
+def test_lsh_removes_same_near_duplicates_as_brute_force() -> None:
+    """Assert LSH removes the same clear near-duplicates as brute force on a fixed fixture."""
+    line1 = (
+        "இயற்கை எழில் கொஞ்சும் அழகிய மலைக்காடு தமிழ்நாட்டில் மேற்கு தொடர்ச்சி மலையில் அமைந்துள்ளது"
+    )
+    line2 = "இயற்கை எழில் கொஞ்சும் அழகிய மலைக்காடு தமிழ்நாட்டில் மேற்கு தொடர்ச்சி மலையில் அமைந்திருக்கிறது"
+    line3 = "வானூர்தி பொறியியல் மற்றும் விண்வெளி ஆராய்ச்சி தொழில்நுட்ப வளர்ச்சிக்கு உதவுகிறது"
+
+    docs: List[Dict[str, Any]] = [
+        {"id": "1", "text": line1},
+        {"id": "2", "text": line2},
+        {"id": "3", "text": line3},
+    ]
+
+    dedup_bf = TextDeduplicator(threshold=0.75, shingle_size=5, use_lsh=False)
+    kept_bf = [d["id"] for d in dedup_bf.deduplicate(docs, check_near=True)[0]]
+
+    dedup_lsh = TextDeduplicator(threshold=0.75, shingle_size=5, use_lsh=True)
+    kept_lsh = [d["id"] for d in dedup_lsh.deduplicate(docs, check_near=True)[0]]
+
+    assert kept_bf == ["1", "3"]
+    assert kept_lsh == kept_bf
+
+
+def test_lsh_different_lines_kept() -> None:
+    """Assert distinct Tamil lines are kept under LSH deduplication."""
+    lines = [
+        "தமிழ் எங்கள் உயிர் என்போம்",
+        "வானொலி நிலையம் செய்தி வாசிப்பு",
+        "கணிப்பொறி அறிவியல் மற்றும் பொறியியல் துறை",
+        "மலைச்சாரலில் மலர்ந்த நீலக்குறிஞ்சி மலர்கள்",
+    ]
+    docs = [{"id": f"doc-{i}", "text": text} for i, text in enumerate(lines)]
+
+    dedup = TextDeduplicator(threshold=0.85, use_lsh=True)
+    kept = list(dedup.deduplicate(docs, check_near=True)[0])
+    assert len(kept) == 4
+    assert [d["id"] for d in kept] == [f"doc-{i}" for i in range(4)]
+
+
+def test_lsh_nfc_composed_vs_decomposed_still_matched() -> None:
+    """Assert composed vs decomposed Tamil vowel signs are matched under LSH."""
+    composed = "கொடி கட்டி பறந்த சோழ பேரரசு"
+    decomposed = "க\u0bc6\u0bbeடி கட்டி பறந்த சோழ பேரரசு"
+
+    docs = [
+        {"id": "comp", "text": composed},
+        {"id": "decomp", "text": decomposed},
+    ]
+    dedup = TextDeduplicator(use_lsh=True)
+    kept = list(dedup.deduplicate(docs, check_near=True)[0])
+    assert len(kept) == 1
+    assert kept[0]["id"] == "comp"
+
+
+def test_lsh_bands_rows_validation() -> None:
+    """Assert bands * rows == num_perm validation and invalid overrides raise ValueError."""
+    # Valid explicit override
+    dedup = TextDeduplicator(num_perm=128, bands=32, rows=4)
+    assert dedup.bands == 32
+    assert dedup.rows == 4
+
+    # Invalid product
+    with pytest.raises(ValueError, match="Invalid LSH parameters"):
+        TextDeduplicator(num_perm=128, bands=10, rows=10)
+
+    # Indivisible bands
+    with pytest.raises(ValueError, match="not divisible by bands"):
+        TextDeduplicator(num_perm=128, bands=10)
+
+    # Indivisible rows
+    with pytest.raises(ValueError, match="not divisible by rows"):
+        TextDeduplicator(num_perm=128, rows=10)
+
+    # Negative / zero
+    with pytest.raises(ValueError, match="Invalid LSH"):
+        TextDeduplicator(num_perm=128, bands=-1, rows=-128)
+
+
+def test_lsh_derived_split_satisfies_catch_probability() -> None:
+    """Assert auto-derived split satisfies catch_probability >= 0.99 and defaults to 16x8."""
+    dedup = TextDeduplicator(num_perm=128, threshold=0.85)
+    assert dedup.bands == 16
+    assert dedup.rows == 8
+    assert dedup.bands * dedup.rows == 128
+    assert dedup.catch_probability >= 0.99
+
+
+def test_lsh_recall_on_seeded_set() -> None:
+    """Assert LSH finds >= 95% of the near-duplicate pairs brute force finds on a seeded set."""
+    import random
+
+    rng = random.Random(42)
+    vocab = [
+        "அகரம்",
+        "நகரம்",
+        "சிகரம்",
+        "தகரம்",
+        "மகரம்",
+        "வளர்க",
+        "வாழ்க",
+        "வெல்க",
+        "பொழிக",
+        "மலர்க",
+    ]
+
+    docs: List[Dict[str, Any]] = []
+    base_pool: List[List[str]] = []
+    for i in range(10):
+        base_pool.append([rng.choice(vocab) for _ in range(8)])
+
+    for i in range(300):
+        doc_id = f"doc_{i:04d}"
+        if i > 0 and rng.random() < 0.25:
+            words = list(rng.choice(base_pool))
+            pos = rng.randrange(len(words))
+            words[pos] = rng.choice(vocab)
+            text = " ".join(words)
+        else:
+            words = [rng.choice(vocab) for _ in range(8)]
+            text = " ".join(words)
+            if len(base_pool) < 20:
+                base_pool.append(words)
+        docs.append({"id": doc_id, "text": text})
+
+    # Brute-force run
+    dedup_bf = TextDeduplicator(threshold=0.85, seed=42, use_lsh=False)
+    kept_bf = {d["id"] for d in dedup_bf.deduplicate(docs, check_near=True)[0]}
+    all_ids = {d["id"] for d in docs}
+    removed_bf = all_ids - kept_bf
+
+    # LSH run
+    dedup_lsh = TextDeduplicator(threshold=0.85, seed=42, use_lsh=True)
+    kept_lsh = {d["id"] for d in dedup_lsh.deduplicate(docs, check_near=True)[0]}
+    removed_lsh = all_ids - kept_lsh
+
+    # Recall: fraction of brute-force removals caught by LSH
+    assert len(removed_bf) > 0, "Expected brute force to find near-duplicates"
+    overlap = len(removed_bf & removed_lsh)
+    recall = overlap / len(removed_bf)
+
+    assert recall >= 0.95, f"Expected LSH recall >= 0.95, got {recall:.4f}"
+
+
+def test_lsh_empty_and_single_line_inputs() -> None:
+    """Assert empty and single-line inputs are handled without errors under LSH."""
+    dedup = TextDeduplicator(use_lsh=True)
+
+    # Empty input
+    gen_empty, stats_empty = dedup.deduplicate([], check_near=True)
+    assert list(gen_empty) == []
+    assert stats_empty["total_seen"] == 0
+
+    # Single line
+    single_doc = [{"id": "single", "text": "ஒரே ஒரு வரி மட்டுமே"}]
+    gen_single, stats_single = dedup.deduplicate(single_doc, check_near=True)
+    assert list(gen_single) == single_doc
+    assert stats_single["kept"] == 1
