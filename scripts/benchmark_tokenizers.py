@@ -344,9 +344,9 @@ def _diagnose_failure(original: str, decoded: str) -> str:
     """
     if decoded == "":
         return (
-            "entire input vanished on decode -- likely every token mapped to "
-            "<unk> and got silently suppressed on decode (default "
-            "skip_special behavior), rather than an encoding failure"
+            "entire input vanished on decode -- every token was dropped on "
+            "decode (e.g. only structural special tokens, or a tokenizer that "
+            "suppresses <unk> output), rather than an encoding failure"
         )
     if "\u2047" in decoded or "<unk>" in decoded:
         return (
@@ -370,10 +370,9 @@ def _diagnose_failure(original: str, decoded: str) -> str:
         return (
             f"decoded output is shorter ({len(decoded)} vs {len(original)} "
             "chars) with no visible unknown-token marker in the output -- "
-            "consistent with the same silent unk-drop pattern above, just "
-            "harder to spot here because nothing marks where the loss "
-            "happened (unlike a tokenizer that leaves a visible <unk>/⁇ "
-            "placeholder, which at least tells you where to look)"
+            "characters were dropped silently during decode or by the "
+            "tokenizer's normalizer; nothing marks where the loss happened, "
+            "so compare the original and decoded text to locate it"
         )
     return "unexplained difference -- needs manual inspection"
 
@@ -597,24 +596,23 @@ def write_report(
         n_fail = swaram_stress["n_total"] - swaram_stress["n_exact"]
         recs.append(
             f"- Swaram failed {n_fail}/{swaram_stress['n_total']} stress cases "
-            "byte-exact. Check the failure diagnoses above -- if any show "
-            '"entire input vanished on decode" or an unknown-token marker, '
-            "that means `SwaramTokenizer.decode()`'s default "
-            "`skip_special=True` is silently deleting out-of-vocabulary "
-            "characters (English words, digits, rare symbols) rather than "
-            "showing them. That's invisible unless you specifically decode "
-            "with `skip_special=False` -- worth fixing (or at minimum "
-            "documenting loudly) before trusting Swaram on real scraped "
-            "corpora, which will contain code-switched English and digits "
-            "far more often than Thirukkural does."
+            "byte-exact. Since the decode fix, out-of-vocabulary characters "
+            "now appear as an explicit `<unk>` in the decoded text instead of "
+            "being silently deleted, so every remaining failure is visible "
+            "above. An unknown-token marker means a character outside "
+            "Swaram's trained vocabulary (code-switched English, digits, rare "
+            "symbols). Consider byte fallback or a more diverse training "
+            "corpus before trusting Swaram on real scraped data, which "
+            "contains these far more often than Thirukkural does."
         )
     if swaram_rt and swaram_rt["exact_pct"] < 100.0:
         recs.append(
             f"- Swaram's corpus-wide exact round-trip is "
             f"{swaram_rt['exact_pct']:.2f}%, not 100%. Given the akshara "
             "segmenter itself is documented as lossless "
-            "(`segment_aksharas`), any gap here traces back to the same "
-            "vocab-coverage/decode issue above, not the segmentation layer."
+            "(`segment_aksharas`), any gap here traces back to characters "
+            "outside the tokenizer's trained vocabulary (shown as `<unk>` in "
+            "the failure examples above), not the segmentation layer."
         )
     for name, rt in roundtrip_results.items():
         if name == "Swaram":
