@@ -126,4 +126,8 @@ def generate_text(model, params, tokenizer, prompt: str, **gen_kw) -> str:
     if eos is not None and prompt_ids and prompt_ids[-1] == eos:
         prompt_ids = prompt_ids[:-1]
     out_ids = generate(model, params, prompt_ids, eos_id=eos, **gen_kw)
-    return tokenizer.decode(out_ids)
+    # hide_unk=True preserves the pre-existing generation output behavior:
+    # SwaramTokenizer.decode() now shows <unk> by default (so lossy encoding
+    # is never silent), but user-facing generated prose shouldn't suddenly
+    # start containing literal "<unk>" markers. Revisit if that's wanted.
+    return tokenizer.decode(out_ids, hide_unk=True)

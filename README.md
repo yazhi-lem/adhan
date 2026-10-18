@@ -34,10 +34,13 @@ adhan train --overfit-batch
 # 4. Train adhan-nano on CPU (or adhan-tiny on GPU) with live tracing
 adhan train --model nano --device cpu --trace
 
-# 5. Launch high-performance REST/Streaming inference server
+# 5. Launch high-performance REST/Streaming inference server (requires pip install -e ".[serving]")
+# Note: Requires trained model checkpoint & tokenizer. If no model is loaded, /health
+# and inference endpoints return HTTP 503 rather than fabricated output.
 adhan serve --port 8000 --model adhan-nano
 
 # 6. Mutate datasets (dedup, distill) or models (quantize, export)
+
 adhan mutate quantize --checkpoint checkpoints/adhan-nano --format int8
 adhan mutate distill --teacher gemma2-27b
 

@@ -75,6 +75,11 @@ benchmark = [
     "tokenizers>=0.15.0",
     "sentencepiece>=0.1.99",
 ]
+serving = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+    "httpx>=0.24.0",
+]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -85,7 +90,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,dev]",
+    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,serving,dev]",
 ]
 
 [project.urls]
