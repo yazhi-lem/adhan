@@ -16,9 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
 import re
 import sys
 import unicodedata
@@ -34,10 +32,10 @@ from adhan_slm.core.logging import get_logger
 logger = get_logger(__name__)
 
 # --- Regex Filters & Constants ---------------------------------------------
-TAMIL_RANGE = re.compile(r'[\u0B80-\u0BFF]')
-EMAIL_REGEX = re.compile(r'[\w\.-]+@[\w\.-]+\.\w+')
-PHONE_REGEX = re.compile(r'(\+91[\-\s]?)?[6-9]\d{9}')
-URL_REGEX = re.compile(r'https?://\S+|www\.\S+')
+TAMIL_RANGE = re.compile(r"[\u0B80-\u0BFF]")
+EMAIL_REGEX = re.compile(r"[\w\.-]+@[\w\.-]+\.\w+")
+PHONE_REGEX = re.compile(r"(\+91[\-\s]?)?[6-9]\d{9}")
+URL_REGEX = re.compile(r"https?://\S+|www\.\S+")
 PULLI_CHAR = chr(0x0BCD)
 
 
@@ -47,15 +45,15 @@ def normalize_tamil_unicode(text: str) -> str:
         return ""
     # NFC Canonical Decomposition followed by Canonical Composition
     text = unicodedata.normalize("NFC", text)
-    
+
     # Scrub PII
     text = URL_REGEX.sub(" ", text)
     text = EMAIL_REGEX.sub(" ", text)
     text = PHONE_REGEX.sub(" ", text)
-    
+
     # Fix whitespace
-    text = re.sub(r'[ \t]+', ' ', text)
-    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
 
@@ -68,14 +66,16 @@ def compute_tamil_ratio(text: str) -> float:
     return tamil_chars / len(clean)
 
 
-def is_quality_document(text: str, min_chars: int = 30, max_chars: int = 15000, min_tamil_ratio: float = 0.70) -> bool:
+def is_quality_document(
+    text: str, min_chars: int = 30, max_chars: int = 15000, min_tamil_ratio: float = 0.70
+) -> bool:
     """Quality filter: checks length, Tamil character ratio, and repetitive spam."""
     if len(text) < min_chars or len(text) > max_chars:
         return False
     if compute_tamil_ratio(text) < min_tamil_ratio:
         return False
     # Check for excessive character repetition (e.g., aaaaa or னனனன)
-    if re.search(r'(.)\1{6,}', text):
+    if re.search(r"(.)\1{6,}", text):
         return False
     return True
 
@@ -83,7 +83,7 @@ def is_quality_document(text: str, min_chars: int = 30, max_chars: int = 15000, 
 # --- MinHash LSH Near-Deduplication ----------------------------------------
 class MinHashDeduplicator:
     """Fast 64-hash MinHash deduplicator over 5-gram akshara shingles."""
-    
+
     def __init__(self, num_hashes: int = 64, threshold: float = 0.80):
         self.num_hashes = num_hashes
         self.threshold = threshold
@@ -95,12 +95,12 @@ class MinHashDeduplicator:
 
     def _get_shingles(self, text: str, k: int = 5) -> Set[int]:
         shingles = set()
-        clean = re.sub(r'\s+', '', text)
+        clean = re.sub(r"\s+", "", text)
         if len(clean) < k:
             shingles.add(hash(clean) & 0xFFFFFFFF)
             return shingles
         for i in range(len(clean) - k + 1):
-            shingle = clean[i:i+k]
+            shingle = clean[i : i + k]
             shingles.add(hash(shingle) & 0xFFFFFFFF)
         return shingles
 
@@ -133,6 +133,7 @@ class MinHashDeduplicator:
 
 # --- Data Source Connectors ------------------------------------------------
 
+
 def ingest_open_sangam(sangam_path: Path) -> Generator[Dict, None, None]:
     """Ingest 18 Sangam poems, 2,552 verses, and modern Tamil Urai prose."""
     texts_dir = sangam_path / "data" / "texts"
@@ -157,10 +158,10 @@ def ingest_open_sangam(sangam_path: Path) -> Generator[Dict, None, None]:
                         "text": full_text,
                         "source": "open-sangam-classical",
                         "tier": 1,
-                        "quality_score": 0.95
+                        "quality_score": 0.95,
                     }
                     count += 1
-        except Exception as exc:
+        except Exception:
             continue
     logger.info(f"Ingested {count:,} high-quality records from Open-Sangam.")
 
@@ -168,7 +169,9 @@ def ingest_open_sangam(sangam_path: Path) -> Generator[Dict, None, None]:
 def ingest_scert_textbooks(scert_dir: Path) -> Generator[Dict, None, None]:
     """Ingest extracted text from TN SCERT Samacheer Kalvi school textbooks (Class 1-12)."""
     if not scert_dir.exists():
-        logger.info(f"SCERT directory {scert_dir} not yet present (create and place textbook txt files here).")
+        logger.info(
+            f"SCERT directory {scert_dir} not yet present (create and place textbook txt files here)."
+        )
         return
 
     count = 0
@@ -184,7 +187,7 @@ def ingest_scert_textbooks(scert_dir: Path) -> Generator[Dict, None, None]:
                         "text": clean,
                         "source": "tn-scert-textbooks",
                         "tier": 1,
-                        "quality_score": 0.95
+                        "quality_score": 0.95,
                     }
                     count += 1
         except Exception:
@@ -196,6 +199,7 @@ def ingest_wikipedia_ta(limit: int = 150000) -> Generator[Dict, None, None]:
     """Stream Tamil Wikipedia articles via HuggingFace datasets."""
     try:
         from datasets import load_dataset
+
         logger.info("Connecting to Wikimedia Tamil dataset...")
         ds = load_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
         count = 0
@@ -208,7 +212,7 @@ def ingest_wikipedia_ta(limit: int = 150000) -> Generator[Dict, None, None]:
                     "text": text,
                     "source": "wikipedia-ta",
                     "tier": 2,
-                    "quality_score": 0.90
+                    "quality_score": 0.90,
                 }
                 count += 1
                 if count >= limit:
@@ -222,6 +226,7 @@ def ingest_indiccorp_sample(limit: int = 250000) -> Generator[Dict, None, None]:
     """Stream clean Tamil text from AI4Bharat IndicCorp v2."""
     try:
         from datasets import load_dataset
+
         logger.info("Connecting to AI4Bharat IndicCorpV2 Tamil dataset...")
         ds = load_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
         count = 0
@@ -233,7 +238,7 @@ def ingest_indiccorp_sample(limit: int = 250000) -> Generator[Dict, None, None]:
                     "text": text,
                     "source": "ai4bharat-indiccorp-v2",
                     "tier": 3,
-                    "quality_score": 0.80
+                    "quality_score": 0.80,
                 }
                 count += 1
                 if count >= limit:
@@ -245,14 +250,25 @@ def ingest_indiccorp_sample(limit: int = 250000) -> Generator[Dict, None, None]:
 
 # --- Orchestration Main ----------------------------------------------------
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Ingest and prioritize all Tamil datasets for Adhan SLM")
-    parser.add_argument("--output-dir", type=str, default="data/raw/unified_prioritized", help="Output directory")
-    parser.add_argument("--sangam-path", type=str, default="../open-sangam", help="Path to open-sangam repo")
-    parser.add_argument("--scert-dir", type=str, default="data/raw/scert_textbooks", help="Path to SCERT books")
+    parser = argparse.ArgumentParser(
+        description="Ingest and prioritize all Tamil datasets for Adhan SLM"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="data/raw/unified_prioritized", help="Output directory"
+    )
+    parser.add_argument(
+        "--sangam-path", type=str, default="../open-sangam", help="Path to open-sangam repo"
+    )
+    parser.add_argument(
+        "--scert-dir", type=str, default="data/raw/scert_textbooks", help="Path to SCERT books"
+    )
     parser.add_argument("--limit-wiki", type=int, default=100000, help="Max wiki records")
     parser.add_argument("--limit-indic", type=int, default=200000, help="Max IndicCorp records")
-    parser.add_argument("--skip-huggingface", action="store_true", help="Skip online dataset streaming")
+    parser.add_argument(
+        "--skip-huggingface", action="store_true", help="Skip online dataset streaming"
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)
@@ -313,15 +329,19 @@ def main():
     stats = {
         "total_documents_ingested": total_written,
         "duplicates_removed": total_duplicates,
-        "dedup_rate_percent": round((total_duplicates / max(1, total_written + total_duplicates)) * 100, 2),
+        "dedup_rate_percent": round(
+            (total_duplicates / max(1, total_written + total_duplicates)) * 100, 2
+        ),
         "source_breakdown": dict(source_counts),
         "tier_breakdown": dict(tier_counts),
-        "target_file": str(unified_file)
+        "target_file": str(unified_file),
     }
 
     stats_file.write_text(json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8")
-    
-    logger.info(f"✅ Ingestion Complete! {total_written:,} clean records saved ({total_duplicates:,} duplicates removed).")
+
+    logger.info(
+        f"✅ Ingestion Complete! {total_written:,} clean records saved ({total_duplicates:,} duplicates removed)."
+    )
     logger.info(f"📊 Datasheet written to {stats_file}")
 
 
