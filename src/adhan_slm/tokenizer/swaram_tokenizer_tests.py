@@ -109,3 +109,43 @@ def test_tokenizer_module_logger_initialized():
 
 if __name__ == "__main__":
     run_module_tests(globals(), "swaram tokenizer")
+
+# -- byte fallback (issue #83) ------------------------------------------------
+
+_BF_CORPUS = ["அவன் வீட்டுக்கு சென்றான்", "அவள் பள்ளிக்கு சென்றாள்"] * 5
+
+
+def _train_byte_fallback(byte_fallback=True):
+    from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer
+
+    return SwaramTokenizer.train(
+        _BF_CORPUS, vocab_size=700, min_freq=2, byte_fallback=byte_fallback
+    )
+
+
+def test_byte_fallback_roundtrips_numerals_english_and_emoji():
+    import unicodedata
+
+    tok = _train_byte_fallback()
+    for text in ["௦௧௨௩௪௫௬௭௮௯", "இது ஒரு AI model தான்", "அவன் 2026 😀 சென்றான்"]:
+        ids = tok.encode(text)
+        assert tok.unk_id not in ids
+        assert tok.decode(ids) == unicodedata.normalize("NFC", text)
+
+
+def test_without_byte_fallback_out_of_vocab_is_still_unk():
+    tok = _train_byte_fallback(byte_fallback=False)
+    ids = tok.encode("௦")
+    assert tok.unk_id in ids
+    assert "<unk>" in tok.decode(ids)
+
+
+def test_byte_fallback_survives_save_and_load(tmp_path):
+    from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer
+
+    tok = _train_byte_fallback()
+    vocab_path, merges_path = tmp_path / "vocab.json", tmp_path / "merges.txt"
+    tok.save(str(vocab_path), str(merges_path))
+    loaded = SwaramTokenizer.from_files(str(vocab_path), str(merges_path))
+    text = "AI ௧ சென்றான்"
+    assert loaded.decode(loaded.encode(text)) == text

@@ -46,6 +46,9 @@ AYTHAM = "ஃ"
 
 # சிறப்பு குறியீடுகள் (Special Tokens for Neural Modeling)
 SPECIAL_TOKENS = ["<pad>", "<bos>", "<eos>", "<unk>", "<mask>"]
+# Optional byte-fallback tokens (see SwaramTokenizer.train(byte_fallback=True)).
+BYTE_TOKENS = [f"<0x{b:02X}>" for b in range(256)]
+_BYTE_TOKEN_VALUE = {t: i for i, t in enumerate(BYTE_TOKENS)}
 # சொல் எல்லைக் குறிப்பான் (Word-Boundary Marker for Layer B BPE)
 WORD_MARK = "▁"
 
@@ -130,6 +133,12 @@ class SwaramTokenizer:
     def unk_id(self) -> int:
         return self.vocab.get("<unk>", 0)
 
+    def _byte_fallback_ids(self) -> List[int]:
+        """IDs of the 256 byte tokens in byte order, or [] if byte fallback is off."""
+        if not all(t in self.vocab for t in BYTE_TOKENS):
+            return []
+        return [self.vocab[t] for t in BYTE_TOKENS]
+
     def __len__(self) -> int:
         return len(self.vocab)
 
@@ -185,7 +194,17 @@ class SwaramTokenizer:
     def encode(self, text: str, add_special: bool = False) -> List[int]:
         """உரையை எண்சார் குறியீடுகளாக மாற்றுதல் (Token IDs)."""
         pieces = self.tokenize(text)
-        ids = [self.vocab.get(p, self.unk_id) for p in pieces]
+        byte_ids = self._byte_fallback_ids()
+        ids: List[int] = []
+        for p in pieces:
+            tid = self.vocab.get(p)
+            if tid is not None:
+                ids.append(tid)
+            elif byte_ids:
+                # Out-of-vocabulary piece: keep it lossless as its UTF-8 bytes.
+                ids.extend(byte_ids[b] for b in p.encode("utf-8"))
+            else:
+                ids.append(self.unk_id)
         if add_special:
             ids = [self.vocab.get("<bos>", self.unk_id), *ids, self.vocab.get("<eos>", self.unk_id)]
         return ids
@@ -203,14 +222,24 @@ class SwaramTokenizer:
         requested.
         """
         structural_specials = set(SPECIAL_TOKENS) - {"<unk>"}
-        toks = []
+        toks: List[str] = []
+        pending = bytearray()  # consecutive byte-fallback tokens -> one UTF-8 run
         for i in ids:
             t = self._inv_vocab.get(i, "<unk>")
+            byte_val = _BYTE_TOKEN_VALUE.get(t)
+            if byte_val is not None:
+                pending.append(byte_val)
+                continue
+            if pending:
+                toks.append(pending.decode("utf-8", errors="replace"))
+                pending.clear()
             if skip_special and t in structural_specials:
                 continue
             if t == "<unk>" and hide_unk:
                 continue
             toks.append(t)
+        if pending:
+            toks.append(pending.decode("utf-8", errors="replace"))
         return "".join(toks).replace(WORD_MARK, " ")
 
     def fertility(self, text: str) -> float:
@@ -228,7 +257,11 @@ class SwaramTokenizer:
     # -- பயிற்சி முறை (Training BPE Merge Layer) ---------------------------------
     @classmethod
     def train(
-        cls, corpus: List[str], vocab_size: int = 8000, min_freq: int = 2
+        cls,
+        corpus: List[str],
+        vocab_size: int = 8000,
+        min_freq: int = 2,
+        byte_fallback: bool = False,
     ) -> "SwaramTokenizer":
         """தமிழ் அக்சரங்களின் மேல் BPE மார்பீம் அடுக்கைப் பயிற்றுவித்தல்.
 
@@ -237,6 +270,8 @@ class SwaramTokenizer:
           தானாகவே கண்டறியப்பட்டு vocab_size வரை சேர்க்கப்படுகின்றன.
         """
         base = list(SPECIAL_TOKENS) + [WORD_MARK] + cls._base_inventory()
+        if byte_fallback:
+            base += BYTE_TOKENS  # 256 byte tokens count toward vocab_size
         seen = set(base)
         word_pieces: List[List[str]] = []
         for line in corpus:
