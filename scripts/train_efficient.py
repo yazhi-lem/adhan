@@ -203,19 +203,6 @@ class MemmapShardDataset:
         self.n_seqs = int(self.mmap.shape[0])
         if self.n_seqs == 0:
             raise ShardFormatError(f"{bin_path}: shard has no sequences")
-        if not bin_path.exists():
-            raise FileNotFoundError(f"Shard not found: {bin_path}")
-
-        # File size determines number of sequences
-        file_size_bytes = bin_path.stat().st_size
-        # Shards are packed as uint16 (or int32 if vocab > 65k)
-        self.dtype = np.uint16
-        bytes_per_tok = np.dtype(self.dtype).itemsize
-        total_tokens = file_size_bytes // bytes_per_tok
-        self.n_seqs = total_tokens // (seq_len + 1)
-        self.mmap = np.memmap(
-            bin_path, dtype=self.dtype, mode="r", shape=(self.n_seqs, seq_len + 1)
-        )
 
     def __len__(self) -> int:
         return self.n_seqs
