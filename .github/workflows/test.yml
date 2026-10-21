@@ -40,6 +40,34 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+  # The PyTorch trainer's MemmapShardDataset must read the shards packing.py
+  # writes. The main test job doesn't install torch, so the dataset test in
+  # packing_tests.py would be skipped there; this job installs CPU torch and
+  # runs it for real.
+  torch-dataset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install CPU torch
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      - name: Run shard format tests with torch
+        run: |
+          python -c "import torch; print(torch.__version__)"
+          pytest src/adhan_slm/data/packing_tests.py -v -rs
+
   # The whole SLM pipeline must stay trainable on a plain CPU runner: corpus ->
   # frozen swaram tokenizer -> packed shards -> train, including the
   # overfit-a-batch sanity gate. `.[jax]` installs CPU wheels, so this needs no

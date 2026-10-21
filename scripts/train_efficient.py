@@ -50,6 +50,7 @@ import torch.nn.functional as F
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from adhan_slm.core.logging import get_logger
+from adhan_slm.data.packing import ShardFormatError, open_shard_memmap
 
 logger = get_logger(__name__)
 
@@ -184,24 +185,24 @@ class AdhanModel(nn.Module):
 
 
 class MemmapShardDataset:
-    """Streams fixed-length sequences from disk via np.memmap with zero memory overhead."""
+    """Streams fixed-length sequences from disk via np.memmap with zero memory overhead.
+
+    Reads the exact format `adhan_slm.data.packing.write_shard` writes (the writer
+    used by scripts/prepare_slm_corpus.py): `seq_len`-token rows whose dtype and row
+    count come from the `<name>.bin.manifest.json` sidecar. Each row yields
+    `row[:-1]` as input and `row[1:]` as target, the same split the JAX loader uses.
+    """
 
     def __init__(self, bin_path: Path, seq_len: int = 512):
         self.bin_path = bin_path
         self.seq_len = seq_len
-        if not bin_path.exists():
-            raise FileNotFoundError(f"Shard not found: {bin_path}")
-
-        # File size determines number of sequences
-        file_size_bytes = bin_path.stat().st_size
-        # Shards are packed as uint16 (or int32 if vocab > 65k)
-        self.dtype = np.uint16
-        bytes_per_tok = np.dtype(self.dtype).itemsize
-        total_tokens = file_size_bytes // bytes_per_tok
-        self.n_seqs = total_tokens // (seq_len + 1)
-        self.mmap = np.memmap(
-            bin_path, dtype=self.dtype, mode="r", shape=(self.n_seqs, seq_len + 1)
-        )
+        # Raises FileNotFoundError / ShardFormatError with a clear message when the
+        # shard, its manifest or the requested seq_len do not line up.
+        self.mmap = open_shard_memmap(bin_path, expected_seq_len=seq_len)
+        self.dtype = self.mmap.dtype
+        self.n_seqs = int(self.mmap.shape[0])
+        if self.n_seqs == 0:
+            raise ShardFormatError(f"{bin_path}: shard has no sequences")
 
     def __len__(self) -> int:
         return self.n_seqs

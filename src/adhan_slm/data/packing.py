@@ -145,3 +145,63 @@ def read_shard(bin_path: str | Path, manifest: Optional[PackedShard] = None):
             flat.frombytes(fh.read())
         sl = manifest.seq_len
         return [list(flat[i * sl : (i + 1) * sl]) for i in range(manifest.n_sequences)]
+
+
+class ShardFormatError(ValueError):
+    """A shard on disk does not match its manifest or the caller's expectations."""
+
+
+def open_shard_memmap(bin_path: str | Path, expected_seq_len: Optional[int] = None):
+    """Memory-map a shard written by :func:`write_shard`, shape ``(n_sequences, seq_len)``.
+
+    This is the one reader every trainer should use, so the on-disk format has a
+    single source of truth: row width, dtype and row count all come from the
+    ``*.manifest.json`` sidecar, never from guessing at the file size. Each row is
+    exactly ``seq_len`` tokens; a causal-LM step uses ``row[:-1]`` as input and
+    ``row[1:]`` as target.
+
+    Raises
+    ------
+    FileNotFoundError
+        if the ``.bin`` or its manifest is missing.
+    ShardFormatError
+        if ``expected_seq_len`` differs from the manifest, the manifest dtype is
+        unknown, or the file size does not equal ``n_sequences * seq_len`` tokens.
+    """
+    import numpy as np
+
+    bin_path = Path(bin_path)
+    if not bin_path.exists():
+        raise FileNotFoundError(f"shard not found: {bin_path}")
+    manifest_path = Path(str(bin_path) + ".manifest.json")
+    if not manifest_path.exists():
+        raise FileNotFoundError(
+            f"manifest not found: {manifest_path} (write shards with "
+            "adhan_slm.data.packing.write_shard / scripts/prepare_slm_corpus.py)"
+        )
+    manifest = load_manifest(bin_path)
+    if manifest.dtype not in _NUMPY_DTYPE.values():
+        raise ShardFormatError(f"{bin_path}: unknown dtype {manifest.dtype!r} in manifest")
+    if expected_seq_len is not None and expected_seq_len != manifest.seq_len:
+        raise ShardFormatError(
+            f"{bin_path}: shard was packed with seq_len={manifest.seq_len} but "
+            f"seq_len={expected_seq_len} was requested; pass --seq-len {manifest.seq_len} "
+            "or re-pack the corpus"
+        )
+    itemsize = np.dtype(manifest.dtype).itemsize
+    expected_bytes = manifest.n_sequences * manifest.seq_len * itemsize
+    actual_bytes = bin_path.stat().st_size
+    if actual_bytes != expected_bytes:
+        raise ShardFormatError(
+            f"{bin_path}: file is {actual_bytes} bytes but the manifest describes "
+            f"{manifest.n_sequences} x {manifest.seq_len} {manifest.dtype} tokens "
+            f"({expected_bytes} bytes); the shard is truncated or stale"
+        )
+    if manifest.n_sequences == 0:
+        return np.zeros((0, manifest.seq_len), dtype=manifest.dtype)
+    return np.memmap(
+        bin_path,
+        dtype=manifest.dtype,
+        mode="r",
+        shape=(manifest.n_sequences, manifest.seq_len),
+    )
