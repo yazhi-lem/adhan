@@ -21,6 +21,7 @@ model:
   vocab_size: 4000        # small frozen swaram vocab keeps the tied head cheap on CPU
   max_seq_len: 256        # short context: attention + activations scale with this
   use_boundary_emb: false
+  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/TINAI_CONDITIONING.md  
   dtype: bfloat16         # measured ~1.5x faster than float32 on XLA:CPU (see docs)
 
 train:
