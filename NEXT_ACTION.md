@@ -1,57 +1,81 @@
-# Founder Refresher & Next Actions — Adhan SLM
+# Next Actions: Adhan (Q4 2026)
 
-> **Milestone Expectations:**
-> - 🎯 **October 2026:** Pilot Release — 12k Swaram Akshara Tokenizer validation & Nano CPU/GPU baseline model evaluation
-> - 🚀 **December 2026:** Public Launch — Pretrained Tamil-first Foundation SLM with 3-stage annealing (SCERT -> Synthetic Q&A -> Sangam Gold Set)
+> This file mirrors the Yazhi Q4 2026 launch plan as of **8 Oct 2026**. The longer technical
+> roadmap is in [ROADMAP_JAX_SLM.md](./ROADMAP_JAX_SLM.md).
+
+| | |
+|---|---|
+| Project | Adhan, Yazhi's sovereign Tamil language model |
+| Federal | **Adhan** |
+| Related work | Research 2030 (on-device Kutty demo, 2027–2030 research note, reading group) |
+
+## Q4 launch line
+
+| Date | Public step | Done when |
+|---|---|---|
+| **31 Oct 2026** | **Tamil tokenizer benchmark**: repo, results table, blog post | One command reproduces every number; 6+ tokenizers compared |
+| **26 Dec 2026** | **Adhan Kutty v1**, open weights on HuggingFace | Model card with benchmark, data card and known failure modes; served via yazhi-api; runs offline on one named Android phone |
+
+## Approach for Kutty v1
+
+The Q4 plan builds Kutty v1 by starting from an existing open base model (size proposal ≤1.5B, chosen for on-device use) and
+running continued pre-training / LoRA on a frozen, deduplicated Tamil corpus. The from-scratch `adhan-nano` track in
+[ROADMAP_JAX_SLM.md](./ROADMAP_JAX_SLM.md) continues as research. Which approach ships on 26 Dec will be settled in the training plan
+(Training plan milestone, 11 Oct).
+
+## Plan by milestone
+
+Milestone order: Training plan → Data freeze → Tokenizer benchmark public → Training → Hardening → Kutty v1 release.
+
+| Target date | Milestone | What |
+|---|---|---|
+| 11 Oct 2026 | Training plan | Plan Adhan training: shortlist base models, size compute, set eval gates |
+| 11 Oct 2026 | Training plan | Decide the Adhan model size (≤1.5B) and sign off training plan v1 |
+| 18 Oct 2026 | Data freeze | Audit the corpus and record every source |
+| 21 Oct 2026 | Data freeze | Run the dedup pass and prove zero train/eval overlap |
+| 23 Oct 2026 | Data freeze | Build the Tamil normalisation suite (NFC, grapheme checks) in CI |
+| 25 Oct 2026 | Tokenizer benchmark public | Benchmark Swaram vs BPE and SentencePiece on a frozen Tamil corpus |
+| 25 Oct 2026 | Data freeze | Write the data card and tag the data freeze |
+| 31 Oct 2026 | Tokenizer benchmark public | Publish the Tamil tokenizer benchmark: corpus, harness, repro script, post |
+| 31 Oct 2026 | Training | Run baseline evals on the chosen base model |
+| 21 Nov 2026 | Training | Train a GPE tokenizer and compare it in the benchmark |
+| 28 Nov 2026 | Training | Run LoRA / continued pre-training and pick the best checkpoint |
+| 5 Dec 2026 | Training | Post the weekly Friday eval report |
+| 5 Dec 2026 | Training | Build the DPO pairs pipeline from Reflection agent output |
+| 12 Dec 2026 | Hardening | Run Tamil red-team suite against Kutty |
+| 15 Dec 2026 | Hardening | Build 4-bit quantised Kutty builds and measure the quality delta |
+| 19 Dec 2026 | Hardening | Write the model card with limits and known failure modes |
+| 19 Dec 2026 | Kutty v1 release | Finalise the Yazhi Open Licence text for Kutty |
+| 22 Dec 2026 | Kutty v1 release | Serve Kutty via yazhi-api |
+| 26 Dec 2026 | Kutty v1 release | Release Adhan Kutty v1 on HuggingFace |
+| 26 Dec 2026 | Kutty v1 release | Write and publish the Adhan Kutty launch post |
+| TBD | Training | Set up the PyTorch Colab notebook: corpus mount, pinned env |
+| TBD | Training | Fix MemmapShardDataset to read packing.py's shard format |
+| TBD | Hardening | Validate the inference API against a real trained checkpoint |
+
+### Research 2030
+
+| Target date | Milestone | What |
+|---|---|---|
+| 31 Oct 2026 | On-device Kutty | Choose the target phone and on-device runtime for Kutty |
+| 31 Oct 2026 | Reading group | Run reading group session 1 and post the notes |
+| 30 Nov 2026 | Reading group | Run reading group session 2 and post the notes |
+| 31 Dec 2026 | On-device Kutty | Run a quantised Kutty on the target phone and record the tokens/s demo |
+| 31 Dec 2026 | Research note | Write, review and publish the Tamil edge AI and robotics 2027–2030 note |
+| 31 Dec 2026 | Reading group | Run reading group session 3 and shortlist the 2027 bets |
+
+## Immediate next actions
+
+1. Sign off the training plan: base model, size, data mix, compute budget and eval gates (Training plan milestone, 11 Oct).
+2. Land the Swaram vs BPE / SentencePiece benchmark ([#50](https://github.com/yazhi-lem/adhan/pull/50)). It sits on the path to the 31 Oct benchmark.
+3. Run the corpus audit, then dedup and normalisation, and tag the data freeze by 25 Oct.
+4. Land the Colab / PyTorch workspace scaffold ([#53](https://github.com/yazhi-lem/adhan/pull/53)) and the shard-format fix before the Training milestone.
 
 ---
 
-## 1. Executive Summary & Architecture
+## Reference: data availability audit
 
-Adhan is a from-scratch, pure-Tamil small language model designed for high linguistic efficiency, native agglutinative root handling, and zero-cloud edge deployment.
-- **Atomic Unit:** Swaram (உயிர்–மெய்) tokens (~12k vocabulary).
-- **Core Stacks:** JAX/Flax for distributed training, PyTorch trainer for hybrid compute pipelines, and MLflow for experiment tracking.
-- **Tiṇai & Open-Sangam Grounding:** Organizing the neural network conditioning around the **Five Tiṇai (ஐந்திணை)** and Sangam **Mupporul (முதல், கரு, உரிப் பொருள்)** with persona routing (Avvaiyar, Tholkappiyar, Kapilar, Paranar, Nakkirar).
-
----
-
-## 2. October 2026 Pilot Scope
-
-- [ ] **Tokenizer Benchmark & Finalization:**
-  - Complete Swaram 12k vocabulary compression benchmarks against BPE/SentencePiece on Sangam + Modern Tamil corpora.
-- [ ] **Nano Baseline Convergence:**
-  - Verify stable loss curves across CPU and CUDA training targets (`src/adhan_slm/training/train_jax.py` and `train_torch.py`).
-- [ ] **Corpus Pipeline Harmonization:**
-  - Ingest Stage 1 (SCERT + textbooks) and Stage 2 (Curriculum Synthetic Q&A) data with full deduplication and quality filtering.
-- [ ] **Tiṇai Routing & Conditioning Layer:**
-  - Integrate Tiṇai landscape embeddings (`TinaiRouter`) into JAX/Flax transformer architecture.
-
----
-
-## 3. December 2026 Launch Scope
-
-- [ ] **Full 3-Stage Annealed Pretraining:**
-  - Execute Stage 3 high-weight annealing on Sangam Gold Set literature corpus.
-- [ ] **vLLM & Transformers Bridge Export:**
-  - Convert JAX Orbax checkpoints to SafeTensors + HuggingFace FastTokenizer format for vLLM high-throughput serving.
-- [ ] **Edge & ONNX Optimization:**
-  - Export quantized INT8 / INT4 ONNX artifacts ready for edge execution in `yazh-unity` and `illakiya` mobile keyboard.
-- [ ] **Model Evaluation & Leaderboard:**
-  - Automated evaluation harness on Tamil grammatical, cultural, and reasoning benchmarks.
-
----
-
-## 4. Immediate Next Actions
-
-1. **Verify Tokenizer Sharding & Fertilty:** Monitor `prepare_slm_corpus.py` completion; confirm fertility strictly `< 1.15` and check packed `train.bin` / `val.bin`.
-2. **Run Sanity Overfit-Batch Gate:** Execute `--overfit-batch` on `adhan_slm_nano_cpu.yaml` to confirm loss collapse before pretraining.
-3. **Deploy Yazhi-One Cron Ingestion:** Set up scheduled nightly execution of `scripts/cron_yazhi_one_ingest.sh` on `yazhi-one`.
-4. **Implement Tiṇai Neural Conditioning:** Build `TinaiRouter` and Sangam Avai persona conditioning in `src/adhan_slm/model/transformer.py`.
-5. **Execute Quality Tamil Data Strategy:** Curate SCERT textbooks, Project Madurai, and synthetic conversational distillation from Gemma 2 / GLM-4 / Kimi.
-
----
-
-## 5. Data Availability Audit & Quality Strategy
+> Carried over from the previous version of this file; not re-verified in this sync.
 
 ### A. Data Availability Audit
 | Tier | Source / Repository | Volume / Status | Quality Rating | Use in Pipeline |
