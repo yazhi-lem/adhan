@@ -274,6 +274,24 @@ def resolve_vocab_size(data_dir: Path, cli_vocab_size: int) -> int:
     return frozen_size
 
 
+def build_tier_config(size: str, vocab_size: int, seq_len: int) -> dict:
+    """Model hyper-parameters for a size tier ("nano" / "tiny" / "mini")."""
+    tiers = {
+        "nano": {"d_model": 256, "n_layers": 6, "n_heads": 4, "d_ff": 1024},
+        "tiny": {"d_model": 512, "n_layers": 8, "n_heads": 8, "d_ff": 1536},
+        "mini": {"d_model": 768, "n_layers": 12, "n_heads": 12, "d_ff": 2048},
+    }
+    return {"vocab_size": vocab_size, "max_seq_len": seq_len, **tiers[size]}
+
+
+def needs_grad_scaler(device_type: str, autocast_dtype: torch.dtype) -> bool:
+    """fp16 autocast on CUDA needs loss scaling, or small gradients underflow to zero.
+
+    bf16 has fp32's exponent range and CPU runs bf16/fp32, so neither needs it.
+    """
+    return device_type == "cuda" and autocast_dtype == torch.float16
+
+
 def train(args):
     device, compute_dtype = configure_hardware()
     data_dir = Path(args.data_dir)
@@ -284,34 +302,7 @@ def train(args):
 
     vocab_size = resolve_vocab_size(data_dir, args.vocab_size)
 
-    # Size configurations
-    tier_configs = {
-        "nano": {
-            "vocab_size": vocab_size,
-            "d_model": 256,
-            "n_layers": 6,
-            "n_heads": 4,
-            "d_ff": 1024,
-            "max_seq_len": args.seq_len,
-        },
-        "tiny": {
-            "vocab_size": vocab_size,
-            "d_model": 512,
-            "n_layers": 8,
-            "n_heads": 8,
-            "d_ff": 1536,
-            "max_seq_len": args.seq_len,
-        },
-        "mini": {
-            "vocab_size": vocab_size,
-            "d_model": 768,
-            "n_layers": 12,
-            "n_heads": 12,
-            "d_ff": 2048,
-            "max_seq_len": args.seq_len,
-        },
-    }
-    cfg = tier_configs[args.size]
+    cfg = build_tier_config(args.size, vocab_size, args.seq_len)
     model = AdhanModel(**cfg).to(device)
     logger.info(
         f"Model: {args.size.upper()} initialized with {model.approx_params()/1e6:.2f}M parameters."
@@ -320,15 +311,15 @@ def train(args):
     # Overfit-a-batch sanity test mode
     if args.overfit_batch:
         logger.info("🧪 Running Overfit-a-Batch Sanity Gate (One batch repeated 200 steps)...")
-        dummy_x = torch.randint(5, args.vocab_size, (args.batch_size, args.seq_len), device=device)
-        dummy_y = torch.randint(5, args.vocab_size, (args.batch_size, args.seq_len), device=device)
+        dummy_x = torch.randint(5, vocab_size, (args.batch_size, args.seq_len), device=device)
+        dummy_y = torch.randint(5, vocab_size, (args.batch_size, args.seq_len), device=device)
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
         initial_loss = None
         for step in range(201):
             optimizer.zero_grad()
             logits = model(dummy_x)
-            loss = F.cross_entropy(logits.reshape(-1, args.vocab_size), dummy_y.reshape(-1))
+            loss = F.cross_entropy(logits.reshape(-1, vocab_size), dummy_y.reshape(-1))
             loss.backward()
             optimizer.step()
             if step == 0:
@@ -362,6 +353,8 @@ def train(args):
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
     autocast_dtype = torch.float16 if compute_dtype == "float16" else torch.bfloat16
+    # fp16 (pre-Ampere GPUs, e.g. Colab T4) underflows gradients without loss scaling.
+    scaler = torch.amp.GradScaler("cuda", enabled=needs_grad_scaler(device.type, autocast_dtype))
 
     logger.info(
         f"🚀 Pretraining Started | Micro-batch: {args.batch_size} | Accumulation: {args.grad_accum} (Effective: {args.batch_size * args.grad_accum})"
@@ -383,12 +376,14 @@ def train(args):
                 loss = F.cross_entropy(logits.reshape(-1, vocab_size), y.reshape(-1))
                 loss = loss / args.grad_accum
 
-            loss.backward()
+            scaler.scale(loss).backward()
             accum_loss += loss.item()
             tokens_processed += args.batch_size * args.seq_len
 
+        scaler.unscale_(optimizer)  # so clipping sees the true gradient norm
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        optimizer.step()
+        scaler.step(optimizer)
+        scaler.update()
         scheduler.step()
 
         # Logging
@@ -446,17 +441,10 @@ def export_onnx(args):
     )
     out_onnx.parent.mkdir(parents=True, exist_ok=True)
 
-    tier_configs = {
-        "nano": {
-            "vocab_size": args.vocab_size,
-            "d_model": 256,
-            "n_layers": 6,
-            "n_heads": 4,
-            "d_ff": 1024,
-            "max_seq_len": args.seq_len,
-        },
-    }
-    model = AdhanModel(**tier_configs[args.size])
+    # Same rule as train(): the vocab size the checkpoint was trained with comes from the
+    # frozen vocab.json, not from the CLI default.
+    vocab_size = resolve_vocab_size(Path(args.data_dir), args.vocab_size)
+    model = AdhanModel(**build_tier_config(args.size, vocab_size, args.seq_len))
     if ckpt_path.exists():
         model.load_state_dict(torch.load(ckpt_path, map_location="cpu"))
         logger.info(f"Loaded weights from {ckpt_path}")
@@ -464,7 +452,7 @@ def export_onnx(args):
         logger.warning(f"Checkpoint {ckpt_path} not found; exporting initialized model structure.")
 
     model.eval()
-    dummy_input = torch.randint(0, args.vocab_size, (1, 64), dtype=torch.int64)
+    dummy_input = torch.randint(0, vocab_size, (1, 64), dtype=torch.int64)
 
     torch.onnx.export(
         model,
