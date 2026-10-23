@@ -81,6 +81,7 @@ class ModelConfigSchema(ConfigSchema):
         "context_length": int,
         "dropout": float,
         "use_boundary_emb": bool,
+        "use_tinai": bool,
     }
 
     FIELD_RANGES = {
