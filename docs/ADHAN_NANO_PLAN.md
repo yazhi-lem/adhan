@@ -231,3 +231,7 @@ advantage, and why we publish bits/akshara instead of perplexity.
 | Loss looks fine but generations are garbage | G5 human read-through + sandhi probe are gates, not optional |
 | Tokenizer advantage overstated as model quality | publish bits/akshara **and** MILU/IndicQA, including the losses |
 | CPU-only host dies mid-run | checkpoint every 100 updates; `--resume` restores the global step |
+
+---
+
+**Next in the stack:** the GPU profile — [`COLAB_T4.md`](COLAB_T4.md): 9 layers, 8 query / 2 KV heads (GQA), dropout 0.1, fp16, 16,740,096 params.
