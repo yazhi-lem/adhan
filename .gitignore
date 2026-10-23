@@ -71,3 +71,4 @@ models/**/checkpoint-*/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+mlruns.legacy-pre-sqlite/
