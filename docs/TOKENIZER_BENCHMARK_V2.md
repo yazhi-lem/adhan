@@ -24,3 +24,7 @@ Notes:
   respect Tamil morphology rather than cutting through it.
 - **throughput** is single-process encode on this machine; it is the number that
   decides whether packing the 1.06G-character archive takes minutes or a day.
+
+---
+
+**Next in the stack:** pretraining with this vocabulary — [`ADHAN_NANO_PLAN.md`](ADHAN_NANO_PLAN.md) (CPU profile) and [`COLAB_T4.md`](COLAB_T4.md) (free T4 run).
