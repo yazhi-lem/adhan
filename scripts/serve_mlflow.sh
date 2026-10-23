@@ -13,6 +13,7 @@
 #   scripts/serve_mlflow.sh status [port]  # process + port + HTTP + latest run
 #   scripts/serve_mlflow.sh stop   [port]
 #   scripts/serve_mlflow.sh copy   [port]  # serve a *copy* of the DB (default 5001)
+#   scripts/serve_mlflow.sh env            # print the export line clients need
 #
 # `copy` exists because SQLite serialises writers: while a trainer is appending
 # metrics, a heavy history query from the UI can collide with it. Serving a
@@ -201,10 +202,25 @@ cmd_copy() {
     exit 1
 }
 
+cmd_env() {
+    # The durable fix for "no runs in mlflow": every client (CLI, python, uvx,
+    # the UI) resolves its store from MLFLOW_TRACKING_URI. Unset, MLflow falls
+    # back to ./mlruns — the legacy *file* store, which is in maintenance mode
+    # and, for this repo, only holds stale pre-SQLite data.
+    cat <<ENV
+export MLFLOW_TRACKING_URI="sqlite:///${DB}"
+
+# then a bare UI/clients all point at the real runs:
+mlflow ui --host ${HOST} --port ${PORT}
+uvx mlflow@latest ui --host ${HOST} --port ${PORT}
+ENV
+}
+
 case "${ACTION}" in
     start)  cmd_start ;;
     stop)   cmd_stop ;;
     status) cmd_status ;;
     copy)   cmd_copy ;;
-    *)      echo "usage: $0 {start|stop|status|copy} [port]" >&2; exit 2 ;;
+    env)    cmd_env ;;
+    *)      echo "usage: $0 {start|stop|status|copy|env} [port]" >&2; exit 2 ;;
 esac
