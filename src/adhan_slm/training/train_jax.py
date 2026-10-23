@@ -70,7 +70,14 @@ def _config_from_dict(d: dict):
         cfg = getattr(AdhanConfig, size)(vocab_size=vocab)
         # Size presets set the architecture; per-run overrides (dtype, context
         # length, boundary embeddings) still come from the YAML.
-        for key in ("dtype", "max_seq_len", "use_boundary_emb", "dropout", "rope_theta"):
+        for key in (
+            "dtype",
+            "max_seq_len",
+            "use_boundary_emb",
+            "use_tinai",
+            "dropout",
+            "rope_theta",
+        ):
             if key in m:
                 setattr(cfg, key, m[key])
         return cfg
