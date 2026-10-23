@@ -216,10 +216,11 @@ def cmd_mutate(args: argparse.Namespace) -> None:
         print("🧹 [adhan mutate:dedup] Running MinHash LSH deduplication on raw corpus...")
         cmd = [
             sys.executable,
-            str(ROOT_DIR / "scripts/ingest_all_prioritized_data.py"),
-            "--output-dir",
-            args.output or "data/raw/unified_prioritized",
-            "--skip-huggingface",
+            str(ROOT_DIR / "scripts/run_dedup.py"),
+            "--corpus",
+            "data/raw/expanded",
+            "--output",
+            args.output or "data/raw/expanded_dedup",
         ]
         subprocess.run(cmd, cwd=ROOT_DIR, check=True)
 
@@ -290,26 +291,30 @@ def cmd_status(args: argparse.Namespace) -> None:
     """Inspect status of tokenizer, checkpoints, dataset datasheet & background runs."""
     print("📋 [adhan status] Inspecting System & Artifacts...\n")
 
-    # Check Ingestion Datasheet
-    datasheet_path = ROOT_DIR / "data/raw/unified_prioritized/ingestion_datasheet.json"
+    # Check corpus datasheet (written by scripts/expand_tamil_corpus.py)
+    datasheet_path = ROOT_DIR / "data/raw/expanded/stats.json"
     if datasheet_path.exists():
         try:
             ds = json.loads(datasheet_path.read_text(encoding="utf-8"))
-            print("📊 Ingestion Datasheet:")
-            print(f"   • Total Docs Ingested: {ds.get('total_documents_ingested', 0):,}")
-            print(
-                f"   • Duplicates Removed : {ds.get('duplicates_removed', 0):,} ({ds.get('dedup_rate_percent', 0)}%)"
-            )
-            print(f"   • Sources Breakdown  : {ds.get('source_breakdown', {})}")
+            print("📊 Corpus Datasheet:")
+            print(f"   • Total Documents    : {ds.get('documents', 0):,}")
+            print(f"   • Total Characters   : {ds.get('characters', 0):,}")
+            print(f"   • Est. Swaram Tokens : {ds.get('approx_tokens_swaram', 0):,}")
+            print(f"   • Shards             : {ds.get('shards', 0)}")
+            sources = ds.get("source_counts", {})
+            top = sorted(sources.items(), key=lambda kv: -kv[1])[:8]
+            print("   • Top Sources        : " + ", ".join(f"{k}={v:,}" for k, v in top))
+            if len(sources) > len(top):
+                print(f"                          (+{len(sources) - len(top)} more)")
         except Exception as e:
             print(f"   • Datasheet read error: {e}")
     else:
-        print("⚠️  No ingestion datasheet found. Run `scripts/cron_yazhi_one_ingest.sh`.")
+        print("⚠️  No corpus datasheet found. Run `scripts/cron_yazhi_one_ingest.sh`.")
 
     print("")
 
     # Check Validation Report
-    val_report_path = ROOT_DIR / "data/raw/unified_prioritized/validation_report.json"
+    val_report_path = ROOT_DIR / "data/raw/expanded/validation_report.json"
     if val_report_path.exists():
         try:
             vr = json.loads(val_report_path.read_text(encoding="utf-8"))

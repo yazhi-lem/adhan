@@ -4,6 +4,15 @@
 **Target**: 300M-1B clean Tamil tokens for adhan-nano pretraining  
 **Branch**: `claude/adhan-phase2-corpus-v1`
 
+> **Note — current pipeline.** This is the original Phase 2 plan. The
+> orchestration script it describes (`scripts/phase2_corpus_build.py`) and the
+> earlier ingestor (`scripts/ingest_all_prioritized_data.py`) have been removed:
+> both did an O(n²) signature scan that made them unusable past a few thousand
+> documents. The pipeline that actually produced the archive is
+> `scripts/expand_tamil_corpus.py` — see **[CORPUS_EXPANSION.md](CORPUS_EXPANSION.md)**
+> for sources, flags, resume semantics and the memory budget. The stage
+> descriptions, quality targets and validation commands below still apply.
+
 ---
 
 ## Overview
@@ -177,24 +186,27 @@ Collect data from all sources into unified JSONL format:
 
 **Command**:
 ```bash
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects ~/yazhi-projects \
-  --output data/raw/phase2 \
-  --log-level INFO
+python scripts/expand_tamil_corpus.py \
+  --out-dir data/raw/expanded \
+  --wiki-limit 150000 \
+  --indic-limit 1000000 \
+  --fineweb-limit 300000
 ```
 
-**Output**: `data/raw/phase2/unified.jsonl` (~1.5M-5M records)
+**Output**: `data/raw/expanded/corpus-NNNNN.jsonl` shards (~1.3M records to date)
 
 ### Step 2: Deduplicate (Week 2-3)
 
 Remove exact and near-duplicates using MinHash/LSH:
 
 ```bash
-# Built-in to phase2_corpus_build.py, configurable:
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects ~/yazhi-projects \
-  --dedup-threshold 0.85 \
-  --output data/raw/phase2
+# Built into expand_tamil_corpus.py: exact SHA-1 dedup plus banded MinHash/LSH
+# near-dedup (threshold 0.80), applied as documents stream in.
+# To re-dedup an already-built corpus instead, use the standalone runner:
+python scripts/run_dedup.py \
+  --corpus data/raw/expanded \
+  --threshold 0.85 \
+  --output data/raw/expanded_dedup
 ```
 
 **Settings**:
@@ -280,44 +292,37 @@ python scripts/prepare_slm_corpus.py \
 export YAZHI_ROOT=~/yazhi-projects
 mkdir -p data/raw/phase2
 
-# 2. Build corpus
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects $YAZHI_ROOT \
-  --output data/raw/phase2
+# 2. Build / extend corpus
+python scripts/expand_tamil_corpus.py \
+  --out-dir data/raw/expanded \
+  --wiki-limit 150000 --indic-limit 1000000
 
-# 3. Validate
+# 3. Validate (the archive is too large to load whole — sample it)
 python scripts/phase2_validate.py \
-  --corpus data/raw/phase2/unified.jsonl \
-  --output data/raw/phase2/validation_report.json
+  --corpus data/raw/expanded \
+  --max-records 50000 \
+  --output data/raw/expanded/validation_report.json
 
 # 4. Pack for training
 python scripts/prepare_slm_corpus.py \
-  --corpus-jsonl data/raw/phase2/unified.jsonl \
-  --output-dir data/final/phase2
+  --corpus data/raw/expanded \
+  --out data/final/phase2
 ```
 
 ### Advanced Options
 
 ```bash
-# Custom dedup threshold (higher = more lenient)
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects $YAZHI_ROOT \
-  --dedup-threshold 0.90
+# Different near-dup threshold (higher = more lenient) on an existing corpus
+python scripts/run_dedup.py --corpus data/raw/expanded --threshold 0.90
 
-# Minimum Tamil fraction
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects $YAZHI_ROOT \
-  --min-tamil-fraction 0.8
+# Local sources only (no network)
+python scripts/expand_tamil_corpus.py --out-dir data/raw/expanded --local-only
 
-# Skip PII scrubbing (for trusted sources)
-python scripts/phase2_corpus_build.py \
-  --yazhi-projects $YAZHI_ROOT \
-  --skip-pii
-
-# Validation with all records (slower)
+# Validation with more records (slower; the report holds records in memory)
 python scripts/phase2_validate.py \
-  --corpus data/raw/phase2/unified.jsonl \
-  # No --sample-size = check all records
+  --corpus data/raw/expanded \
+  --max-records 200000 \
+  --sample-size 500
 ```
 
 ---
@@ -370,7 +375,7 @@ python scripts/phase2_validate.py \
 | Fertility | < 1.15 tok/akshara | Efficient tokenization | `prepare_slm_corpus.py` logs |
 | Tamil fraction | ≥ 70% average | Language quality | `phase2_validate.py` report |
 | Quality score | ≥ 0.65 mean | Text quality | Filter removes < 0.5 |
-| Dedup rate | 10-20% removal | No over-dedup | `phase2_corpus_build.py` report |
+| Dedup rate | 10-20% removal | No over-dedup | `stats.json` (`dropped`) / `run_dedup.py` report |
 | PII presence | < 1% (spot-check) | Privacy assured | Manual review of 100 samples |
 
 ---
@@ -418,9 +423,9 @@ python scripts/phase2_validate.py \
 
 ### Scripts (`scripts/`)
 
-1. **phase2_corpus_build.py** - Main orchestration
+1. **expand_tamil_corpus.py** - Streaming ingestion + dedup (current)
    ```bash
-   python scripts/phase2_corpus_build.py --yazhi-projects ~/yazhi
+   python scripts/expand_tamil_corpus.py --out-dir data/raw/expanded --indic-limit 1000000
    ```
 
 2. **phase2_validate.py** - Quality validation
@@ -527,7 +532,7 @@ grep -i "email\|phone\|@\|+91" data/final/phase2/validation.jsonl || echo "✅ N
 **Fix**:
 ```bash
 # Lower threshold to be more strict
-python scripts/phase2_corpus_build.py --dedup-threshold 0.80
+python scripts/run_dedup.py --corpus data/raw/expanded --threshold 0.80
 ```
 
 ### Low Tamil Fraction (<60%)
@@ -540,11 +545,9 @@ python scripts/phase2_corpus_build.py --dedup-threshold 0.80
 
 **Fix**:
 ```bash
-# Adjust threshold
-python scripts/phase2_corpus_build.py --min-tamil-fraction 0.6
-
-# Or manually filter source
-# Remove source="reddit" from unified.jsonl if too mixed
+# Adjust the gate in scripts/expand_tamil_corpus.py (is_quality:
+# min_tamil_ratio) and re-run over the affected shards, or drop a source by
+# removing it from state.json's done_sources and not passing its limit flag.
 ```
 
 ### High PII Rate (>5%)

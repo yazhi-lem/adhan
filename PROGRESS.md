@@ -62,20 +62,22 @@ Run the unified data connector to pull from Open-Sangam, SCERT, Wikipedia, and I
 ```bash
 cd repos/adhan
 
-# Ingest all prioritized datasets into unified JSONL
-python scripts/ingest_all_prioritized_data.py \
-    --output-dir data/raw/unified_prioritized \
-    --sangam-path ../open-sangam \
-    --limit-wiki 100000 \
-    --limit-indic 200000
+# Stream + dedup into resumable shards (local Sangam, Wikipedia, IndicCorp, FineWeb-2)
+python scripts/expand_tamil_corpus.py \
+    --out-dir data/raw/expanded \
+    --wiki-limit 150000 \
+    --indic-limit 1000000 \
+    --fineweb-limit 300000
 ```
+
+Re-running appends only what is new — see [`docs/CORPUS_EXPANSION.md`](docs/CORPUS_EXPANSION.md).
 
 ### Step 2: Freeze Swaram Tokenizer v1 & Pack Binary Shards
 Train the *Swaram* akshara-morpheme tokenizer (12,000 vocabulary) and pack fixed-length 512-token binary sequences:
 
 ```bash
 python scripts/prepare_slm_corpus.py \
-    --corpus data/raw/unified_prioritized/unified_corpus.jsonl \
+    --corpus data/raw/expanded \
     --out data/final/tamil_slm \
     --vocab-size 12000 \
     --seq-len 512 \
@@ -123,7 +125,7 @@ python scripts/train_efficient.py \
 
 - [x] Swaram Tokenizer Layer A (Akshara) + Layer B (Morpheme BPE) with fertility $< 1.15$
 - [x] Transformer Architecture: RoPE, SwiGLU, RMSNorm, Weight-tied embeddings
-- [x] Unified Data Ingestion Engine (`scripts/ingest_all_prioritized_data.py`)
+- [x] Streaming corpus pipeline (`scripts/expand_tamil_corpus.py`) — resumable, LSH dedup
 - [x] MinHash LSH near-deduplication & Unicode NFC sanitization
 - [x] Dual Training Engine:
   - JAX/Flax Trainer with Orbax + MLflow (`src/adhan_slm/training/train_jax.py`)
