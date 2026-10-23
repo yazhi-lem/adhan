@@ -1,0 +1,19 @@
+checkpoint_dir: null
+data:
+  shards: /tmp/pytest-of-valav/pytest-23/slm_shards0/
+  version: test-v0
+experiment: adhan-slm-test
+mlflow_uri: null
+model:
+  dtype: bfloat16
+  max_seq_len: 64
+  size: nano
+  vocab_size: 4096
+train:
+  batch_size: 4
+  checkpoint_every: 20
+  eval_every: 20
+  learning_rate: 0.003
+  log_every: 20
+  max_steps: 3
+  warmup_steps: 10

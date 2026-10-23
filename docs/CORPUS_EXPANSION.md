@@ -214,3 +214,7 @@ Known regenerable assets that intentionally stay under `data/`:
   `thirukkural_corpus.jsonl` is not kept because it is already in the archive.
 - `scripts/benchmark_tokenizers.py` re-fetches its frozen Thirukkural corpus if
   the cache is absent.
+
+---
+
+**Next in the stack:** the tokenizer that consumes this archive — [`TOKENIZER_BENCHMARK_V2.md`](TOKENIZER_BENCHMARK_V2.md) (Rust akshara BPE, byte fallback, morphology layer), then [`ADHAN_NANO_PLAN.md`](ADHAN_NANO_PLAN.md) for pretraining.
