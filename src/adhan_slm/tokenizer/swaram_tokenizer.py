@@ -16,6 +16,7 @@ CLI பயன்பாடு:
 
 from __future__ import annotations
 
+import heapq
 import json
 import sys
 import unicodedata
@@ -109,6 +110,69 @@ def segment_aksharas(text: str) -> List[str]:
     return out
 
 
+def _learn_merges(
+    word_counts: Counter, vocab: Dict[str, int], vocab_size: int, min_freq: int
+) -> List[Tuple[str, str]]:
+    """Incremental BPE: learn merges over *unique* words weighted by frequency.
+
+    Pair counts are updated only for the words a merge touches and the best pair comes
+    from a lazy max-heap, so cost scales with the number of unique words rather than
+    corpus size x merges. Ties break on the smaller pair, so training is deterministic.
+    Adds each merged token to ``vocab`` in place and returns the ordered merge list.
+    """
+    seqs: List[List[str]] = [list(w) for w in word_counts]
+    freqs: List[int] = list(word_counts.values())
+    pair_counts: Dict[Tuple[str, str], int] = {}
+    where: Dict[Tuple[str, str], set] = {}
+    for idx, seq in enumerate(seqs):
+        for pair in zip(seq, seq[1:]):
+            pair_counts[pair] = pair_counts.get(pair, 0) + freqs[idx]
+            where.setdefault(pair, set()).add(idx)
+    heap = [(-c, p) for p, c in pair_counts.items()]
+    heapq.heapify(heap)
+
+    merges: List[Tuple[str, str]] = []
+    while len(vocab) < vocab_size and heap:
+        neg, pair = heapq.heappop(heap)
+        count = pair_counts.get(pair, 0)
+        if count != -neg:  # stale entry; a fresher one is already queued
+            continue
+        if count < min_freq:
+            break
+        a, b = pair
+        merged = a + b
+        merges.append(pair)
+        if merged not in vocab:
+            vocab[merged] = len(vocab)
+
+        touched: Dict[Tuple[str, str], None] = {}
+        for idx in list(where.pop(pair, ())):
+            seq, f = seqs[idx], freqs[idx]
+            for p in zip(seq, seq[1:]):
+                pair_counts[p] -= f
+                touched[p] = None
+            out: List[str] = []
+            i = 0
+            while i < len(seq):
+                if i < len(seq) - 1 and seq[i] == a and seq[i + 1] == b:
+                    out.append(merged)
+                    i += 2
+                else:
+                    out.append(seq[i])
+                    i += 1
+            seqs[idx] = out
+            for p in zip(out, out[1:]):
+                pair_counts[p] = pair_counts.get(p, 0) + f
+                where.setdefault(p, set()).add(idx)
+                touched[p] = None
+        pair_counts.pop(pair, None)
+        for p in touched:
+            c = pair_counts.get(p, 0)
+            if c > 0:
+                heapq.heappush(heap, (-c, p))
+    return merges
+
+
 @dataclass
 class SwaramTokenizer:
     """சுவரம் டோக்கனைசர்: அக்சர அடிப்படை மற்றும் கற்றறிந்த மார்பீம் இணைப்பு அடுக்கு.
@@ -177,12 +241,10 @@ class SwaramTokenizer:
         """அக்சரங்களாகப் பிரித்து சொல் எல்லைக் குறியீடுகளை (WORD_MARK) சேர்த்தல்."""
         text = unicodedata.normalize("NFC", text)
         pieces: List[str] = []
-        for i, cluster in enumerate(self._segment(text)):
+        for cluster in self._segment(text):
             if cluster == " ":
                 pieces.append(WORD_MARK)
             else:
-                if i == 0 or (pieces and pieces[-1] == WORD_MARK) is False:
-                    pass
                 pieces.append(cluster)
         return pieces
 
@@ -273,59 +335,25 @@ class SwaramTokenizer:
         if byte_fallback:
             base += BYTE_TOKENS  # 256 byte tokens count toward vocab_size
         seen = set(base)
-        word_pieces: List[List[str]] = []
+        probe = cls()
+        word_counts: Counter = Counter()
         for line in corpus:
-            for tok in cls().__class__._pretokenize(cls(), line):
+            word: List[str] = []
+            for tok in probe._pretokenize(line):
                 if tok not in seen:
                     seen.add(tok)
                     base.append(tok)
-            # சொல் பிரிப்புகளின் அடிப்படையில் மார்பீம்களைக் கணக்கிடுதல்
-            pieces = cls()._pretokenize(line)
-            word: List[str] = []
-            for p in pieces:
-                if p == WORD_MARK:
+                if tok == WORD_MARK:
                     if word:
-                        word_pieces.append(word)
+                        word_counts[tuple(word)] += 1
                     word = []
                 else:
-                    word.append(p)
+                    word.append(tok)
             if word:
-                word_pieces.append(word)
+                word_counts[tuple(word)] += 1
 
         vocab = {t: i for i, t in enumerate(base)}
-        merges: List[Tuple[str, str]] = []
-        words = [list(w) for w in word_pieces]
-
-        while len(vocab) < vocab_size:
-            pairs: Counter = Counter()
-            for w in words:
-                for i in range(len(w) - 1):
-                    pairs[(w[i], w[i + 1])] += 1
-            if not pairs:
-                break
-            (a, b), freq = pairs.most_common(1)[0]
-            if freq < min_freq:
-                break
-            merged = a + b
-            merges.append((a, b))
-            if merged not in vocab:
-                vocab[merged] = len(vocab)
-
-            # பயிற்சி உரையில் புதிய இணைப்பைப் புதுப்பித்தல் (Update active sequences)
-            new_words = []
-            for w in words:
-                new_w = []
-                i = 0
-                while i < len(w):
-                    if i < len(w) - 1 and w[i] == a and w[i + 1] == b:
-                        new_w.append(merged)
-                        i += 2
-                    else:
-                        new_w.append(w[i])
-                        i += 1
-                new_words.append(new_w)
-            words = new_words
-
+        merges = _learn_merges(word_counts, vocab, vocab_size, min_freq)
         return cls(vocab=vocab, merges=merges)
 
     # -- சேமித்தல் மற்றும் மீட்டெடுத்தல் (Save / Load Files) ----------------------

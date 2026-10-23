@@ -107,6 +107,49 @@ def test_tokenizer_module_logger_initialized():
     assert st.logger.name == "adhan_slm.tokenizer.swaram_tokenizer"
 
 
+def _toy_corpus():
+    words = ["படித்துக்கொண்டிருந்தேன்", "வணக்கம்", "நண்பர்களே", "தமிழ்", "கற்போம்"]
+    return [" ".join(words[i % 5] for i in range(j, j + 6)) for j in range(300)]
+
+
+def test_train_is_deterministic():
+    a = SwaramTokenizer.train(_toy_corpus(), vocab_size=800)
+    b = SwaramTokenizer.train(_toy_corpus(), vocab_size=800)
+    assert a.vocab == b.vocab and a.merges == b.merges
+
+
+def test_train_first_merge_is_the_most_frequent_pair():
+    from collections import Counter
+
+    corpus = _toy_corpus()
+    tok = SwaramTokenizer.train(corpus, vocab_size=800)
+    probe = SwaramTokenizer()
+    pairs = Counter()
+    for line in corpus:
+        for w in line.split(" "):
+            pieces = probe._pretokenize(w)
+            pairs.update(zip(pieces, pieces[1:]))
+    assert pairs[tok.merges[0]] == max(pairs.values())
+
+
+def test_train_respects_vocab_size_and_min_freq():
+    corpus = _toy_corpus()
+    base = len(SwaramTokenizer.train(corpus, vocab_size=1))
+    tok = SwaramTokenizer.train(corpus, vocab_size=base + 5)
+    assert len(tok) == base + 5 and len(tok.merges) == 5
+    assert len(SwaramTokenizer.train(corpus, vocab_size=800, min_freq=10**9).merges) == 0
+
+
+def test_train_scales_to_many_merges_quickly():
+    import time
+
+    t0 = time.perf_counter()
+    tok = SwaramTokenizer.train(_toy_corpus() * 20, vocab_size=2000)
+    assert time.perf_counter() - t0 < 5.0
+    text = "படித்துக்கொண்டிருந்தேன் வணக்கம்"
+    assert tok.decode(tok.encode(text)) == text
+
+
 if __name__ == "__main__":
     run_module_tests(globals(), "swaram tokenizer")
 
