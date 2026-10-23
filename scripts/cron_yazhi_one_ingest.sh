@@ -77,32 +77,32 @@ python "${REPO_ROOT}/scripts/phase2_validate.py" \
 # ------------------------------------------------------------------------------
 # STEP 3: Tokenize and Pack Shards for Training
 # ------------------------------------------------------------------------------
-# `prepare_slm_corpus.py` holds the whole corpus in RAM *and* runs a num_perm=128
-# near-duplicate pass over it. On this archive (1.33M documents) that is ~9 GiB and
-# tens of minutes — observed live: it pushed the box to 9.1 GiB while a training run
-# was in progress, with OOM as the likely outcome. So the nightly job bounds the work
-# with --limit and says so, instead of silently trying to swallow the archive.
+# Uses the streaming packer, not `prepare_slm_corpus.py`. The latter holds every
+# document in RAM *and* runs a num_perm=128 near-duplicate pass over them: on this
+# archive (1.33M documents) that reached 9.1 GiB and was still running while a
+# training job was live — an OOM waiting to happen on a 16 GB box. The streaming
+# path is memory-flat and ~20x faster (Rust encoder, chunked writes).
 #
-#   ADHAN_PACK_DOCS=50000   (default) bounded nightly pack
-#   ADHAN_PACK_DOCS=0       unbounded — only on an idle box, and ideally with the
-#                           streaming packer (scripts/freeze_fast_tokenizer.py) once
-#                           the tokenizer branch lands.
+#   ADHAN_PACK_TOKENS=30000000  (default) bounded nightly pack, ~15 s
+#   ADHAN_PACK_TOKENS=0         whole archive (~590 MB), ~2 min — this is the
+#                               streaming path, so "whole archive" is now cheap and
+#                               memory-flat instead of a 9 GiB gamble.
 echo ""
-echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards (bounded)..."
-PACK_DOCS="${ADHAN_PACK_DOCS:-50000}"
-LIMIT_ARGS=()
-if [ "${PACK_DOCS}" != "0" ]; then
-    LIMIT_ARGS=(--limit "${PACK_DOCS}")
-    echo "   (packing ${PACK_DOCS} documents; set ADHAN_PACK_DOCS=0 for the whole archive)"
-else
-    echo "   (ADHAN_PACK_DOCS=0: packing the whole archive — needs ~10 GiB free)"
+echo ">> Step 3: Freezing tokenizer + packing shards (streaming)..."
+PACK_TOKENS="${ADHAN_PACK_TOKENS:-30000000}"
+FREEZE_ARGS=(
+    --corpus "${CORPUS_DIR}"
+    --out "${FINAL_SLM_DIR}"
+    --vocab-size "${ADHAN_VOCAB_SIZE:-31964}"
+    --seq-len "${ADHAN_SEQ_LEN:-512}"
+    --max-tokens "${PACK_TOKENS}"
+)
+# Reuse the published vocabulary when present, so the nightly artifact stays
+# comparable with the pretraining shards instead of drifting to a new vocab.
+if [ -f "${REPO_ROOT}/data/final/tamil_slm_v2/tokenizer.json" ]; then
+    FREEZE_ARGS+=(--reuse-tokenizer "${REPO_ROOT}/data/final/tamil_slm_v2")
 fi
-python "${REPO_ROOT}/scripts/prepare_slm_corpus.py" \
-    --corpus "${CORPUS_DIR}" \
-    --out "${FINAL_SLM_DIR}" \
-    --vocab-size 12000 \
-    --seq-len 1024 \
-    "${LIMIT_ARGS[@]}"
+python "${REPO_ROOT}/scripts/freeze_fast_tokenizer.py" "${FREEZE_ARGS[@]}"
 
 echo ""
 echo "========================================================================"
