@@ -147,10 +147,10 @@ which is gitignored):
 
 | Metric | Value |
 |---|---|
-| Documents | 1,334,035 |
-| Characters | 1,055,782,057 |
-| Est. swaram tokens | ~328M |
-| Shards | 70 |
+| Documents | 1,334,070 |
+| Characters | 1,055,789,601 |
+| Est. swaram tokens | ~328.4M |
+| Shards | 71 |
 | On-disk size | 2.9 GB |
 
 Source mix: IndicCorp 971,911 · FineWeb-2 157,703 · Wikipedia 123,678 · local
@@ -160,6 +160,21 @@ Sangam corpus ~80k. Tier mix: tier 3 = 1,129,614, tier 2 = 123,678, tier 1 =
 The FineWeb-2 pass in that run stopped early at ~157k of a 400k target when the
 OOM killer took the process; the archive itself was intact and `fineweb2` was
 left unmarked in `state.json`, so the pass can be resumed.
+
+The archive is **append-only**: the nightly `scripts/cron_yazhi_one_ingest.sh` run
+adds whatever is new from the local roots (it added 35 documents on 2026-10-24
+without touching the 1.33M already seeded). Quote the numbers with a date, or read
+`stats.json`, rather than treating this table as a constant.
+
+### Nightly pipeline gotcha (observed, fixed)
+
+The cron job's packing step used `prepare_slm_corpus.py`, which materialises every
+document in RAM *and* runs a `num_perm=128` near-duplicate pass over them. Against
+this archive that reached **9.1 GiB** and was still going while a training run was
+live — an OOM waiting to happen, on a 16 GB machine. The job now bounds itself with
+`--limit` (`ADHAN_PACK_DOCS`, default 50k) and warns when asked to do the whole
+archive. The unbounded path for real packing is
+`scripts/freeze_fast_tokenizer.py`, which streams and writes in chunks.
 
 ---
 

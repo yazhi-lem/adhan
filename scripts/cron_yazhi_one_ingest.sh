@@ -77,13 +77,32 @@ python "${REPO_ROOT}/scripts/phase2_validate.py" \
 # ------------------------------------------------------------------------------
 # STEP 3: Tokenize and Pack Shards for Training
 # ------------------------------------------------------------------------------
+# `prepare_slm_corpus.py` holds the whole corpus in RAM *and* runs a num_perm=128
+# near-duplicate pass over it. On this archive (1.33M documents) that is ~9 GiB and
+# tens of minutes — observed live: it pushed the box to 9.1 GiB while a training run
+# was in progress, with OOM as the likely outcome. So the nightly job bounds the work
+# with --limit and says so, instead of silently trying to swallow the archive.
+#
+#   ADHAN_PACK_DOCS=50000   (default) bounded nightly pack
+#   ADHAN_PACK_DOCS=0       unbounded — only on an idle box, and ideally with the
+#                           streaming packer (scripts/freeze_fast_tokenizer.py) once
+#                           the tokenizer branch lands.
 echo ""
-echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards..."
+echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards (bounded)..."
+PACK_DOCS="${ADHAN_PACK_DOCS:-50000}"
+LIMIT_ARGS=()
+if [ "${PACK_DOCS}" != "0" ]; then
+    LIMIT_ARGS=(--limit "${PACK_DOCS}")
+    echo "   (packing ${PACK_DOCS} documents; set ADHAN_PACK_DOCS=0 for the whole archive)"
+else
+    echo "   (ADHAN_PACK_DOCS=0: packing the whole archive — needs ~10 GiB free)"
+fi
 python "${REPO_ROOT}/scripts/prepare_slm_corpus.py" \
     --corpus "${CORPUS_DIR}" \
     --out "${FINAL_SLM_DIR}" \
     --vocab-size 12000 \
-    --seq-len 1024
+    --seq-len 1024 \
+    "${LIMIT_ARGS[@]}"
 
 echo ""
 echo "========================================================================"
