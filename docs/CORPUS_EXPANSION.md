@@ -147,11 +147,11 @@ which is gitignored):
 
 | Metric | Value |
 |---|---|
-| Documents | 1,333,345 |
-| Characters | 1,054,956,345 |
+| Documents | 1,334,035 |
+| Characters | 1,055,782,057 |
 | Est. swaram tokens | ~328M |
-| Shards | 69 |
-| On-disk size | 3.05 GB |
+| Shards | 70 |
+| On-disk size | 2.9 GB |
 
 Source mix: IndicCorp 971,911 · FineWeb-2 157,703 · Wikipedia 123,678 · local
 Sangam corpus ~80k. Tier mix: tier 3 = 1,129,614, tier 2 = 123,678, tier 1 =
@@ -160,3 +160,42 @@ Sangam corpus ~80k. Tier mix: tier 3 = 1,129,614, tier 2 = 123,678, tier 1 =
 The FineWeb-2 pass in that run stopped early at ~157k of a 400k target when the
 OOM killer took the process; the archive itself was intact and `fineweb2` was
 left unmarked in `state.json`, so the pass can be resumed.
+
+---
+
+## Migration from the legacy pipeline (2026-10)
+
+Two earlier scripts were removed because their dedup was O(n²) and they are
+fully superseded by this one:
+
+| Removed | Superseded by |
+|---|---|
+| `scripts/ingest_all_prioritized_data.py` | `expand_tamil_corpus.py` (streaming, LSH) |
+| `scripts/phase2_corpus_build.py` | `expand_tamil_corpus.py` |
+| `scripts/prepare_full_dataset.py` | dead one-off, no remaining callers |
+| `scripts/merge_corpora.py` | byte-identical duplicate of `src/data_scraper/merge_corpora.py` |
+
+Callers were repointed: `scripts/cron_yazhi_one_ingest.sh` now runs
+`expand_tamil_corpus.py` → `phase2_validate.py` → `prepare_slm_corpus.py`
+against `data/raw/expanded`, and `adhan mutate dedup` runs `scripts/run_dedup.py`
+(the unit-tested dedup path).
+
+`phase2_validate.py` now accepts a **directory of shards** plus `--max-records`,
+because it holds the corpus in memory and cannot load a 1.3M-document archive
+whole.
+
+Derived raw dumps that duplicated the archive were deleted after verifying
+coverage: `data/raw/unified_prioritized` (96.5% of its quality-passing documents
+already present), `data/raw/thirukkural` (100%), and the empty
+`data/raw/{social,reddit,twitter}` trees. The 690 documents that were *not* yet
+in the archive (open-sangam classical texts) were appended as a shard before
+deletion, so nothing was lost.
+
+Known regenerable assets that intentionally stay under `data/`:
+
+- `data/raw/thirukkural/thirukkural_harness_data.json` — eval harness pairs, used
+  by `adhan_slm.eval.thirukkural_eval`. Regenerate with
+  `python src/data_scraper/raw_extractors/thirukkural_extractor.py`; its sibling
+  `thirukkural_corpus.jsonl` is not kept because it is already in the archive.
+- `scripts/benchmark_tokenizers.py` re-fetches its frozen Thirukkural corpus if
+  the cache is absent.

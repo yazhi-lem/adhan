@@ -44,32 +44,34 @@ fi
 
 export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
 
-RAW_OUTPUT_DIR="${REPO_ROOT}/data/raw/unified_prioritized"
-CORPUS_FILE="${RAW_OUTPUT_DIR}/unified_corpus.jsonl"
-VALIDATION_REPORT="${RAW_OUTPUT_DIR}/validation_report.json"
+CORPUS_DIR="${REPO_ROOT}/data/raw/expanded"
+VALIDATION_REPORT="${REPO_ROOT}/data/raw/expanded/validation_report.json"
 FINAL_SLM_DIR="${REPO_ROOT}/data/final/tamil_slm"
-SANGAM_PATH="${REPOS_ROOT}/open-sangam"
 
-mkdir -p "${RAW_OUTPUT_DIR}" "${FINAL_SLM_DIR}"
+mkdir -p "${CORPUS_DIR}" "${FINAL_SLM_DIR}"
 
 # ------------------------------------------------------------------------------
-# STEP 1: Ingest Prioritized Data (Zero API Inference, Local/Stream Extraction)
+# STEP 1: Ingest / Extend the Corpus (streaming, resumable, deduplicated)
 # ------------------------------------------------------------------------------
+# Appends to the existing shards: documents already on disk are seeded by
+# exact hash, so re-running only adds what is new. Completed sources are
+# recorded in state.json and skipped. See docs/CORPUS_EXPANSION.md.
 echo ""
-echo ">> Step 1: Running Prioritized Data Ingestion..."
-python "${REPO_ROOT}/scripts/ingest_all_prioritized_data.py" \
-    --output-dir "${RAW_OUTPUT_DIR}" \
-    --sangam-path "${SANGAM_PATH}" \
-    --limit-wiki 150000 \
-    --limit-indic 250000
+echo ">> Step 1: Expanding the Tamil corpus (streaming)..."
+python "${REPO_ROOT}/scripts/expand_tamil_corpus.py" \
+    --out-dir "${CORPUS_DIR}" \
+    --wiki-limit 150000 \
+    --indic-limit 1000000
 
 # ------------------------------------------------------------------------------
 # STEP 2: Validate Data Quality, PII & Fertility
 # ------------------------------------------------------------------------------
+# The archive is far too large to load whole; validate a bounded sample.
 echo ""
-echo ">> Step 2: Validating Ingested Corpus..."
+echo ">> Step 2: Validating the corpus..."
 python "${REPO_ROOT}/scripts/phase2_validate.py" \
-    --corpus "${CORPUS_FILE}" \
+    --corpus "${CORPUS_DIR}" \
+    --max-records 50000 \
     --output "${VALIDATION_REPORT}"
 
 # ------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ python "${REPO_ROOT}/scripts/phase2_validate.py" \
 echo ""
 echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards..."
 python "${REPO_ROOT}/scripts/prepare_slm_corpus.py" \
-    --corpus "${CORPUS_FILE}" \
+    --corpus "${CORPUS_DIR}" \
     --out "${FINAL_SLM_DIR}" \
     --vocab-size 12000 \
     --seq-len 1024

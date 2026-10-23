@@ -3,9 +3,11 @@
 
 Why this script exists
 ----------------------
-``scripts/ingest_all_prioritized_data.py`` does a linear scan of every previously
-seen MinHash signature (O(n^2)), which makes it unusable past a few thousand
-documents. This script keeps the same source tiering and quality gates but uses
+The previous ingestors (``scripts/ingest_all_prioritized_data.py`` and
+``scripts/phase2_corpus_build.py``, both removed) did a linear scan of every
+previously seen MinHash signature (O(n^2)), which made them unusable past a few
+thousand documents. This script keeps the same source tiering and quality gates
+but uses
 
   * exact SHA-1 dedup, and
   * banded LSH near-dedup over cached shingle hashes (xxhash when available),
@@ -15,8 +17,7 @@ so it streams a few hundred thousand documents in minutes, and it is resumable
 
 Sources
 -------
-tier 1  local classical corpora   open-sangam/data/texts, Yazhi/repos/data/texts,
-                                  existing adhan raw JSONL
+tier 1  local classical corpora   open-sangam/data/texts, Yazhi/repos/data/texts
 tier 2  Tamil Wikipedia           wikimedia/wikipedia (20231101.ta)
 tier 3  AI4Bharat IndicCorp v2    ai4bharat/IndicCorpV2 (tam_Taml)
 
@@ -380,8 +381,6 @@ def main() -> None:
         "--local-roots",
         default=",".join(
             [
-                str(ROOT / "data" / "raw" / "unified_prioritized"),
-                str(ROOT / "data" / "raw" / "thirukkural"),
                 str(ROOT.parent / "open-sangam" / "data" / "texts"),
                 str(ROOT.parent / "data" / "texts"),
             ]
