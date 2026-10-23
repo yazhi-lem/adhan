@@ -125,3 +125,7 @@ python -m adhan_slm.eval.run_eval \
 Then quantize (`scripts/quantize_model.py --format int8`) and serve through
 `scripts/run_api_server.py`. See `docs/ADHAN_NANO_PLAN.md` for the gates and
 `docs/MULTILINGUAL_SCOPE.md` for what to claim afterwards.
+
+---
+
+**Next in the stack:** after the T4 run — the Stage 2 eval gates in [`ADHAN_NANO_PLAN.md`](ADHAN_NANO_PLAN.md) (bits/akshara vs the classical floor, boundary agreement, sandhi, kid prompts), then `scripts/quantize_model.py` → `run_api_server.py`.
