@@ -1,8 +1,25 @@
 # `adhan-nano` — pretraining to production plan
 
-Status: **Stage 1 running.** Every number marked *(measured)* came from this machine
-(12-core CPU, no GPU, 15 GB RAM) during this plan; numbers marked *(est.)* are
-derived and must be re-measured per host.
+Status: **Stage 1 running (CPU).** Every number marked *(measured)* came from this
+machine (12-core CPU, no GPU, 15 GB RAM) during this plan; numbers marked *(est.)*
+are derived and must be re-measured per host.
+
+> **Corrections to the first draft of this plan** (kept here rather than silently
+> edited, because two of them were wrong in ways worth remembering):
+>
+> 1. **The ETA was wrong by ~1.6×.** `train_jax`'s pre-flight estimate comes from a
+>    hard-coded per-platform throughput hint (3,000 tok/s), not from the machine. The
+>    banner said 5 h 33 m; the run measured **1,950 tok/s = 16.7 s/update → ~8.5 h**.
+>    Fixed in the trainer (it now logs a measured ETA after the first flush) — see
+>    PR #94.
+> 2. **This CPU profile is not the shipping profile.** It is the 6-layer / MHA /
+>    14.47M-param config. The T4 profile supersedes it for any GPU run: **9 layers,
+>    8 query / 2 KV heads (GQA), dropout 0.1, fp16, peak LR 5e-4, 16,740,096 params**
+>    — `src/adhan_slm/configs/adhan_slm_nano_t4.yaml`, documented in
+>    [`COLAB_T4.md`](COLAB_T4.md) (PR #94).
+> 3. **`model.dropout` was dead config until #94**: the field existed and was never
+>    applied. Any earlier run in this plan therefore trained with dropout *off*,
+>    regardless of what a config said.
 
 ```
 corpus 1.33M docs / 1.06G chars / ~293M tokens   (frozen, dedup'd, 0 exact dupes)
@@ -11,7 +28,7 @@ corpus 1.33M docs / 1.06G chars / ~293M tokens   (frozen, dedup'd, 0 exact dupes
 30M-token shard set @ seq_len 512                (Stage 0, done)
         │
         ▼  adhan-nano: 6L x 256d, tied embeddings, 14.47M params
-pretrain 1,830 updates / ~60M tokens             (Stage 1, running, ETA 5h33m)
+pretrain 1,830 updates / ~60M tokens             (Stage 1, running, ~8.5h measured)
         │
         ▼  eval gates (bits/akshara, sandhi, boundary agreement, tamil-bench)
 SFT on intended behaviour → quantize → serve      (Stages 2–4)
@@ -63,8 +80,9 @@ python -m adhan_slm.training.train_jax \
 | batch / accum | 8 × 8 = 64 seqs = **32,768 tokens/update** | CPU memory vs gradient noise |
 | lr | 6.0e-4, 200 warmup | small model tolerates a high LR |
 | updates | 1,830 | 2 epochs over the 30M-token set (~60M tokens) |
-| throughput | **2,037 tok/s** *(measured)* | |
-| ETA | **5h 33m** *(measured preflight)* | overnight run |
+| throughput | **1,950–2,040 tok/s** *(measured)* | |
+| ETA (pre-flight) | 5 h 33 m | from a hard-coded 3,000 tok/s platform hint — **not** a measurement |
+| ETA (measured) | **~8.5 h** (16.7 s/update × 1,830) | what the box actually needs; the trainer now logs this after the first flush |
 | checkpoint | every 100 updates, keep 3, best-by-val | resumable; `--resume` picks up global step |
 
 **What 60M tokens means for a 14.5M-param model:** 4.1 tokens/param, i.e. **5× below
@@ -196,7 +214,7 @@ advantage, and why we publish bits/akshara instead of perplexity.
 | When | What | Wall clock |
 |---|---|---|
 | now | Stage 0 artifacts + overfit gate | done |
-| +5.5 h | Stage 1 pretrain (1,830 updates, 60M tokens) | 5h 33m *(measured ETA)* |
+| +8.5 h | Stage 1 pretrain (1,830 updates, 60M tokens) | ~8.5 h *(measured)*, not the 5 h 33 m hint |
 | +6 h | Stage 2 eval gates + report | ~30 min |
 | +8 h | Stage 3 SFT (kid prompts + Thirukkural) | 1–2 h |
 | +9 h | Stage 4 quantize + serve + latency measurement | ~1 h |
@@ -209,6 +227,7 @@ advantage, and why we publish bits/akshara instead of perplexity.
 |---|---|
 | 32k vocab is 57% of params on CPU → slow, embedding-dominated | 8k variant is a 15-min freeze + repack; measure both |
 | 60M tokens ≪ Chinchilla → undertrained, misleading samples | label Stage 1 as plumbing; extend to 293M before any quality claim |
+| Pre-flight ETA silently 1.6× optimistic | fixed in #94: measured ETA logged after the first flush, and the hint it replaced is named in the log |
 | Loss looks fine but generations are garbage | G5 human read-through + sandhi probe are gates, not optional |
 | Tokenizer advantage overstated as model quality | publish bits/akshara **and** MILU/IndicQA, including the losses |
 | CPU-only host dies mid-run | checkpoint every 100 updates; `--resume` restores the global step |
