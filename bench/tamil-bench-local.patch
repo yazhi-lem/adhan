@@ -1,0 +1,39 @@
+diff --git a/bench.py b/bench.py
+index 11ea8f6..e7d0671 100644
+--- a/bench.py
++++ b/bench.py
+@@ -17,6 +17,7 @@ Usage:
+ import argparse
+ import collections
+ import json
++import os
+ import re
+ import sys
+ import time
+@@ -33,7 +34,12 @@ RESULTS = BASE / "results"
+ RESULTS.mkdir(exist_ok=True)
+ SEED = 42
+ 
+-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
++# Local patch (Adhan): allow any OpenAI-compatible endpoint, so the same runner can
++# grade a local checkpoint (adhan serve) as well as hosted OpenRouter models.
++#   TAMIL_BENCH_ENDPOINT=http://127.0.0.1:8000/v1/chat/completions
++OPENROUTER_URL = os.environ.get(
++    "TAMIL_BENCH_ENDPOINT", "https://openrouter.ai/api/v1/chat/completions"
++)
+ 
+ # Reasoning-style models emit a long chain-of-thought before the answer. The
+ # 512-token default truncates them mid-thought, and the truncated text still
+@@ -50,9 +56,11 @@ def max_tokens_for(model):
+ 
+ 
+ def load_key():
+-    import os
+     key = os.environ.get("OPENROUTER_API_KEY")
+     if not key:
++        # Local OpenAI-compatible endpoints (e.g. `adhan serve`) need no key.
++        if "127.0.0.1" in OPENROUTER_URL or "localhost" in OPENROUTER_URL:
++            return "local"
+         sys.exit("OPENROUTER_API_KEY not set")
+     return key
+ 

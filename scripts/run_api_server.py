@@ -5,12 +5,15 @@ Usage:
 """
 
 import argparse
-from typing import Optional
+import time
+import uuid
+from typing import Any, Dict, List, Optional
 
 try:
     import uvicorn
     from fastapi import FastAPI, HTTPException, Request, Response
     from fastapi.responses import JSONResponse
+    from pydantic import BaseModel, Field
 except ImportError:
     print("FastAPI and uvicorn required. Install with: pip install fastapi uvicorn")
     exit(1)
@@ -25,6 +28,47 @@ from adhan_slm.serving.api import (
 )
 
 logger = get_logger(__name__)
+
+
+# --- OpenAI-compatible schemas ---------------------------------------------
+# Adhan's native API (/generate, /tokenize, /decode) is richer, but every
+# evaluation harness in the ecosystem (tamil-bench, lm-eval, vLLM clients,
+# Open WebUI) speaks the OpenAI chat-completions dialect. These models are the
+# thin translation layer.
+class ChatMessage(BaseModel):
+    role: str = "user"
+    content: str = ""
+
+
+class ChatCompletionRequest(BaseModel):
+    model: str = "adhan"
+    messages: List[ChatMessage]
+    temperature: float = 0.0
+    max_tokens: int = Field(default=256, ge=1)
+    top_p: Optional[float] = None
+    top_k: Optional[int] = None
+    stream: bool = False
+
+
+def render_chat_prompt(messages: List[ChatMessage]) -> str:
+    """Flatten an OpenAI message list into the plain-text prompt Adhan expects.
+
+    Adhan is a base (not chat-tuned) SLM, so no special chat tokens are used;
+    system and user turns are newline-separated and the answer is cued with a
+    trailing newline. Once SFT alignment lands this becomes a real template.
+    """
+    parts: List[str] = []
+    for m in messages:
+        content = (m.content or "").strip()
+        if not content:
+            continue
+        if m.role == "system":
+            parts.append(content)
+        elif m.role == "assistant":
+            parts.append(content)
+        else:
+            parts.append(content)
+    return "\n\n".join(parts) + "\n"
 
 
 def create_app(
@@ -139,6 +183,64 @@ def create_app(
         except Exception as e:
             logger.error(f"Generation error: {e}")
             raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+    # --- OpenAI-compatible surface (tamil-bench / lm-eval / Open WebUI) -----
+    @app.get("/v1/models", tags=["OpenAI-compatible"])
+    async def list_models() -> Dict[str, Any]:
+        """List the single served model in OpenAI format."""
+        return {
+            "object": "list",
+            "data": [
+                {
+                    "id": api.model_name,
+                    "object": "model",
+                    "created": 0,
+                    "owned_by": "yazhi",
+                }
+            ],
+        }
+
+    @app.post("/v1/chat/completions", tags=["OpenAI-compatible"])
+    async def chat_completions(request: ChatCompletionRequest) -> Dict[str, Any]:
+        """Map an OpenAI chat-completion call onto Adhan generation."""
+        if request.stream:
+            raise HTTPException(status_code=400, detail="stream=true is not supported yet")
+
+        prompt = render_chat_prompt(request.messages)
+        adhan_request = AdhanRequest(
+            text=prompt,
+            max_length=request.max_tokens,
+            temperature=request.temperature,
+            top_k=request.top_k or 50,
+            top_p=request.top_p if request.top_p is not None else 0.9,
+        )
+        try:
+            result = await api.generate(adhan_request)
+        except ModelNotLoadedError:
+            raise
+        except Exception as e:
+            logger.error(f"chat/completions error: {e}")
+            raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+        completion_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
+        return {
+            "id": completion_id,
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": request.model or api.model_name,
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {"role": "assistant", "content": result.text},
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": {
+                "prompt_tokens": len(prompt.split()),
+                "completion_tokens": result.num_tokens or 0,
+                "total_tokens": len(prompt.split()) + (result.num_tokens or 0),
+            },
+        }
 
     # Global error handler
     @app.exception_handler(Exception)
