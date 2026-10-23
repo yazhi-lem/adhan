@@ -30,13 +30,36 @@ class AdhanConfig:
     d_model: int = 256
     n_layers: int = 6
     n_heads: int = 4
+    # Grouped-query attention: number of K/V heads. 0 (the default) means
+    # n_kv_heads == n_heads, i.e. plain multi-head attention, so existing
+    # checkpoints keep loading with the same 'qkv' kernel shape. n_kv_heads <
+    # n_heads shares each K/V head across n_heads // n_kv_heads query heads,
+    # which cuts the K/V projections and the KV memory of the attention step —
+    # the part that actually hurts at long context on a 16 GB T4.
+    n_kv_heads: int = 0
     d_ff: int = 1024  # SwiGLU hidden (per-gate); ~ 8/3 * d_model is typical
     max_seq_len: int = 512
     rope_theta: float = 10000.0
+    # Applied to the embedding, the attention output and the MLP output. 0.1 is
+    # the usual pretraining default; only active when the caller passes
+    # deterministic=False (training), never during eval/generation.
     dropout: float = 0.0
     use_boundary_emb: bool = False  # add morpheme-boundary signal (tokenizer Layer C)
     use_tinai: bool = False  # Tiṇai (five-landscape) conditioning layer; off = old checkpoints load
     dtype: str = "bfloat16"  # compute dtype; master weights stay fp32
+
+    @property
+    def kv_heads(self) -> int:
+        """Effective K/V head count (0 in the config means classic MHA)."""
+        return self.n_kv_heads or self.n_heads
+
+    def __post_init__(self) -> None:
+        if self.n_heads % self.kv_heads:
+            raise ValueError(
+                f"n_heads={self.n_heads} must be divisible by n_kv_heads={self.kv_heads}"
+            )
+        if self.d_model % self.n_heads:
+            raise ValueError(f"d_model={self.d_model} must be divisible by n_heads={self.n_heads}")
 
     @classmethod
     def nano(cls, vocab_size: int = 8000) -> "AdhanConfig":
@@ -51,12 +74,14 @@ class AdhanConfig:
         return cls(vocab_size, d_model=768, n_layers=12, n_heads=12, d_ff=2048, max_seq_len=2048)
 
     def approx_params(self) -> int:
-        """Rough parameter count (tied embeddings)."""
+        """Rough parameter count (tied embeddings), GQA-aware."""
         emb = self.vocab_size * self.d_model
-        per_layer = (
-            4 * self.d_model * self.d_model + 3 * self.d_model * self.d_ff  # attn qkvo
-        )  # SwiGLU (gate,up,down)
-        return emb + self.n_layers * per_layer
+        dh = self.d_model // self.n_heads
+        # q projects to d_model; k and v each to kv_heads * head_dim; o back to d_model
+        attn = 2 * self.d_model * self.d_model + 2 * self.d_model * self.kv_heads * dh
+        mlp = 3 * self.d_model * self.d_ff  # SwiGLU gate, up, down
+        norms = 2 * self.d_model  # norm1 + norm2 per block
+        return emb + self.n_layers * (attn + mlp + norms) + self.d_model  # + norm_f
 
 
 def build_model(config: AdhanConfig):
@@ -104,7 +129,7 @@ try:
         cfg: AdhanConfig
 
         @nn.compact
-        def __call__(self, x, mask, cond=None):
+        def __call__(self, x, mask, cond=None, deterministic=True):
             c = self.cfg
             dt = jnp.dtype(c.dtype)
             # Tiṇai FiLM: per-position scale/shift for both pre-norms, zero-initialised so
@@ -122,17 +147,33 @@ try:
             # --- attention ---
             g1 = self.param("norm1", nn.initializers.ones, (c.d_model,))
             h = _rms_norm(x, g1) * (1.0 + s1) + t1
-            qkv = nn.Dense(3 * c.d_model, use_bias=False, dtype=dt, name="qkv")(h)
-            q, k, v = jnp.split(qkv, 3, axis=-1)
+
+            # One fused projection for q and the (smaller) k/v stack. With
+            # n_kv_heads == n_heads this is exactly the old 3*d_model "qkv" kernel,
+            # so multi-head checkpoints load unchanged; with GQA it is
+            # (n_heads + 2*kv_heads) * head_dim wide and the k/v part is smaller.
             dh = c.d_model // c.n_heads
+            kvh = c.kv_heads
+            qkv = nn.Dense((c.n_heads + 2 * kvh) * dh, use_bias=False, dtype=dt, name="qkv")(h)
+            q, k, v = jnp.split(qkv, [c.n_heads * dh, (c.n_heads + kvh) * dh], axis=-1)
             b, t = x.shape[0], x.shape[1]
 
             # (B, T, H, Dh) directly — no transpose needed, matches the layout
             # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
-            def shp(a):
-                return a.reshape(b, t, c.n_heads, dh)
+            # RoPE is applied before the K/V heads are broadcast, so the rotation
+            # costs nothing extra under GQA.
+            q = _rope(q.reshape(b, t, c.n_heads, dh), c.rope_theta)
+            k = _rope(k.reshape(b, t, kvh, dh), c.rope_theta)
+            v = v.reshape(b, t, kvh, dh)
 
-            q, k, v = _rope(shp(q), c.rope_theta), _rope(shp(k), c.rope_theta), shp(v)
+            if kvh != c.n_heads:
+                # Plain head broadcast: each K/V head serves groups = n_heads/kv_heads
+                # consecutive query heads. repeat (not tile) keeps that contiguous
+                # grouping, which is what the checkpoint's head order implies.
+                groups = c.n_heads // kvh
+                k = jnp.repeat(k, groups, axis=2)
+                v = jnp.repeat(v, groups, axis=2)
+
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
             else:
@@ -142,6 +183,9 @@ try:
                 att = jax.nn.softmax(att, axis=-1)
                 o = (att @ vT).transpose(0, 2, 1, 3)
             o = o.reshape(x.shape)
+            # Dropout on the attention output: cheap (one tensor per block) and it
+            # regularises the residual stream both axes actually write to.
+            o = nn.Dropout(rate=c.dropout, deterministic=deterministic)(o)
             x = x + nn.Dense(c.d_model, use_bias=False, dtype=dt, name="proj")(o)
             # --- SwiGLU MLP ---
             g2 = self.param("norm2", nn.initializers.ones, (c.d_model,))
@@ -149,6 +193,7 @@ try:
             gate = nn.Dense(c.d_ff, use_bias=False, dtype=dt, name="gate")(h)
             up = nn.Dense(c.d_ff, use_bias=False, dtype=dt, name="up")(h)
             h = nn.Dense(c.d_model, use_bias=False, dtype=dt, name="down")(jax.nn.silu(gate) * up)
+            h = nn.Dropout(rate=c.dropout, deterministic=deterministic)(h)
             return x + h
 
     def _apply_repetition_penalty(logits, prev_tokens, penalty):
@@ -187,7 +232,14 @@ try:
         cfg: AdhanConfig
 
         @nn.compact
-        def __call__(self, tokens, boundaries=None, tinai=None, return_router=False):
+        def __call__(
+            self,
+            tokens,
+            boundaries=None,
+            tinai=None,
+            return_router=False,
+            deterministic=True,
+        ):
             """Logits ``[B, T, vocab]``.
 
             ``tinai`` (only when ``cfg.use_tinai``): per-example landscape class ``[B]``
@@ -202,6 +254,7 @@ try:
                 bmark = self.param("boundary_emb", nn.initializers.normal(0.02), (2, c.d_model))
                 x = x + bmark[boundaries]
             x = x.astype(dt)
+            x = nn.Dropout(rate=c.dropout, deterministic=deterministic)(x)
             t = tokens.shape[1]
             cond = router_logits = None
             if c.use_tinai:
@@ -227,7 +280,7 @@ try:
             # only build the O(T^2) boolean array for the XLA fallback path.
             mask = None if _HAS_FUSED_ATTN else jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
             for i in range(c.n_layers):
-                x = Block(c, name=f"block_{i}")(x, mask, cond)
+                x = Block(c, name=f"block_{i}")(x, mask, cond, deterministic=deterministic)
             gf = self.param("norm_f", nn.initializers.ones, (c.d_model,))
             x = _rms_norm(x, gf)
             # weight-tied head
