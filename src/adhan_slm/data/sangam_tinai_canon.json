@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "purpose": "Per-tiṇai canon used to label Sangam documents: kalam (season), uripporul (essential action/emotion) and karupporul (essential substances/imagery).",
+    "provenance": "Naṉṉūl / Tholkappiyam tradition as summarised in the standard commentaries (பொருளதிகாரம்). The akam tiṇai set and the uripporul mapping are the stable, uncontested part. Kalam assignments and especially the karupporul item lists vary between anthologies and commentaries: 'attested' records where a second traditional source lists the same item, 'note' records the disagreement.",
+    "warning": "This is a *labelling* aid for the corpus and the Tiṇai conditioning layer, not a critical edition. Verify against a printed source before quoting it as scholarship.",
+    "domain": "akam",
+    "schema_version": 1
+  },
+  "kurinji": {
+    "tamil": "குறிஞ்சி",
+    "landscape": "mountains",
+    "kalam": ["kuthir", "munpani"],
+    "kalam_tamil": ["கூதிர்", "முன்பனி"],
+    "uripporul": "punartal",
+    "uripporul_tamil": "புணர்தல்",
+    "uripporul_gloss": "union of lovers",
+    "karupporul": {
+      "deity": {"tamil": "முருகன்", "attested": true},
+      "tree": {"tamil": "குறிஞ்சி", "attested": true},
+      "flower": {"tamil": "குறிஞ்சி", "attested": true},
+      "bird": {"tamil": "மயில்", "attested": true, "note": "குயில் also listed"},
+      "beast": {"tamil": "யானை", "attested": true},
+      "drum": {"tamil": "தண்ணுமை", "attested": true},
+      "water": {"tamil": "அருவி", "attested": true},
+      "people": {"tamil": "குறவர்", "attested": true}
+    }
+  },
+  "mullai": {
+    "tamil": "முல்லை",
+    "landscape": "forest / pastoral",
+    "kalam": ["kaar"],
+    "kalam_tamil": ["கார்"],
+    "uripporul": "iruttal",
+    "uripporul_tamil": "இருத்தல்",
+    "uripporul_gloss": "waiting, patient endurance of separation",
+    "karupporul": {
+      "deity": {"tamil": "திருமால்", "attested": true},
+      "tree": {"tamil": "கொன்றை", "attested": false, "note": "கொங்கு/கொன்றை varies by source"},
+      "flower": {"tamil": "முல்லை", "attested": true},
+      "bird": {"tamil": "காடை", "attested": false},
+      "beast": {"tamil": "மான்", "attested": false},
+      "drum": {"tamil": "முழவு", "attested": false},
+      "people": {"tamil": "ஆயர்", "attested": true}
+    }
+  },
+  "marutam": {
+    "tamil": "மருதம்",
+    "landscape": "agricultural / riverine",
+    "kalam": ["podhu"],
+    "kalam_tamil": ["பொழுது"],
+    "kalam_note": "Marutam is conventionally the tiṇai that admits any season (பொது); commentaries illustrate it with இளவேனில்.",
+    "uripporul": "oodal",
+    "uripporul_tamil": "ஊடல்",
+    "uripporul_gloss": "lovers' quarrel and reconciliation",
+    "karupporul": {
+      "deity": {"tamil": "இந்திரன்", "attested": false},
+      "tree": {"tamil": "மருதம்", "attested": true},
+      "flower": {"tamil": "தாமரை", "attested": true},
+      "bird": {"tamil": "அன்னம்", "attested": false},
+      "beast": {"tamil": "எருமை", "attested": true},
+      "water": {"tamil": "ஆறு", "attested": true},
+      "people": {"tamil": "உழவர்", "attested": true}
+    }
+  },
+  "neytal": {
+    "tamil": "நெய்தல்",
+    "landscape": "coast / sea",
+    "kalam": ["venil"],
+    "kalam_tamil": ["வேனில்"],
+    "kalam_note": "Coastal poems are conventionally set in the evening; the season assignment (வேனில் vs கார்) is disputed between commentaries.",
+    "uripporul": "irangal",
+    "uripporul_tamil": "இரங்கல்",
+    "uripporul_gloss": "pining, lament of the separated woman",
+    "karupporul": {
+      "deity": {"tamil": "வருணன்", "attested": false},
+      "tree": {"tamil": "புன்னை", "attested": true},
+      "flower": {"tamil": "நெய்தல்", "attested": true},
+      "bird": {"tamil": "கடற்காக்கை", "attested": false},
+      "beast": {"tamil": "முதலை", "attested": false},
+      "water": {"tamil": "கடல்", "attested": true},
+      "people": {"tamil": "பரதவர்", "attested": true}
+    }
+  },
+  "palai": {
+    "tamil": "பாலை",
+    "landscape": "arid / wasteland (the other four in drought or elopement)",
+    "kalam": ["venil", "munpani"],
+    "kalam_tamil": ["வேனில்", "முன்பனி"],
+    "kalam_note": "Palai is not a place but a condition: the dry season, or the other landscapes after separation/elopement.",
+    "uripporul": "pirital",
+    "uripporul_tamil": "பிரிதல்",
+    "uripporul_gloss": "separation, elopement, the journey away",
+    "karupporul": {
+      "deity": {"tamil": "கொற்றவை", "attested": false},
+      "tree": {"tamil": "பாலை", "attested": true},
+      "flower": {"tamil": "காஞ்சி", "attested": false},
+      "bird": {"tamil": "பருந்து", "attested": false},
+      "beast": {"tamil": "புலி", "attested": false},
+      "people": {"tamil": "கள்வர்", "attested": false}
+    }
+  }
+}
