@@ -20,8 +20,9 @@
 # metrics, a heavy history query from the UI can collide with it. Serving a
 # snapshot (`/tmp/mlflow_view.db`) removes that coupling entirely.
 #
-# Bind address: 0.0.0.0 by default so the internal dev server is reachable over
-# Tailscale/LAN. Set MLFLOW_HOST=127.0.0.1 to keep it loopback-only.
+# Bind address: 127.0.0.1 (loopback-only) by default. Exposing the UI on the
+# network is an explicit opt-in: set MLFLOW_HOST=0.0.0.0 (or a Tailscale/LAN IP),
+# or pass --host <addr>, e.g. `scripts/serve_mlflow.sh --host 0.0.0.0 start`.
 # ==============================================================================
 
 set -euo pipefail
@@ -31,7 +32,21 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
 
 DB="${REPO_ROOT}/mlflow.db"
-HOST="${MLFLOW_HOST:-0.0.0.0}"
+HOST="${MLFLOW_HOST:-127.0.0.1}"
+
+# Optional leading `--host <addr>` / `--host=<addr>` flag overrides MLFLOW_HOST.
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --host) [ $# -ge 2 ] || { echo "error: --host needs an address" >&2; exit 2; }
+                HOST="$2"; shift 2 ;;
+        --host=*) HOST="${1#--host=}"; shift ;;
+        *) break ;;
+    esac
+done
+if [ "${HOST}" != "127.0.0.1" ] && [ "${HOST}" != "localhost" ] && [ "${HOST}" != "::1" ]; then
+    echo "warning: binding MLflow UI to ${HOST} (network-reachable, no auth)" >&2
+fi
+
 PID_FILE="${REPO_ROOT}/logs/mlflow_ui.pid"
 LOG_FILE="${REPO_ROOT}/logs/mlflow_ui.log"
 ACTION="${1:-status}"
@@ -259,5 +274,5 @@ case "${ACTION}" in
     copy)   cmd_copy ;;
     env)    cmd_env ;;
     doctor) cmd_doctor ;;
-    *)      echo "usage: $0 {start|stop|status|copy|env|doctor} [port]" >&2; exit 2 ;;
+    *)      echo "usage: $0 [--host ADDR] {start|stop|status|copy|env|doctor} [port]" >&2; exit 2 ;;
 esac
