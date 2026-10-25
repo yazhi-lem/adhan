@@ -34,8 +34,6 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
-
 from adhan_slm.core.exceptions import ConfigError, TrainingError  # noqa: E402
 from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.training.device import (  # noqa: E402
@@ -395,6 +393,29 @@ def train(
                 "orbax not installed — checkpointing disabled (pip install orbax-checkpoint)"
             )
 
+    # Continued pretraining vs exact resume. An exact resume restores the optimizer
+    # (and therefore its schedule count), which is only correct if the total step
+    # budget is unchanged: optax's cosine would otherwise jump the LR straight back
+    # to peak for a step that is 10% into a 10x longer schedule. `warm_restart`
+    # keeps the weights but starts a fresh optimizer/schedule over the new budget,
+    # which is what "train this checkpoint for N more updates" actually means.
+    warm_restart = bool(tcfg.get("warm_restart_on_resume", False)) and completed > 0
+    if warm_restart:
+        state = train_state.TrainState.create(
+            apply_fn=model.apply, params=state.params, tx=tx
+        )
+        logger.info(
+            "warm restart: kept params from step %d, reset optimizer + LR schedule "
+            "(peak %.2e over %d updates)",
+            completed - 1,
+            lr,
+            updates,
+        )
+    # The LR metric must be indexed by the *optimizer's* schedule count, not the
+    # global step: a warm restart resets that count to 0 while `s` keeps counting
+    # from `completed`. An exact resume keeps count == s.
+    schedule_base = completed if warm_restart else 0
+
     # Self-describing checkpoint: the architecture (AdhanConfig) and the frozen
     # tokenizer dir it was trained against, carried as a JSON item inside the
     # checkpoint itself instead of a separately-passed --config/--tokenizer-dir.
@@ -440,6 +461,7 @@ def train(
         "train.max_steps": updates,
         "train.resumed_from_step": completed,
         "train.mode": mode,
+        "train.warm_restart": warm_restart,
         "params_millions": round(model_cfg.approx_params() / 1e6, 2),
         **backend.as_params(),
     }
@@ -466,6 +488,7 @@ def train(
     ) as run:
         run.set_tag("mode", mode)
         run.set_tag("backend", backend.platform)
+        run.set_tag("warm_restart", str(warm_restart).lower())
         run.log_metric("eta_seconds_estimate", eta_seconds, step=0)
         # Reproducibility contract (roadmap §5): the exact config and the corpus
         # datasheet travel with the run, not just the flattened param table.
@@ -508,7 +531,7 @@ def train(
                 lv = float(lv)
                 run.log_metric("train_loss", lv, step=s)
                 run.log_metric("perplexity", math.exp(min(lv, 20.0)), step=s)
-                run.log_metric("learning_rate", float(sched(s)), step=s)
+                run.log_metric("learning_rate", float(sched(max(0, s - schedule_base))), step=s)
             run.log_metric("tokens_per_sec", toks_per_sec, step=final_step)
             last_train_loss = float(loss_vals[-1])
             last_toks_per_sec = toks_per_sec

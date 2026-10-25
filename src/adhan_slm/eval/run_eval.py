@@ -24,12 +24,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
-from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.logging import get_logger
 from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 
 logger = get_logger(__name__)

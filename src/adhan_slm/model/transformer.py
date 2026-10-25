@@ -20,6 +20,7 @@ without the JAX stack installed. Install it with `pip install -r requirements-ja
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from .tinai import N_TINAI, tinai_index
 
@@ -47,6 +48,10 @@ class AdhanConfig:
     use_boundary_emb: bool = False  # add morpheme-boundary signal (tokenizer Layer C)
     use_tinai: bool = False  # Tiṇai (five-landscape) conditioning layer; off = old checkpoints load
     dtype: str = "bfloat16"  # compute dtype; master weights stay fp32
+    # Gradient checkpointing (jax.remat): trades compute for memory by not
+    # storing block activations during the forward pass. Essential for training
+    # mini (12-layer, 2048 ctx) on a single TPU/GPU. No effect at inference.
+    remat: bool = False
 
     @property
     def kv_heads(self) -> int:
@@ -54,12 +59,29 @@ class AdhanConfig:
         return self.n_kv_heads or self.n_heads
 
     def __post_init__(self) -> None:
+        if not isinstance(self.vocab_size, int) or self.vocab_size <= 0:
+            raise ValueError(f"vocab_size must be a positive int, got {self.vocab_size}")
+        if not isinstance(self.d_model, int) or self.d_model <= 0:
+            raise ValueError(f"d_model must be a positive int, got {self.d_model}")
+        if not isinstance(self.n_layers, int) or self.n_layers <= 0:
+            raise ValueError(f"n_layers must be a positive int, got {self.n_layers}")
+        if not isinstance(self.n_heads, int) or self.n_heads <= 0:
+            raise ValueError(f"n_heads must be a positive int, got {self.n_heads}")
         if self.n_heads % self.kv_heads:
             raise ValueError(
                 f"n_heads={self.n_heads} must be divisible by n_kv_heads={self.kv_heads}"
             )
         if self.d_model % self.n_heads:
             raise ValueError(f"d_model={self.d_model} must be divisible by n_heads={self.n_heads}")
+        if self.d_ff <= 0:
+            raise ValueError(f"d_ff must be positive, got {self.d_ff}")
+        if self.max_seq_len <= 0:
+            raise ValueError(f"max_seq_len must be positive, got {self.max_seq_len}")
+        if self.dropout < 0.0 or self.dropout > 1.0:
+            raise ValueError(f"dropout must be in [0, 1], got {self.dropout}")
+        valid_dtypes = ("float32", "float64", "bfloat16", "float16")
+        if self.dtype not in valid_dtypes:
+            raise ValueError(f"dtype must be one of {valid_dtypes}, got {self.dtype!r}")
 
     @classmethod
     def nano(cls, vocab_size: int = 8000) -> "AdhanConfig":
@@ -167,12 +189,17 @@ try:
             v = v.reshape(b, t, kvh, dh)
 
             if kvh != c.n_heads:
-                # Plain head broadcast: each K/V head serves groups = n_heads/kv_heads
-                # consecutive query heads. repeat (not tile) keeps that contiguous
-                # grouping, which is what the checkpoint's head order implies.
+                # --- P1: Memory-efficient GQA head broadcast ---
+                # Instead of materializing a repeated K/V array (jnp.repeat),
+                # reshape to add a unit axis and let XLA broadcast. This keeps
+                # the K/V activation memory at kv_heads instead of n_heads.
                 groups = c.n_heads // kvh
-                k = jnp.repeat(k, groups, axis=2)
-                v = jnp.repeat(v, groups, axis=2)
+                k = jnp.broadcast_to(
+                    k[:, :, :, None, :], (b, t, kvh, groups, dh)
+                ).reshape(b, t, c.n_heads, dh)
+                v = jnp.broadcast_to(
+                    v[:, :, :, None, :], (b, t, kvh, groups, dh)
+                ).reshape(b, t, c.n_heads, dh)
 
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
@@ -234,12 +261,12 @@ try:
         @nn.compact
         def __call__(
             self,
-            tokens,
-            boundaries=None,
-            tinai=None,
-            return_router=False,
-            deterministic=True,
-        ):
+            tokens: jax.Array,
+            boundaries: jax.Array | None = None,
+            tinai: jax.Array | None = None,
+            return_router: bool = False,
+            deterministic: bool = True,
+        ) -> jax.Array | tuple[jax.Array, jax.Array]:
             """Logits ``[B, T, vocab]``.
 
             ``tinai`` (only when ``cfg.use_tinai``): per-example landscape class ``[B]``
@@ -279,8 +306,14 @@ try:
             # Fused attention takes is_causal=True and never materializes a mask;
             # only build the O(T^2) boolean array for the XLA fallback path.
             mask = None if _HAS_FUSED_ATTN else jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
+
+            # --- P1: Gradient checkpointing (remat) ---
+            block_fn = Block(c)
+            if c.remat:
+                block_fn = jax.checkpoint(block_fn, policy=jax.checkpoint_policies.dots_saveable)
+
             for i in range(c.n_layers):
-                x = Block(c, name=f"block_{i}")(x, mask, cond, deterministic=deterministic)
+                x = block_fn(x, mask, cond, deterministic=deterministic)
             gf = self.param("norm_f", nn.initializers.ones, (c.d_model,))
             x = _rms_norm(x, gf)
             # weight-tied head
@@ -301,27 +334,24 @@ try:
         return jnp.where(valid, nll, 0.0).sum() / jnp.maximum(valid.sum(), 1)
 
     def generate(
-        model,
-        params,
-        prompt_ids,
-        max_new_tokens=64,
-        temperature=0.8,
-        top_k=40,
-        top_p=0.95,
-        repetition_penalty=1.1,
-        eos_id=None,
-        seed=0,
-        tinai=None,
-    ):
+        model: AdhanSLM,
+        params: Any,
+        prompt_ids: list[int],
+        max_new_tokens: int = 64,
+        temperature: float = 0.8,
+        top_k: int = 40,
+        top_p: float = 0.95,
+        repetition_penalty: float = 1.1,
+        eos_id: int | None = None,
+        seed: int = 0,
+        tinai: int | str | None = None,
+    ) -> list[int]:
         """Autoregressive sampling from a trained AdhanSLM.
 
         `prompt_ids` is a 1-D python list / array of token ids. Returns the full id
         list (prompt + generated). Greedy when ``temperature == 0``. Recomputes the
         forward over the growing prefix each step (no KV-cache yet — fine for a small
         model + short generations; caching is a later throughput optimization).
-
-        This is what Phase 4/5 need: run the kid-level prompt set, feed generations to
-        the sandhi probe, and demo the model — none of which was possible before.
 
         ``tinai`` steers generation toward one of the five landscapes (an index 0-4 or a
         key like ``"mullai"``); it needs a model built with ``use_tinai=True``.
