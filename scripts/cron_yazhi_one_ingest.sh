@@ -44,44 +44,65 @@ fi
 
 export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
 
-RAW_OUTPUT_DIR="${REPO_ROOT}/data/raw/unified_prioritized"
-CORPUS_FILE="${RAW_OUTPUT_DIR}/unified_corpus.jsonl"
-VALIDATION_REPORT="${RAW_OUTPUT_DIR}/validation_report.json"
+CORPUS_DIR="${REPO_ROOT}/data/raw/expanded"
+VALIDATION_REPORT="${REPO_ROOT}/data/raw/expanded/validation_report.json"
 FINAL_SLM_DIR="${REPO_ROOT}/data/final/tamil_slm"
-SANGAM_PATH="${REPOS_ROOT}/open-sangam"
 
-mkdir -p "${RAW_OUTPUT_DIR}" "${FINAL_SLM_DIR}"
+mkdir -p "${CORPUS_DIR}" "${FINAL_SLM_DIR}"
 
 # ------------------------------------------------------------------------------
-# STEP 1: Ingest Prioritized Data (Zero API Inference, Local/Stream Extraction)
+# STEP 1: Ingest / Extend the Corpus (streaming, resumable, deduplicated)
 # ------------------------------------------------------------------------------
+# Appends to the existing shards: documents already on disk are seeded by
+# exact hash, so re-running only adds what is new. Completed sources are
+# recorded in state.json and skipped. See docs/CORPUS_EXPANSION.md.
 echo ""
-echo ">> Step 1: Running Prioritized Data Ingestion..."
-python "${REPO_ROOT}/scripts/ingest_all_prioritized_data.py" \
-    --output-dir "${RAW_OUTPUT_DIR}" \
-    --sangam-path "${SANGAM_PATH}" \
-    --limit-wiki 150000 \
-    --limit-indic 250000
+echo ">> Step 1: Expanding the Tamil corpus (streaming)..."
+python "${REPO_ROOT}/scripts/expand_tamil_corpus.py" \
+    --out-dir "${CORPUS_DIR}" \
+    --wiki-limit 150000 \
+    --indic-limit 1000000
 
 # ------------------------------------------------------------------------------
 # STEP 2: Validate Data Quality, PII & Fertility
 # ------------------------------------------------------------------------------
+# The archive is far too large to load whole; validate a bounded sample.
 echo ""
-echo ">> Step 2: Validating Ingested Corpus..."
+echo ">> Step 2: Validating the corpus..."
 python "${REPO_ROOT}/scripts/phase2_validate.py" \
-    --corpus "${CORPUS_FILE}" \
+    --corpus "${CORPUS_DIR}" \
+    --max-records 50000 \
     --output "${VALIDATION_REPORT}"
 
 # ------------------------------------------------------------------------------
 # STEP 3: Tokenize and Pack Shards for Training
 # ------------------------------------------------------------------------------
+# `prepare_slm_corpus.py` holds the whole corpus in RAM *and* runs a num_perm=128
+# near-duplicate pass over it. On this archive (1.33M documents) that is ~9 GiB and
+# tens of minutes — observed live: it pushed the box to 9.1 GiB while a training run
+# was in progress, with OOM as the likely outcome. So the nightly job bounds the work
+# with --limit and says so, instead of silently trying to swallow the archive.
+#
+#   ADHAN_PACK_DOCS=50000   (default) bounded nightly pack
+#   ADHAN_PACK_DOCS=0       unbounded — only on an idle box, and ideally with the
+#                           streaming packer (scripts/freeze_fast_tokenizer.py) once
+#                           the tokenizer branch lands.
 echo ""
-echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards..."
+echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards (bounded)..."
+PACK_DOCS="${ADHAN_PACK_DOCS:-50000}"
+LIMIT_ARGS=()
+if [ "${PACK_DOCS}" != "0" ]; then
+    LIMIT_ARGS=(--limit "${PACK_DOCS}")
+    echo "   (packing ${PACK_DOCS} documents; set ADHAN_PACK_DOCS=0 for the whole archive)"
+else
+    echo "   (ADHAN_PACK_DOCS=0: packing the whole archive — needs ~10 GiB free)"
+fi
 python "${REPO_ROOT}/scripts/prepare_slm_corpus.py" \
-    --corpus "${CORPUS_FILE}" \
+    --corpus "${CORPUS_DIR}" \
     --out "${FINAL_SLM_DIR}" \
     --vocab-size 12000 \
-    --seq-len 1024
+    --seq-len 1024 \
+    "${LIMIT_ARGS[@]}"
 
 echo ""
 echo "========================================================================"

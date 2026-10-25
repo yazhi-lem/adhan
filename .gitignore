@@ -71,3 +71,6 @@ models/**/checkpoint-*/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# Legacy MLflow file-store runs (pre-SQLite backend)
+mlruns.legacy-pre-sqlite/

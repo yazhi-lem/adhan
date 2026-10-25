@@ -41,30 +41,50 @@ class CorpusValidator:
     TAMIL_UNICODE_START = 0x0B80
     TAMIL_UNICODE_END = 0x0BFF
 
-    def __init__(self, corpus_path: str):
+    def __init__(self, corpus_path: str, max_records: Optional[int] = None):
         """Initialize validator.
 
         Args:
-            corpus_path: Path to JSONL corpus file.
+            corpus_path: Path to a JSONL corpus file, or a directory of
+                ``*.jsonl`` shards (e.g. ``data/raw/expanded``).
+            max_records: Stop after this many records. The validator holds the
+                corpus in memory, so a full pretraining archive (1M+ docs) must
+                be sampled rather than loaded whole.
         """
         self.corpus_path = Path(corpus_path)
         if not self.corpus_path.exists():
             raise FileNotFoundError(f"Corpus not found: {corpus_path}")
 
         self.logger = logger
+        self.max_records = max_records
         self.records = []
         self._load_corpus()
 
+    def _corpus_files(self) -> List[Path]:
+        """Return the files to read: the file itself, or a shard dir's shards."""
+        if self.corpus_path.is_dir():
+            files = sorted(self.corpus_path.glob("*.jsonl"))
+            if not files:
+                raise FileNotFoundError(f"No *.jsonl shards in {self.corpus_path}")
+            return files
+        return [self.corpus_path]
+
     def _load_corpus(self):
-        """Load corpus into memory for analysis."""
-        self.logger.info(f"Loading corpus from {self.corpus_path}...")
-        with open(self.corpus_path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    try:
-                        self.records.append(json.loads(line))
-                    except json.JSONDecodeError as e:
-                        self.logger.warning(f"Skipping invalid JSON line: {e}")
+        """Load corpus into memory for analysis (bounded by max_records)."""
+        files = self._corpus_files()
+        self.logger.info(f"Loading corpus from {self.corpus_path} ({len(files)} file(s))...")
+        for path in files:
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    if self.max_records is not None and len(self.records) >= self.max_records:
+                        self.logger.info(f"Reached max_records={self.max_records:,}; stopping load")
+                        self.logger.info(f"Loaded {len(self.records)} records")
+                        return
+                    if line.strip():
+                        try:
+                            self.records.append(json.loads(line))
+                        except json.JSONDecodeError as e:
+                            self.logger.warning(f"Skipping invalid JSON line: {e}")
 
         self.logger.info(f"Loaded {len(self.records)} records")
 
@@ -264,7 +284,12 @@ Examples:
         "--corpus",
         type=str,
         required=True,
-        help="Path to JSONL corpus file",
+        help="Path to JSONL corpus file, or a directory of *.jsonl shards",
+    )
+    parser.add_argument(
+        "--max-records",
+        type=int,
+        help="Stop loading after N records (required in practice for a sharded archive)",
     )
     parser.add_argument(
         "--sample-size",
@@ -293,7 +318,7 @@ Examples:
 
     # Validate corpus
     try:
-        validator = CorpusValidator(args.corpus)
+        validator = CorpusValidator(args.corpus, max_records=args.max_records)
         report = validator.validate_all(sample_size=args.sample_size)
 
         # Print summary
