@@ -117,10 +117,13 @@ they are just not connected yet.
 
 ```bash
 python scripts/ingest_open_sangam.py --split-dirs \
-    --sangam-root ~/Yazhi/repos/open-sangam \
+    --sangam-root /path/to/open-sangam \
     --out data/raw/sangam \
     --labels data/final/tinai_labels.jsonl
 ```
+
+`--sangam-root` is required (or set `SANGAM_ROOT=/path/to/open-sangam`); there is no
+machine-specific default.
 
 Then treat `data/raw/sangam` as its own source in the mixture
 (`docs/DATA_WEIGHTING.md`) rather than merging it into `data/raw/expanded`:
