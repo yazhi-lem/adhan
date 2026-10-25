@@ -34,15 +34,19 @@ grammar/landscape supervision, not only more tokens.
 
 Usage:
     python scripts/ingest_open_sangam.py \
-        --sangam-root /home/valav/Yazhi/repos/open-sangam \
+        --sangam-root /path/to/open-sangam \
         --out data/raw/sangam --dedup-against data/raw/expanded \
         --labels data/final/tinai_labels.jsonl
+
+``--sangam-root`` is required unless the ``SANGAM_ROOT`` environment variable points
+at an open-sangam checkout.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import json
 import re
 import sys
@@ -169,7 +173,13 @@ def archive_hashes(shard_dir: Optional[Path], cap: int = 2_000_000) -> set:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Extract all of open-sangam into corpus + labels")
-    ap.add_argument("--sangam-root", default="/home/valav/Yazhi/repos/open-sangam")
+    env_root = os.environ.get("SANGAM_ROOT")
+    ap.add_argument(
+        "--sangam-root",
+        default=env_root,
+        required=not env_root,
+        help="path to an open-sangam checkout (default: $SANGAM_ROOT; required if unset)",
+    )
     ap.add_argument("--out", default="data/raw/sangam")
     ap.add_argument("--labels", default="data/final/tinai_labels.jsonl")
     ap.add_argument("--dedup-against", default="data/raw/expanded")
