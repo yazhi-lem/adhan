@@ -1,0 +1,43 @@
+# Adhan SLM — SFT v0 for `adhan-nano` (Tamil, CPU)
+#
+# Trains the response protocol (docs/RESPONSE_PROTOCOL.md) on the v0 data built by
+# scripts/build_sangam_sft.py and scripts/build_grounded_qa.py:
+#
+#   prompt tokens are masked; loss is computed on the target only
+#   (சிந்தனை:/பதில்: ... [மேற்கோள்: ...])
+#
+# Base checkpoint: the final stage-1b pretraining step (4881). Override with
+# `--base-checkpoint` if you want a different step.
+#
+# Run:
+#   python -m adhan_slm.training.train_sft \
+#       --config src/adhan_slm/configs/adhan_sft_nano.yaml --device cpu
+
+experiment: adhan-nano-sft
+run_name: null
+mlflow_uri: sqlite:///mlflow.db
+
+tokenizer_dir: data/final/nano_300m_s512
+base_checkpoint: checkpoints/adhan-nano-ta
+checkpoint_dir: checkpoints/adhan-nano-sft
+
+train_files:
+  - data/final/sft_sangam/train.jsonl
+  - data/final/sft_qa/train.jsonl
+val_files:
+  - data/final/sft_sangam/val.jsonl
+  - data/final/sft_qa/val.jsonl
+
+train:
+  epochs: 2
+  batch_size: 8
+  grad_accum_steps: 4      # effective batch 32 examples per optimizer update
+  learning_rate: 1.0e-4
+  warmup_steps: 50
+  weight_decay: 0.01
+  max_seq_len: 512
+  seed: 0
+  log_every: 10
+  keep_checkpoints: 3
+  max_val_batches: 0        # 0 = all held-out examples
+  generate_samples: true

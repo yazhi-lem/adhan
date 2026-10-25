@@ -1,0 +1,58 @@
+# Adhan SLM — continued pretraining of `adhan-nano` (Tamil, CPU)
+#
+# Stage 1 trained 1,830 updates (~60M tokens, two epochs of the old 30M-token
+# shard set) and stopped at train loss 3.789 / val loss 3.890. The loss curve was
+# flat and the eval (docs/eval_report_nano.json) showed the model still barely
+# beating the classical unigram floor, so the run is *continued*, not restarted:
+#
+#   * weights come from checkpoints/adhan-nano-ta/1829 (backed up at
+#     checkpoints/adhan-nano-ta-step1829-backup),
+#   * the optimizer and LR schedule are reset (`warm_restart_on_resume: true`) —
+#     an exact resume against a longer cosine would snap the LR from its end
+#     value back to peak (see the comment in train_jax.py),
+#   * the shards are repacked at the full 300M-token budget
+#     (data/final/nano_300m_s512: 261,003 train seqs = 133.6M packed tokens),
+#   * budget this run: 3,052 additional updates = ~100M tokens
+#     (3,052 x 32,768), step 1830 -> 4,882.
+#
+# At the measured ~2,075 tok/s on this 12-core CPU that is ~13.5 hours.
+#
+# Run:
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_ta_cont.yaml --device cpu
+
+experiment: adhan-nano-ta
+run_name: null                            # null -> MLflow autogenerates
+mlflow_uri: sqlite:///mlflow.db
+checkpoint_dir: checkpoints/adhan-nano-ta # same dir as stage 1 -> resumes from 1829
+
+model:
+  size: nano              # 6 layers x d_model 256 — unchanged architecture
+  vocab_size: 31964       # matches data/final/nano_300m_s512/vocab.json
+  max_seq_len: 512        # matches the repacked shard manifest
+  use_boundary_emb: false
+  use_tinai: false
+  dtype: bfloat16
+
+train:
+  batch_size: 8
+  grad_accum_steps: 8     # 32,768 tokens per optimizer update, same as stage 1
+  # Stage 1 peaked at 6.0e-4 and ended its cosine at 6.0e-5. A continuation
+  # should not re-hit the original peak; 3.0e-4 with a short warmup is a
+  # deliberate step back up from the end value, then decay to 3.0e-5.
+  learning_rate: 3.0e-4
+  warmup_steps: 100
+  max_steps: 4882         # 1830 already done + 3052 new updates (~100M tokens)
+  weight_decay: 0.1
+  seed: 0
+  log_every: 10
+  eval_every: 100
+  checkpoint_every: 100
+  keep_checkpoints: 4     # keep a couple of stage-1 checkpoints around
+  # Keep the weights, reset Adam moments + LR schedule for the new budget.
+  warm_restart_on_resume: true
+
+data:
+  version: adhan-corpus-v2
+  shards: data/final/nano_300m_s512/
+  seq_packing: true
