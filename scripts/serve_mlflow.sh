@@ -14,6 +14,7 @@
 #   scripts/serve_mlflow.sh stop   [port]
 #   scripts/serve_mlflow.sh copy   [port]  # serve a *copy* of the DB (default 5001)
 #   scripts/serve_mlflow.sh env            # print the export line clients need
+#   scripts/serve_mlflow.sh doctor         # version / schema-skew check
 #
 # `copy` exists because SQLite serialises writers: while a trainer is appending
 # metrics, a heavy history query from the UI can collide with it. Serving a
@@ -231,11 +232,47 @@ uvx mlflow@latest ui --host ${HOST} --port ${PORT}
 ENV
 }
 
+cmd_doctor() {
+    # MLflow migrates the SQLite schema *forward* on first use. So a newer client
+    # touching this DB (e.g. `uvx mlflow@latest ...`) silently upgrades it, after
+    # which the repo's pinned mlflow refuses to open it with
+    # "out-of-date database schema (found X, expected Y)" — misleading wording: the
+    # DB is newer, not older. This happened here once: uvx 3.17.2 migrated the store
+    # and every new client on the venv (3.15.1) started failing.
+    local venv_v db_rev
+    venv_v=$("${REPO_ROOT}/.venv/bin/python" -c "import mlflow; print(mlflow.__version__)" 2>/dev/null || echo "n/a")
+    db_rev=$(sqlite3 "${DB}" "select version_num from alembic_version" 2>/dev/null || echo "n/a")
+
+    echo "== mlflow doctor =="
+    echo "   repo venv mlflow : ${venv_v}"
+    echo "   db schema rev    : ${db_rev}"
+    echo "   db file          : ${DB} ($([ -f "${DB}" ] && du -h "${DB}" | cut -f1 || echo missing))"
+
+    # Can the repo's own client actually open the store right now?
+    if "${REPO_ROOT}/.venv/bin/python" - "${DB}" <<'PYEOF' 2>/dev/null
+import sys
+import mlflow
+from mlflow.tracking import MlflowClient
+
+mlflow.set_tracking_uri("sqlite:///" + sys.argv[1])
+MlflowClient().search_experiments()
+PYEOF
+    then
+        echo "   client opens db  : yes"
+    else
+        echo "   client opens db  : NO  <-- schema skew, or the file is locked"
+        echo "                      fix: pip install -U mlflow   (match the newest client"
+        echo "                      that touched this db), then re-run this check"
+    fi
+    is_up "${PORT}" && echo "   ui on ${PORT}     : UP" || echo "   ui on ${PORT}     : down"
+}
+
 case "${ACTION}" in
     start)  cmd_start ;;
     stop)   cmd_stop ;;
     status) cmd_status ;;
     copy)   cmd_copy ;;
     env)    cmd_env ;;
-    *)      echo "usage: $0 [--host ADDR] {start|stop|status|copy|env} [port]" >&2; exit 2 ;;
+    doctor) cmd_doctor ;;
+    *)      echo "usage: $0 [--host ADDR] {start|stop|status|copy|env|doctor} [port]" >&2; exit 2 ;;
 esac
