@@ -44,44 +44,65 @@ fi
 
 export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
 
-RAW_OUTPUT_DIR="${REPO_ROOT}/data/raw/unified_prioritized"
-CORPUS_FILE="${RAW_OUTPUT_DIR}/unified_corpus.jsonl"
-VALIDATION_REPORT="${RAW_OUTPUT_DIR}/validation_report.json"
+CORPUS_DIR="${REPO_ROOT}/data/raw/expanded"
+VALIDATION_REPORT="${REPO_ROOT}/data/raw/expanded/validation_report.json"
 FINAL_SLM_DIR="${REPO_ROOT}/data/final/tamil_slm"
-SANGAM_PATH="${REPOS_ROOT}/open-sangam"
 
-mkdir -p "${RAW_OUTPUT_DIR}" "${FINAL_SLM_DIR}"
+mkdir -p "${CORPUS_DIR}" "${FINAL_SLM_DIR}"
 
 # ------------------------------------------------------------------------------
-# STEP 1: Ingest Prioritized Data (Zero API Inference, Local/Stream Extraction)
+# STEP 1: Ingest / Extend the Corpus (streaming, resumable, deduplicated)
 # ------------------------------------------------------------------------------
+# Appends to the existing shards: documents already on disk are seeded by
+# exact hash, so re-running only adds what is new. Completed sources are
+# recorded in state.json and skipped. See docs/CORPUS_EXPANSION.md.
 echo ""
-echo ">> Step 1: Running Prioritized Data Ingestion..."
-python "${REPO_ROOT}/scripts/ingest_all_prioritized_data.py" \
-    --output-dir "${RAW_OUTPUT_DIR}" \
-    --sangam-path "${SANGAM_PATH}" \
-    --limit-wiki 150000 \
-    --limit-indic 250000
+echo ">> Step 1: Expanding the Tamil corpus (streaming)..."
+python "${REPO_ROOT}/scripts/expand_tamil_corpus.py" \
+    --out-dir "${CORPUS_DIR}" \
+    --wiki-limit 150000 \
+    --indic-limit 1000000
 
 # ------------------------------------------------------------------------------
 # STEP 2: Validate Data Quality, PII & Fertility
 # ------------------------------------------------------------------------------
+# The archive is far too large to load whole; validate a bounded sample.
 echo ""
-echo ">> Step 2: Validating Ingested Corpus..."
+echo ">> Step 2: Validating the corpus..."
 python "${REPO_ROOT}/scripts/phase2_validate.py" \
-    --corpus "${CORPUS_FILE}" \
+    --corpus "${CORPUS_DIR}" \
+    --max-records 50000 \
     --output "${VALIDATION_REPORT}"
 
 # ------------------------------------------------------------------------------
 # STEP 3: Tokenize and Pack Shards for Training
 # ------------------------------------------------------------------------------
+# Uses the streaming packer, not `prepare_slm_corpus.py`. The latter holds every
+# document in RAM *and* runs a num_perm=128 near-duplicate pass over them: on this
+# archive (1.33M documents) that reached 9.1 GiB and was still running while a
+# training job was live — an OOM waiting to happen on a 16 GB box. The streaming
+# path is memory-flat and ~20x faster (Rust encoder, chunked writes).
+#
+#   ADHAN_PACK_TOKENS=30000000  (default) bounded nightly pack, ~15 s
+#   ADHAN_PACK_TOKENS=0         whole archive (~590 MB), ~2 min — this is the
+#                               streaming path, so "whole archive" is now cheap and
+#                               memory-flat instead of a 9 GiB gamble.
 echo ""
-echo ">> Step 3: Preparing SLM Tokenizer & Binary Shards..."
-python "${REPO_ROOT}/scripts/prepare_slm_corpus.py" \
-    --corpus "${CORPUS_FILE}" \
-    --out "${FINAL_SLM_DIR}" \
-    --vocab-size 12000 \
-    --seq-len 1024
+echo ">> Step 3: Freezing tokenizer + packing shards (streaming)..."
+PACK_TOKENS="${ADHAN_PACK_TOKENS:-30000000}"
+FREEZE_ARGS=(
+    --corpus "${CORPUS_DIR}"
+    --out "${FINAL_SLM_DIR}"
+    --vocab-size "${ADHAN_VOCAB_SIZE:-31964}"
+    --seq-len "${ADHAN_SEQ_LEN:-512}"
+    --max-tokens "${PACK_TOKENS}"
+)
+# Reuse the published vocabulary when present, so the nightly artifact stays
+# comparable with the pretraining shards instead of drifting to a new vocab.
+if [ -f "${REPO_ROOT}/data/final/tamil_slm_v2/tokenizer.json" ]; then
+    FREEZE_ARGS+=(--reuse-tokenizer "${REPO_ROOT}/data/final/tamil_slm_v2")
+fi
+python "${REPO_ROOT}/scripts/freeze_fast_tokenizer.py" "${FREEZE_ARGS[@]}"
 
 echo ""
 echo "========================================================================"

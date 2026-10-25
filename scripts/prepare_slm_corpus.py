@@ -13,11 +13,23 @@ ROADMAP_JAX_SLM.md. Given a corpus (txt / jsonl / directory), it:
   6. writes a ``datasheet.json`` (sources, counts, fertility, dedup/PII stats,
      code SHA) — the data card the roadmap asks for.
 
-Everything is pure-python (stdlib only); numpy just speeds up shard I/O if present.
+Two interchangeable backends freeze the same tokenizer family:
+
+* ``--backend python`` (default) — the reference implementation, pure stdlib.
+  Correct but slow: ~7 kchar/s, so a 1G-character corpus takes ~43 hours.
+* ``--backend rust`` — the same vocab/merges driven by ``tokenizers`` (~3.5
+  Mchar/s), plus ``tokenizer.json``. Use this for anything bigger than a demo
+  corpus, or ``scripts/freeze_fast_tokenizer.py`` which streams and never loads
+  the corpus into memory.
+
+``--byte-fallback`` adds the 256 ``<0xNN>`` tokens so unseen characters (other
+Indic scripts, Latin, digits, emoji) round-trip through UTF-8 instead of
+collapsing to ``<unk>``. It is on by default: without it the frozen tokenizer
+silently loses ~8.5% of real web documents.
 
     python scripts/prepare_slm_corpus.py \
         --corpus data/raw/tamil/ --out data/final/tamil_slm \
-        --vocab-size 12000 --seq-len 1024 --val-frac 0.02
+        --vocab-size 32000 --seq-len 1024 --val-frac 0.02 --backend rust
 """
 
 from __future__ import annotations
@@ -37,12 +49,17 @@ from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 from adhan_slm.data import packing  # noqa: E402
 from adhan_slm.data.deduplicator import TextDeduplicator  # noqa: E402
 from adhan_slm.data.filters import CorpusFilter  # noqa: E402
-from adhan_slm.tokenizer import SwaramTokenizer  # noqa: E402
+from adhan_slm.tokenizer import (  # noqa: E402
+    SwaramTokenizer,
+    indic_akshara,
+)
 from adhan_slm.tokenizer.aksharam_tokenizer import AksharamTokenizer  # noqa: E402
+from adhan_slm.tokenizer.fast_bpe import AksharaBPE  # noqa: E402
 
 logger = get_logger(__name__)
 
 _TOKENIZERS = {"swaram": SwaramTokenizer, "aksharam": AksharamTokenizer}
+_SCRIPTS = {"swaram": indic_akshara.TAMIL, "aksharam": indic_akshara.DEVANAGARI}
 
 
 def _git_sha() -> str:
@@ -96,6 +113,25 @@ def main() -> None:
         "--skip-dedup",
         action="store_true",
         help="skip exact and near-duplicate removal (not recommended for real training runs)",
+    )
+    ap.add_argument(
+        "--backend",
+        choices=["python", "rust"],
+        default="python",
+        help="tokenizer backend: reference python (slow) or rust via `tokenizers` (fast)",
+    )
+    ap.add_argument(
+        "--byte-fallback",
+        dest="byte_fallback",
+        action="store_true",
+        default=True,
+        help="add 256 <0xNN> byte tokens so unseen characters stay lossless (default: on)",
+    )
+    ap.add_argument(
+        "--no-byte-fallback",
+        dest="byte_fallback",
+        action="store_false",
+        help="disable byte fallback (only for comparing against older frozen vocabularies)",
     )
     args = ap.parse_args()
 
@@ -169,11 +205,33 @@ def main() -> None:
         args.seed,
     )
 
-    logger.info("[3/6] training %s tokenizer (vocab %d) ...", args.tokenizer, args.vocab_size)
-    tok = TokCls.train(train_docs, vocab_size=args.vocab_size, min_freq=args.min_freq)
+    logger.info(
+        "[3/6] training %s tokenizer (%s backend, vocab %d, byte_fallback=%s) ...",
+        args.tokenizer,
+        args.backend,
+        args.vocab_size,
+        args.byte_fallback,
+    )
     vocab_path = out / "vocab.json"
     merges_path = out / "merges.txt"
-    tok.save(str(vocab_path), str(merges_path))
+    if args.backend == "rust":
+        tok = AksharaBPE.train(
+            train_docs,
+            TokCls._base_inventory(),
+            vocab_size=args.vocab_size,
+            script=_SCRIPTS[args.tokenizer],
+            byte_fallback=args.byte_fallback,
+            min_frequency=args.min_freq,
+        )
+        tok.save(out)
+    else:
+        tok = TokCls.train(
+            train_docs,
+            vocab_size=args.vocab_size,
+            min_freq=args.min_freq,
+            byte_fallback=args.byte_fallback,
+        )
+        tok.save(str(vocab_path), str(merges_path))
     logger.info(
         "      froze vocab=%s merges=%s -> %s, %s",
         f"{len(tok):,}",
@@ -218,6 +276,8 @@ def main() -> None:
     datasheet = {
         "corpus_source": str(args.corpus),
         "tokenizer": args.tokenizer,
+        "backend": args.backend,
+        "byte_fallback": args.byte_fallback,
         "vocab_size": len(tok),
         "n_merges": len(tok.merges),
         "seq_len": args.seq_len,

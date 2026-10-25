@@ -20,6 +20,7 @@ without the JAX stack installed. Install it with `pip install -r requirements-ja
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from .tinai import N_TINAI, tinai_index
 
@@ -30,13 +31,57 @@ class AdhanConfig:
     d_model: int = 256
     n_layers: int = 6
     n_heads: int = 4
+    # Grouped-query attention: number of K/V heads. 0 (the default) means
+    # n_kv_heads == n_heads, i.e. plain multi-head attention, so existing
+    # checkpoints keep loading with the same 'qkv' kernel shape. n_kv_heads <
+    # n_heads shares each K/V head across n_heads // n_kv_heads query heads,
+    # which cuts the K/V projections and the KV memory of the attention step —
+    # the part that actually hurts at long context on a 16 GB T4.
+    n_kv_heads: int = 0
     d_ff: int = 1024  # SwiGLU hidden (per-gate); ~ 8/3 * d_model is typical
     max_seq_len: int = 512
     rope_theta: float = 10000.0
+    # Applied to the embedding, the attention output and the MLP output. 0.1 is
+    # the usual pretraining default; only active when the caller passes
+    # deterministic=False (training), never during eval/generation.
     dropout: float = 0.0
     use_boundary_emb: bool = False  # add morpheme-boundary signal (tokenizer Layer C)
     use_tinai: bool = False  # Tiṇai (five-landscape) conditioning layer; off = old checkpoints load
     dtype: str = "bfloat16"  # compute dtype; master weights stay fp32
+    # Gradient checkpointing (jax.remat): trades compute for memory by not
+    # storing block activations during the forward pass. Essential for training
+    # mini (12-layer, 2048 ctx) on a single TPU/GPU. No effect at inference.
+    remat: bool = False
+
+    @property
+    def kv_heads(self) -> int:
+        """Effective K/V head count (0 in the config means classic MHA)."""
+        return self.n_kv_heads or self.n_heads
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.vocab_size, int) or self.vocab_size <= 0:
+            raise ValueError(f"vocab_size must be a positive int, got {self.vocab_size}")
+        if not isinstance(self.d_model, int) or self.d_model <= 0:
+            raise ValueError(f"d_model must be a positive int, got {self.d_model}")
+        if not isinstance(self.n_layers, int) or self.n_layers <= 0:
+            raise ValueError(f"n_layers must be a positive int, got {self.n_layers}")
+        if not isinstance(self.n_heads, int) or self.n_heads <= 0:
+            raise ValueError(f"n_heads must be a positive int, got {self.n_heads}")
+        if self.n_heads % self.kv_heads:
+            raise ValueError(
+                f"n_heads={self.n_heads} must be divisible by n_kv_heads={self.kv_heads}"
+            )
+        if self.d_model % self.n_heads:
+            raise ValueError(f"d_model={self.d_model} must be divisible by n_heads={self.n_heads}")
+        if self.d_ff <= 0:
+            raise ValueError(f"d_ff must be positive, got {self.d_ff}")
+        if self.max_seq_len <= 0:
+            raise ValueError(f"max_seq_len must be positive, got {self.max_seq_len}")
+        if self.dropout < 0.0 or self.dropout > 1.0:
+            raise ValueError(f"dropout must be in [0, 1], got {self.dropout}")
+        valid_dtypes = ("float32", "float64", "bfloat16", "float16")
+        if self.dtype not in valid_dtypes:
+            raise ValueError(f"dtype must be one of {valid_dtypes}, got {self.dtype!r}")
 
     @classmethod
     def nano(cls, vocab_size: int = 8000) -> "AdhanConfig":
@@ -51,12 +96,14 @@ class AdhanConfig:
         return cls(vocab_size, d_model=768, n_layers=12, n_heads=12, d_ff=2048, max_seq_len=2048)
 
     def approx_params(self) -> int:
-        """Rough parameter count (tied embeddings)."""
+        """Rough parameter count (tied embeddings), GQA-aware."""
         emb = self.vocab_size * self.d_model
-        per_layer = (
-            4 * self.d_model * self.d_model + 3 * self.d_model * self.d_ff  # attn qkvo
-        )  # SwiGLU (gate,up,down)
-        return emb + self.n_layers * per_layer
+        dh = self.d_model // self.n_heads
+        # q projects to d_model; k and v each to kv_heads * head_dim; o back to d_model
+        attn = 2 * self.d_model * self.d_model + 2 * self.d_model * self.kv_heads * dh
+        mlp = 3 * self.d_model * self.d_ff  # SwiGLU gate, up, down
+        norms = 2 * self.d_model  # norm1 + norm2 per block
+        return emb + self.n_layers * (attn + mlp + norms) + self.d_model  # + norm_f
 
 
 def build_model(config: AdhanConfig):
@@ -104,7 +151,7 @@ try:
         cfg: AdhanConfig
 
         @nn.compact
-        def __call__(self, x, mask, cond=None):
+        def __call__(self, x, mask, cond=None, deterministic=True):
             c = self.cfg
             dt = jnp.dtype(c.dtype)
             # Tiṇai FiLM: per-position scale/shift for both pre-norms, zero-initialised so
@@ -122,17 +169,38 @@ try:
             # --- attention ---
             g1 = self.param("norm1", nn.initializers.ones, (c.d_model,))
             h = _rms_norm(x, g1) * (1.0 + s1) + t1
-            qkv = nn.Dense(3 * c.d_model, use_bias=False, dtype=dt, name="qkv")(h)
-            q, k, v = jnp.split(qkv, 3, axis=-1)
+
+            # One fused projection for q and the (smaller) k/v stack. With
+            # n_kv_heads == n_heads this is exactly the old 3*d_model "qkv" kernel,
+            # so multi-head checkpoints load unchanged; with GQA it is
+            # (n_heads + 2*kv_heads) * head_dim wide and the k/v part is smaller.
             dh = c.d_model // c.n_heads
+            kvh = c.kv_heads
+            qkv = nn.Dense((c.n_heads + 2 * kvh) * dh, use_bias=False, dtype=dt, name="qkv")(h)
+            q, k, v = jnp.split(qkv, [c.n_heads * dh, (c.n_heads + kvh) * dh], axis=-1)
             b, t = x.shape[0], x.shape[1]
 
             # (B, T, H, Dh) directly — no transpose needed, matches the layout
             # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
-            def shp(a):
-                return a.reshape(b, t, c.n_heads, dh)
+            # RoPE is applied before the K/V heads are broadcast, so the rotation
+            # costs nothing extra under GQA.
+            q = _rope(q.reshape(b, t, c.n_heads, dh), c.rope_theta)
+            k = _rope(k.reshape(b, t, kvh, dh), c.rope_theta)
+            v = v.reshape(b, t, kvh, dh)
 
-            q, k, v = _rope(shp(q), c.rope_theta), _rope(shp(k), c.rope_theta), shp(v)
+            if kvh != c.n_heads:
+                # --- P1: Memory-efficient GQA head broadcast ---
+                # Instead of materializing a repeated K/V array (jnp.repeat),
+                # reshape to add a unit axis and let XLA broadcast. This keeps
+                # the K/V activation memory at kv_heads instead of n_heads.
+                groups = c.n_heads // kvh
+                k = jnp.broadcast_to(
+                    k[:, :, :, None, :], (b, t, kvh, groups, dh)
+                ).reshape(b, t, c.n_heads, dh)
+                v = jnp.broadcast_to(
+                    v[:, :, :, None, :], (b, t, kvh, groups, dh)
+                ).reshape(b, t, c.n_heads, dh)
+
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
             else:
@@ -142,6 +210,9 @@ try:
                 att = jax.nn.softmax(att, axis=-1)
                 o = (att @ vT).transpose(0, 2, 1, 3)
             o = o.reshape(x.shape)
+            # Dropout on the attention output: cheap (one tensor per block) and it
+            # regularises the residual stream both axes actually write to.
+            o = nn.Dropout(rate=c.dropout, deterministic=deterministic)(o)
             x = x + nn.Dense(c.d_model, use_bias=False, dtype=dt, name="proj")(o)
             # --- SwiGLU MLP ---
             g2 = self.param("norm2", nn.initializers.ones, (c.d_model,))
@@ -149,6 +220,7 @@ try:
             gate = nn.Dense(c.d_ff, use_bias=False, dtype=dt, name="gate")(h)
             up = nn.Dense(c.d_ff, use_bias=False, dtype=dt, name="up")(h)
             h = nn.Dense(c.d_model, use_bias=False, dtype=dt, name="down")(jax.nn.silu(gate) * up)
+            h = nn.Dropout(rate=c.dropout, deterministic=deterministic)(h)
             return x + h
 
     def _apply_repetition_penalty(logits, prev_tokens, penalty):
@@ -187,7 +259,14 @@ try:
         cfg: AdhanConfig
 
         @nn.compact
-        def __call__(self, tokens, boundaries=None, tinai=None, return_router=False):
+        def __call__(
+            self,
+            tokens: jax.Array,
+            boundaries: jax.Array | None = None,
+            tinai: jax.Array | None = None,
+            return_router: bool = False,
+            deterministic: bool = True,
+        ) -> jax.Array | tuple[jax.Array, jax.Array]:
             """Logits ``[B, T, vocab]``.
 
             ``tinai`` (only when ``cfg.use_tinai``): per-example landscape class ``[B]``
@@ -202,6 +281,7 @@ try:
                 bmark = self.param("boundary_emb", nn.initializers.normal(0.02), (2, c.d_model))
                 x = x + bmark[boundaries]
             x = x.astype(dt)
+            x = nn.Dropout(rate=c.dropout, deterministic=deterministic)(x)
             t = tokens.shape[1]
             cond = router_logits = None
             if c.use_tinai:
@@ -226,8 +306,14 @@ try:
             # Fused attention takes is_causal=True and never materializes a mask;
             # only build the O(T^2) boolean array for the XLA fallback path.
             mask = None if _HAS_FUSED_ATTN else jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
+
+            # --- P1: Gradient checkpointing (remat) ---
+            block_fn = Block(c)
+            if c.remat:
+                block_fn = jax.checkpoint(block_fn, policy=jax.checkpoint_policies.dots_saveable)
+
             for i in range(c.n_layers):
-                x = Block(c, name=f"block_{i}")(x, mask, cond)
+                x = block_fn(x, mask, cond, deterministic=deterministic)
             gf = self.param("norm_f", nn.initializers.ones, (c.d_model,))
             x = _rms_norm(x, gf)
             # weight-tied head
@@ -248,27 +334,24 @@ try:
         return jnp.where(valid, nll, 0.0).sum() / jnp.maximum(valid.sum(), 1)
 
     def generate(
-        model,
-        params,
-        prompt_ids,
-        max_new_tokens=64,
-        temperature=0.8,
-        top_k=40,
-        top_p=0.95,
-        repetition_penalty=1.1,
-        eos_id=None,
-        seed=0,
-        tinai=None,
-    ):
+        model: AdhanSLM,
+        params: Any,
+        prompt_ids: list[int],
+        max_new_tokens: int = 64,
+        temperature: float = 0.8,
+        top_k: int = 40,
+        top_p: float = 0.95,
+        repetition_penalty: float = 1.1,
+        eos_id: int | None = None,
+        seed: int = 0,
+        tinai: int | str | None = None,
+    ) -> list[int]:
         """Autoregressive sampling from a trained AdhanSLM.
 
         `prompt_ids` is a 1-D python list / array of token ids. Returns the full id
         list (prompt + generated). Greedy when ``temperature == 0``. Recomputes the
         forward over the growing prefix each step (no KV-cache yet — fine for a small
         model + short generations; caching is a later throughput optimization).
-
-        This is what Phase 4/5 need: run the kid-level prompt set, feed generations to
-        the sandhi probe, and demo the model — none of which was possible before.
 
         ``tinai`` steers generation toward one of the five landscapes (an index 0-4 or a
         key like ``"mullai"``); it needs a model built with ``use_tinai=True``.

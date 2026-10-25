@@ -1,0 +1,95 @@
+# Adhan SLM — `adhan-nano` pretraining on a **Google Colab T4 (free tier)**
+#
+# Beyond the CPU config: deeper (9 layers), more heads with grouped-query
+# attention, dropout 0.1, lower peak LR, and a token budget sized to one free
+# Colab session. Everything below is derived, not guessed — the arithmetic is
+# inline so the next person can re-derive it on different hardware.
+#
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_t4.yaml --device gpu
+#
+# ── Why float16 and not bfloat16 ─────────────────────────────────────────────
+# The T4 is Turing (sm_75): it has fp16 tensor cores but **no bf16 support**
+# (bf16 starts at Ampere, sm_80). Requesting bfloat16 there silently emulates or
+# errors, so this config asks for float16. Master weights and the optimizer stay
+# fp32 (the model casts to the compute dtype per-layer), and the output head
+# already accumulates logits in fp32, so the usual fp16-gradient underflow is
+# mitigated. If loss goes NaN in the first ~200 updates, switch dtype to float32:
+# roughly half the tokens/sec, none of the instability.
+#
+# ── Model: 9 layers x 256 d_model, 8 query heads, 2 KV heads ─────────────────
+# head_dim = 256 / 8 = 32. Going 4 -> 8 heads with head_dim 64 -> 32 gives the
+# 4:1 query:KV grouping below; GQA then keeps only 2 KV heads, so K/V projections
+# are (2 * 2 * 32) = 128 wide instead of 3*256, cutting KV memory 4x — the term
+# that actually constrains batch x context on a 16 GB card.
+#
+#   embeddings      31,964 x 256                    = 8,182,784
+#   per layer  attn 2*d^2 + 2*d*kvh*dh              =   163,840
+#              mlp  3*d*d_ff                        =   786,432
+#              ------------------------------------------------
+#              per layer                                950,272   (x9 = 8,552,448)
+#   final norm      2*d                             =       512
+#   total                                           = 16,735,744  (~16.7M)
+#
+# ── Positional encoding: pure RoPE, nothing else ─────────────────────────────
+# There is no learned position embedding anywhere in the model: `_rope` rotates
+# q and k in every block (fp32 cos/sin, cast to the compute dtype), and
+# `use_boundary_emb` stays false. That is what makes the 512-token context
+# portable across dtypes and checkpoint sizes.
+#
+# ── Token budget for a free Colab session ────────────────────────────────────
+# Free T4 sessions are preempted (typically ~12 h, often less) and the VM is
+# wiped, so the budget targets ONE session's worth of training with checkpoints
+# close enough together that preemption costs minutes, not the run.
+#
+#   tokens/update = batch 32 x seq 512 x accum 2 = 32,768
+#   full archive 293.5M tokens / 32,768         = 8,958 updates  (~1 epoch)
+#   at an expected 15-25k tok/s on T4           = 3.3-5.4 h
+#
+# That is the whole archive in one free session. If you only want a fast
+# iteration artifact, the 30M-token shard set is 915 updates (~15-30 min).
+#
+# Checkpoints: every 200 updates = 6.55M tokens ~ 4-7 min of T4 time. `--resume`
+# restores the global step, so a preempted session continues instead of restarting.
+
+experiment: adhan-nano-t4
+run_name: null                            # null -> MLflow autogenerates
+mlflow_uri: sqlite:///mlflow.db
+checkpoint_dir: checkpoints/adhan-nano-t4 # Orbax dir (resumable, best-by-val)
+
+model:
+  size: nano
+  vocab_size: 31964       # must equal the shard dir's vocab.json (the trainer re-derives it)
+  max_seq_len: 512        # must equal the shard manifest's seq_len
+  n_layers: 9
+  n_heads: 8
+  n_kv_heads: 2           # GQA: 4 query heads share each K/V head (0 = classic MHA)
+  d_ff: 1024
+  dropout: 0.1            # embedding + attention output + MLP output; off at eval
+  rope_theta: 10000.0     # pure RoPE, no learned position embedding
+  use_boundary_emb: false
+  use_tinai: false
+  dtype: float16          # T4 (sm_75) has no bf16; see header
+
+train:
+  batch_size: 32          # 32 x 512 fits comfortably in 16 GB with a 16.7M model
+  grad_accum_steps: 2     # effective batch 64 -> 32,768 tokens per optimizer update
+  learning_rate: 5.0e-4   # peak; lower than the CPU config's 6e-4 to suit the wider batch
+  warmup_steps: 200
+  max_steps: 8958         # one epoch over the full 293.5M-token archive
+  weight_decay: 0.1
+  seed: 0
+  log_every: 10
+  eval_every: 200
+  checkpoint_every: 200   # ~5 min of T4 time; cheap insurance against preemption
+  keep_checkpoints: 3
+
+data:
+  version: adhan-corpus-v2
+  # Full-archive packed shards, repacked at seq_len 512 with the v2 tokenizer:
+  #   python scripts/freeze_fast_tokenizer.py --corpus data/raw/expanded \
+  #       --out data/final/tamil_slm_v2_s512 --reuse-tokenizer data/final/tamil_slm_v2 \
+  #       --seq-len 512 --max-tokens 0
+  # (a 30M-token subset: the same command with --max-tokens 30000000)
+  shards: data/final/tamil_slm_v2_s512/
+  seq_packing: true

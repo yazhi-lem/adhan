@@ -1,0 +1,15 @@
+{
+  "corpus_source": "data/raw/unified_prioritized/unified_corpus.jsonl",
+  "tokenizer": "swaram",
+  "vocab_size": 12000,
+  "n_merges": 11466,
+  "seq_len": 512,
+  "n_documents": 789,
+  "n_train_documents": 750,
+  "n_val_documents": 39,
+  "train_tokens": 253952,
+  "val_tokens": 74752,
+  "mean_fertility": 0.4227,
+  "fertility_target": 1.15,
+  "code_sha": "30f57eaa67142eb22dc069494c9eff530fdfc12d"
+}

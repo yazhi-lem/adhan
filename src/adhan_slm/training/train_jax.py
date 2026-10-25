@@ -34,13 +34,12 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ on path
-
 from adhan_slm.core.exceptions import ConfigError, TrainingError  # noqa: E402
 from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.training.device import (  # noqa: E402
     configure_backend,
     describe_backend,
+    format_duration,
     log_preflight,
     resolve_dtype,
 )
@@ -301,8 +300,23 @@ def train(
         tx = optax.MultiSteps(tx, every_k_schedule=accum)
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
-    def loss_fn(params, batch):
-        logits = model.apply({"params": params}, batch[:, :-1])
+    # Dropout needs an RNG stream in training and must be *off* for eval, or the
+    # validation number becomes a random variable. Flax's Dropout consumes
+    # `rngs={"dropout": key}` only when deterministic=False, so the same code path
+    # serves both — with cfg.dropout == 0 it is a no-op either way.
+    def loss_fn(params, batch, rng):
+        logits = model.apply(
+            {"params": params},
+            batch[:, :-1],
+            deterministic=False,
+            rngs={"dropout": rng},
+        )
+        targets = batch[:, 1:]
+        ll = optax.softmax_cross_entropy_with_integer_labels(logits, targets)
+        return ll.mean()
+
+    def eval_loss_fn(params, batch):
+        logits = model.apply({"params": params}, batch[:, :-1], deterministic=True)
         targets = batch[:, 1:]
         ll = optax.softmax_cross_entropy_with_integer_labels(logits, targets)
         return ll.mean()
@@ -312,15 +326,15 @@ def train(
     # loop below always rebinds `state = ...` and never reads the pre-step value
     # again — a standard JAX/Flax training-loop memory/throughput optimization.
     @functools.partial(jax.jit, donate_argnums=(0,))
-    def train_step(state, batch):
-        loss, grads = jax.value_and_grad(loss_fn)(state.params, batch)
+    def train_step(state, batch, rng):
+        loss, grads = jax.value_and_grad(loss_fn)(state.params, batch, rng)
         return state.apply_gradients(grads=grads), loss
 
     # A batched, jit-ed eval step over the (finite) validation loader. Kept separate
-    # from train_step so it never touches optimizer state.
+    # from train_step so it never touches optimizer state or dropout.
     @jax.jit
     def eval_step(params, batch):
-        return loss_fn(params, batch)
+        return eval_loss_fn(params, batch)
 
     def validate(params, max_batches: int = 200):
         """Mean val loss / per-token perplexity over up to `max_batches` val batches."""
@@ -379,6 +393,29 @@ def train(
                 "orbax not installed — checkpointing disabled (pip install orbax-checkpoint)"
             )
 
+    # Continued pretraining vs exact resume. An exact resume restores the optimizer
+    # (and therefore its schedule count), which is only correct if the total step
+    # budget is unchanged: optax's cosine would otherwise jump the LR straight back
+    # to peak for a step that is 10% into a 10x longer schedule. `warm_restart`
+    # keeps the weights but starts a fresh optimizer/schedule over the new budget,
+    # which is what "train this checkpoint for N more updates" actually means.
+    warm_restart = bool(tcfg.get("warm_restart_on_resume", False)) and completed > 0
+    if warm_restart:
+        state = train_state.TrainState.create(
+            apply_fn=model.apply, params=state.params, tx=tx
+        )
+        logger.info(
+            "warm restart: kept params from step %d, reset optimizer + LR schedule "
+            "(peak %.2e over %d updates)",
+            completed - 1,
+            lr,
+            updates,
+        )
+    # The LR metric must be indexed by the *optimizer's* schedule count, not the
+    # global step: a warm restart resets that count to 0 while `s` keeps counting
+    # from `completed`. An exact resume keeps count == s.
+    schedule_base = completed if warm_restart else 0
+
     # Self-describing checkpoint: the architecture (AdhanConfig) and the frozen
     # tokenizer dir it was trained against, carried as a JSON item inside the
     # checkpoint itself instead of a separately-passed --config/--tokenizer-dir.
@@ -424,6 +461,7 @@ def train(
         "train.max_steps": updates,
         "train.resumed_from_step": completed,
         "train.mode": mode,
+        "train.warm_restart": warm_restart,
         "params_millions": round(model_cfg.approx_params() / 1e6, 2),
         **backend.as_params(),
     }
@@ -450,6 +488,7 @@ def train(
     ) as run:
         run.set_tag("mode", mode)
         run.set_tag("backend", backend.platform)
+        run.set_tag("warm_restart", str(warm_restart).lower())
         run.log_metric("eta_seconds_estimate", eta_seconds, step=0)
         # Reproducibility contract (roadmap §5): the exact config and the corpus
         # datasheet travel with the run, not just the flattened param table.
@@ -471,9 +510,17 @@ def train(
         first_loss = None
         last_train_loss = float("nan")
         last_toks_per_sec = float("nan")
+        # The pre-flight ETA comes from a per-platform throughput *hint*
+        # (device._TOKENS_PER_SEC_HINT), not from this machine. It is useful for
+        # the "is this config absurd?" warning before a run commits, but it can be
+        # off by 1.5-2x on a real box (a 12-core CPU measured 1,950 tok/s against a
+        # 3,000 hint). So once the first flush has a measured rate, publish a
+        # revised ETA and say so in the log.
+        preflight_tok_s = tokens_per_update * updates / max(eta_seconds, 1e-9)
+        eta_revised = False
 
         def _flush(final_step):
-            nonlocal last_train_loss, last_toks_per_sec
+            nonlocal last_train_loss, last_toks_per_sec, eta_revised
             if not pending_losses:
                 return
             # one host sync for the whole buffered window, not one per update
@@ -484,7 +531,7 @@ def train(
                 lv = float(lv)
                 run.log_metric("train_loss", lv, step=s)
                 run.log_metric("perplexity", math.exp(min(lv, 20.0)), step=s)
-                run.log_metric("learning_rate", float(sched(s)), step=s)
+                run.log_metric("learning_rate", float(sched(max(0, s - schedule_base))), step=s)
             run.log_metric("tokens_per_sec", toks_per_sec, step=final_step)
             last_train_loss = float(loss_vals[-1])
             last_toks_per_sec = toks_per_sec
@@ -496,7 +543,25 @@ def train(
                 f"{toks_per_sec:,.0f}",
             )
 
+            # Replace the hint-based estimate with a measured one, once. Sanity
+            # modes are excluded: their step counts are artificial and an ETA for
+            # a 200-update gate is noise.
+            if not eta_revised and not (smoke or overfit_batch) and toks_per_sec > 0:
+                eta_revised = True
+                remaining = max(0, updates - final_step - 1)
+                measured_eta = remaining * tokens_per_update / toks_per_sec
+                run.log_metric("eta_seconds_estimate", measured_eta, step=final_step)
+                logger.info(
+                    "           measured %.0f tok/s (pre-flight assumed %s) -> "
+                    "revised ETA %s for the remaining %s updates",
+                    toks_per_sec,
+                    f"{preflight_tok_s:,.0f} tok/s",
+                    format_duration(measured_eta),
+                    f"{remaining:,}",
+                )
+
         best_val = float("inf")
+        val_this_step = None  # validation result for the current update, reused by save_ckpt
         micro = 0
         step = completed - 1
         if completed >= updates:
@@ -506,13 +571,19 @@ def train(
                 completed,
                 updates,
             )
+        # Dropout stream: one key per micro-batch, derived from the run seed so a
+        # resumed run is still reproducible given the same seed.
+        dropout_rng = jax.random.PRNGKey(seed)
+
         for b in batches:
             if completed >= updates:
                 break
-            state, loss = train_step(state, jnp.asarray(b))
+            dropout_rng, step_rng = jax.random.split(dropout_rng)
+            state, loss = train_step(state, jnp.asarray(b), step_rng)
             micro += 1
             if micro % accum:
                 continue  # gradient still accumulating; no update happened yet
+            val_this_step = None
             step = completed + micro // accum - 1
             if first_loss is None:
                 first_loss = loss
@@ -527,6 +598,7 @@ def train(
             if val_ds is not None and ((step + 1) % eval_every == 0 or is_last):
                 val_loss, val_ppl = validate(state.params)
                 if val_loss is not None:
+                    val_this_step = val_loss
                     run.log_metric("val_loss", val_loss, step=step)
                     run.log_metric("val_perplexity", val_ppl, step=step)
                     marker = ""
@@ -539,7 +611,13 @@ def train(
             if ckptr is not None and ((step + 1) % ckpt_every == 0 or is_last):
                 metrics = {"train_loss": last_train_loss}
                 if val_ds is not None:
-                    vl, _ = validate(state.params)
+                    # Reuse this step's validation when eval_every and
+                    # checkpoint_every line up (the default: both 100). Re-running
+                    # validate() here costs a second full pass over val.bin for a
+                    # number we computed a few lines above.
+                    vl = val_this_step
+                    if vl is None:
+                        vl, _ = validate(state.params)
                     if vl is not None:
                         metrics["val_loss"] = vl
                 save_ckpt(step, metrics)

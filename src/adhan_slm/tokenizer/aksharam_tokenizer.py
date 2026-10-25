@@ -17,15 +17,12 @@ CLI பயன்பாடு:
 
 from __future__ import annotations
 
-import sys
 import unicodedata
 from pathlib import Path
 from typing import List
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
-from adhan_slm.core.logging import get_logger  # noqa: E402
-from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer  # noqa: E402
+from adhan_slm.core.logging import get_logger
+from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer
 
 logger = get_logger(__name__)
 
