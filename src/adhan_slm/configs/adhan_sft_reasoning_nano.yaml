@@ -1,0 +1,50 @@
+# Adhan SLM — Structured Reasoning SFT v1 (Tamil, CPU)
+#
+# Teaches Adhan to Think, Rationalize, and Reflect in modern Tamil:
+#   சிந்தனை → ஆய்வு → பரிசீலனை → பதில்
+#
+# The reasoning trace is included in the target but LOSS IS MASKED on it.
+# Only tokens after "பதில்:" get gradient signal. This means:
+#   * The model learns to generate reasoning autoregressively
+#   * But is only supervised on answer quality
+#
+# Run:
+#   python scripts/build_reasoning_sft.py \
+#       --input data/final/sft_sangam/train.jsonl \
+#       --output data/final/sft_reasoning/train.jsonl \
+#       --mode both --n-examples 5000
+#
+#   python -m adhan_slm.training.train_sft \
+#       --config src/adhan_slm/configs/adhan_sft_reasoning_nano.yaml --device cpu
+
+experiment: adhan-nano-sft-reasoning-v1
+run_name: null
+mlflow_uri: sqlite:///mlflow.db
+
+tokenizer_dir: data/final/nano_300m_s512
+base_checkpoint: checkpoints/adhan-nano-ta
+checkpoint_dir: checkpoints/adhan-nano-sft-reasoning
+
+train_files:
+  - data/final/sft_reasoning/train.jsonl
+  - data/final/sft_sangam/train.jsonl
+  - data/final/sft_qa/train.jsonl
+val_files:
+  - data/final/sft_reasoning/val.jsonl
+  - data/final/sft_sangam/val.jsonl
+  - data/final/sft_qa/val.jsonl
+
+train:
+  epochs: 3
+  batch_size: 8
+  grad_accum_steps: 4          # effective batch 32
+  learning_rate: 5.0e-5        # lower than standard SFT — reasoning needs stability
+  warmup_steps: 100
+  weight_decay: 0.01
+  max_seq_len: 512
+  seed: 42
+  log_every: 10
+  keep_checkpoints: 5
+  streaming: true
+  max_val_batches: 0
+  generate_samples: true

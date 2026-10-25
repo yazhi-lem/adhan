@@ -36,6 +36,7 @@ import yaml
 
 # --- packaging hygiene: no sys.path.insert in library code ---
 # adhan_slm must be importable via PYTHONPATH or pip install -e .
+from adhan_slm import protocol as p  # noqa: E402
 from adhan_slm.core.logging import get_logger  # noqa: E402
 from adhan_slm.training.device import (  # noqa: E402
     configure_backend,
@@ -88,10 +89,28 @@ def _read_jsonl(paths: Iterable[str | Path]) -> List[dict]:
     return rows
 
 
+def _find_answer_start(token_ids: List[int], tok) -> int:
+    """Return the index within token_ids where the answer marker begins."""
+    ans_ids = tok.encode(p.ANSWER, add_special=False)
+    if not ans_ids:
+        return len(token_ids)
+    for i in range(len(token_ids) - len(ans_ids) + 1):
+        if token_ids[i:i + len(ans_ids)] == ans_ids:
+            return i
+    return len(token_ids)
+
+
 def encode_examples(rows: Iterable[dict], tok, max_seq_len: int) -> Tuple[List[dict], dict]:
     """Tokenise prompt+target; truncate the prompt from the left, never the target.
 
-    Accepts an *Iterable* so callers can stream from _read_jsonl_streaming.
+    Reasoning-aware masking (v1 protocol):
+      * prompt tokens → loss = 0
+      * reasoning tokens (before பதில்) → loss = 0
+      * answer tokens (after பதில்) → loss = 1
+      * eos → loss = 1
+
+    The model learns to generate reasoning autoregressively but is only
+    supervised on answer quality.
     """
     bos = tok.vocab.get("<bos>", tok.unk_id)
     eos = tok.vocab.get("<eos>", tok.unk_id)
@@ -108,7 +127,14 @@ def encode_examples(rows: Iterable[dict], tok, max_seq_len: int) -> Tuple[List[d
             prompt_ids = prompt_ids[-budget:]  # keep the question / assistant cue
             truncated += 1
         ids = [bos, *prompt_ids, *target_ids, eos]
-        mask = [0] * (1 + len(prompt_ids)) + [1] * (len(target_ids) + 1)
+        # Build reasoning-aware mask
+        full_target_start = 1 + len(prompt_ids)
+        ans_start_in_target = _find_answer_start(target_ids, tok)
+        ans_start_global = full_target_start + ans_start_in_target
+        mask = [0.0] * len(ids)
+        # Mask answer tokens + eos as supervised
+        for i in range(ans_start_global, len(ids)):
+            mask[i] = 1.0
         length = len(ids)
         bucket = next((b for b in BUCKETS if b >= length), None)
         if bucket is None:

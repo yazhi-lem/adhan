@@ -79,6 +79,18 @@ class TextResponse(BaseModel):
     num_tokens: Optional[int] = Field(None, description="Number of tokens in response")
 
 
+class ReasoningResponse(BaseModel):
+    """Response schema with structured Tamil reasoning."""
+
+    thought: Optional[str] = Field(None, description="சிந்தனை — initial analysis")
+    rationalize: Optional[str] = Field(None, description="ஆய்வு — step-by-step investigation")
+    reflect: Optional[str] = Field(None, description="பரிசீலனை — self-correction and doubt")
+    answer: str = Field(..., description="பதில் — final answer")
+    citations: List[str] = Field(default_factory=list, description="மேற்கோள்கள்")
+    raw: str = Field(..., description="Raw model output")
+    num_tokens: Optional[int] = Field(None, description="Number of tokens in response")
+
+
 class BatchTextResponse(BaseModel):
     """Batch generation response schema."""
 
@@ -538,6 +550,56 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(e))
         except Exception as e:
             logger.exception("batch_generate error")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/generate/reasoning", response_model=ReasoningResponse)
+    async def generate_reasoning_endpoint(request: AdhanRequest, req: Request):
+        """Generate with structured Tamil reasoning (சிந்தனை → ஆய்வு → பரிசீலனை → பதில்)."""
+        await _check_rate(req)
+        try:
+            from adhan_slm import protocol as proto
+            from adhan_slm.inference import generate_text
+
+            await api._ensure_loaded()
+            gen_kw = {}
+            if request.max_length is not None:
+                gen_kw["max_new_tokens"] = request.max_length
+            if request.temperature is not None:
+                gen_kw["temperature"] = request.temperature
+            if request.top_k is not None:
+                gen_kw["top_k"] = request.top_k
+            if request.top_p is not None:
+                gen_kw["top_p"] = request.top_p
+            if request.repetition_penalty is not None:
+                gen_kw["repetition_penalty"] = request.repetition_penalty
+
+            loop = asyncio.get_event_loop()
+            raw_text = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None,
+                    lambda: generate_text(
+                        api.model, api.params, api.tokenizer,
+                        prompt=request.text, **gen_kw,
+                    ),
+                ),
+                timeout=api._generation_timeout_sec,
+            )
+            parsed = proto.parse_response(raw_text)
+            return ReasoningResponse(
+                thought=parsed.get("thought"),
+                rationalize=parsed.get("rationalize"),
+                reflect=parsed.get("reflect"),
+                answer=parsed.get("answer", raw_text),
+                citations=parsed.get("citations", []),
+                raw=raw_text,
+                num_tokens=len(raw_text.split()),
+            )
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=504, detail="Generation timed out")
+        except ModelNotLoadedError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+        except Exception as e:
+            logger.exception("generate_reasoning error")
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.post("/v1/chat/completions")
