@@ -78,7 +78,7 @@ def reference_of(rec: dict) -> str:
 
 def split_of(poem_id: str, val_frac: float = 0.10, test_frac: float = 0.10) -> str:
     """Deterministic poem-level split. Boundaries are validated by the caller."""
-    digest = hashlib.sha1(poem_id.encode("utf-8")).hexdigest()
+    digest = hashlib.sha1(poem_id.encode("utf-8"), usedforsecurity=False).hexdigest()
     bucket = int(digest[:8], 16) % 10_000 / 10_000.0
     if bucket < test_frac:
         return "test"
@@ -192,9 +192,11 @@ def load_records(
                 "english": fallback.get("english"),
                 "tinai": canonical_tinai(lab.get("tinai")),
                 "tinai_tamil": lab.get("tinai_tamil")
-                or (load_canon().get(canonical_tinai(lab.get("tinai"))).tamil
+                or (
+                    load_canon().get(canonical_tinai(lab.get("tinai"))).tamil
                     if canonical_tinai(lab.get("tinai"))
-                    else None),
+                    else None
+                ),
                 "kalam": lab.get("kalam"),
                 "uripporul_tamil": lab.get("uripporul_tamil"),
                 "karupporul": list(lab.get("karupporul") or []),
@@ -216,11 +218,18 @@ def _stimulus(rec: dict) -> Tuple[str, str]:
     return rec["urai"] or "", "விளக்கம்"
 
 
-def _example(rec: dict, task: str, messages: List[dict], answer: str,
-             citations: Sequence[str], thought: Optional[str] = None,
-             system: str = SYSTEM) -> dict:
-    prompt, target = p.render_example(messages, answer, thought=thought,
-                                      citations=citations, system=system)
+def _example(
+    rec: dict,
+    task: str,
+    messages: List[dict],
+    answer: str,
+    citations: Sequence[str],
+    thought: Optional[str] = None,
+    system: str = SYSTEM,
+) -> dict:
+    prompt, target = p.render_example(
+        messages, answer, thought=thought, citations=citations, system=system
+    )
     return {
         "id": f"{task}:{rec['poem_id']}",
         "task": task,
@@ -255,8 +264,7 @@ def build_examples(records: Sequence[dict]) -> List[dict]:
                 _example(
                     rec,
                     TASK_TINAI,
-                    _prompt(text, "இந்தப் பாடலின் திணை எது? திணையின் பெயரை மட்டும் சொல்.",
-                            label),
+                    _prompt(text, "இந்தப் பாடலின் திணை எது? திணையின் பெயரை மட்டும் சொல்.", label),
                     tinai,
                     cite,
                 )
@@ -266,10 +274,14 @@ def build_examples(records: Sequence[dict]) -> List[dict]:
                     _example(
                         rec,
                         TASK_TINAI_FROM_URAI,
-                        [{"role": "user", "content":
-                          f"விளக்கம்:\n{urai}\n\n"
-                          "இந்த விளக்கம் எந்தத் திணையைச் சேர்ந்தது? "
-                          "திணையின் பெயரை மட்டும் சொல்."}],
+                        [
+                            {
+                                "role": "user",
+                                "content": f"விளக்கம்:\n{urai}\n\n"
+                                "இந்த விளக்கம் எந்தத் திணையைச் சேர்ந்தது? "
+                                "திணையின் பெயரை மட்டும் சொல்.",
+                            }
+                        ],
                         tinai,
                         cite,
                     )
@@ -279,8 +291,12 @@ def build_examples(records: Sequence[dict]) -> List[dict]:
             _example(
                 rec,
                 TASK_CITATION,
-                _prompt(text, "இந்தப் பாடல் எந்த நூலில், எந்தப் பாடலாக உள்ளது? "
-                               "நூல் பெயரும் பாடல் எண்ணும் சொல்.", label),
+                _prompt(
+                    text,
+                    "இந்தப் பாடல் எந்த நூலில், எந்தப் பாடலாக உள்ளது? "
+                    "நூல் பெயரும் பாடல் எண்ணும் சொல்.",
+                    label,
+                ),
                 f"{work_tamil(rec['work'])} {ref}",
                 cite,
             )
@@ -290,10 +306,14 @@ def build_examples(records: Sequence[dict]) -> List[dict]:
                 _example(
                     rec,
                     TASK_CITATION_FROM_URAI,
-                    [{"role": "user", "content":
-                      f"விளக்கம்:\n{urai}\n\n"
-                      "இந்த விளக்கம் எந்த நூலின் எந்தப் பாடலுக்குச் சொல்லப்பட்டது? "
-                      "நூல் பெயரும் பாடல் எண்ணும் சொல்."}],
+                    [
+                        {
+                            "role": "user",
+                            "content": f"விளக்கம்:\n{urai}\n\n"
+                            "இந்த விளக்கம் எந்த நூலின் எந்தப் பாடலுக்குச் சொல்லப்பட்டது? "
+                            "நூல் பெயரும் பாடல் எண்ணும் சொல்.",
+                        }
+                    ],
                     f"{work_tamil(rec['work'])} {ref}",
                     cite,
                 )
@@ -332,10 +352,14 @@ def build_examples(records: Sequence[dict]) -> List[dict]:
                 _example(
                     rec,
                     TASK_EURAI_EN,
-                    [{"role": "user", "content":
-                      f"பாடல்:\n{verse}\n\n"
-                      "இந்தப் பாடலின் ஆங்கில உரை (eurai) யாது? "
-                      "ஆங்கிலத்தில் மட்டும் எழுது."}],
+                    [
+                        {
+                            "role": "user",
+                            "content": f"பாடல்:\n{verse}\n\n"
+                            "இந்தப் பாடலின் ஆங்கில உரை (eurai) யாது? "
+                            "ஆங்கிலத்தில் மட்டும் எழுது.",
+                        }
+                    ],
                     rec["english"],
                     cite,
                     system=SYSTEM_EN,
@@ -405,8 +429,9 @@ def stats(records: Sequence[dict], examples: Dict[str, List[dict]]) -> dict:
                 out[k] = out.get(k, 0) + 1
         return dict(sorted(out.items()))
 
-    poem_splits = {split: {r["poem_id"] for r in recs}
-                   for split, recs in _records_by_split(records).items()}
+    poem_splits = {
+        split: {r["poem_id"] for r in recs} for split, recs in _records_by_split(records).items()
+    }
     overlap = {
         "train_test": len(poem_splits["train"] & poem_splits["test"]),
         "train_val": len(poem_splits["train"] & poem_splits["val"]),
@@ -418,9 +443,7 @@ def stats(records: Sequence[dict], examples: Dict[str, List[dict]]) -> dict:
         "poem_overlap": overlap,
         "examples_by_split": {k: len(v) for k, v in examples.items()},
         "examples_by_task": count((e for xs in examples.values() for e in xs), "task"),
-        "tinai_by_split": {
-            split: tinai_counts(xs) for split, xs in examples.items()
-        },
+        "tinai_by_split": {split: tinai_counts(xs) for split, xs in examples.items()},
         "poems_with_verse": sum(1 for r in records if r["verse"]),
         "poems_with_english": sum(1 for r in records if r.get("english")),
         "poems_with_urai": sum(1 for r in records if r["urai"]),

@@ -42,11 +42,15 @@ _SENT_SPLIT = re.compile(r"(?<=[.!?।])\s+|\n+")
 
 
 def _sha(text: str) -> str:
-    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+    return hashlib.sha1(text.encode("utf-8"), usedforsecurity=False).hexdigest()[:12]
 
 
 def split_of(key: str, val_frac: float = 0.10, test_frac: float = 0.10) -> str:
-    bucket = int(hashlib.sha1(key.encode("utf-8")).hexdigest()[:8], 16) % 10_000 / 10_000
+    bucket = (
+        int(hashlib.sha1(key.encode("utf-8"), usedforsecurity=False).hexdigest()[:8], 16)
+        % 10_000
+        / 10_000
+    )
     if bucket < test_frac:
         return "test"
     if bucket < test_frac + val_frac:
@@ -87,18 +91,22 @@ def load_indicqa(path: str | Path) -> List[dict]:
     return rows
 
 
-def _qa_example(row: dict, answer: str, answerable: bool,
-                context: Optional[str] = None, citation_ref: Optional[str] = None,
-                reason: Optional[str] = None) -> dict:
+def _qa_example(
+    row: dict,
+    answer: str,
+    answerable: bool,
+    context: Optional[str] = None,
+    citation_ref: Optional[str] = None,
+    reason: Optional[str] = None,
+) -> dict:
     context = context if context is not None else row["context"]
-    messages = [
-        {"role": "user", "content": f"பத்தி:\n{context}\n\nகேள்வி: {row['question']}"}
-    ]
-    citations = [p.citation("IndicQA", citation_ref or f"{row['context_id']}.{row['id']}")] \
-        if answerable else []
-    prompt, target = p.render_example(
-        messages, answer, citations=citations, system=SYSTEM
+    messages = [{"role": "user", "content": f"பத்தி:\n{context}\n\nகேள்வி: {row['question']}"}]
+    citations = (
+        [p.citation("IndicQA", citation_ref or f"{row['context_id']}.{row['id']}")]
+        if answerable
+        else []
     )
+    prompt, target = p.render_example(messages, answer, citations=citations, system=SYSTEM)
     gold = row["answers"][0]
     return {
         "id": f"{TASK_QA}:{row['id']}",
@@ -217,7 +225,7 @@ def build_corpus_examples(
             if word is None:
                 continue
             blanked = sent.replace(word, "____", 1)
-            context = " ".join(sentences[max(0, i - 2): i + 3]).strip()
+            context = " ".join(sentences[max(0, i - 2) : i + 3]).strip()
             rows.append(
                 {
                     "doc_id": doc_id,
@@ -250,13 +258,9 @@ def build_corpus_examples(
             ).strip()
             answer = p.REFUSAL
         ref = f"{row['doc_id']}.{row['sent_idx']}"
-        messages = [
-            {"role": "user", "content": f"பத்தி:\n{context}\n\n{row['question']}"}
-        ]
+        messages = [{"role": "user", "content": f"பத்தி:\n{context}\n\n{row['question']}"}]
         citations = [p.citation("SCERT", ref)] if answerable else []
-        prompt, target = p.render_example(
-            messages, answer, citations=citations, system=SYSTEM
-        )
+        prompt, target = p.render_example(messages, answer, citations=citations, system=SYSTEM)
         out.append(
             {
                 "id": f"{TASK_CLOZE}:{row['doc_id']}.{row['sent_idx']}",
@@ -272,8 +276,14 @@ def build_corpus_examples(
                     "sent_idx": row["sent_idx"],
                     "answerable": answerable,
                     "answer_start": row["span_start"] if answerable else None,
-                    **({"unanswerable_reason": "answer_sentence_removed",
-                        "withheld_answer": withheld} if not answerable else {}),
+                    **(
+                        {
+                            "unanswerable_reason": "answer_sentence_removed",
+                            "withheld_answer": withheld,
+                        }
+                        if not answerable
+                        else {}
+                    ),
                 },
             }
         )

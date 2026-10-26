@@ -26,12 +26,12 @@ import time
 import unicodedata
 from pathlib import Path
 from typing import Iterator
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from adhan_slm.core.logging import get_logger
+from adhan_slm.core.logging import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -39,6 +39,7 @@ logger = get_logger(__name__)
 try:
     import requests
     from bs4 import BeautifulSoup
+
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
@@ -74,9 +75,13 @@ def fetch_text(url: str, retries: int = 3, delay: float = 1.0) -> str:
         return ""
     for attempt in range(retries):
         try:
-            resp = requests.get(url, timeout=30, headers={
-                "User-Agent": "Mozilla/5.0 (compatible; AdhanBot/1.0; +https://yazhi.dev/bot)"
-            })
+            resp = requests.get(
+                url,
+                timeout=30,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; AdhanBot/1.0; +https://yazhi.dev/bot)"
+                },
+            )
             resp.raise_for_status()
             return resp.text
         except Exception as e:
@@ -100,9 +105,10 @@ def extract_paragraphs(html: str, min_chars: int = 40) -> Iterator[str]:
 
 # --- Project Madurai -------------------------------------------------------
 
+
 def iter_madurai(limit: int = 10000) -> Iterator[dict]:
     """Scrape Project Madurai index and extract texts.
-    
+
     Project Madurai publishes classical Tamil works as HTML pages.
     We respect their robots.txt and rate-limit aggressively.
     """
@@ -147,6 +153,7 @@ def iter_madurai(limit: int = 10000) -> Iterator[dict]:
 
 # --- Tamil Virtual Academy --------------------------------------------------
 
+
 def iter_tamilvu(limit: int = 5000) -> Iterator[dict]:
     """Tamil Virtual Academy — reference texts and literature."""
     if not HAS_REQUESTS:
@@ -188,6 +195,7 @@ def iter_tamilvu(limit: int = 5000) -> Iterator[dict]:
 
 
 # --- Tamil blog / news RSS feeds -------------------------------------------
+
 
 def iter_tamil_rss(feeds: list[str], limit: int = 50000) -> Iterator[dict]:
     """Parse Tamil RSS feeds for articles."""

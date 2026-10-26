@@ -16,11 +16,13 @@ Three properties matter and are cheap to pin down here:
 
 from __future__ import annotations
 
-import jax
-import jax.numpy as jnp
 import pytest
 
-from adhan_slm.model import AdhanConfig, AdhanSLM
+jax = pytest.importorskip("jax")
+jnp = pytest.importorskip("jax.numpy")
+
+
+from adhan_slm.model import AdhanConfig, AdhanSLM  # noqa: E402
 
 
 def _cfg(**kw) -> AdhanConfig:

@@ -13,12 +13,12 @@ The Aram Harness tests Tamil AI models against:
 """
 
 from .aram_harness import AramHarness, AramResult, AramSeverity
-from .tamil_constitution import TAMIL_CONSTITUTION, evaluate_against_constitution
 from .red_team_prompts import RED_TEAM_PROMPTS, RedTeamCategory
+from .tamil_constitution import TAMIL_CONSTITUTION, evaluate_against_constitution
 
 __all__ = [
     "AramHarness",
-    "AramResult", 
+    "AramResult",
     "AramSeverity",
     "TAMIL_CONSTITUTION",
     "evaluate_against_constitution",

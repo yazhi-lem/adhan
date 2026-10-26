@@ -26,7 +26,6 @@ import argparse
 import hashlib
 import json
 import math
-import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
@@ -61,7 +60,9 @@ def _resolve(path: str | Path) -> Path:
 
 def _config_hash(cfg: dict) -> str:
     """Stable hash of the training config for resume safety."""
-    return hashlib.sha256(json.dumps(cfg, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
+    return hashlib.sha256(json.dumps(cfg, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[
+        :16
+    ]
 
 
 def _read_jsonl_streaming(paths: Iterable[str | Path]) -> Iterator[dict]:
@@ -95,7 +96,7 @@ def _find_answer_start(token_ids: List[int], tok) -> int:
     if not ans_ids:
         return len(token_ids)
     for i in range(len(token_ids) - len(ans_ids) + 1):
-        if token_ids[i:i + len(ans_ids)] == ans_ids:
+        if token_ids[i : i + len(ans_ids)] == ans_ids:
             return i
     return len(token_ids)
 
@@ -169,7 +170,7 @@ def make_batches(examples: List[dict], batch_size: int, rng: Optional[np.random.
         if rng is not None:
             rng.shuffle(idx)
         for start in range(0, len(idx), batch_size):
-            rows = [by_bucket[bucket][i] for i in idx[start:start + batch_size]]
+            rows = [by_bucket[bucket][i] for i in idx[start : start + batch_size]]
             if not rows:
                 continue
             x = np.zeros((len(rows), bucket), dtype=np.int32)
@@ -187,11 +188,15 @@ def _build_weight_decay_mask(params):
     RMSNorm gains (norm1, norm2, norm_f) and any bias terms should not be
     decayed — they are scale/offset parameters, not standard weights.
     """
+
     def _mask(path, _):
         name = path[-1].key if path else ""
         if "norm" in name or "bias" in name or "gate" in name:
             return 0.0
         return 1.0
+
+    import jax
+
     return jax.tree_util.tree_map_with_path(_mask, params)
 
 
@@ -215,8 +220,8 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
     import jax
     import jax.numpy as jnp
     import optax
-    from flax.training import train_state
     import orbax.checkpoint as ocp
+    from flax.training import train_state
 
     from adhan_slm.inference import generate_text, load_model, load_tokenizer
 
@@ -268,8 +273,11 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
         total_updates = min(total_updates, int(tcfg["max_steps"]))
 
     schedule = optax.warmup_cosine_decay_schedule(
-        0.0, lr, warmup_steps=min(warmup, max(1, total_updates - 1)),
-        decay_steps=max(2, total_updates), end_value=lr * 0.1,
+        0.0,
+        lr,
+        warmup_steps=min(warmup, max(1, total_updates - 1)),
+        decay_steps=max(2, total_updates),
+        end_value=lr * 0.1,
     )
 
     # --- P1: Exclude norm/bias from weight decay ---
@@ -284,7 +292,8 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
 
     def loss_fn(p, batch, rng=None, deterministic=False):
         logits = model.apply(
-            {"params": p}, batch["input_ids"][:, :-1],
+            {"params": p},
+            batch["input_ids"][:, :-1],
             deterministic=deterministic,
             **({"rngs": {"dropout": rng}} if rng is not None else {}),
         )
@@ -354,7 +363,8 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
             logger.warning(
                 "Checkpoint config hash mismatch: checkpoint=%s current=%s. "
                 "Starting fresh (pass --checkpoint-dir to a new dir to force resume anyway).",
-                restored_meta.get("config_hash"), cfg_hash,
+                restored_meta.get("config_hash"),
+                cfg_hash,
             )
         else:
             state = restored["state"]
@@ -362,7 +372,9 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
             resumed = True
             logger.info(
                 "Resumed from checkpoint step %d (%d of %d updates already done).",
-                latest, completed, total_updates,
+                latest,
+                completed,
+                total_updates,
             )
     else:
         logger.info("No checkpoint found — starting fresh SFT run.")
@@ -371,7 +383,8 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
         logger.info(
             "Checkpoint already at %d/%d updates — nothing left to train. "
             "Raise train.epochs or train.max_steps to continue.",
-            completed, total_updates,
+            completed,
+            total_updates,
         )
 
     run_params = {
@@ -413,7 +426,11 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
         logger.info(
             "SFT: %d train / %d val examples | %d micro-batches/epoch | "
             "%d updates | effective batch %d",
-            len(train_ex), len(val_ex), micro_per_epoch, total_updates, batch_size * accum,
+            len(train_ex),
+            len(val_ex),
+            micro_per_epoch,
+            total_updates,
+            batch_size * accum,
         )
         logger.info("length buckets (train): %s", bucket_counts)
         logger.info("truncated/skipped (train): %s", train_stats)
@@ -452,8 +469,12 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
                     run.log_metric("tokens_per_sec", last_tok_s, step=update)
                     logger.info(
                         "epoch %d  update %d/%d  loss %.4f  lr %.2e  tok/s %.0f",
-                        epoch + 1, update + 1, total_updates, last_train_loss,
-                        float(schedule(update)), last_tok_s,
+                        epoch + 1,
+                        update + 1,
+                        total_updates,
+                        last_train_loss,
+                        float(schedule(update)),
+                        last_tok_s,
                     )
                     window_start = time.perf_counter()
                     window_losses = []
@@ -466,7 +487,10 @@ def train(config_path: str, overrides: Optional[Dict[str, Any]] = None) -> Dict[
                 best_val = val_loss
             logger.info(
                 "           val_loss %.4f  val_ppl %.2f  (%d tokens)%s",
-                val_loss, val_ppl, val_toks, marker,
+                val_loss,
+                val_ppl,
+                val_toks,
+                marker,
             )
 
             ckptr.save(
@@ -548,12 +572,24 @@ def main() -> None:
     ap.add_argument("--learning-rate", type=float, default=None)
     ap.add_argument("--base-checkpoint", default=None)
     ap.add_argument("--checkpoint-dir", default=None)
-    ap.add_argument("--max-val-batches", type=int, default=None,
-                    help="cap validation batches (smoke tests; 0/None = all)")
-    ap.add_argument("--no-samples", dest="generate_samples", action="store_false",
-                    help="skip post-training sample generation")
-    ap.add_argument("--no-streaming", dest="streaming", action="store_false",
-                    help="load full JSONL into RAM instead of streaming")
+    ap.add_argument(
+        "--max-val-batches",
+        type=int,
+        default=None,
+        help="cap validation batches (smoke tests; 0/None = all)",
+    )
+    ap.add_argument(
+        "--no-samples",
+        dest="generate_samples",
+        action="store_false",
+        help="skip post-training sample generation",
+    )
+    ap.add_argument(
+        "--no-streaming",
+        dest="streaming",
+        action="store_false",
+        help="load full JSONL into RAM instead of streaming",
+    )
     args = ap.parse_args()
 
     configure_backend(args.device)

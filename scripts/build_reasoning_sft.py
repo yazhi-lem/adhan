@@ -32,13 +32,13 @@ import json
 import random
 import sys
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from adhan_slm import protocol as p
-from adhan_slm.core.logging import get_logger
+from adhan_slm import protocol as p  # noqa: E402
+from adhan_slm.core.logging import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -110,6 +110,7 @@ TAMIL_REASONING_TEMPLATES: Dict[str, List[str]] = {
 
 # --- Synthetic task generators ----------------------------------------------
 
+
 def _rand_sandhi_task() -> Tuple[str, str, dict]:
     """Generate a sandhi reasoning example."""
     pairs = [
@@ -162,10 +163,14 @@ def _rand_tinai_task() -> Tuple[str, str, dict]:
         ("பாலை", "வறண்ட நிலம், பிரிவு, பகல், பாலை"),
     ]
     tinai, clues = random.choice(tinais)
-    prompt = (f"பயனர்: ஒரு சங்கப் பாடலில் {clues} பற்றிய குறிப்புகள் உள்ளன. "
-              f"இந்தப் பாடலின் திணை எது?\nஉதவியாளர்:")
+    prompt = (
+        f"பயனர்: ஒரு சங்கப் பாடலில் {clues} பற்றிய குறிப்புகள் உள்ளன. "
+        f"இந்தப் பாடலின் திணை எது?\nஉதவியாளர்:"
+    )
     thought = f"இந்தப் பாடலின் சூழலைப் பார்க்கும்போது {clues} குறிப்பிடப்பட்டுள்ளன."
-    rationalize = f"{tinai} திணையில் {clues} முக்கிய அம்சங்கள். எனவே இந்தப் பாடல் {tinai} திணையைச் சேர்ந்தது."
+    rationalize = (
+        f"{tinai} திணையில் {clues} முக்கிய அம்சங்கள். எனவே இந்தப் பாடல் {tinai} திணையைச் சேர்ந்தது."
+    )
     reflect = f"வேறு திணைகளில் இந்த அம்சங்கள் இருக்கின்றனவா என்று சரிபார்க்கிறேன். இல்லை, {tinai} தான் சரியானது."
     return prompt, tinai, {"thought": thought, "rationalize": rationalize, "reflect": reflect}
 
@@ -186,6 +191,7 @@ def _rand_refusal_task() -> Tuple[str, str, dict]:
 
 
 # --- Enrichment: add reasoning to existing SFT data -------------------------
+
 
 def enrich_with_reasoning(input_path: str, output_path: str) -> None:
     """Read existing SFT JSONL and add reasoning traces to each example."""
@@ -231,6 +237,7 @@ def enrich_with_reasoning(input_path: str, output_path: str) -> None:
 
 # --- Generation: create pure reasoning tasks -------------------------------
 
+
 def generate_reasoning_tasks(n_examples: int, out_path: Path) -> None:
     """Generate synthetic reasoning tasks from scratch."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -247,8 +254,10 @@ def generate_reasoning_tasks(n_examples: int, out_path: Path) -> None:
             gen = random.choices(generators, weights=weights)[0]
             prompt_text, answer, reasoning = gen()
             # Build full prompt with system + user
-            system = ("நீ ஒரு தமிழ் உதவியாளர். ஒவ்வொரு கேள்விக்கும் சிந்தித்து, "
-                      "ஆய்வு செய்து, பரிசீலனை செய்து பின் பதில் சொல்.")
+            system = (
+                "நீ ஒரு தமிழ் உதவியாளர். ஒவ்வொரு கேள்விக்கும் சிந்தித்து, "
+                "ஆய்வு செய்து, பரிசீலனை செய்து பின் பதில் சொல்."
+            )
             full_prompt = f"{p.SYSTEM} {system}\n{prompt_text}"
             target = p.render_target(
                 answer=answer,
@@ -271,6 +280,7 @@ def generate_reasoning_tasks(n_examples: int, out_path: Path) -> None:
 
 
 # --- Main -------------------------------------------------------------------
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build reasoning-heavy Tamil SFT data")
