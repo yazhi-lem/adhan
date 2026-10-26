@@ -14,9 +14,13 @@ from __future__ import annotations
 
 import pytest
 
-from adhan_slm.tokenizer import indic_akshara
-from adhan_slm.tokenizer.fast_bpe import AksharaBPE
-from adhan_slm.tokenizer.swaram_tokenizer import (
+# The Rust BPE needs the optional `tokenizers` package (the "benchmark" extra);
+# skip cleanly when it is not installed, as the jax-only tests do.
+pytest.importorskip("tokenizers")
+
+from adhan_slm.tokenizer import indic_akshara  # noqa: E402
+from adhan_slm.tokenizer.fast_bpe import AksharaBPE  # noqa: E402
+from adhan_slm.tokenizer.swaram_tokenizer import (  # noqa: E402
     BYTE_TOKENS,
     WORD_MARK,
     default_akshara_inventory,
