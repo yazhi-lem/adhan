@@ -17,8 +17,8 @@ CLI பயன்பாடு:
 
 from __future__ import annotations
 
+import sys
 import unicodedata
-from pathlib import Path
 from typing import List
 
 from adhan_slm.core.logging import get_logger

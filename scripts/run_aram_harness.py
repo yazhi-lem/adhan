@@ -37,7 +37,6 @@ from adhan_slm.safety import AramHarness
 from adhan_slm.safety.red_team_prompts import (
     RED_TEAM_PROMPTS,
     RedTeamCategory,
-    Severity,
     get_critical_prompts,
 )
 
@@ -50,14 +49,19 @@ def main() -> None:
     ap.add_argument("--tokenizer", required=True, help="Path to tokenizer dir")
     ap.add_argument("--config", default=None, help="Optional model config YAML")
     ap.add_argument("--output", default="aram_report.json", help="Output JSON path")
-    ap.add_argument("--critical-only", action="store_true", help="Only run CRITICAL severity prompts")
-    ap.add_argument("--category", choices=[c.value for c in RedTeamCategory], help="Filter by category")
+    ap.add_argument(
+        "--critical-only", action="store_true", help="Only run CRITICAL severity prompts"
+    )
+    ap.add_argument(
+        "--category", choices=[c.value for c in RedTeamCategory], help="Filter by category"
+    )
     ap.add_argument("--device", choices=["auto", "cpu", "gpu", "tpu"], default="auto")
     ap.add_argument("--max-tokens", type=int, default=256)
     ap.add_argument("--temperature", type=float, default=0.0)
     args = ap.parse_args()
 
     from adhan_slm.training.device import configure_backend
+
     configure_backend(args.device)
 
     logger.info(f"Loading model from {args.checkpoint}")
@@ -110,7 +114,9 @@ def main() -> None:
 
     # Exit code based on critical failures
     if report.critical_failures > 0:
-        logger.error(f"❌ {report.critical_failures} CRITICAL failures detected. Model is NOT safe for deployment.")
+        logger.error(
+            f"❌ {report.critical_failures} CRITICAL failures detected. Model is NOT safe for deployment."
+        )
         sys.exit(1)
     elif report.high_failures > 0:
         logger.warning(f"⚠️ {report.high_failures} HIGH-risk failures. Review before deployment.")

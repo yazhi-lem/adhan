@@ -46,15 +46,18 @@ from typing import Dict, Iterable, Iterator, List, Set, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from adhan_slm.core.logging import get_logger
+from adhan_slm.core.logging import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
 
 try:
     import xxhash
+
     def _h64(data: bytes) -> int:
         return xxhash.xxh64_intdigest(data)
+
 except Exception:
+
     def _h64(data: bytes) -> int:
         return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), "big")
 
@@ -111,9 +114,18 @@ def is_quality(
     if text.count("<") > max_markup or text.count("|") > n * max_pipe_ratio:
         return False
     # Block common boilerplate patterns
-    boiler = ["javascript", "cookie", "privacy policy", "terms of use",
-              "all rights reserved", "click here to", "subscribe now",
-              "பதிவு செய்ய", "விளம்பரம்", "advertisement"]
+    boiler = [
+        "javascript",
+        "cookie",
+        "privacy policy",
+        "terms of use",
+        "all rights reserved",
+        "click here to",
+        "subscribe now",
+        "பதிவு செய்ய",
+        "விளம்பரம்",
+        "advertisement",
+    ]
     lower = text.lower()
     if sum(1 for b in boiler if b in lower) >= 3:
         return False
@@ -145,11 +157,10 @@ class LshDedup:
         self._b = [(i * 0xBF58476D1CE4E5B9 + 1) % (2**64) for i in range(num_perm)]
 
     def _shingles(self, text: str) -> Set[int]:
-        clean = text[:self.max_chars]
+        clean = text[: self.max_chars]
         if len(clean) < self.k:
             return {_h64(clean.encode("utf-8"))} if clean else set()
-        return {_h64(clean[i:i+self.k].encode("utf-8"))
-                for i in range(len(clean) - self.k + 1)}
+        return {_h64(clean[i : i + self.k].encode("utf-8")) for i in range(len(clean) - self.k + 1)}
 
     def _signature(self, shingles: Set[int]) -> Tuple[int, ...]:
         if not shingles:
@@ -177,7 +188,7 @@ class LshDedup:
         keys: List[Tuple[int, Tuple[int, ...]]] = []
         for band in range(self.bands):
             start = band * self.rows
-            key = sig[start:start + self.rows]
+            key = sig[start : start + self.rows]
             keys.append((band, key))
             bucket = self.buckets[band].get(key)
             if bucket:
@@ -195,6 +206,7 @@ class LshDedup:
 
 
 # --- Source readers ---------------------------------------------------------
+
 
 def _iter_strings(obj) -> Iterator[str]:
     if isinstance(obj, str):
@@ -256,10 +268,12 @@ def iter_local_corpus(roots: Iterable[Path]) -> Iterator[Dict]:
 
 # --- HuggingFace dataset streams -------------------------------------------
 
+
 def iter_wikipedia(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming Tamil Wikipedia (limit={limit:,})")
     ds = load_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
     n = 0
@@ -277,6 +291,7 @@ def iter_indiccorp(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming IndicCorpV2 tam_Taml (limit={limit:,})")
     ds = load_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
     n = 0
@@ -294,6 +309,7 @@ def iter_fineweb2(limit: int, min_lang_score: float = 0.88) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming FineWeb-2 tam_Taml (limit={limit:,})")
     ds = load_dataset("HuggingFaceFW/fineweb-2", "tam_Taml", split="train", streaming=True)
     n = 0
@@ -303,8 +319,12 @@ def iter_fineweb2(limit: int, min_lang_score: float = 0.88) -> Iterator[Dict]:
             continue
         text = normalize(row.get("text", ""))
         if is_quality(text, min_chars=60, min_tamil_ratio=0.60):
-            yield {"text": text, "source": "fineweb-2", "tier": 3,
-                   "quality_score": round(min(0.95, float(score or 0.85)), 4)}
+            yield {
+                "text": text,
+                "source": "fineweb-2",
+                "tier": 3,
+                "quality_score": round(min(0.95, float(score or 0.85)), 4),
+            }
             n += 1
             if n >= limit:
                 break
@@ -316,6 +336,7 @@ def iter_mc4(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming mC4/ta (limit={limit:,})")
     # mC4 uses 'ta' language code
     ds = load_dataset("allenai/c4", "ta", split="train", streaming=True)
@@ -336,6 +357,7 @@ def iter_cc100(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming CC-100 tam (limit={limit:,})")
     ds = load_dataset("facebook/cc100", "ta", split="train", streaming=True)
     n = 0
@@ -354,6 +376,7 @@ def iter_oscar(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming OSCAR unshuffled/deduplicated ta (limit={limit:,})")
     ds = load_dataset("oscar-corpus/OSCAR-2301", "ta", split="train", streaming=True)
     n = 0
@@ -372,6 +395,7 @@ def iter_tamil_news(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming Tamil News (limit={limit:,})")
     # Try multiple news datasets
     datasets_to_try = [
@@ -402,6 +426,7 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     from datasets import load_dataset
+
     logger.info(f"streaming Tamil Books (limit={limit:,})")
     datasets_to_try = [
         "Tamil-NLP/Tamil_Books",
@@ -427,6 +452,7 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
 
 # --- Orchestration ----------------------------------------------------------
 
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Expand Adhan Tamil corpus — Phase 2 mega-ingestion")
     ap.add_argument("--out-dir", default="data/raw/expanded_v2")
@@ -443,13 +469,19 @@ def main() -> None:
     ap.add_argument("--oscar-limit", type=int, default=0)
     ap.add_argument("--news-limit", type=int, default=0)
     ap.add_argument("--books-limit", type=int, default=0)
-    ap.add_argument("--local-roots", default=",".join([
-        str(ROOT.parent / "open-sangam" / "data" / "texts"),
-        str(ROOT.parent / "data" / "texts"),
-    ]))
+    ap.add_argument(
+        "--local-roots",
+        default=",".join(
+            [
+                str(ROOT.parent / "open-sangam" / "data" / "texts"),
+                str(ROOT.parent / "data" / "texts"),
+            ]
+        ),
+    )
     ap.add_argument("--no-local", action="store_true")
-    ap.add_argument("--seed-v1", default="data/raw/expanded",
-                    help="path to v1 corpus for cross-version dedup")
+    ap.add_argument(
+        "--seed-v1", default="data/raw/expanded", help="path to v1 corpus for cross-version dedup"
+    )
     args = ap.parse_args()
 
     # --full sets all major sources
@@ -471,8 +503,11 @@ def main() -> None:
     state = json.loads(state_path.read_text()) if (args.resume and state_path.exists()) else {}
     done: Set[str] = set(state.get("done_sources", []))
 
-    local_roots = [Path(p) for p in args.local_roots.split(",")
-                   if p.strip() and Path(p).resolve() != out_dir.resolve()]
+    local_roots = [
+        Path(p)
+        for p in args.local_roots.split(",")
+        if p.strip() and Path(p).resolve() != out_dir.resolve()
+    ]
 
     sources: List[Tuple[str, Iterable[Dict]]] = []
     if not args.no_local:
@@ -566,8 +601,14 @@ def main() -> None:
                         f"top={counts.most_common(3)}"
                     )
                     fh.flush()
-                    state.update({"done_sources": sorted(done), "kept": kept,
-                                  "shards": shard_idx + 1, "chars": chars_kept})
+                    state.update(
+                        {
+                            "done_sources": sorted(done),
+                            "kept": kept,
+                            "shards": shard_idx + 1,
+                            "chars": chars_kept,
+                        }
+                    )
                     state_path.write_text(json.dumps(state, indent=2))
             done.add(name)
     finally:

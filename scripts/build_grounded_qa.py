@@ -63,9 +63,7 @@ def main() -> None:
         if not path.exists():
             sys.exit(f"IndicQA file not found: {path}")
         records = grounded_qa.load_indicqa(path)
-        by_context = _split_rows(
-            records, lambda r: r["context_id"], args.val_frac, args.test_frac
-        )
+        by_context = _split_rows(records, lambda r: r["context_id"], args.val_frac, args.test_frac)
         examples = {
             split: grounded_qa.build_indicqa_split(
                 rows, split, seed=args.seed, unanswerable_frac=args.unanswerable
@@ -86,9 +84,7 @@ def main() -> None:
             seed=args.seed,
             max_examples=args.max_examples,
         )
-        examples = _split_rows(
-            rows, lambda e: e["meta"]["doc_id"], args.val_frac, args.test_frac
-        )
+        examples = _split_rows(rows, lambda e: e["meta"]["doc_id"], args.val_frac, args.test_frac)
 
     out = ROOT / args.out_dir
     for split, rows in examples.items():

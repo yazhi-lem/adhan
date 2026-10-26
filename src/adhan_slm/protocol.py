@@ -54,10 +54,10 @@ USER = "பயனர்:"
 ASSISTANT = "உதவியாளர்:"
 
 # Reasoning markers (v1 — structured Tamil reasoning)
-THOUGHT = "சிந்தனை:"          # Initial analysis
-RATIONALIZE = "ஆய்வு:"         # Step-by-step investigation
-REFLECT = "பரிசீலனை:"          # Self-correction, doubt, admission of uncertainty
-ANSWER = "பதில்:"              # Final output
+THOUGHT = "சிந்தனை:"  # Initial analysis
+RATIONALIZE = "ஆய்வு:"  # Step-by-step investigation
+REFLECT = "பரிசீலனை:"  # Self-correction, doubt, admission of uncertainty
+ANSWER = "பதில்:"  # Final output
 
 # Legacy marker for backward compatibility
 THOUGHT_LEGACY = "சிந்தனை:"
@@ -165,8 +165,9 @@ def render_example(
     """Return ``(prompt, target)`` for one supervised example."""
     return (
         render_prompt(messages, system),
-        render_target(answer, thought=thought, rationalize=rationalize,
-                      reflect=reflect, citations=citations),
+        render_target(
+            answer, thought=thought, rationalize=rationalize, reflect=reflect, citations=citations
+        ),
     )
 
 
@@ -189,7 +190,11 @@ def parse_response(text: str) -> dict:
         answer = after.strip()
         # Parse reasoning sections before the answer
         remaining = before.strip()
-        for marker, key in [(REFLECT, "reflect"), (RATIONALIZE, "rationalize"), (THOUGHT, "thought")]:
+        for marker, key in [
+            (REFLECT, "reflect"),
+            (RATIONALIZE, "rationalize"),
+            (THOUGHT, "thought"),
+        ]:
             if marker in remaining:
                 parts = remaining.split(marker, 1)
                 remaining = parts[0].strip()
@@ -246,17 +251,17 @@ def build_reasoning_mask(token_ids: List[int], tok) -> List[float]:
         return tok.encode(marker_text, add_special=False)
 
     ans_ids = _marker_ids(ANSWER)
-    reason_ids = [_marker_ids(m) for m in REASONING_MARKERS]
+    reason_ids = [_marker_ids(m) for m in REASONING_MARKERS]  # noqa: F841 (not yet used in mask)
 
     mask = [0.0] * len(token_ids)
     in_answer = False
 
     i = 0
     while i < len(token_ids):
-        tid = token_ids[i]
+        tid = token_ids[i]  # noqa: F841
         # Check if we're at the answer marker
         if not in_answer:
-            if token_ids[i:i + len(ans_ids)] == ans_ids:
+            if token_ids[i : i + len(ans_ids)] == ans_ids:
                 in_answer = True
                 i += len(ans_ids)
                 continue

@@ -38,15 +38,20 @@ class ModelLoadingError(RuntimeError):
 # Request / Response schemas
 # --------------------------------------------------------------------------- #
 
+
 class AdhanRequest(BaseModel):
     """Request schema for Adhan inference endpoints."""
 
     text: str = Field(..., description="Input Tamil text to process")
-    max_length: Optional[int] = Field(None, ge=1, le=2048, description="Maximum length for generation")
+    max_length: Optional[int] = Field(
+        None, ge=1, le=2048, description="Maximum length for generation"
+    )
     temperature: Optional[float] = Field(0.7, ge=0.0, le=2.0, description="Sampling temperature")
     top_k: Optional[int] = Field(50, ge=1, le=10000, description="Top-k sampling")
     top_p: Optional[float] = Field(0.9, ge=0.0, le=1.0, description="Top-p nucleus sampling")
-    repetition_penalty: Optional[float] = Field(1.0, ge=1.0, le=2.0, description="Repetition penalty")
+    repetition_penalty: Optional[float] = Field(
+        1.0, ge=1.0, le=2.0, description="Repetition penalty"
+    )
 
     @field_validator("text")
     @classmethod
@@ -111,6 +116,7 @@ class ErrorResponse(BaseModel):
 # Rate limiter: token bucket per client IP
 # --------------------------------------------------------------------------- #
 
+
 class TokenBucket:
     """Thread-safe token bucket for per-IP rate limiting."""
 
@@ -125,7 +131,9 @@ class TokenBucket:
         now = time.monotonic()
         async with self._lock:
             last = self._last.get(key, now)
-            bucket = min(self.capacity, self._tokens.get(key, self.capacity) + self.rate * (now - last))
+            bucket = min(
+                self.capacity, self._tokens.get(key, self.capacity) + self.rate * (now - last)
+            )
             self._last[key] = now
             if bucket >= tokens:
                 self._tokens[key] = bucket - tokens
@@ -137,6 +145,7 @@ class TokenBucket:
 # --------------------------------------------------------------------------- #
 # Inference API
 # --------------------------------------------------------------------------- #
+
 
 class AdhanInferenceAPI:
     """Inference API for Adhan SLM models.
@@ -455,6 +464,7 @@ class AdhanInferenceAPI:
 # FastAPI app factory
 # --------------------------------------------------------------------------- #
 
+
 def create_app(
     model_name: str = "adhan-nano",
     checkpoint_dir: Optional[str] = None,
@@ -466,7 +476,6 @@ def create_app(
     """Create a configured FastAPI application."""
     try:
         from fastapi import FastAPI, HTTPException, Request, status
-        from fastapi.responses import JSONResponse
     except ImportError as e:
         raise ImportError(
             f"FastAPI is required for serving: {e}. Install: pip install fastapi uvicorn"
@@ -578,8 +587,11 @@ def create_app(
                 loop.run_in_executor(
                     None,
                     lambda: generate_text(
-                        api.model, api.params, api.tokenizer,
-                        prompt=request.text, **gen_kw,
+                        api.model,
+                        api.params,
+                        api.tokenizer,
+                        prompt=request.text,
+                        **gen_kw,
                     ),
                 ),
                 timeout=api._generation_timeout_sec,

@@ -27,7 +27,6 @@ from __future__ import annotations
 import argparse
 import functools
 import math
-import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -401,9 +400,7 @@ def train(
     # which is what "train this checkpoint for N more updates" actually means.
     warm_restart = bool(tcfg.get("warm_restart_on_resume", False)) and completed > 0
     if warm_restart:
-        state = train_state.TrainState.create(
-            apply_fn=model.apply, params=state.params, tx=tx
-        )
+        state = train_state.TrainState.create(apply_fn=model.apply, params=state.params, tx=tx)
         logger.info(
             "warm restart: kept params from step %d, reset optimizer + LR schedule "
             "(peak %.2e over %d updates)",

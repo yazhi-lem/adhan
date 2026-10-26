@@ -194,12 +194,12 @@ try:
                 # reshape to add a unit axis and let XLA broadcast. This keeps
                 # the K/V activation memory at kv_heads instead of n_heads.
                 groups = c.n_heads // kvh
-                k = jnp.broadcast_to(
-                    k[:, :, :, None, :], (b, t, kvh, groups, dh)
-                ).reshape(b, t, c.n_heads, dh)
-                v = jnp.broadcast_to(
-                    v[:, :, :, None, :], (b, t, kvh, groups, dh)
-                ).reshape(b, t, c.n_heads, dh)
+                k = jnp.broadcast_to(k[:, :, :, None, :], (b, t, kvh, groups, dh)).reshape(
+                    b, t, c.n_heads, dh
+                )
+                v = jnp.broadcast_to(v[:, :, :, None, :], (b, t, kvh, groups, dh)).reshape(
+                    b, t, c.n_heads, dh
+                )
 
             if _HAS_FUSED_ATTN:
                 o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
