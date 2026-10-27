@@ -410,29 +410,69 @@ class TokenSpan:
 
 @dataclass
 class BoundaryReport:
-    """Agreement between a tokenizer's piece boundaries and morpheme boundaries."""
+    """How a tokenizer's piece boundaries relate to stem/suffix boundaries.
+
+    Three outcomes are distinguished, because they mean different things:
+
+    * **exact** — a token boundary lands exactly on the stem|suffix break
+      (``மரங்`` + ``கள்``). Ideal for morphology-aware modelling.
+    * **whole-word** — the word is emitted as a single token. No boundary is
+      cut, so the morphemes are preserved *inside* the token; high compression
+      legitimately produces this, and penalising it (as the old single-number
+      metric did) conflates "compressed" with "morphologically blind".
+    * **cut** — some internal token boundary falls strictly inside the stem or
+      inside the suffix (``மரங்க`` + ``ள்``). This is the actual defect: the
+      tokenizer has learned to split a morpheme apart.
+    """
 
     n_words: int = 0
     n_with_suffix: int = 0
     n_agree: int = 0
+    n_whole_word: int = 0
+    n_cut: int = 0
     examples: List[str] = None  # type: ignore[assignment]
+    cut_examples: List[str] = None  # type: ignore[assignment]
 
     def __post_init__(self) -> None:
         if self.examples is None:
             self.examples = []
+        if self.cut_examples is None:
+            self.cut_examples = []
 
     @property
     def agreement_rate(self) -> float:
+        """Exact-boundary rate (kept for backward compatibility)."""
         return self.n_agree / self.n_with_suffix if self.n_with_suffix else float("nan")
+
+    @property
+    def exact_rate(self) -> float:
+        return self.agreement_rate
+
+    @property
+    def whole_word_rate(self) -> float:
+        return self.n_whole_word / self.n_with_suffix if self.n_with_suffix else float("nan")
+
+    @property
+    def cut_rate(self) -> float:
+        """Share of suffixed words where a token boundary cuts a morpheme."""
+        return self.n_cut / self.n_with_suffix if self.n_with_suffix else float("nan")
+
+    @property
+    def integrity_rate(self) -> float:
+        """Share of suffixed words with *no* morpheme cut (exact or whole-word)."""
+        if not self.n_with_suffix:
+            return float("nan")
+        return (self.n_agree + self.n_whole_word) / self.n_with_suffix
 
 
 def boundary_agreement(tokenizer, words: Sequence[str], max_examples: int = 20) -> BoundaryReport:
-    """Fraction of suffixed words where a token boundary lands on the stem break.
+    """Classify suffixed words by how token boundaries meet morpheme boundaries.
 
     ``tokenizer`` only needs ``.tokenize(text) -> list[str]`` (both SwaramTokenizer
-    and AksharaBPE satisfy this). This is the dependency-free counterpart of the
-    open-tamil-based probe in ``eval/morphology.py``: same measurement, but it
-    works without open-tamil installed and uses our own suffix table.
+    and AksharaBPE satisfy this). See :class:`BoundaryReport` for the three
+    outcomes. ``agreement_rate`` remains the exact-boundary rate so existing
+    callers keep their meaning; use ``integrity_rate`` / ``cut_rate`` to judge
+    whether the tokenizer actually damages morphology.
     """
     report = BoundaryReport()
     for word in words:
@@ -443,16 +483,24 @@ def boundary_agreement(tokenizer, words: Sequence[str], max_examples: int = 20) 
         report.n_with_suffix += 1
         boundary = len(stem)
 
+        pieces = tokenizer.tokenize(word)
         offset = 0
         boundaries = set()
-        for piece in tokenizer.tokenize(word):
+        for piece in pieces:
             offset += len(piece)
             boundaries.add(offset)
 
         if boundary in boundaries:
             report.n_agree += 1
-        elif len(report.examples) < max_examples:
-            report.examples.append(word)
+        elif len(pieces) == 1:
+            # Whole word preserved as one token: morphemes are intact inside it.
+            report.n_whole_word += 1
+            if len(report.examples) < max_examples:
+                report.examples.append(word)
+        else:
+            report.n_cut += 1
+            if len(report.cut_examples) < max_examples:
+                report.cut_examples.append(word)
     return report
 
 

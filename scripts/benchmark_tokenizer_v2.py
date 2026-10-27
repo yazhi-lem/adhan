@@ -132,6 +132,9 @@ def run_one(name: str, path: Path, docs: Sequence[str], words: Sequence[str]) ->
         "unk_docs": unk_docs,
         "kchar_per_s": n_chars / elapsed / 1000 if elapsed else 0,
         "morph_agreement": report.agreement_rate,
+        "morph_whole": report.whole_word_rate,
+        "morph_cut": report.cut_rate,
+        "morph_integrity": report.integrity_rate,
         "morph_words": report.n_with_suffix,
         "n_aksharas": n_aks,
     }
@@ -155,13 +158,13 @@ def render(rows: Sequence[dict], docs: int, chars: int) -> str:
         "",
         f"- documents: **{docs:,}**  ·  characters: **{chars:,}**",
         "",
-        "| artifact | backend | vocab | fertility (tok/akshara) | tokens/doc | lossless | `<unk>` docs | throughput | morph. agreement |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| artifact | backend | vocab | fertility (tok/akshara) | tokens/doc | lossless | `<unk>` docs | throughput | morph exact | whole-word | cut |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         lines.append(
             "| {name} | {backend} | {vocab:,} | {fert:.3f} | {tpd:.1f} | {ll} | {unk} | "
-            "{kcs:,.0f} kchar/s | {morph} (n={nw}) |".format(
+            "{kcs:,.0f} kchar/s | {me} | {mw} | {mc} |".format(
                 name=r["name"],
                 backend=r["backend"],
                 vocab=r["vocab"],
@@ -170,8 +173,9 @@ def render(rows: Sequence[dict], docs: int, chars: int) -> str:
                 ll=pct(r["lossless_rate"]),
                 unk=r["unk_docs"],
                 kcs=r["kchar_per_s"],
-                morph=pct(r["morph_agreement"]) if r["morph_words"] else "n/a",
-                nw=r["morph_words"],
+                me=pct(r["morph_agreement"]) if r["morph_words"] else "n/a",
+                mw=pct(r["morph_whole"]) if r["morph_words"] else "n/a",
+                mc=pct(r["morph_cut"]) if r["morph_words"] else "n/a",
             )
         )
     lines += [
@@ -183,9 +187,11 @@ def render(rows: Sequence[dict], docs: int, chars: int) -> str:
         "- **lossless** is byte-exact `decode(encode(text)) == text`. Artifacts built with",
         "  byte fallback round-trip any script; an artifact without it collapses unknown",
         "  characters to `<unk>` and cannot round-trip.",
-        "- **morph. agreement** = share of suffixed words whose token boundary lands exactly",
-        "  on the stem/suffix break (`tokenizer/morphology.py`), i.e. whether Layer B merges",
-        "  respect Tamil morphology rather than cutting through it.",
+        "- **morph exact / whole-word / cut** = how token boundaries meet the stem/suffix",
+        "  break (`tokenizer/morphology.py`): *exact* = boundary on the break; *whole-word* =",
+        "  the word is one token, so morphemes are intact inside it; *cut* = a boundary falls",
+        "  strictly inside a morpheme. `cut` is the defect to minimise; high `whole-word` is a",
+        "  legitimate consequence of compression, not a failure.",
         "- **throughput** is single-process encode on this machine; it is the number that",
         "  decides whether packing the 1.06G-character archive takes minutes or a day.",
     ]
