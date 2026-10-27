@@ -108,7 +108,8 @@ def shard_batch(batch, mesh, axis_name: str = "dp"):
     if mesh is None:
         return batch
     import jax
-    from jax.sharding import NamedSharding, PartitionSpec as P
+    from jax.sharding import NamedSharding
+    from jax.sharding import PartitionSpec as P
 
     sharding = NamedSharding(mesh, P(axis_name))
     return jax.device_put(batch, sharding)
@@ -119,7 +120,8 @@ def replicate_params(params, mesh, axis_name: str = "dp"):
     if mesh is None:
         return params
     import jax
-    from jax.sharding import NamedSharding, PartitionSpec as P
+    from jax.sharding import NamedSharding
+    from jax.sharding import PartitionSpec as P
 
     sharding = NamedSharding(mesh, P())
     return jax.device_put(params, sharding)

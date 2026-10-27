@@ -30,9 +30,7 @@ def tokenizer() -> SwaramTokenizer:
     # byte_fallback=True mirrors scripts/freeze_fast_tokenizer.py, whose default is
     # byte fallback on. Without it, characters absent from the training corpus
     # (punctuation, digits, rare aksharas) collapse to <unk> and break round-trip.
-    return SwaramTokenizer.train(
-        SAMPLE_CORPUS, vocab_size=2048, min_freq=1, byte_fallback=True
-    )
+    return SwaramTokenizer.train(SAMPLE_CORPUS, vocab_size=2048, min_freq=1, byte_fallback=True)
 
 
 @pytest.mark.parametrize("text", SAMPLE_CORPUS)

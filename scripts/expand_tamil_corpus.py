@@ -49,7 +49,8 @@ from typing import Dict, Iterable, Iterator, List, Set, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from _hf_pins import describe_pins, load_tamil_dataset
+from _hf_pins import describe_pins, load_tamil_dataset  # noqa: E402
+
 from adhan_slm.core.logging import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
@@ -301,7 +302,9 @@ def iter_indiccorp(limit: int) -> Iterator[Dict]:
         return
 
     logger.info(f"streaming IndicCorpV2 tam_Taml (limit={limit:,})")
-    ds = load_tamil_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
+    ds = load_tamil_dataset(
+        "ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True
+    )
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))

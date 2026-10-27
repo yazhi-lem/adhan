@@ -16,10 +16,10 @@ from adhan_slm.training.sharding import (
     make_data_parallel_mesh,
 )
 
-
 # --------------------------------------------------------------------------- #
 # Reasoning-aware mask
 # --------------------------------------------------------------------------- #
+
 
 class FakeTokenizer:
     """Minimal tokenizer good enough for mask tests.
@@ -93,7 +93,6 @@ def test_reasoning_mask_ignores_answer_word_in_prompt(proto_tok):
     row = {"id": "t2", "task": "x", "prompt": prompt, "target": target}
     examples, _ = encode_examples([row], proto_tok, max_seq_len=512)
     ex = examples[0]
-    ids = ex["input_ids"].tolist()
     mask = ex["mask"].tolist()
 
     # First supervised index must be inside the *target*, i.e. after the prompt.
@@ -106,6 +105,7 @@ def test_reasoning_mask_ignores_answer_word_in_prompt(proto_tok):
 # --------------------------------------------------------------------------- #
 # Sharding helpers
 # --------------------------------------------------------------------------- #
+
 
 def test_single_device_mesh_is_disabled():
     mesh, info = make_data_parallel_mesh(1)
@@ -132,6 +132,7 @@ def test_sharding_info_params():
 # KV cache correctness
 # --------------------------------------------------------------------------- #
 
+
 def test_kv_cache_matches_full_forward():
     """Cached single-token decoding must equal a full-sequence forward pass."""
     jax = pytest.importorskip("jax")
@@ -139,8 +140,16 @@ def test_kv_cache_matches_full_forward():
     pytest.importorskip("flax")
     from adhan_slm.model import AdhanConfig, AdhanSLM
 
-    cfg = AdhanConfig(vocab_size=64, d_model=32, n_layers=2, n_heads=4, d_ff=64,
-                      max_seq_len=32, dtype="float32", dropout=0.0)
+    cfg = AdhanConfig(
+        vocab_size=64,
+        d_model=32,
+        n_layers=2,
+        n_heads=4,
+        d_ff=64,
+        max_seq_len=32,
+        dtype="float32",
+        dropout=0.0,
+    )
     model = AdhanSLM(cfg)
     rng = jax.random.PRNGKey(0)
     ids = jax.random.randint(rng, (1, 6), 1, cfg.vocab_size, dtype=jnp.int32)
@@ -159,7 +168,6 @@ def test_kv_cache_matches_full_forward():
 
     # Prefill last position predicts token 5; cached step predicts token 6.
     # full[0, 4] predicts token 5; full[0, 5] predicts token 6.
-    import numpy as np
     np.testing.assert_allclose(
         np.asarray(logits_prefill[0, -1]), np.asarray(full[0, 4]), rtol=1e-3, atol=1e-3
     )

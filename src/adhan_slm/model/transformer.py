@@ -248,7 +248,9 @@ try:
                     att = jax.nn.softmax(att, axis=-1)
                     o = (att @ vT).transpose(0, 2, 1, 3)
             elif _HAS_FUSED_ATTN:
-                o = jax.nn.dot_product_attention(q, k_full, v_full, is_causal=True, implementation=None)
+                o = jax.nn.dot_product_attention(
+                    q, k_full, v_full, is_causal=True, implementation=None
+                )
             else:
                 qT, kT, vT = (a.transpose(0, 2, 1, 3) for a in (q, k_full, v_full))
                 att = (qT @ kT.transpose(0, 1, 3, 2)) / jnp.sqrt(dh)
@@ -464,6 +466,7 @@ try:
         # token). Fixed-size cache buffers keep the decode shape stable, so the
         # second and later tokens reuse the same executable.
         if use_cache:
+
             @jax.jit
             def _prefill(p, toks):
                 return model.apply(p, toks, cache=None, offset=jnp.asarray(0), return_cache=True)
@@ -477,9 +480,7 @@ try:
                 if cache is None:
                     feed = ids[-ctx:]
                     offset = 0
-                    logits, cache = _prefill(
-                        pparams, jnp.asarray([feed], dtype=jnp.int32)
-                    )
+                    logits, cache = _prefill(pparams, jnp.asarray([feed], dtype=jnp.int32))
                     offset += len(feed)
                 else:
                     logits, cache = _decode(

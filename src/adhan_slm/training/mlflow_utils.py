@@ -56,7 +56,7 @@ def _ensure_sqlite_schema(uri: str) -> None:
     if not uri.startswith("sqlite:"):
         return
     try:
-        from mlflow.store.db.utils import _get_schema_version, _get_alembic_config
+        from mlflow.store.db.utils import _get_alembic_config, _get_schema_version
     except Exception:  # private API moved between mlflow versions
         return
     try:

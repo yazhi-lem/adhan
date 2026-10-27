@@ -128,8 +128,11 @@ def test_resume_changes_weights(cpu_config, tmp_path_factory):
 
     ckpt = tmp_path_factory.mktemp("resume_weights_ckpt")
     first = cpu_config(
-        name="rw_a", checkpoint_dir=str(ckpt), max_steps=6,
-        checkpoint_every=3, eval_every=3,
+        name="rw_a",
+        checkpoint_dir=str(ckpt),
+        max_steps=6,
+        checkpoint_every=3,
+        eval_every=3,
     )
     train_jax.train(str(first))
     _, before, _ = load_model(checkpoint_dir=ckpt)
