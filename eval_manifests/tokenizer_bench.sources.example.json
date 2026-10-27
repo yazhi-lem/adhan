@@ -1,0 +1,31 @@
+{
+  "per_register": 500,
+  "seed": 13,
+  "min_chars": 15,
+  "max_chars": 300,
+  "sources": [
+    {
+      "id": "thirukkural",
+      "register": "classical",
+      "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "TODO: confirm the licence of the upstream dataset",
+      "url": "https://raw.githubusercontent.com/tk120404/thirukkural/master/thirukkural.json"
+    },
+    {
+      "id": "modern-tamil",
+      "register": "modern",
+      "path": "TODO: path to a modern Tamil jsonl/txt file",
+      "license": "TODO",
+      "url": "TODO"
+    },
+    {
+      "id": "tanglish",
+      "register": "tanglish",
+      "path": "TODO: path to a Tanglish jsonl/txt file",
+      "license": "TODO",
+      "url": "TODO"
+    }
+  ]
+}
