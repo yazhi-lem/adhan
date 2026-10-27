@@ -158,10 +158,10 @@ Phase 2 progress (corpus):
 | metric | value |
 |---|---|
 | v1 archive (baseline) | 1,334,126 docs · 1.06B chars · ~328M swaram tokens |
-| v2 archive (new, deduped vs v1) | 538,381 docs · 900M chars · ~281M swaram tokens |
-| combined | ~1.57M docs · ~1.96B chars · **~609M swaram tokens** |
+| v2 archive (new, deduped vs v1) | 538,562 docs · 901.6M chars · ~281.7M swaram tokens |
+| combined | ~1.57M docs · ~1.96B chars · **~609.7M swaram tokens** |
 | shards | 23 (data/raw/expanded_v2) |
-| sources that landed | mc4 198,864 · indiccorp 197,082 · fineweb-2 42,150 · local classical · wikipedia · tamilvu 850 · wikisource 77 |
+| sources that landed | mc4 198,864 · indiccorp 197,082 · fineweb-2 42,150 · local classical · wikipedia · tamilvu 976 · wikisource 77 |
 | sources unavailable | cc100 (script datasets no longer supported) · oscar (gated, needs HF_TOKEN) · news/books (0 accepted) |
 
 Digitised libraries are now part of the pipeline: `scripts/ingest_tamilvu.py`
