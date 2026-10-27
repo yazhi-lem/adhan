@@ -135,11 +135,17 @@ Phase 2 progress (corpus):
 | metric | value |
 |---|---|
 | v1 archive (baseline) | 1,334,126 docs · 1.06B chars · ~328M swaram tokens |
-| v2 archive (new, deduped vs v1) | 536,005 docs · 896M chars · ~280M swaram tokens |
-| combined | ~1.57M docs · ~1.95B chars · **~608M swaram tokens** |
+| v2 archive (new, deduped vs v1) | 538,381 docs · 900M chars · ~281M swaram tokens |
+| combined | ~1.57M docs · ~1.96B chars · **~609M swaram tokens** |
 | shards | 23 (data/raw/expanded_v2) |
-| sources that landed | mc4 198,864 · indiccorp 197,082 · fineweb-2 42,150 · local classical · wikipedia |
+| sources that landed | mc4 198,864 · indiccorp 197,082 · fineweb-2 42,150 · local classical · wikipedia · tamilvu 850 · wikisource 77 |
 | sources unavailable | cc100 (script datasets no longer supported) · oscar (gated, needs HF_TOKEN) · news/books (0 accepted) |
+
+Digitised libraries are now part of the pipeline: `scripts/ingest_tamilvu.py`
+(Tamil Virtual Academy — Sangam, grammar, epics, dictionaries) and
+`scripts/ingest_wikisource_ta.py` (Tamil Wikisource). See
+[`docs/DIGITAL_LIBRARIES.md`](docs/DIGITAL_LIBRARIES.md). Their output is merged
+through `data/raw/weblibs` and counted by `--recount-only`.
 
 To reach the 1.5–2B target, raise limits on the sources that work
 (`--indic-limit`, `--mc4-limit`, `--fineweb-limit`) and resume; `cc100`/`oscar`
