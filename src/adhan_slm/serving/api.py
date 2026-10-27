@@ -42,10 +42,13 @@ class ModelLoadingError(RuntimeError):
 class AdhanRequest(BaseModel):
     """Request schema for Adhan inference endpoints."""
 
-    text: str = Field(..., description="Input Tamil text to process")
-    max_length: Optional[int] = Field(
-        None, ge=1, le=2048, description="Maximum length for generation"
+    text: str = Field(
+        ...,
+        min_length=1,
+        max_length=16384,
+        description="Input Tamil text to process (max 16K chars)",
     )
+    max_length: Optional[int] = Field(None, ge=1, le=2048, description="Maximum length for generation")
     temperature: Optional[float] = Field(0.7, ge=0.0, le=2.0, description="Sampling temperature")
     top_k: Optional[int] = Field(50, ge=1, le=10000, description="Top-k sampling")
     top_p: Optional[float] = Field(0.9, ge=0.0, le=1.0, description="Top-p nucleus sampling")
@@ -166,6 +169,7 @@ class AdhanInferenceAPI:
         tokenizer: Optional[Any] = None,
         max_concurrent_generations: int = 8,
         generation_timeout_sec: float = 60.0,
+        defer_load: bool = False,
     ) -> None:
         """Initialize the inference API.
 
@@ -179,6 +183,9 @@ class AdhanInferenceAPI:
             tokenizer: Optional pre-loaded tokenizer instance
             max_concurrent_generations: Semaphore to bound concurrent generation CPU
             generation_timeout_sec: Wall-clock timeout for a single generate() call
+            defer_load: If True, do not attempt a synchronous load in the constructor;
+                the first request (or the server's background task) loads instead.
+                Default False preserves the eager, immediately-introspectable state.
         """
         self.model_name = model_name
         self.checkpoint_dir = checkpoint_dir or os.environ.get("ADHAN_CHECKPOINT_DIR")
@@ -195,26 +202,53 @@ class AdhanInferenceAPI:
         self._generation_timeout_sec = generation_timeout_sec
 
         logger.info(f"Initializing Adhan Inference API for {model_name}")
-        # Defer heavy loading to first request or background task
         self._loaded = False
         self._load_lock = asyncio.Lock()
 
+        if not defer_load:
+            # Eager path (legacy behaviour): try to load now so callers can read
+            # `is_loaded` / health immediately. Failures are captured, not raised,
+            # so the server can still start in standby mode and report 503.
+            try:
+                self._initialize_pipeline()
+                self._loaded = True
+                self._status = "ok"
+            except Exception as e:  # noqa: BLE001 - standby mode is intentional
+                self._loaded = False
+                self._status = "error"
+                self.load_error = str(e)
+                logger.warning(
+                    f"Could not load real model '{self.model_name}': {e}. "
+                    f"Server will operate in standby mode (health check returns 503)."
+                )
+
+    @property
+    def is_loaded(self) -> bool:
+        """True when a model+tokenizer are ready to serve."""
+        return bool(self._loaded) and self._status == "ok"
+
     async def _ensure_loaded(self) -> None:
-        """Idempotent async loader with caching and error capture."""
-        if self._loaded:
+        """Idempotent async loader used only in deferred mode.
+
+        Never raises: on failure it records ``_status = "error"`` and returns, so
+        callers can raise the appropriate :class:`ModelNotLoadedError` with a
+        service-specific message. This mirrors the eager path, which captures
+        load failures instead of propagating them.
+        """
+        if self.is_loaded or self._status == "error":
             return
         async with self._load_lock:
-            if self._loaded:
+            if self.is_loaded or self._status == "error":
                 return
             try:
                 await asyncio.to_thread(self._initialize_pipeline)
                 self._loaded = True
                 self._status = "ok"
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - standby mode is intentional
                 self._status = "error"
                 self.load_error = str(e)
-                logger.exception("Model loading failed")
-                raise ModelLoadingError(f"Failed to load model: {e}") from e
+                self._loaded = False
+                logger.warning("Model loading failed: %s. Server stays in standby.", e)
 
     def _initialize_pipeline(self) -> None:
         """Attempt to load real tokenizer and model without crashing on failure."""
@@ -265,8 +299,11 @@ class AdhanInferenceAPI:
     async def tokenize(self, request: AdhanRequest) -> TokensResponse:
         """Tokenize Tamil text."""
         await self._ensure_loaded()
-        if self.tokenizer is None:
-            raise ModelNotLoadedError("Tokenizer not loaded")
+        if not self.is_loaded or self.tokenizer is None:
+            raise ModelNotLoadedError(
+                f"No model or tokenizer is loaded for '{self.model_name}'. "
+                f"Cannot tokenize text without a loaded tokenizer."
+            )
         try:
             text = request.text
             logger.info(f"Tokenizing text: {text[:50]}...")
@@ -284,8 +321,11 @@ class AdhanInferenceAPI:
     async def decode(self, request: AdhanRequest) -> TextResponse:
         """Decode token IDs back to text."""
         await self._ensure_loaded()
-        if self.tokenizer is None:
-            raise ModelNotLoadedError("Tokenizer not loaded")
+        if not self.is_loaded or self.tokenizer is None:
+            raise ModelNotLoadedError(
+                f"No model or tokenizer is loaded for '{self.model_name}'. "
+                f"Cannot decode tokens without a loaded tokenizer."
+            )
         try:
             try:
                 token_ids = [int(x) for x in request.text.split()]
@@ -303,8 +343,16 @@ class AdhanInferenceAPI:
     async def generate(self, request: AdhanRequest) -> TextResponse:
         """Generate text from a prompt with timeout and concurrency control."""
         await self._ensure_loaded()
-        if self.model is None or self.params is None or self.tokenizer is None:
-            raise ModelNotLoadedError("Model not loaded")
+        if (
+            not self.is_loaded
+            or self.model is None
+            or self.params is None
+            or self.tokenizer is None
+        ):
+            raise ModelNotLoadedError(
+                f"No model is loaded for '{self.model_name}'. "
+                f"Cannot generate text without a loaded model and tokenizer."
+            )
 
         async with self._gen_semaphore:
             try:
@@ -393,8 +441,15 @@ class AdhanInferenceAPI:
     ) -> dict:
         """Protocol-aware chat completion (OpenAI message list -> Tamil answer)."""
         await self._ensure_loaded()
-        if self.model is None or self.params is None or self.tokenizer is None:
-            raise ModelNotLoadedError("Model not loaded")
+        if (
+            not self.is_loaded
+            or self.model is None
+            or self.params is None
+            or self.tokenizer is None
+        ):
+            raise ModelNotLoadedError(
+                f"No model is loaded for '{self.model_name}'. Cannot chat without a model."
+            )
 
         if not isinstance(messages, list) or not messages:
             raise ValueError("messages must be a non-empty list")
@@ -445,11 +500,11 @@ class AdhanInferenceAPI:
 
     def health_check(self) -> dict:
         """Health check endpoint with granular status."""
-        if self._status == "error":
+        if self._status == "error" or (not self.is_loaded and self._status != "loading"):
             return {
-                "status": "error",
+                "status": "unavailable",
                 "model": self.model_name,
-                "error": self.load_error or "Unknown loading error",
+                "error": self.load_error or "No model loaded",
             }
         if self._status == "loading":
             return {

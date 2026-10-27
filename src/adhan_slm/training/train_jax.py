@@ -271,10 +271,44 @@ def train(
             f"corpus with --seq-len {model_cfg.max_seq_len}."
         )
 
+    # --- Data-parallel sharding (graceful no-op on a single device) ---
+    from adhan_slm.training.sharding import (
+        global_batch_size,
+        make_data_parallel_mesh,
+        replicate_params,
+        shard_batch,
+    )
+
+    requested_devices = int(tcfg.get("n_devices", 0) or 0)
+    # Sanity modes (smoke / overfit) are single-device by design: their batches are
+    # synthesized before this point, so reshuffling the global batch size here would
+    # desync the dummy shapes. Skip sharding for them.
+    if smoke or overfit_batch:
+        requested_devices = 1
+    mesh, shard_info = make_data_parallel_mesh(requested_devices)
+    if shard_info.enabled:
+        # Keep the *global* batch size constant: each device sees a slice.
+        per_device_batch = global_batch_size(batch, shard_info)
+        if per_device_batch * shard_info.n_devices != batch:
+            logger.warning(
+                "batch_size %d not divisible by %d devices; using global batch %d",
+                batch,
+                shard_info.n_devices,
+                per_device_batch * shard_info.n_devices,
+            )
+        batch = per_device_batch * shard_info.n_devices
+        logger.info(
+            "data-parallel: %d devices, per-device batch %d, global batch %d",
+            shard_info.n_devices,
+            per_device_batch,
+            batch,
+        )
+
     model = AdhanSLM(model_cfg)
     key = jax.random.PRNGKey(seed)
     dummy = jnp.ones((batch, seq_len), dtype=jnp.int32)
     params = model.init(key, dummy)["params"]
+    params = replicate_params(params, mesh)
 
     # warmup_steps must be strictly less than decay_steps or optax's internal
     # cosine phase length (decay_steps - warmup_steps) hits zero and raises —
@@ -303,6 +337,11 @@ def train(
     # validation number becomes a random variable. Flax's Dropout consumes
     # `rngs={"dropout": key}` only when deterministic=False, so the same code path
     # serves both — with cfg.dropout == 0 it is a no-op either way.
+    from adhan_slm.training.sharding import all_reduce_mean
+
+    dp_enabled = shard_info.enabled
+    dp_axis = shard_info.axis_names[0]
+
     def loss_fn(params, batch, rng):
         logits = model.apply(
             {"params": params},
@@ -312,13 +351,14 @@ def train(
         )
         targets = batch[:, 1:]
         ll = optax.softmax_cross_entropy_with_integer_labels(logits, targets)
-        return ll.mean()
+        # pmean is linear, so value_and_grad all-reduces the gradients too.
+        return all_reduce_mean(ll.mean(), axis_name=dp_axis, enabled=dp_enabled)
 
     def eval_loss_fn(params, batch):
         logits = model.apply({"params": params}, batch[:, :-1], deterministic=True)
         targets = batch[:, 1:]
         ll = optax.softmax_cross_entropy_with_integer_labels(logits, targets)
-        return ll.mean()
+        return all_reduce_mean(ll.mean(), axis_name=dp_axis, enabled=dp_enabled)
 
     # donate_argnums=(0,): let XLA reuse the input `state`'s device buffers for
     # the output instead of allocating a fresh copy every step. Safe because the
@@ -343,7 +383,8 @@ def train(
         for i, vb in enumerate(val_ds):
             if i >= max_batches:
                 break
-            total += float(eval_step(params, jnp.asarray(vb)))
+            vb_dev = shard_batch(jnp.asarray(vb), mesh, dp_axis)
+            total += float(eval_step(params, vb_dev))
             n += 1
         if n == 0:
             return None, None
@@ -461,6 +502,7 @@ def train(
         "train.warm_restart": warm_restart,
         "params_millions": round(model_cfg.approx_params() / 1e6, 2),
         **backend.as_params(),
+        **shard_info.as_params(),
     }
     eta_seconds = log_preflight(
         backend, tokens_per_update, updates, model_cfg.approx_params() / 1e6
@@ -576,7 +618,9 @@ def train(
             if completed >= updates:
                 break
             dropout_rng, step_rng = jax.random.split(dropout_rng)
-            state, loss = train_step(state, jnp.asarray(b), step_rng)
+            host_batch = jnp.asarray(b)
+            dev_batch = shard_batch(host_batch, mesh, dp_axis)
+            state, loss = train_step(state, dev_batch, step_rng)
             micro += 1
             if micro % accum:
                 continue  # gradient still accumulating; no update happened yet

@@ -131,13 +131,17 @@ try:
         var = jnp.mean(jnp.square(x), axis=-1, keepdims=True)
         return x * jax.lax.rsqrt(var + eps) * weight
 
-    def _rope(x, theta):
-        # x: [B, T, H, Dh] — angle broadcasts over the T axis (axis=1)
+    def _rope(x, theta, offset=0):
+        # x: [B, T, H, Dh] — angle broadcasts over the T axis (axis=1).
+        # ``offset`` is the absolute position of the first token in ``x``; it is 0
+        # for a full-sequence forward and ``past_len`` during cached decoding.
         dh = x.shape[-1]
         half = dh // 2
         freqs = 1.0 / (theta ** (jnp.arange(0, half) / half))
         t = x.shape[1]
-        ang = jnp.arange(t)[:, None] * freqs[None, :]  # [T, half], fp32
+        # ``offset + arange`` keeps this traceable when offset is a jit argument.
+        pos = offset + jnp.arange(t)
+        ang = pos[:, None] * freqs[None, :]  # [T, half], fp32
         # cos/sin computed in fp32 for precision, then cast to x's compute dtype
         # (bf16) so q/k/v stay uniform — dot_product_attention requires matching
         # dtypes across q/k/v, and mixed fp32/bf16 here would force an upcast.
@@ -151,7 +155,14 @@ try:
         cfg: AdhanConfig
 
         @nn.compact
-        def __call__(self, x, mask, cond=None, deterministic=True):
+        def __call__(self, x, mask, cond=None, deterministic=True, cache=None, offset=0):
+            """One transformer block.
+
+            ``cache`` is ``None`` for the training/full-sequence path, or a
+            ``(k_past, v_past)`` pair during cached decoding. When a cache is
+            given the block returns ``(x, (k_new, v_new))`` so the caller can
+            carry it to the next step.
+            """
             c = self.cfg
             dt = jnp.dtype(c.dtype)
             # Tiṇai FiLM: per-position scale/shift for both pre-norms, zero-initialised so
@@ -184,9 +195,32 @@ try:
             # jax.nn.dot_product_attention expects (and RoPE is axis-agnostic).
             # RoPE is applied before the K/V heads are broadcast, so the rotation
             # costs nothing extra under GQA.
-            q = _rope(q.reshape(b, t, c.n_heads, dh), c.rope_theta)
-            k = _rope(k.reshape(b, t, kvh, dh), c.rope_theta)
+            q = _rope(q.reshape(b, t, c.n_heads, dh), c.rope_theta, offset=offset)
+            k = _rope(k.reshape(b, t, kvh, dh), c.rope_theta, offset=offset)
             v = v.reshape(b, t, kvh, dh)
+
+            # --- KV cache (fixed-size buffers) ---
+            # The cache holds K/V in [B, S_max, kvh, dh] buffers that never change
+            # shape, so a compiled decode step stays valid for every token. New
+            # K/V is written at ``offset`` with a dynamic update; padding beyond
+            # the valid length is masked out in the attention step.
+            new_cache = None
+            attn_mask = None
+            if cache is not None:
+                k_buf, v_buf = cache
+                start = (0, offset, 0, 0)
+                k_buf = jax.lax.dynamic_update_slice(k_buf, k, start)
+                v_buf = jax.lax.dynamic_update_slice(v_buf, v, start)
+                new_cache = (k_buf, v_buf)
+                k_full, v_full = k_buf, v_buf
+                s_max = k_buf.shape[1]
+                qpos = offset + jnp.arange(t)
+                kpos = jnp.arange(s_max)
+                # [1, 1, t, S_max]: each query sees keys up to its own position.
+                attn_mask = (kpos[None, :] <= qpos[:, None])[None, None, :, :]
+            else:
+                k_full, v_full = k, v
+            t_full = k_full.shape[1]
 
             if kvh != c.n_heads:
                 # --- P1: Memory-efficient GQA head broadcast ---
@@ -194,17 +228,29 @@ try:
                 # reshape to add a unit axis and let XLA broadcast. This keeps
                 # the K/V activation memory at kv_heads instead of n_heads.
                 groups = c.n_heads // kvh
-                k = jnp.broadcast_to(k[:, :, :, None, :], (b, t, kvh, groups, dh)).reshape(
-                    b, t, c.n_heads, dh
-                )
-                v = jnp.broadcast_to(v[:, :, :, None, :], (b, t, kvh, groups, dh)).reshape(
-                    b, t, c.n_heads, dh
-                )
+                k_full = jnp.broadcast_to(
+                    k_full[:, :, :, None, :], (b, t_full, kvh, groups, dh)
+                ).reshape(b, t_full, c.n_heads, dh)
+                v_full = jnp.broadcast_to(
+                    v_full[:, :, :, None, :], (b, t_full, kvh, groups, dh)
+                ).reshape(b, t_full, c.n_heads, dh)
 
-            if _HAS_FUSED_ATTN:
-                o = jax.nn.dot_product_attention(q, k, v, is_causal=True, implementation=None)
+            if cache is not None:
+                # Cached path always uses an explicit mask (causal-combined).
+                if _HAS_FUSED_ATTN:
+                    o = jax.nn.dot_product_attention(
+                        q, k_full, v_full, mask=attn_mask, is_causal=False, implementation=None
+                    )
+                else:
+                    qT, kT, vT = (a.transpose(0, 2, 1, 3) for a in (q, k_full, v_full))
+                    att = (qT @ kT.transpose(0, 1, 3, 2)) / jnp.sqrt(dh)
+                    att = jnp.where(attn_mask, att, -1e9)
+                    att = jax.nn.softmax(att, axis=-1)
+                    o = (att @ vT).transpose(0, 2, 1, 3)
+            elif _HAS_FUSED_ATTN:
+                o = jax.nn.dot_product_attention(q, k_full, v_full, is_causal=True, implementation=None)
             else:
-                qT, kT, vT = (a.transpose(0, 2, 1, 3) for a in (q, k, v))
+                qT, kT, vT = (a.transpose(0, 2, 1, 3) for a in (q, k_full, v_full))
                 att = (qT @ kT.transpose(0, 1, 3, 2)) / jnp.sqrt(dh)
                 att = jnp.where(mask, att, -1e9)
                 att = jax.nn.softmax(att, axis=-1)
@@ -221,7 +267,10 @@ try:
             up = nn.Dense(c.d_ff, use_bias=False, dtype=dt, name="up")(h)
             h = nn.Dense(c.d_model, use_bias=False, dtype=dt, name="down")(jax.nn.silu(gate) * up)
             h = nn.Dropout(rate=c.dropout, deterministic=deterministic)(h)
-            return x + h
+            out = x + h
+            if cache is not None:
+                return out, new_cache
+            return out
 
     def _apply_repetition_penalty(logits, prev_tokens, penalty):
         # CTRL-style penalty: divide positive logits / multiply negative ones for
@@ -266,14 +315,29 @@ try:
             tinai: jax.Array | None = None,
             return_router: bool = False,
             deterministic: bool = True,
-        ) -> jax.Array | tuple[jax.Array, jax.Array]:
+            cache: list | None = None,
+            offset: int = 0,
+            return_cache: bool = False,
+        ):
             """Logits ``[B, T, vocab]``.
 
             ``tinai`` (only when ``cfg.use_tinai``): per-example landscape class ``[B]``
             (or a single int), ``-1`` = let the router decide. ``return_router=True``
             returns ``(logits, router_logits[B, T, 5])`` for the auxiliary loss.
+
+            ``cache`` / ``offset`` / ``return_cache`` enable KV-cached decoding:
+            ``cache`` is a list of per-layer ``(k, v)`` arrays (or ``None`` entries),
+            ``offset`` is the absolute position of the first input token, and
+            ``return_cache=True`` makes the call return ``(logits, new_cache)``.
+            Cached decoding is not supported together with ``use_tinai`` (the
+            router pools the full prefix, which a single-token step cannot see).
             """
             c = self.cfg
+            if cache is not None and c.use_tinai:
+                raise ValueError(
+                    "KV-cached decoding is not supported with use_tinai=True; "
+                    "build the model with use_tinai=False for fast generation."
+                )
             dt = jnp.dtype(c.dtype)
             emb = self.param("tok_emb", nn.initializers.normal(0.02), (c.vocab_size, c.d_model))
             x = emb[tokens]
@@ -309,15 +373,38 @@ try:
 
             # --- P1: Gradient checkpointing (remat) ---
             block_fn = Block(c)
-            if c.remat:
+            if c.remat and cache is None:
                 block_fn = jax.checkpoint(block_fn, policy=jax.checkpoint_policies.dots_saveable)
 
+            new_cache = [] if return_cache else None
+            # On prefill (cache is None but return_cache is set) allocate the
+            # fixed-size K/V buffers once. Their shape never changes afterwards,
+            # which is what lets a compiled decode step be reused for every token.
+            working_cache = cache
+            if return_cache and working_cache is None:
+                bsz = tokens.shape[0]
+                dh_ = c.d_model // c.n_heads
+                buf = jnp.zeros((bsz, c.max_seq_len, c.kv_heads, dh_), dtype=dt)
+                working_cache = [(buf, buf) for _ in range(c.n_layers)]
             for i in range(c.n_layers):
-                x = block_fn(x, mask, cond, deterministic=deterministic)
+                if not return_cache:
+                    x = block_fn(x, mask, cond, deterministic=deterministic)
+                else:
+                    x, layer_cache_new = block_fn(
+                        x,
+                        mask,
+                        cond,
+                        deterministic=deterministic,
+                        cache=working_cache[i],
+                        offset=offset,
+                    )
+                    new_cache.append(layer_cache_new)
             gf = self.param("norm_f", nn.initializers.ones, (c.d_model,))
             x = _rms_norm(x, gf)
             # weight-tied head
             logits = x.astype(jnp.float32) @ emb.T
+            if return_cache:
+                return logits, new_cache
             return (logits, router_logits) if return_router else logits
 
     def tinai_aux_loss(router_logits, labels):
@@ -366,19 +453,63 @@ try:
         ids = list(int(t) for t in prompt_ids)
         key = jax.random.PRNGKey(seed)
         ctx = model.cfg.max_seq_len
+        # KV-cache is used whenever the model does not need Tiṇai conditioning
+        # (the router pools the whole prefix and cannot run one token at a time).
+        use_cache = not model.cfg.use_tinai
+        cache = None
+        offset = 0
+        pparams = {"params": params}
+
+        # Two compiled programs only: prefill (prompt-length) and decode (one
+        # token). Fixed-size cache buffers keep the decode shape stable, so the
+        # second and later tokens reuse the same executable.
+        if use_cache:
+            @jax.jit
+            def _prefill(p, toks):
+                return model.apply(p, toks, cache=None, offset=jnp.asarray(0), return_cache=True)
+
+            @jax.jit
+            def _decode(p, tok, cache_in, off):
+                return model.apply(p, tok, cache=cache_in, offset=off, return_cache=True)
+
         for _ in range(max_new_tokens):
-            window = ids[-ctx:]
-            extra = {} if tinai is None else {"tinai": int(tinai)}
-            logits = model.apply(
-                {"params": params}, jnp.asarray([window], dtype=jnp.int32), **extra
-            )
-            next_logits = logits[0, -1]
+            if use_cache:
+                if cache is None:
+                    feed = ids[-ctx:]
+                    offset = 0
+                    logits, cache = _prefill(
+                        pparams, jnp.asarray([feed], dtype=jnp.int32)
+                    )
+                    offset += len(feed)
+                else:
+                    logits, cache = _decode(
+                        pparams,
+                        jnp.asarray([[ids[-1]]], dtype=jnp.int32),
+                        cache,
+                        jnp.asarray(offset),
+                    )
+                    offset += 1
+                next_logits = logits[0, -1]
+            else:
+                window = ids[-ctx:]
+                extra = {} if tinai is None else {"tinai": int(tinai)}
+                logits = model.apply(
+                    {"params": params}, jnp.asarray([window], dtype=jnp.int32), **extra
+                )
+                next_logits = logits[0, -1]
             next_logits = _apply_repetition_penalty(
-                next_logits, jnp.asarray(window, dtype=jnp.int32), repetition_penalty
+                next_logits,
+                jnp.asarray(ids[-ctx:], dtype=jnp.int32),
+                repetition_penalty,
             )
             key, sub = jax.random.split(key)
             nxt = int(_sample_next(next_logits, sub, temperature, top_k, top_p))
             ids.append(nxt)
+            if offset > ctx:
+                # Keep the cache from growing past the model's context window by
+                # resetting it; the next step re-prefills from the last ctx tokens.
+                cache = None
+                offset = 0
             if eos_id is not None and nxt == eos_id:
                 break
         return ids

@@ -46,7 +46,8 @@ from typing import Dict, Iterable, Iterator, List, Set, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from adhan_slm.core.logging import get_logger  # noqa: E402
+from _hf_pins import describe_pins, load_tamil_dataset
+from adhan_slm.core.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -272,10 +273,8 @@ def iter_local_corpus(roots: Iterable[Path]) -> Iterator[Dict]:
 def iter_wikipedia(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming Tamil Wikipedia (limit={limit:,})")
-    ds = load_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
+    ds = load_tamil_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -290,10 +289,8 @@ def iter_wikipedia(limit: int) -> Iterator[Dict]:
 def iter_indiccorp(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming IndicCorpV2 tam_Taml (limit={limit:,})")
-    ds = load_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
+    ds = load_tamil_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -308,10 +305,8 @@ def iter_indiccorp(limit: int) -> Iterator[Dict]:
 def iter_fineweb2(limit: int, min_lang_score: float = 0.88) -> Iterator[Dict]:
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming FineWeb-2 tam_Taml (limit={limit:,})")
-    ds = load_dataset("HuggingFaceFW/fineweb-2", "tam_Taml", split="train", streaming=True)
+    ds = load_tamil_dataset("HuggingFaceFW/fineweb-2", "tam_Taml", split="train", streaming=True)
     n = 0
     for row in ds:
         score = row.get("language_score")
@@ -335,11 +330,9 @@ def iter_mc4(limit: int) -> Iterator[Dict]:
     """mC4 Tamil — Colossal Clean Crawled Corpus. Massive but noisier."""
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming mC4/ta (limit={limit:,})")
     # mC4 uses 'ta' language code
-    ds = load_dataset("allenai/c4", "ta", split="train", streaming=True)
+    ds = load_tamil_dataset("allenai/c4", "ta", split="train", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -356,10 +349,8 @@ def iter_cc100(limit: int) -> Iterator[Dict]:
     """CC-100 Tamil — Facebook CommonCrawl extraction."""
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming CC-100 tam (limit={limit:,})")
-    ds = load_dataset("facebook/cc100", "ta", split="train", streaming=True)
+    ds = load_tamil_dataset("facebook/cc100", "ta", split="train", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -375,10 +366,8 @@ def iter_oscar(limit: int) -> Iterator[Dict]:
     """OSCAR Tamil — deduplicated CommonCrawl."""
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming OSCAR unshuffled/deduplicated ta (limit={limit:,})")
-    ds = load_dataset("oscar-corpus/OSCAR-2301", "ta", split="train", streaming=True)
+    ds = load_tamil_dataset("oscar-corpus/OSCAR-2301", "ta", split="train", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -394,8 +383,6 @@ def iter_tamil_news(limit: int) -> Iterator[Dict]:
     """Tamil News Dataset — high-quality journalism text."""
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming Tamil News (limit={limit:,})")
     # Try multiple news datasets
     datasets_to_try = [
@@ -405,7 +392,7 @@ def iter_tamil_news(limit: int) -> Iterator[Dict]:
     n = 0
     for ds_name, config in datasets_to_try:
         try:
-            ds = load_dataset(ds_name, config, split="train", streaming=True)
+            ds = load_tamil_dataset(ds_name, config, split="train", streaming=True)
             for row in ds:
                 text = normalize(row.get("text", row.get("content", row.get("article", ""))))
                 if is_quality(text, min_chars=100, min_tamil_ratio=0.60):
@@ -425,8 +412,6 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
     """Tamil books from HF datasets — literary prose."""
     if limit <= 0:
         return
-    from datasets import load_dataset
-
     logger.info(f"streaming Tamil Books (limit={limit:,})")
     datasets_to_try = [
         "Tamil-NLP/Tamil_Books",
@@ -434,7 +419,7 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
     n = 0
     for ds_name in datasets_to_try:
         try:
-            ds = load_dataset(ds_name, split="train", streaming=True)
+            ds = load_tamil_dataset(ds_name, split="train", streaming=True)
             for row in ds:
                 text = normalize(row.get("text", row.get("content", "")))
                 if is_quality(text, min_chars=200, min_tamil_ratio=0.55):
@@ -623,6 +608,7 @@ def main() -> None:
         "source_counts": dict(counts),
         "tier_counts": dict(tier_counts),
         "dropped": dict(dropped),
+        "hf_revisions": describe_pins(),
         "shards": shard_idx + 1,
         "out_dir": str(out_dir),
     }

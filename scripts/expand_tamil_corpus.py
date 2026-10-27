@@ -49,6 +49,7 @@ from typing import Dict, Iterable, Iterator, List, Set, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from _hf_pins import describe_pins, load_tamil_dataset
 from adhan_slm.core.logging import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
@@ -275,10 +276,9 @@ def iter_local_corpus(roots: Iterable[Path]) -> Iterator[Dict]:
 def iter_wikipedia(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
-    from datasets import load_dataset
 
     logger.info(f"streaming Tamil Wikipedia (limit={limit:,})")
-    ds = load_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
+    ds = load_tamil_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -299,10 +299,9 @@ def iter_wikipedia(limit: int) -> Iterator[Dict]:
 def iter_indiccorp(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
-    from datasets import load_dataset
 
     logger.info(f"streaming IndicCorpV2 tam_Taml (limit={limit:,})")
-    ds = load_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
+    ds = load_tamil_dataset("ai4bharat/IndicCorpV2", "indiccorp_v2", split="tam_Taml", streaming=True)
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -329,10 +328,9 @@ def iter_fineweb2(limit: int, min_language_score: float = 0.90) -> Iterator[Dict
     """
     if limit <= 0:
         return
-    from datasets import load_dataset
 
     logger.info(f"streaming FineWeb-2 tam_Taml (limit={limit:,}, lang_score>={min_language_score})")
-    ds = load_dataset("HuggingFaceFW/fineweb-2", "tam_Taml", split="train", streaming=True)
+    ds = load_tamil_dataset("HuggingFaceFW/fineweb-2", "tam_Taml", split="train", streaming=True)
     n = 0
     for row in ds:
         score = row.get("language_score")
@@ -529,6 +527,7 @@ def main() -> None:
         "source_counts": dict(counts),
         "tier_counts": {str(k): v for k, v in tier_counts.items()},
         "dropped": dict(dropped),
+        "hf_revisions": describe_pins(),
         "limit_wiki": args.wiki_limit,
         "limit_indic": args.indic_limit,
         "shards": len(sorted(out_dir.glob("corpus-*.jsonl"))),

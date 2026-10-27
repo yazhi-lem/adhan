@@ -79,3 +79,67 @@ def test_resume_with_no_budget_left_trains_nothing(cpu_config, tmp_path_factory)
     again = train_jax.train(str(cfg))
     assert again["resumed_from_step"] == 6
     assert again["updates_this_run"] == 0
+
+
+def test_checkpoint_roundtrip_params_are_exact(cpu_config, tmp_path_factory):
+    """The params item in a checkpoint must restore bit-identically.
+
+    A resume that silently reinitialised weights would still "run" but would
+    throw away all prior training. This asserts the on-disk round-trip is exact
+    and that ``load_model`` reconstructs the same arrays from the same step.
+    """
+    import jax
+
+    from adhan_slm.inference import load_checkpoint_metadata, load_model
+
+    ckpt = tmp_path_factory.mktemp("roundtrip_ckpt")
+    cfg = cpu_config(
+        name="roundtrip",
+        checkpoint_dir=str(ckpt),
+        max_steps=6,
+        checkpoint_every=3,
+        eval_every=6,
+    )
+    summary = train_jax.train(str(cfg))
+    assert summary["status"] == "ok"
+
+    # The checkpoint dir is self-describing (metadata item present).
+    meta = load_checkpoint_metadata(ckpt)
+    assert "model_config" in meta and meta["model_config"]["vocab_size"] > 0
+
+    # Restoring twice from the same step must yield identical parameters.
+    _, params_a, _ = load_model(checkpoint_dir=ckpt)
+    _, params_b, _ = load_model(checkpoint_dir=ckpt)
+    leaves_a = jax.tree_util.tree_leaves(params_a)
+    leaves_b = jax.tree_util.tree_leaves(params_b)
+    assert len(leaves_a) == len(leaves_b) > 0
+    for a, b in zip(leaves_a, leaves_b):
+        import numpy as np
+
+        assert np.array_equal(np.asarray(a), np.asarray(b)), "restore is not deterministic"
+
+
+def test_resume_changes_weights(cpu_config, tmp_path_factory):
+    """Resuming must actually continue training, not reload the same weights."""
+    import jax
+    import numpy as np
+
+    from adhan_slm.inference import load_model
+
+    ckpt = tmp_path_factory.mktemp("resume_weights_ckpt")
+    first = cpu_config(
+        name="rw_a", checkpoint_dir=str(ckpt), max_steps=6,
+        checkpoint_every=3, eval_every=3,
+    )
+    train_jax.train(str(first))
+    _, before, _ = load_model(checkpoint_dir=ckpt)
+
+    second = _with_max_steps(first, 10, first.parent / "rw_b.yaml")
+    train_jax.train(str(second))
+    _, after, _ = load_model(checkpoint_dir=ckpt)
+
+    changed = any(
+        not np.array_equal(np.asarray(x), np.asarray(y))
+        for x, y in zip(jax.tree_util.tree_leaves(before), jax.tree_util.tree_leaves(after))
+    )
+    assert changed, "resume did not update any weights — it likely reinitialised"

@@ -24,6 +24,62 @@ def _git_sha() -> str:
         return "unknown"
 
 
+def resolve_tracking_uri(explicit: Optional[str] = None) -> Optional[str]:
+    """Resolve the MLflow tracking URI with a clear precedence order.
+
+    Precedence: explicit arg > ``MLFLOW_TRACKING_URI`` env > ``None`` (MLflow's
+    own default, which honours ``mlflow.set_tracking_uri``/``file:./mlruns``).
+
+    Why an env override matters: a local ``sqlite:///mlflow.db`` cannot be
+    shared by multiple training hosts and corrupts if a process dies mid-write.
+    In distributed/cloud runs, point ``MLFLOW_TRACKING_URI`` at Postgres or a
+    shared file store without editing every YAML, e.g.
+
+        export MLFLOW_TRACKING_URI=postgresql://user:pass@host/mlflow
+        export MLFLOW_TRACKING_URI=file:/mnt/shared/mlruns
+    """
+    if explicit:
+        return explicit
+    import os
+
+    env_uri = os.environ.get("MLFLOW_TRACKING_URI")
+    return env_uri or None
+
+
+def _ensure_sqlite_schema(uri: str) -> None:
+    """Best-effort schema check for sqlite backends.
+
+    An out-of-date SQLite schema makes every ``log_metric`` raise, which turns
+    tracking failures into training-loop failures. We detect the common case and
+    emit an actionable message instead of a stack trace deep inside MLflow.
+    """
+    if not uri.startswith("sqlite:"):
+        return
+    try:
+        from mlflow.store.db.utils import _get_schema_version, _get_alembic_config
+    except Exception:  # private API moved between mlflow versions
+        return
+    try:
+        import sqlalchemy
+
+        db_path = uri.split("///", 1)[-1]
+        engine = sqlalchemy.create_engine(f"sqlite:///{db_path}")
+        current = _get_schema_version(engine)
+        expected = _get_alembic_config().get_main_option("revision")
+        if current != expected:
+            logger.error(
+                "MLflow SQLite schema is out of date (found %s, expected %s). "
+                "Run: mlflow db upgrade %s — or set MLFLOW_TRACKING_URI to a "
+                "Postgres/file store for multi-host runs.",
+                current,
+                expected,
+                uri,
+            )
+    except Exception:
+        # Never let a diagnostics helper break the training run.
+        return
+
+
 class _NoOpRun:
     """Tracker stand-in when mlflow is absent, so training still runs unchanged."""
 
@@ -54,8 +110,10 @@ def track_run(
         yield _NoOpRun()
         return
 
-    if tracking_uri:
-        mlflow.set_tracking_uri(tracking_uri)
+    uri = resolve_tracking_uri(tracking_uri)
+    if uri:
+        mlflow.set_tracking_uri(uri)
+    _ensure_sqlite_schema(mlflow.get_tracking_uri())
     mlflow.set_experiment(experiment)
     with mlflow.start_run(run_name=run_name) as active:
         logger.info(

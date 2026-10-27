@@ -96,6 +96,25 @@ def configure_backend(device: Optional[str] = None, cpu_devices: Optional[int] =
         if "xla_force_host_platform_device_count" not in existing:
             os.environ["XLA_FLAGS"] = f"{existing} {flag}".strip()
 
+    # Persistent XLA compilation cache. Without it every fresh process pays the
+    # full JIT cost again (~10-20s per distinct (batch, seq_len, dtype) shape on
+    # CPU), which is what made the integration suite exceed a 2-minute budget.
+    # A cache dir turns the second and later runs into near-instant loads and is
+    # the single highest-leverage knob for CI wall clock. Opt out with
+    # ADHAN_DISABLE_JAX_CACHE=1 (e.g. on a read-only home).
+    if os.environ.get("ADHAN_DISABLE_JAX_CACHE", "0") not in ("1", "true", "True"):
+        cache_dir = os.environ.get(
+            "ADHAN_JAX_CACHE_DIR", os.path.join(os.path.expanduser("~"), ".cache", "adhan", "jax")
+        )
+        try:
+            os.makedirs(cache_dir, exist_ok=True)
+            os.environ.setdefault("JAX_COMPILATION_CACHE_DIR", cache_dir)
+            # Compress + keep the cache bounded so it cannot grow without limit.
+            os.environ.setdefault("JAX_PERSISTENT_CACHE_MIN_COMPILE_TIME_SECS", "1")
+            os.environ.setdefault("JAX_PERSISTENT_CACHE_MAX_SIZE_BYTES", str(2 * 1024**3))
+        except OSError:
+            logger.warning("could not create JAX compilation cache dir %s", cache_dir)
+
     if "jax" in sys.modules:
         logger.warning(
             "configure_backend() ran after jax was already imported — "

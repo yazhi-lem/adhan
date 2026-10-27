@@ -91,14 +91,21 @@ def _read_jsonl(paths: Iterable[str | Path]) -> List[dict]:
 
 
 def _find_answer_start(token_ids: List[int], tok) -> int:
-    """Return the index within token_ids where the answer marker begins."""
+    """Return the index within token_ids where the answer marker begins.
+
+    Searches ONLY within the target portion (not the full concatenated
+    sequence), so prompt text containing 'பதில்:' cannot confuse the mask.
+
+    If no answer marker is found (e.g., v0 plain-text targets), returns 0
+    so the entire target is supervised (backward compatible).
+    """
     ans_ids = tok.encode(p.ANSWER, add_special=False)
     if not ans_ids:
-        return len(token_ids)
+        return 0  # supervise everything if marker not in vocab
     for i in range(len(token_ids) - len(ans_ids) + 1):
         if token_ids[i : i + len(ans_ids)] == ans_ids:
             return i
-    return len(token_ids)
+    return 0  # no marker found — supervise entire target (v0 compat)
 
 
 def encode_examples(rows: Iterable[dict], tok, max_seq_len: int) -> Tuple[List[dict], dict]:
