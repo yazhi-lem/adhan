@@ -108,6 +108,8 @@ def test_reasoning_mask_ignores_answer_word_in_prompt(proto_tok):
 
 
 def test_single_device_mesh_is_disabled():
+    # make_data_parallel_mesh asks JAX for the device list; CI unit job has no JAX.
+    pytest.importorskip("jax")
     mesh, info = make_data_parallel_mesh(1)
     assert mesh is None
     assert info.enabled is False
