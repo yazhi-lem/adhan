@@ -1,0 +1,46 @@
+# Adhan SLM — long CPU pretraining run on the v3 corpus
+#
+# Sized for a 12-core / 16 GB CPU box with no GPU: ~12 hours, ~82M tokens
+# (~0.3 epoch of the 258M-token v3 shards). Resumable via Orbax — a preemption
+# or manual stop continues from the latest step.
+#
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_cpu_v3_long.yaml --device cpu
+#
+# Launch detached:
+#   setsid nohup python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_cpu_v3_long.yaml --device cpu \
+#       > logs/pretrain_v3_long.log 2>&1 < /dev/null &
+
+experiment: adhan-slm-cpu-v3-long
+run_name: null
+mlflow_uri: sqlite:///mlflow.db
+checkpoint_dir: checkpoints/adhan-nano-v3-long
+
+model:
+  size: nano
+  vocab_size: 31964
+  max_seq_len: 512
+  use_boundary_emb: false
+  use_tinai: false
+  dtype: bfloat16
+  dropout: 0.1             # regularise: repeated passes over ~0.3 epoch
+
+train:
+  batch_size: 4
+  grad_accum_steps: 8      # effective batch 32 = 16,384 tokens / update
+  learning_rate: 6.0e-4
+  warmup_steps: 200
+  max_steps: 5000          # ~82M tokens, ~12 h at the measured ~1.9k tok/s
+  weight_decay: 0.1
+  seed: 0
+  log_every: 25
+  eval_every: 250
+  checkpoint_every: 250
+  keep_checkpoints: 4
+  n_devices: 0             # single CPU device is a no-op for the sharding path
+
+data:
+  version: adhan-corpus-v3
+  shards: data/final/tamil_slm_v3/
+  seq_packing: true

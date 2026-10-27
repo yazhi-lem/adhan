@@ -127,7 +127,7 @@ overfit-a-batch gates still pass; single-device behaviour unchanged.
 | 11 | Run Phase 2 corpus expansion (target 1.5–2B) | More data = better model | 🚧 running, resumable |
 | 12 | Retrain tokenizer v3 on expanded corpus | ✅ `tamil_slm_v3`: vocab 31,964, fertility 0.506, lossless 100% |
 | 13 | Validate v3 data path (shards → train) | ✅ 40-step run: loss 9.02 → 6.69, val_ppl 795 |
-| 14 | Pretrain adhan-nano on expanded corpus | Baseline for downstream tasks | ⏳ pending (raise max_steps) |
+| 14 | Pretrain adhan-nano on expanded corpus | 🚧 long CPU run (5,000 steps, ~12 h) — `adhan_slm_nano_cpu_v3_long.yaml`, checkpoints every 250 |
 | 15 | Run Aram Harness on pretrained checkpoint | Safety gate before any SFT | ⏳ pending |
 | 16 | Implement FSDP for adhan-mini | Unlocks 110M param training | ⏳ pending |
 
@@ -263,6 +263,9 @@ Phase 2 kickoff notes:
 | Token tax vs UTF-8 bytes | **1.00x vs 8.89x** | — |
 | Test pass rate | 96 passed / 1 skipped (~86s) | CI green |
 | Aram Harness score | Not run | >0.90 |
+
+The full method, measurements, limitations and reproducibility details are in
+[`docs/WHITEPAPER_SWARAM.md`](docs/WHITEPAPER_SWARAM.md).
 
 ### Token tax (showcase)
 
