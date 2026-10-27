@@ -1,6 +1,6 @@
 # Adhan SLM — long CPU pretraining run on the v3 corpus
 #
-# Sized for a 12-core / 16 GB CPU box with no GPU: ~12 hours, ~82M tokens
+# Sized for a 12-core / 16 GB CPU box with no GPU: ~8 hours, ~82M tokens
 # (~0.3 epoch of the 258M-token v3 shards). Resumable via Orbax — a preemption
 # or manual stop continues from the latest step.
 #
@@ -23,6 +23,17 @@ model:
   max_seq_len: 512
   use_boundary_emb: false
   use_tinai: false
+  # bfloat16, measured. Do not "optimise" this to float32 on the assumption
+  # that Zen 3 has no native BF16: a 2048^3 matmul microbenchmark says fp32 is
+  # 1.7x faster (417 vs 243 GFLOP/s), but the real training step disagrees,
+  # because a 256-wide transformer at batch 4x512 is memory-bandwidth bound,
+  # not FLOP bound. Measured on this box (Ryzen 5600X, 16 GB):
+  #
+  #   bfloat16  ~1,880 tok/s sustained (1,805-2,035 over 15 flushes)
+  #   float32    1,458 tok/s             (2026-10-28, same checkpoint/data)
+  #
+  # i.e. fp32 costs ~22% and raises peak RSS 3.0 -> 3.65 GB. Re-benchmark the
+  # step itself, not a bare matmul, before revisiting.
   dtype: bfloat16
   dropout: 0.1             # regularise: repeated passes over ~0.3 epoch
 
@@ -31,12 +42,12 @@ train:
   grad_accum_steps: 8      # effective batch 32 = 16,384 tokens / update
   learning_rate: 6.0e-4
   warmup_steps: 200
-  max_steps: 5000          # ~82M tokens, ~12 h at the measured ~1.9k tok/s
+  max_steps: 5000          # ~82M tokens; ~12 h at the measured ~1.88k tok/s
   weight_decay: 0.1
   seed: 0
   log_every: 25
   eval_every: 250
-  checkpoint_every: 250
+  checkpoint_every: 100    # 250 lost 100+ steps to an OOM kill; 14.5M params is cheap to write
   keep_checkpoints: 4
   n_devices: 0             # single CPU device is a no-op for the sharding path
 
