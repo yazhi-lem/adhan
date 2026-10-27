@@ -119,15 +119,26 @@ cannot OOM a worker before tokenization.
 Exit criteria met: full suite 96 passed / 1 skipped in ~90s; smoke and
 overfit-a-batch gates still pass; single-device behaviour unchanged.
 
-### Phase 2: Scale & Quality (Weeks 3–6)
+### Phase 2: Scale & Quality (Weeks 3–6) — 🚧 IN PROGRESS
 
-| # | Task | Why | Effort |
+| # | Task | Why | Status |
 |---|------|-----|--------|
-| 10 | Run Phase 2 corpus expansion (2B tokens) | More data = better model | 1 week |
-| 11 | Retrain tokenizer v3 on 2B corpus | Verify fertility < 1.15 at scale | 2 days |
-| 12 | Pretrain adhan-nano to 100K steps on 2B | Baseline for downstream tasks | 1 week |
-| 13 | Run Aram Harness on pretrained checkpoint | Safety gate before any SFT | 1 day |
-| 14 | Implement FSDP for adhan-mini | Unlocks 110M param training | 3 days |
+| 10 | Token-tax benchmark vs GPT-4/GPT-4o/byte | Evidence the tokenizer removes the Tamil tax | ✅ `docs/TOKEN_TAX_BENCHMARK.md` |
+| 11 | Run Phase 2 corpus expansion (target 1.5–2B) | More data = better model | 🚧 running, resumable |
+| 12 | Retrain tokenizer v3 on expanded corpus | Verify fertility < 1.15 at scale | ⏳ pending |
+| 13 | Pretrain adhan-nano on expanded corpus | Baseline for downstream tasks | ⏳ pending |
+| 14 | Run Aram Harness on pretrained checkpoint | Safety gate before any SFT | ⏳ pending |
+| 15 | Implement FSDP for adhan-mini | Unlocks 110M param training | ⏳ pending |
+
+Phase 2 kickoff notes:
+
+- Expansion uses `scripts/expand_tamil_corpus_v2.py`, which is resumable via
+  `state.json` and dedups cross-version against the v1 archive. Sources are
+  revision-pinned (`ADHAN_HF_REVISION_*`).
+- The token-tax result is the Phase 2 gate for the tokenizer: swaram must stay
+  at **1.00x**; any retrain that raises fertility/tox is rejected.
+- After expansion, retrain the tokenizer and re-run `benchmark_token_tax.py`;
+  the comparison table in the doc is regenerated, not hand-edited.
 
 ### Phase 3: Alignment & Deployment (Weeks 7–12)
 
@@ -199,10 +210,30 @@ overfit-a-batch gates still pass; single-device behaviour unchanged.
 |--------|---------|--------|
 | Pretrain tok/s (CPU, nano) | ~2,000 | Baseline |
 | Pretrain tok/s (TPU v4) | Not measured | ~50,000 |
-| Inference latency (48 tok) | Not measured | <200ms |
-| Fertility | <1.15 | Maintain |
-| Test pass rate | 18/18 unit | + integration stable |
+| Inference latency (48 tok) | KV-cached; steady-state after one compile | <200ms |
+| Fertility (tok/akshara) | 0.543 (swaram-v2) | Maintain <1.15 |
+| Token tax vs GPT-4 (cl100k) | **1.00x vs 4.36x** | Keep swaram at 1.00x |
+| Token tax vs GPT-4o (o200k) | **1.00x vs 1.21x** | Keep swaram at 1.00x |
+| Token tax vs UTF-8 bytes | **1.00x vs 8.89x** | — |
+| Test pass rate | 96 passed / 1 skipped (~86s) | CI green |
 | Aram Harness score | Not run | >0.90 |
+
+### Token tax (showcase)
+
+Measured on the real archive with English-centric tokenizers as baselines —
+see [`docs/TOKEN_TAX_BENCHMARK.md`](docs/TOKEN_TAX_BENCHMARK.md) and
+`scripts/benchmark_token_tax.py`.
+
+| tokenizer | tax vs swaram | words in 512 ctx |
+|---|---|---|
+| swaram-v2 (ours) | **1.00x** | 185 |
+| GPT-4o (o200k) | 1.21x | 154 |
+| GPT-4 (cl100k) | 4.36x | 42 |
+| char (codepoint) | 3.35x | 55 |
+| byte (UTF-8) | 8.89x | 21 |
+
+The tax is paid three times over: training compute, API cost, and effective
+context. The swaram tokenizer is what removes it.
 
 ---
 
