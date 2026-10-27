@@ -266,13 +266,14 @@ def main() -> None:
     logger.info("sampled %d docs", len(docs))
 
     ref_tok, _ = load_swaram(Path(args.swaram))
-    candidates: List[tuple] = [("swaram-v2 (ours)", ref_tok)]
+    ref_label = f"swaram ({Path(args.swaram).name})"
+    candidates: List[tuple] = [(ref_label, ref_tok)]
 
     v1 = Path(args.swaram_v1)
     if v1.exists():
         try:
             v1_tok, _ = load_swaram(v1)
-            candidates.append(("swaram-v1 (ours)", v1_tok))
+            candidates.append((f"swaram ({v1.name})", v1_tok))
         except Exception as exc:  # noqa: BLE001
             logger.warning("could not load swaram-v1: %s", exc)
 

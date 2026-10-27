@@ -125,10 +125,33 @@ overfit-a-batch gates still pass; single-device behaviour unchanged.
 |---|------|-----|--------|
 | 10 | Token-tax benchmark vs GPT-4/GPT-4o/byte | Evidence the tokenizer removes the Tamil tax | ✅ `docs/TOKEN_TAX_BENCHMARK.md` |
 | 11 | Run Phase 2 corpus expansion (target 1.5–2B) | More data = better model | 🚧 running, resumable |
-| 12 | Retrain tokenizer v3 on expanded corpus | Verify fertility < 1.15 at scale | ⏳ pending |
-| 13 | Pretrain adhan-nano on expanded corpus | Baseline for downstream tasks | ⏳ pending |
-| 14 | Run Aram Harness on pretrained checkpoint | Safety gate before any SFT | ⏳ pending |
-| 15 | Implement FSDP for adhan-mini | Unlocks 110M param training | ⏳ pending |
+| 12 | Retrain tokenizer v3 on expanded corpus | ✅ `tamil_slm_v3`: vocab 31,964, fertility 0.506, lossless 100% |
+| 13 | Validate v3 data path (shards → train) | ✅ 40-step run: loss 9.02 → 6.69, val_ppl 795 |
+| 14 | Pretrain adhan-nano on expanded corpus | Baseline for downstream tasks | ⏳ pending (raise max_steps) |
+| 15 | Run Aram Harness on pretrained checkpoint | Safety gate before any SFT | ⏳ pending |
+| 16 | Implement FSDP for adhan-mini | Unlocks 110M param training | ⏳ pending |
+
+Phase 2 progress (tokenizer v3):
+
+| metric | v2 (old) | v3 (expanded) |
+|---|---|---|
+| vocab | 31,964 | 31,964 |
+| fertility (token-tax sample) | 0.564 | **0.554** |
+| tokens / Tamil word | 2.926 | **2.874** |
+| Tamil words in 512-token ctx | 175 | **178** |
+| round-trip | 100% | 100% |
+| token tax vs GPT-4 (cl100k) | 4.36x | **4.21x** |
+| token tax vs GPT-4o (o200k) | 1.21x | 1.21x |
+
+Artifacts: `data/final/tamil_slm_v3` (tokenizer + packed shards,
+338,758 train sequences x 512). Reports: `docs/TOKEN_TAX_BENCHMARK_V3.md`,
+`docs/TOKENIZER_BENCHMARK_V3.md`. Config:
+`src/adhan_slm/configs/adhan_slm_nano_cpu_v3.yaml`.
+
+Open quality gap: morphology boundary agreement is ~5.6% for both v2 and v3 —
+BPE merges cut through stem/suffix boundaries. `freeze_fast_tokenizer.py
+--morphology-guard` is the intended fix (trades some compression for
+linguistically aligned boundaries) and should be evaluated next.
 
 Phase 2 progress (corpus):
 

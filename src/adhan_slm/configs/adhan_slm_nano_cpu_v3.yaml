@@ -1,0 +1,40 @@
+# Adhan SLM — CPU pretraining on the expanded v3 corpus (validated shards)
+#
+# Wires the retrained 32k swaram tokenizer + expanded shards
+# (data/final/tamil_slm_v3) into the nano tier. Use this to validate the Phase 2
+# data path end-to-end; for a real run raise train.max_steps and run on GPU/TPU.
+#
+#   python -m adhan_slm.training.train_jax \
+#       --config src/adhan_slm/configs/adhan_slm_nano_cpu_v3.yaml --device cpu
+
+experiment: adhan-slm-cpu-v3
+run_name: null
+mlflow_uri: sqlite:///mlflow.db
+checkpoint_dir: checkpoints/adhan-nano-v3
+
+model:
+  size: nano
+  vocab_size: 31964        # matches the frozen v3 tokenizer (train_jax re-reads vocab.json)
+  max_seq_len: 512         # v3 shards are packed at seq_len 512
+  use_boundary_emb: false
+  use_tinai: false
+  dtype: bfloat16
+
+train:
+  batch_size: 4
+  grad_accum_steps: 8      # effective batch 32
+  learning_rate: 6.0e-4
+  warmup_steps: 20
+  max_steps: 300           # validation run; raise for a real pretrain
+  weight_decay: 0.1
+  seed: 0
+  log_every: 10
+  eval_every: 100
+  checkpoint_every: 100
+  keep_checkpoints: 3
+  n_devices: 0             # 0 = all visible devices; 1 disables data parallel
+
+data:
+  version: adhan-corpus-v3
+  shards: data/final/tamil_slm_v3/
+  seq_packing: true
