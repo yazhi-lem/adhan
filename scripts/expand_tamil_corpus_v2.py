@@ -207,6 +207,28 @@ class LshDedup:
         return False
 
 
+# --- Resilient dataset loading ---------------------------------------------
+
+
+def _load_first_available(candidates, config, split="train"):
+    """Try several (dataset, config) ids and return the first that loads.
+
+    Upstream datasets get renamed, gated, or removed. One bad id must not take
+    down a multi-hour corpus build, so sources declare a small candidate list and
+    we use the first that the Hub still serves.
+    """
+    last_err = None
+    for dataset, cfg in candidates:
+        try:
+            ds = load_tamil_dataset(dataset, cfg, split=split, streaming=True)
+            logger.info("  using dataset %s (config=%s)", dataset, cfg)
+            return ds
+        except Exception as exc:  # noqa: BLE001 - try the next id
+            last_err = exc
+            logger.warning("  dataset %s (config=%s) unavailable: %s", dataset, cfg, exc)
+    raise last_err if last_err else RuntimeError("no candidate datasets configured")
+
+
 # --- Source readers ---------------------------------------------------------
 
 
@@ -353,7 +375,7 @@ def iter_cc100(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     logger.info(f"streaming CC-100 tam (limit={limit:,})")
-    ds = load_tamil_dataset("facebook/cc100", "ta", split="train", streaming=True)
+    ds = _load_first_available([("facebook/cc100", "ta"), ("cc100", "ta")], config="ta")
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -370,7 +392,14 @@ def iter_oscar(limit: int) -> Iterator[Dict]:
     if limit <= 0:
         return
     logger.info(f"streaming OSCAR unshuffled/deduplicated ta (limit={limit:,})")
-    ds = load_tamil_dataset("oscar-corpus/OSCAR-2301", "ta", split="train", streaming=True)
+    ds = _load_first_available(
+        [
+            ("oscar-corpus/OSCAR-2301", "ta"),
+            ("oscar-corpus/OSCAR-2201", "ta"),
+            ("oscar-corpus/OSCAR-2109", "ta"),
+        ],
+        config="ta",
+    )
     n = 0
     for row in ds:
         text = normalize(row.get("text", ""))
@@ -441,11 +470,51 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
 # --- Orchestration ----------------------------------------------------------
 
 
+def recount_archive(out_dir: Path) -> dict:
+    """Authoritative totals for the whole archive (cumulative across resumes).
+
+    Resume counters only cover the current process, so a resumed build's
+    ``kept``/``chars`` undercount the shards already on disk. Scanning the shards
+    at the end gives stats that are correct regardless of how many runs wrote
+    them, which is what anyone checking corpus status actually needs.
+    """
+    docs = 0
+    chars = 0
+    sources: Counter = Counter()
+    tiers: Counter = Counter()
+    for shard in sorted(out_dir.glob("corpus-*.jsonl")):
+        with shard.open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                docs += 1
+                chars += int(rec.get("chars", len(rec.get("text", ""))))
+                sources[rec.get("source", "?")] += 1
+                tiers[str(rec.get("tier", "?"))] += 1
+    return {
+        "documents": docs,
+        "characters": chars,
+        "sources": sources,
+        "tiers": tiers,
+        "shards": len(list(out_dir.glob("corpus-*.jsonl"))),
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Expand Adhan Tamil corpus — Phase 2 mega-ingestion")
     ap.add_argument("--out-dir", default="data/raw/expanded_v2")
     ap.add_argument("--shard-size", type=int, default=25000)
     ap.add_argument("--resume", action="store_true", help="resume from state.json")
+    ap.add_argument(
+        "--recount-only",
+        action="store_true",
+        help="only rescan shards and rewrite stats.json/state.json totals",
+    )
     ap.add_argument("--full", action="store_true", help="run with default full limits")
 
     # Source limits
@@ -488,6 +557,38 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     state_path = out_dir / "state.json"
     stats_path = out_dir / "stats.json"
+    if args.recount_only:
+        totals = recount_archive(out_dir)
+        approx = int(totals["characters"] / 3.2)
+        stats = {
+            "documents": totals["documents"],
+            "characters": totals["characters"],
+            "approx_tokens_swaram": approx,
+            "source_counts": dict(totals["sources"]),
+            "tier_counts": dict(totals["tiers"]),
+            "shards": totals["shards"],
+            "out_dir": str(out_dir),
+        }
+        stats_path.write_text(json.dumps(stats, indent=2, ensure_ascii=False))
+        if state_path.exists():
+            st = json.loads(state_path.read_text())
+            st.update(
+                {
+                    "kept": totals["documents"],
+                    "chars": totals["characters"],
+                    "shards": totals["shards"],
+                }
+            )
+            state_path.write_text(json.dumps(st, indent=2))
+        logger.info(
+            "recount: %s docs | %s chars | ~%s tokens | %s shards",
+            f"{totals['documents']:,}",
+            f"{totals['characters']:,}",
+            f"{approx:,}",
+            totals["shards"],
+        )
+        return
+
     state = json.loads(state_path.read_text()) if (args.resume and state_path.exists()) else {}
     done: Set[str] = set(state.get("done_sources", []))
 
@@ -564,61 +665,107 @@ def main() -> None:
         logger.info(f"rotating shard -> {new_path.name} ({kept:,} docs, {chars_kept:,} chars)")
         fh = new_path.open("a", encoding="utf-8")
 
+    failed_sources: List[str] = []
+
+    def write_progress() -> None:
+        """Persist resume state + stats. Called periodically and at the end."""
+        approx_tokens = int(chars_kept / 3.2)  # swaram ~3.2 chars/token
+        stats = {
+            "documents": kept,
+            "characters": chars_kept,
+            "approx_tokens_swaram": approx_tokens,
+            "source_counts": dict(counts),
+            "tier_counts": dict(tier_counts),
+            "dropped": dict(dropped),
+            "hf_revisions": describe_pins(),
+            "shards": shard_idx + 1,
+            "out_dir": str(out_dir),
+            "done_sources": sorted(done),
+            "failed_sources": sorted(failed_sources),
+        }
+        stats_path.write_text(json.dumps(stats, indent=2, ensure_ascii=False))
+        state.update(
+            {
+                "done_sources": sorted(done),
+                "failed_sources": sorted(failed_sources),
+                "kept": kept,
+                "shards": shard_idx + 1,
+                "chars": chars_kept,
+            }
+        )
+        state_path.write_text(json.dumps(state, indent=2))
+
     try:
         for name, iterator in sources:
             logger.info(f"=== source: {name} ===")
-            for rec in iterator:
-                text = rec["text"]
-                if dedup.is_duplicate(text):
-                    dropped["duplicate"] += 1
-                    continue
-                rec["id"] = f"{rec['source']}-{kept}"
-                rec["chars"] = len(text)
-                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
-                counts[rec["source"]] += 1
-                tier_counts[rec["tier"]] += 1
-                kept += 1
-                chars_kept += len(text)
-                in_shard += 1
-                if in_shard >= args.shard_size:
-                    rotate()
-                if kept % 10000 == 0:
-                    logger.info(
-                        f"  kept={kept:,}  chars={chars_kept:,}  "
-                        f"dropped={sum(dropped.values()):,}  "
-                        f"top={counts.most_common(3)}"
-                    )
-                    fh.flush()
-                    state.update(
-                        {
-                            "done_sources": sorted(done),
-                            "kept": kept,
-                            "shards": shard_idx + 1,
-                            "chars": chars_kept,
-                        }
-                    )
-                    state_path.write_text(json.dumps(state, indent=2))
-            done.add(name)
+            # A missing/gated/renamed upstream dataset must not kill the whole
+            # build: record the failure, keep everything already written, and
+            # leave the source un-done so a later resume can retry it.
+            try:
+                for rec in iterator:
+                    text = rec["text"]
+                    if dedup.is_duplicate(text):
+                        dropped["duplicate"] += 1
+                        continue
+                    rec["id"] = f"{rec['source']}-{kept}"
+                    rec["chars"] = len(text)
+                    fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    counts[rec["source"]] += 1
+                    tier_counts[rec["tier"]] += 1
+                    kept += 1
+                    chars_kept += len(text)
+                    in_shard += 1
+                    if in_shard >= args.shard_size:
+                        rotate()
+                    if kept % 10000 == 0:
+                        logger.info(
+                            f"  kept={kept:,}  chars={chars_kept:,}  "
+                            f"dropped={sum(dropped.values()):,}  "
+                            f"top={counts.most_common(3)}"
+                        )
+                        fh.flush()
+                        write_progress()
+                done.add(name)
+                write_progress()
+            except Exception as exc:  # noqa: BLE001 - continue with other sources
+                failed_sources.append(name)
+                logger.error("source %s failed; continuing: %s", name, exc)
+                write_progress()
     finally:
         fh.close()
+        write_progress()
 
-    # Write final stats
-    approx_tokens = int(chars_kept / 3.2)  # swaram ~3.2 chars/token
-    stats = {
-        "documents": kept,
-        "characters": chars_kept,
-        "approx_tokens_swaram": approx_tokens,
-        "source_counts": dict(counts),
-        "tier_counts": dict(tier_counts),
-        "dropped": dict(dropped),
-        "hf_revisions": describe_pins(),
-        "shards": shard_idx + 1,
-        "out_dir": str(out_dir),
-    }
-    stats_path.write_text(json.dumps(stats, indent=2, ensure_ascii=False))
+    # Final roll-up: authoritative archive totals (cumulative across resumes).
+    totals = recount_archive(out_dir)
+    approx_tokens = int(totals["characters"] / 3.2)  # swaram ~3.2 chars/token
+    stats_path.write_text(
+        json.dumps(
+            {
+                "documents": totals["documents"],
+                "characters": totals["characters"],
+                "approx_tokens_swaram": approx_tokens,
+                "source_counts": dict(totals["sources"]),
+                "tier_counts": dict(totals["tiers"]),
+                "dropped": dict(dropped),
+                "hf_revisions": describe_pins(),
+                "shards": totals["shards"],
+                "out_dir": str(out_dir),
+                "done_sources": sorted(done),
+                "failed_sources": sorted(failed_sources),
+                "this_run": {"documents": kept, "characters": chars_kept},
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    state.update(
+        {"kept": totals["documents"], "chars": totals["characters"], "shards": totals["shards"]}
+    )
+    state_path.write_text(json.dumps(state, indent=2))
     logger.info(
-        f"FINAL: {kept:,} docs | {chars_kept:,} chars | ~{approx_tokens:,} tokens | "
-        f"{shard_idx + 1} shards"
+        f"FINAL: {totals['documents']:,} docs | {totals['characters']:,} chars | "
+        f"~{approx_tokens:,} tokens | {totals['shards']} shards "
+        f"(this run: {kept:,} new docs)"
     )
     for src, cnt in counts.most_common():
         logger.info(f"  {src:25s}: {cnt:,}")
