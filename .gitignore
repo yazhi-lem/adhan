@@ -28,6 +28,7 @@ Thumbs.db
 /data/
 # packed SLM shards / checkpoints (build artifacts)
 checkpoints/
+bench/
 *.bin
 *.bin.manifest.json
 
