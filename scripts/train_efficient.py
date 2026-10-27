@@ -2,7 +2,7 @@
 """Adhan SLM — High-Efficiency Training Engine (PyTorch backend).
 
 Second trainer alongside `adhan_slm.training.train_jax` (JAX/Flax, the primary,
-documented path — see docs/CPU_TRAINING.md). This one is useful once a CUDA GPU is
+documented path — see docs/training/CPU_TRAINING.md). This one is useful once a CUDA GPU is
 available for PyTorch-native workflows (AMP, torch.compile).
 
 Hardware is auto-detected at run time via `configure_hardware()` — CPU (any core count)

@@ -24,7 +24,7 @@ Metrics:
 
 Usage:
     python scripts/benchmark_token_tax.py --corpus data/raw/expanded --docs 400 \
-        --out docs/TOKEN_TAX_BENCHMARK.md
+        --out docs/tokenizer/TOKEN_TAX_BENCHMARK_V3.md
 """
 
 from __future__ import annotations
@@ -259,7 +259,7 @@ def main() -> None:
     ap.add_argument("--max-chars", type=int, default=1500)
     ap.add_argument("--swaram", default="data/final/tamil_slm_v2")
     ap.add_argument("--swaram-v1", default="data/final/tamil_slm")
-    ap.add_argument("--out", default="docs/TOKEN_TAX_BENCHMARK.md")
+    ap.add_argument("--out", default="docs/tokenizer/TOKEN_TAX_BENCHMARK_V3.md")
     args = ap.parse_args()
 
     docs = sample_docs(Path(args.corpus), args.docs, args.max_chars)

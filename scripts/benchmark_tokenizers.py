@@ -651,7 +651,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--vocab-size", type=int, default=4000)
     ap.add_argument("--cache-dir", default="data/raw/thirukkural")
-    ap.add_argument("--out", default="docs/SWARAM_BENCHMARK.md")
+    ap.add_argument("--out", default="docs/tokenizer/SWARAM_BENCHMARK.md")
     args = ap.parse_args()
 
     docs = load_frozen_corpus(Path(args.cache_dir))

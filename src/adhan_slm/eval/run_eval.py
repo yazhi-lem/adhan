@@ -1,7 +1,7 @@
 """Adhan SLM evaluation harness — one entrypoint for the Phase 4 comparison table.
 
 Runs every Tamil-specific probe the roadmap defines and prints/writes a single report
-(`docs/EVAL_TAMIL.md`-style JSON). Each probe degrades gracefully: sections that need
+(`docs/behaviour/EVAL_TAMIL.md`-style JSON). Each probe degrades gracefully: sections that need
 open-tamil or a trained checkpoint are skipped with a note rather than crashing, so the
 harness runs in any environment and gets richer as dependencies/artifacts appear.
 

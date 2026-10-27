@@ -1,4 +1,4 @@
-"""Kid-level Tamil eval prompt generation (ROADMAP_JAX_SLM.md §4: "Instruct
+"""Kid-level Tamil eval prompt generation (docs/ROADMAP_JAX_SLM.md §4: "Instruct
 variant produces kid-level grammatical Tamil on a 50-prompt set").
 
 Seeds the prompt set from open-tamil's `solthiruthi` categorized word lists
