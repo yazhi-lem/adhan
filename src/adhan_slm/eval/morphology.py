@@ -1,5 +1,5 @@
 """Morphology probe (roadmap Phase 4: "morphology probe / sandhi split-join
-accuracy", ROADMAP_JAX_SLM.md §Phase 1 & §Phase 4).
+accuracy", docs/ROADMAP_JAX_SLM.md §Phase 1 & §Phase 4).
 
 Uses open-tamil as the morphological oracle — its `TamilStemmer` (suffix
 stripping) and `tamilsandhi` checker (rule-based சந்தி splitting) — to score
@@ -92,7 +92,7 @@ def sandhi_correctness_rate(
 
     Feed this model generations (space-tokenized Tamil sentences) to get a
     cheap, rule-based grammaticality signal — exactly the "sandhi split/join
-    accuracy" probe called for in ROADMAP_JAX_SLM.md §Phase 4, ahead of the
+    accuracy" probe called for in docs/ROADMAP_JAX_SLM.md §Phase 4, ahead of the
     human read-through rubric.
     """
     n_words = 0

@@ -16,7 +16,7 @@ Design notes
 * We only implement pure **data parallelism** here. Each device holds a full
   replica of the params and processes ``batch / n_devices`` examples. That is
   the correct first step and covers nano/tiny comfortably. Tensor/pipeline
-  parallelism (and FSDP for mini) is a later concern; see CURRENT.md.
+  parallelism (and FSDP for mini) is a later concern; see factory/RUNWAY.md.
 * ``jax.sharding`` is imported lazily so importing this module never forces a
   backend to initialise (same contract as the rest of the training package).
 """

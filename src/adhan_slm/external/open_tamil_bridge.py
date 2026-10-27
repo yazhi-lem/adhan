@@ -5,7 +5,7 @@ open-tamil is MIT-licensed and pip-installable (`pip install open-tamil`); see
 requirements-jax.txt. One bundled submodule, `tamilsandhi`, is GPLv3 — we only
 *call* it as a separate installed package, never vendor its source into this repo.
 
-What Adhan takes from it, and why (see ROADMAP_JAX_SLM.md §Phase 1/4):
+What Adhan takes from it, and why (see docs/ROADMAP_JAX_SLM.md §Phase 1/4):
   - `tamil.utf8.get_letters`      reference akshara segmenter -> cross-check oracle
                                    for Layer A of the swaram/aksharam tokenizers
   - `tamilstemmer.TamilStemmer`   suffix-stripping stemmer -> morpheme-boundary
@@ -116,7 +116,7 @@ def normalize_encoding(text: str) -> str:
     assumes its input is *not* already Unicode and fails on it (returns empty),
     so text already containing Tamil-block codepoints is passed through
     unchanged without calling it. Use before feeding scraped text of unknown
-    provenance into the corpus pipeline (see docs/ARCHITECTURE_SWARAM_SLM.md).
+    provenance into the corpus pipeline (see docs/architecture/ARCHITECTURE_SWARAM_SLM.md).
     """
     _require_open_tamil()
     if not text or _TAMIL_BLOCK.search(text):

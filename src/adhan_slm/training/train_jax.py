@@ -16,7 +16,7 @@ A runnable, jit-ed causal-LM training step wired to MLflow. Three modes:
     python -m adhan_slm.training.train_jax \
         --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml
 
-CPU training is a first-class path (see docs/CPU_TRAINING.md): `--device cpu`
+CPU training is a first-class path (see docs/training/CPU_TRAINING.md): `--device cpu`
 pins the backend, `train.grad_accum_steps` buys a large effective batch out of a
 CPU-sized micro-batch, and the pre-flight banner estimates wall-clock before the
 run commits.
@@ -458,7 +458,7 @@ def train(
     # tokenizer dir it was trained against, carried as a JSON item inside the
     # checkpoint itself instead of a separately-passed --config/--tokenizer-dir.
     # adhan_slm.inference.load_model reads this back so a checkpoint dir alone is
-    # enough to reconstruct and restore the model — see docs/ARCHITECTURE_SWARAM_SLM.md.
+    # enough to reconstruct and restore the model — see docs/architecture/ARCHITECTURE_SWARAM_SLM.md.
     _shards = cfg.get("data", {}).get("shards")
     ckpt_metadata = {
         "model_config": {k: v for k, v in vars(model_cfg).items()},

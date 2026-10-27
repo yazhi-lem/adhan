@@ -1,6 +1,6 @@
 """MLflow experiment-tracking helpers for Adhan SLM training.
 
-Enforces the reproducibility contract from docs/ARCHITECTURE_SWARAM_SLM.md §4:
+Enforces the reproducibility contract from docs/architecture/ARCHITECTURE_SWARAM_SLM.md §4:
 every run logs the full config, the code git SHA, and the dataset version, so any
 run can be re-derived. If mlflow is not installed, a no-op tracker is returned so
 smoke runs still work.

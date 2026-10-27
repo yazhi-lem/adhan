@@ -2,7 +2,7 @@
 #
 # The tier the roadmap ships first (`adhan-nano`, Phase 6), sized so a run makes
 # real progress on a laptop / CI-class CPU instead of a 24GB GPU. See
-# docs/CPU_TRAINING.md for the measured numbers behind these values.
+# docs/training/CPU_TRAINING.md for the measured numbers behind these values.
 #
 #   python -m adhan_slm.training.train_jax \
 #       --config src/adhan_slm/configs/adhan_slm_nano_cpu.yaml --device cpu
@@ -21,7 +21,7 @@ model:
   vocab_size: 4000        # small frozen swaram vocab keeps the tied head cheap on CPU
   max_seq_len: 256        # short context: attention + activations scale with this
   use_boundary_emb: false
-  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/TINAI_CONDITIONING.md  
+  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/architecture/TINAI_CONDITIONING.md  
   dtype: bfloat16         # measured ~1.5x faster than float32 on XLA:CPU (see docs)
 
 train:

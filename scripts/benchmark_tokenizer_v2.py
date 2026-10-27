@@ -14,7 +14,7 @@ Usage:
         --corpus data/raw/expanded \\
         --tokenizer data/final/tamil_slm:swaram-v1-python-12k \\
         --tokenizer data/final/tamil_slm_v2:swaram-v2-rust-32k \\
-        --out docs/TOKENIZER_BENCHMARK_V2.md
+        --out docs/tokenizer/TOKENIZER_BENCHMARK_V2.md
 """
 
 from __future__ import annotations
@@ -202,7 +202,7 @@ def main() -> None:
         help="DIR:label (repeatable); defaults compare data/final/tamil_slm and tamil_slm_v2",
     )
     ap.add_argument("--docs", type=int, default=300)
-    ap.add_argument("--out", default="docs/TOKENIZER_BENCHMARK_V2.md")
+    ap.add_argument("--out", default="docs/tokenizer/TOKENIZER_BENCHMARK_V2.md")
     args = ap.parse_args()
 
     specs = args.tokenizer or [

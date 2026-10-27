@@ -23,7 +23,7 @@ Design notes:
 Usage:
     python scripts/corpus_health.py --corpus data/raw/expanded
     python scripts/corpus_health.py --corpus data/raw/expanded --docs 50000 \\
-        --out docs/CORPUS_HEALTH.md --json /tmp/corpus_health.json
+        --out docs/corpus/CORPUS_HEALTH.md --json /tmp/corpus_health.json
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 # Measured on an 800-doc sample with the frozen swaram tokenizer (see
-# docs/CORPUS_EXPANSION.md). Used only when no tokenizer is available.
+# docs/corpus/CORPUS_EXPANSION.md). Used only when no tokenizer is available.
 TOKENS_PER_CHAR = 0.311
 
 _TAMIL = re.compile(r"[\u0B80-\u0BFF]")

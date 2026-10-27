@@ -15,7 +15,7 @@ This extractor is structured instead of generic:
   * `yazhi_urai`   -> model-generated commentary, kept but labelled separately
   * `title`/`heading`/`english`/`culturalNotes` -> **excluded**: they are metadata or
                      English, and fragment-level inclusion is what made the old
-                     `local:*` sources noisy (see `docs/SANGAM_INGEST.md`)
+                     `local:*` sources noisy (see `docs/corpus/SANGAM_INGEST.md`)
 
 **Songs are never merged.** One document is one (song, layer) pair: a verse is never
 concatenated with its commentary or with another verse. Sangam poetics is a
@@ -29,7 +29,7 @@ independently without any document ever spanning two tiṇais.
 It also emits a **Tiṇai label sidecar** (`data/final/tinai_labels.jsonl`): 73% of the
 2,669 poems carry a `tinai` field, and the knowledge graph's `HAS_TINAI` edges fill in
 some of the rest. Those labels are what the model's `use_tinai` conditioning layer
-(`docs/TINAI_CONDITIONING.md`) needs — "Tamil intelligence" here means structured
+(`docs/architecture/TINAI_CONDITIONING.md`) needs — "Tamil intelligence" here means structured
 grammar/landscape supervision, not only more tokens.
 
 Usage:

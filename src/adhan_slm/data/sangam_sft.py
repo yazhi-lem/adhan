@@ -5,7 +5,7 @@ which landscape, which season, which emotion, which imagery. This module turns t
 already-labelled records into deterministic SFT tasks and a held-out classification
 benchmark. No teacher model is involved, so there is nothing to hallucinate in the
 inputs; a wrong target would be a labelling bug, and the labels come from
-``docs/SANGAM_INGEST.md``'s canon.
+``docs/corpus/SANGAM_INGEST.md``'s canon.
 
 Splits are **by poem**, keyed by a stable hash of the poem id: every task generated
 from one poem lands in exactly one split, so a test verse never appears in training
