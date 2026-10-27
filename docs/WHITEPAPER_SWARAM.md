@@ -4,6 +4,10 @@
 
 *Yazhi / Adhan SLM — Technical Whitepaper v1.0*
 
+> **Indic edition:** the extension of Swaram to Telugu, Kannada, Malayalam, Tulu,
+> Hindi, Haryanvi, Punjabi, Odia and Bengali is in
+> [`WHITEPAPER_SWARAM_INDIC.md`](WHITEPAPER_SWARAM_INDIC.md).
+
 ---
 
 ## Abstract
