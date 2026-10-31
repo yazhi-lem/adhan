@@ -1,0 +1,18 @@
+{
+  "spec": "eval_manifests/tokenizer_bench.sources.json",
+  "manifest": "eval_manifests/tokenizer_bench.manifest.json",
+  "corpus": "data/eval/tokenizer_bench.jsonl",
+  "results_json": "docs/tokenizer_bench_results.json",
+  "results_md": "docs/TOKENIZER_BENCH_RESULTS.md",
+  "price_per_million": null,
+  "pins": {
+    "tokenizers": "0.23.3"
+  },
+  "fetch": {
+    "thirukkural": "thirukkural"
+  },
+  "tokenizers": [
+    {"kind": "swaram", "name": "swaram-v3", "vocab": "TODO: path/to/vocab.json", "merges": "TODO: path/to/merges.txt"},
+    {"kind": "baselines"}
+  ]
+}
