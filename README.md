@@ -48,6 +48,9 @@ fertility and JAX memory profiling.
 Tholkāppiyam), 50 kid-level prompts, the classical unigram floor and model perplexity, all combined into one
 `run_eval` JSON report ([`docs/behaviour/EVAL_TAMIL.md`](docs/behaviour/EVAL_TAMIL.md)). Safety: [`docs/behaviour/ARAM_HARNESS.md`](docs/behaviour/ARAM_HARNESS.md).
 Serving: [`docs/serving/DEPLOYMENT.md`](docs/serving/DEPLOYMENT.md).
+- **Tamil Tokenizer Benchmark (`src/adhan_slm/eval/tokenizer_bench.py`):** fertility, grapheme splits and cost per 1k sentences on a frozen eval corpus. Reproduce with `scripts/reproduce_benchmark.sh` — see [`docs/REPRODUCE_BENCHMARK.md`](docs/REPRODUCE_BENCHMARK.md).
+
+---
 
 ## License
 
