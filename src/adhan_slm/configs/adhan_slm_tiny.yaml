@@ -10,7 +10,7 @@ model:
   size: tiny              # nano | tiny | mini  (or omit and set fields explicitly)
   vocab_size: 12000       # frozen swaram tokenizer vocab (roadmap Phase 1)
   use_boundary_emb: false # enable to add tokenizer Layer-C morpheme-boundary signal
-  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/TINAI_CONDITIONING.md  
+  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/architecture/TINAI_CONDITIONING.md  
   dtype: bfloat16
 
 train:

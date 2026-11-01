@@ -55,7 +55,7 @@ mkdir -p "${CORPUS_DIR}" "${FINAL_SLM_DIR}"
 # ------------------------------------------------------------------------------
 # Appends to the existing shards: documents already on disk are seeded by
 # exact hash, so re-running only adds what is new. Completed sources are
-# recorded in state.json and skipped. See docs/CORPUS_EXPANSION.md.
+# recorded in state.json and skipped. See docs/corpus/CORPUS_EXPANSION.md.
 echo ""
 echo ">> Step 1: Expanding the Tamil corpus (streaming)..."
 python "${REPO_ROOT}/scripts/expand_tamil_corpus.py" \

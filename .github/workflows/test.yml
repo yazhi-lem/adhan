@@ -71,7 +71,7 @@ jobs:
   # The whole SLM pipeline must stay trainable on a plain CPU runner: corpus ->
   # frozen swaram tokenizer -> packed shards -> train, including the
   # overfit-a-batch sanity gate. `.[jax]` installs CPU wheels, so this needs no
-  # GPU and no CUDA toolchain (see docs/CPU_TRAINING.md).
+  # GPU and no CUDA toolchain (see docs/training/CPU_TRAINING.md).
   cpu-training:
     runs-on: ubuntu-latest
     timeout-minutes: 30

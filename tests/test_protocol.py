@@ -1,4 +1,4 @@
-"""Tests for the textual response protocol (docs/RESPONSE_PROTOCOL.md)."""
+"""Tests for the textual response protocol (docs/behaviour/RESPONSE_PROTOCOL.md)."""
 
 import pytest
 

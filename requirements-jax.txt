@@ -4,7 +4,7 @@
 #   pip install -r requirements-jax.txt
 #
 # The jax pinned below is the CPU wheel — training works with no CUDA toolchain
-# (see docs/CPU_TRAINING.md). For GPU/TPU use the packaged extra instead:
+# (see docs/training/CPU_TRAINING.md). For GPU/TPU use the packaged extra instead:
 #   pip install -e ".[jax-cuda]"        # or: pip install "jax[cuda12]"
 
 jax>=0.4.30

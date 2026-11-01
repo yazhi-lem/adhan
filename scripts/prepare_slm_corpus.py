@@ -3,7 +3,7 @@
 
 This closes the Phase 1 ("freeze vocab.json + merges", `adhan-tok-v1` artifact) and
 Phase 2 ("tokenize → packed fixed-length sequences → sharded") gap in
-ROADMAP_JAX_SLM.md. Given a corpus (txt / jsonl / directory), it:
+docs/ROADMAP_JAX_SLM.md. Given a corpus (txt / jsonl / directory), it:
 
   1. deduplicates (exact + near-duplicate) and scrubs PII (emails/phones/URLs),
   2. trains the Swaram (Tamil/Dravidian) or Aksharam (Hindi/Indic) tokenizer,

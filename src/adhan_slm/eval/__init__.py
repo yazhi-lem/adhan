@@ -14,5 +14,5 @@ Planned:
 
 All open-tamil-backed modules require `pip install -r requirements-jax.txt`
 (or `pip install open-tamil`) and skip cleanly in tests if it's absent — see
-src/adhan_slm/external/open_tamil_bridge.py. See docs/ARCHITECTURE_SWARAM_SLM.md §5/§10.
+src/adhan_slm/external/open_tamil_bridge.py. See docs/architecture/ARCHITECTURE_SWARAM_SLM.md §5/§10.
 """

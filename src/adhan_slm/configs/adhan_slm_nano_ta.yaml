@@ -41,7 +41,7 @@ model:
   vocab_size: 31964       # must equal the shard dir's vocab.json (trainer re-derives it)
   max_seq_len: 512        # must equal the shard manifest's seq_len
   use_boundary_emb: false
-  use_tinai: false        # five-landscape conditioning; see docs/TINAI_CONDITIONING.md
+  use_tinai: false        # five-landscape conditioning; see docs/architecture/TINAI_CONDITIONING.md
   dtype: bfloat16         # ~1.5x faster than float32 on XLA:CPU (measured)
 
 train:

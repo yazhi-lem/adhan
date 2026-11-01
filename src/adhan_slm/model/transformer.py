@@ -1,11 +1,11 @@
 """Adhan SLM — decoder-only transformer in Flax (agglutination-aware Tamil model).
 
-Architecture (see docs/ARCHITECTURE_SWARAM_SLM.md §3):
+Architecture (see docs/architecture/ARCHITECTURE_SWARAM_SLM.md §3):
   - swaram-vocab token embedding, weight-tied to the output head
   - Rotary position embeddings (RoPE)
   - pre-norm blocks with RMSNorm + SwiGLU MLP
   - optional morpheme-boundary embedding (agglutination signal from tokenizer Layer C)
-  - optional Tiṇai conditioning (see docs/TINAI_CONDITIONING.md and model/tinai.py): a
+  - optional Tiṇai conditioning (see docs/architecture/TINAI_CONDITIONING.md and model/tinai.py): a
     causal router over the five Sangam landscapes whose embedding is added to the input
     and modulates every block (FiLM). Off by default; zero-initialised so enabling it
     starts from exactly the unconditioned model.

@@ -2,11 +2,11 @@
 
 From-scratch, akshara-native, agglutination-aware small language model for Tamil.
 Not a fine-tune of an English/multilingual base. See the top-level
-[`ROADMAP_JAX_SLM.md`](../../ROADMAP_JAX_SLM.md) and
-[`docs/ARCHITECTURE_SWARAM_SLM.md`](../../docs/ARCHITECTURE_SWARAM_SLM.md).
+[`docs/ROADMAP_JAX_SLM.md`](../../docs/ROADMAP_JAX_SLM.md) and
+[`docs/architecture/ARCHITECTURE_SWARAM_SLM.md`](../../docs/architecture/ARCHITECTURE_SWARAM_SLM.md).
 
 Adhan is the **foundational model** of the Yazh ecosystem — see
-[`docs/YAZH_FOUNDATION.md`](../../docs/YAZH_FOUNDATION.md).
+[`docs/architecture/YAZH_FOUNDATION.md`](../../docs/architecture/YAZH_FOUNDATION.md).
 
 ## Layout
 | Path | What |
@@ -19,9 +19,8 @@ Adhan is the **foundational model** of the Yazh ecosystem — see
 | `training/train_jax.py` | JAX/Flax pretraining loop: real-data iterator, in-loop val perplexity, Orbax checkpoint/resume, MLflow tracking. |
 | `training/mlflow_utils.py` | MLflow run contract (params + git SHA + data version). |
 | `inference.py` | Load frozen tokenizer + Orbax checkpoint → `generate_text()`. |
-| `rag/` | Tamil RAG layer: akshara-aware chunker, hash/sentence-transformers embedders, cosine index, retrieve→generate pipeline + CLI. See [`docs/RAG_YAZH.md`](../../docs/RAG_YAZH.md) and `../notebooks/04_yazh_rag_colab.ipynb` (Colab retriever training). |
 | `configs/adhan_slm_tiny.yaml` | Model + training + data + checkpoint config. |
-| `eval/` | Tamil-first evaluation: `morphology.py` (stemmer/sandhi), `kid_level_prompts.py`, `ngram_baseline.py`, `perplexity.py` (model ppl), and `run_eval.py` (one-shot harness → JSON). See [`docs/EVAL_TAMIL.md`](../../docs/EVAL_TAMIL.md). |
+| `eval/` | Tamil-first evaluation: `morphology.py` (stemmer/sandhi), `kid_level_prompts.py`, `ngram_baseline.py`, `perplexity.py` (model ppl), and `run_eval.py` (one-shot harness → JSON). See [`docs/behaviour/EVAL_TAMIL.md`](../../docs/behaviour/EVAL_TAMIL.md). |
 | `external/open_tamil_bridge.py` | Bridge onto **open-tamil** (MIT), the base Tamil-NLP layer for eval/tooling — segmentation oracle, stemmer, sandhi checker, encoding/transliteration, lexicons. Never imported by the tokenizer hot path. |
 | `../../scripts/prepare_slm_corpus.py` | Freeze tokenizer (`vocab.json`+`merges.txt`) + pack shards + `datasheet.json`. |
 | `../../scripts/generate_slm.py` | Sample text from a trained checkpoint. |
