@@ -128,6 +128,8 @@ pip install -e ".[dev,jax-cuda,tamil-nlp]"
 - **Morphology & Sandhi Probes (`src/adhan_slm/eval/morphology.py`):** Word-junction correctness (*புணர்ச்சி*) against *Tholkaappiyam* rules.
 - **50 Kid-Level Conversational Prompts (`src/adhan_slm/eval/kid_level_prompts.py`):** Real-world prompt generation tests.
 
+- **Tamil Tokenizer Benchmark (`src/adhan_slm/eval/tokenizer_bench.py`):** fertility, grapheme splits and cost per 1k sentences on a frozen eval corpus. Reproduce with `scripts/reproduce_benchmark.sh` — see [`docs/REPRODUCE_BENCHMARK.md`](docs/REPRODUCE_BENCHMARK.md).
+
 ---
 
 ## License
