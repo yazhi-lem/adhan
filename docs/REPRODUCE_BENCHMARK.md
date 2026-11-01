@@ -41,8 +41,9 @@ Tokenizer paths are relative to the repo root. Gemma and Llama tokenizers are ex
 
 - The corpus sample is a pure function of the text and a seed (part 1).
 - The result files contain no timestamps or timings; floats are rounded to 8 digits.
-- If the rebuilt corpus differs from the committed manifest (an input file or the spec
-  changed) the run fails. Use `--refreeze` only when the change is intended; then commit the
+- If a manifest is committed and the rebuilt corpus differs from it (an input file or the
+  spec changed) the run fails. With no committed manifest there is nothing to compare, so the
+  first run writes one. Use `--refreeze` only when the change is intended; then commit the
   new manifest and tables together.
 - `--check` fails on any difference in numbers or in the Markdown table.
 - `environment` (Python and library versions) is stored in the JSON for information and is
