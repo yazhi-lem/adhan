@@ -20,7 +20,7 @@ model:
   vocab_size: 12000        # will auto-adjust to frozen tokenizer size
   max_seq_len: 512         # must match packed shard seq_len
   use_boundary_emb: false
-  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/TINAI_CONDITIONING.md  
+  use_tinai: false        # five-landscape (tiṇai) conditioning; see docs/architecture/TINAI_CONDITIONING.md  
   dtype: bfloat16
 
 train:

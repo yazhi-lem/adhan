@@ -1,4 +1,4 @@
-"""Classical n-gram akshara baseline (ROADMAP_JAX_SLM.md §Phase 4: "comparison
+"""Classical n-gram akshara baseline (docs/ROADMAP_JAX_SLM.md §Phase 4: "comparison
 table vs baselines").
 
 Wraps open-tamil's `ngram.LetterModels.Unigram` — a plain Tamil-akshara

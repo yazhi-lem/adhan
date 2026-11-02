@@ -32,7 +32,7 @@ def main():
     ap.add_argument("--bench", default="bench/tamil-bench/data/sangam_ta_test.jsonl")
     ap.add_argument("--tokenizer", default="data/final/nano_300m_s512")
     ap.add_argument("--n", type=int, default=182)
-    ap.add_argument("--out", default="docs/eval_sft_sangam_mcq.json")
+    ap.add_argument("--out", default="docs/reports/eval_sft_sangam_mcq.json")
     args = ap.parse_args()
 
     from adhan_slm.training.device import configure_backend

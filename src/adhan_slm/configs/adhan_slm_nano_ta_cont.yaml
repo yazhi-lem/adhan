@@ -2,7 +2,7 @@
 #
 # Stage 1 trained 1,830 updates (~60M tokens, two epochs of the old 30M-token
 # shard set) and stopped at train loss 3.789 / val loss 3.890. The loss curve was
-# flat and the eval (docs/eval_report_nano.json) showed the model still barely
+# flat and the eval (docs/reports/eval_report_nano.json) showed the model still barely
 # beating the classical unigram floor, so the run is *continued*, not restarted:
 #
 #   * weights come from checkpoints/adhan-nano-ta/1829 (backed up at

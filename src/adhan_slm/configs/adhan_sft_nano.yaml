@@ -1,6 +1,6 @@
 # Adhan SLM — SFT v0 for `adhan-nano` (Tamil, CPU)
 #
-# Trains the response protocol (docs/RESPONSE_PROTOCOL.md) on the v0 data built by
+# Trains the response protocol (docs/behaviour/RESPONSE_PROTOCOL.md) on the v0 data built by
 # scripts/build_sangam_sft.py and scripts/build_grounded_qa.py:
 #
 #   prompt tokens are masked; loss is computed on the target only
