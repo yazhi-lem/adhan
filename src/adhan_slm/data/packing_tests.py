@@ -57,6 +57,53 @@ def test_packed_stream_is_a_lossless_prefix_of_the_raw_stream() -> None:
     assert 0 <= dropped < SEQ_LEN, f"drop remainder must be < seq_len, got {dropped}"
 
 
+def test_streaming_packer_carries_remainders_across_documents() -> None:
+    """Short documents must not each lose a remainder (the old per-doc bug)."""
+    tok = sample_tokenizer()
+    docs = TAMIL_LINES * 20
+    raw = list(packing.tokens_from_documents(docs, tok))
+
+    packer = packing.StreamingPacker(SEQ_LEN)
+    seqs: list[list[int]] = []
+    for doc in docs:
+        seqs.extend(packer.add(tok.encode(doc, add_special=True)))
+    seqs.extend(packer.finish())
+
+    flat = [t for s in seqs for t in s]
+    assert flat == raw[: len(flat)], "streaming packer must preserve the raw prefix"
+    assert len(flat) >= 0.95 * len(raw), (
+        f"streaming packer kept {len(flat)}/{len(raw)} tokens; expected >= 95%"
+    )
+
+
+def test_per_document_packing_loses_short_documents() -> None:
+    """Contrast: packing each document separately drops most short documents."""
+    tok = sample_tokenizer()
+    docs = TAMIL_LINES * 20
+    raw = list(packing.tokens_from_documents(docs, tok))
+
+    per_doc = []
+    for doc in docs:
+        ids = tok.encode(doc, add_special=True)
+        per_doc.extend(packing.pack_stream(iter(ids), SEQ_LEN))
+    kept = sum(len(s) for s in per_doc)
+    assert kept < 0.95 * len(raw), (
+        "this test documents the old bug; if per-doc packing now keeps >=95% "
+        "the fixture is no longer short enough to be meaningful"
+    )
+
+
+def test_streaming_packer_finish_pads_or_drops() -> None:
+    packer = packing.StreamingPacker(SEQ_LEN)
+    assert packer.add(list(range(SEQ_LEN + 3))) == [list(range(SEQ_LEN))]
+    assert packer.finish() == [], "finish() without pad_id drops the remainder"
+
+    packer = packing.StreamingPacker(SEQ_LEN)
+    packer.add([1, 2, 3])
+    padded = packer.finish(pad_id=0)
+    assert padded == [[1, 2, 3] + [0] * (SEQ_LEN - 3)]
+
+
 def test_shard_write_read_round_trip_is_lossless() -> None:
     tok = sample_tokenizer()
     seqs = packing.pack_documents(TAMIL_LINES * 30, tok, seq_len=SEQ_LEN)

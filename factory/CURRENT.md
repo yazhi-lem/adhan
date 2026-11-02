@@ -19,7 +19,7 @@ base), and an export/quantize path that does not work with the JAX model today.
 | Tokenizer morphology (G3) | 🔴 | boundary agreement 5.6% (v3 sample) / 24.2% (Stage 1b sample); gate is ≥30%. The morph-guard variant reached 37.5% at +23% tokens (`TOKENIZER_BENCHMARK_V2.md`) | Decide whether v4 uses the guard |
 | Corpus scale | 🟡 | ~609.7M swaram tokens (v1 328M + v2 281.7M), 1.87M docs. Target 1.5–2B, so ~35% of the way (Phase 2 totals, 27 Oct) | Raise IndicCorp / mC4 / FineWeb limits |
 | Corpus purity | 🟡 | ~164M pure-Tamil tokens in v1; 38.5% of tokens are `▁` markers (`docs/corpus/DATA_WEIGHTING.md`) | Re-measure on v1+v2 |
-| Packing efficiency | 🔴 | per-doc packing drops remainders: a "300M" budget packs **133.6M** train tokens (`docs/training/CONTINUED_PRETRAIN.md` §2) | Fix, then repack |
+| Packing efficiency | 🟢 | fixed: `StreamingPacker` carries remainders across documents; the 300M budget now packs **293.57M / 293.57M** tokens (99.9997%) into `nano_300m_s512_v2` (was 133.6M, 0.46×) | Use the v2 shards for Stage 2 |
 | Pretraining | 🟢 | Stage 1b (step 4,881) evaluated: val **bits/akshara 1.820** vs floor 2.322 (nll 3.537, ppl 34.36 on the 300m val set) — a clear win over Stage 1's 2.274 (`docs/reports/eval_report_nano_stage1b.json`) | SFT v0 on top of Stage 1b |
 | Post-training (SFT / chat) | 🔴 | 0 SFT examples. Response protocol v0 frozen (`docs/behaviour/RESPONSE_PROTOCOL.md`); Sangam pair builder exists (`scripts/build_sangam_sft.py`) | SFT v0, 5–10k examples |
 | Safety (Aram) | 🔴 | Harness built (12 principles, 27 prompts); score "not run" (27 Oct) | First critical-only run |
@@ -35,7 +35,7 @@ base), and an export/quantize path that does not work with the JAX model today.
 | Token tax vs GPT-4 (cl100k) | **4.21×** | publish, keep Swaram at 1.00× | `docs/tokenizer/TOKEN_TAX_BENCHMARK_V3.md` |
 | Fertility (tok/akshara), canonical | ⚠️ 7 different published values (0.304–0.554) | one canonical number per artifact | see archive digest D1 |
 | Corpus tokens (all / pure Tamil) | 609.7M / ~164M (v1 only) | 1.5–2B / ≥1B verified | corpus stats, `DATA_WEIGHTING.md` |
-| Packed / corpus token ratio | ~0.46 | ≥ 0.95 | `CONTINUED_PRETRAIN.md` |
+| Packed / corpus token ratio | **~1.00** (293.57M / 293.57M) | ≥ 0.95 | `data/final/nano_300m_s512_v2/datasheet.json` |
 | bits/akshara (val) | **1.820 (Stage 1b, step 4,881)** · 2.274 (Stage 1) · 1.955 at step ~2400 | < 2.322 floor | `docs/reports/eval_report_nano_stage1b.json` |
 | Sandhi-correct (G4) | 91.5% | ≥ 90% | same |
 | Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |

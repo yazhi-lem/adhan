@@ -40,7 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from adhan_slm.core.logging import get_logger  # noqa: E402
-from adhan_slm.data.packing import PackedShard, pack_stream  # noqa: E402
+from adhan_slm.data.packing import PackedShard, StreamingPacker  # noqa: E402
 from adhan_slm.tokenizer import indic_akshara  # noqa: E402
 from adhan_slm.tokenizer.fast_bpe import AksharaBPE  # noqa: E402
 
@@ -324,6 +324,11 @@ def main() -> None:
         t0 = time.time()
         train_w = StreamingShardWriter(out / "train.bin", args.seq_len, len(tok))
         val_w = StreamingShardWriter(out / "val.bin", args.seq_len, len(tok))
+        # One packer per split, kept across documents. Packing each document on
+        # its own (the old behaviour) dropped a remainder per document, which is
+        # most of the corpus when documents are shorter than seq_len.
+        train_packer = StreamingPacker(args.seq_len)
+        val_packer = StreamingPacker(args.seq_len)
         n_docs_seen = 0
         n_tokens = 0
         batch: List[Tuple[str, bool]] = []
@@ -337,8 +342,9 @@ def main() -> None:
             for doc, ids, val in zip(docs_, tok.encode_batch(docs_), is_val):
                 seq_ids = [tok.vocab.get("<bos>", 0), *ids, tok.vocab.get("<eos>", 0)]
                 n_tokens += len(seq_ids)
+                packer = val_packer if val else train_packer
                 writer = val_w if val else train_w
-                for seq in pack_stream(iter(seq_ids), args.seq_len):
+                for seq in packer.add(seq_ids):
                     writer.add(seq)
             batch.clear()
 
@@ -357,6 +363,11 @@ def main() -> None:
                 if n_docs_seen % (512 * 50) == 0:
                     logger.info("  %s docs, %s tokens...", f"{n_docs_seen:,}", f"{n_tokens:,}")
         flush_batch()
+        # Only the final remainder of each split is dropped (< seq_len tokens).
+        for seq in train_packer.finish():
+            train_w.add(seq)
+        for seq in val_packer.finish():
+            val_w.add(seq)
 
         train_shard = train_w.close()
         val_shard = val_w.close()

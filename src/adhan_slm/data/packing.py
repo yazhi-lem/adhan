@@ -74,6 +74,52 @@ def pack_stream(token_ids: Iterable[int], seq_len: int) -> Iterator[List[int]]:
     # trailing < seq_len tokens are intentionally dropped
 
 
+class StreamingPacker:
+    """Carry token ids across document boundaries and emit full ``seq_len`` windows.
+
+    ``pack_stream`` drops the trailing partial window of whatever iterable it is
+    given. Calling it once per document therefore drops a remainder *per
+    document*; with short documents (a Tamil article is often < 512 tokens) that
+    throws away most of the corpus. This class keeps a single buffer across
+    documents so only the final remainder of the whole stream is dropped, while
+    documents stay separated by their own ``<bos>``/``<eos>`` tokens.
+
+    ``add`` returns the windows completed by that document (usually zero or
+    one); ``finish`` returns the optional trailing window.
+    """
+
+    def __init__(self, seq_len: int) -> None:
+        if seq_len < 2:
+            raise ValueError("seq_len must be >= 2 (need at least one input/target pair)")
+        self.seq_len = seq_len
+        self._buf: List[int] = []
+        self.n_tokens = 0
+        self.n_sequences = 0
+
+    def add(self, token_ids: Iterable[int]) -> List[List[int]]:
+        """Append one document's ids; return any windows it completed."""
+        self._buf.extend(token_ids)
+        self.n_tokens += len(token_ids)
+        out: List[List[int]] = []
+        while len(self._buf) >= self.seq_len:
+            out.append(self._buf[: self.seq_len])
+            del self._buf[: self.seq_len]
+            self.n_sequences += 1
+        return out
+
+    def finish(self, pad_id: Optional[int] = None) -> List[List[int]]:
+        """Return the trailing partial window (padded with ``pad_id`` if given, else dropped)."""
+        if not self._buf:
+            return []
+        if pad_id is None:
+            self._buf = []
+            return []
+        seq = self._buf + [pad_id] * (self.seq_len - len(self._buf))
+        self._buf = []
+        self.n_sequences += 1
+        return [seq]
+
+
 def pack_documents(
     documents: Iterable[str],
     tokenizer,
