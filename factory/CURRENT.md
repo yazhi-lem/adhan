@@ -20,7 +20,7 @@ base), and an export/quantize path that does not work with the JAX model today.
 | Corpus scale | 🟡 | ~609.7M swaram tokens (v1 328M + v2 281.7M), 1.87M docs. Target 1.5–2B, so ~35% of the way (Phase 2 totals, 27 Oct) | Raise IndicCorp / mC4 / FineWeb limits |
 | Corpus purity | 🟡 | ~164M pure-Tamil tokens in v1; 38.5% of tokens are `▁` markers (`docs/corpus/DATA_WEIGHTING.md`) | Re-measure on v1+v2 |
 | Packing efficiency | 🔴 | per-doc packing drops remainders: a "300M" budget packs **133.6M** train tokens (`docs/training/CONTINUED_PRETRAIN.md` §2) | Fix, then repack |
-| Pretraining | 🟡 | Stage 1 val bits/akshara 2.274 vs floor 2.322; Stage 1b (to step 4,881) was due 25 Oct. **No Stage 1b eval is committed.** Long v3 config (5,000 steps, `adhan_slm_nano_cpu_v3_long.yaml`) is committed | Commit `eval_report_nano_stage1b.json` |
+| Pretraining | 🟢 | Stage 1b (step 4,881) evaluated: val **bits/akshara 1.820** vs floor 2.322 (nll 3.537, ppl 34.36 on the 300m val set) — a clear win over Stage 1's 2.274 (`docs/reports/eval_report_nano_stage1b.json`) | SFT v0 on top of Stage 1b |
 | Post-training (SFT / chat) | 🔴 | 0 SFT examples. Response protocol v0 frozen (`docs/behaviour/RESPONSE_PROTOCOL.md`); Sangam pair builder exists (`scripts/build_sangam_sft.py`) | SFT v0, 5–10k examples |
 | Safety (Aram) | 🔴 | Harness built (12 principles, 27 prompts); score "not run" (27 Oct) | First critical-only run |
 | Export / edge | 🔴 | `scripts/export_onnx.py` and `quantize_model.py` target the removed HF pipeline (`docs/DEV.md` Notes) | Rework for JAX/Orbax |
@@ -36,7 +36,7 @@ base), and an export/quantize path that does not work with the JAX model today.
 | Fertility (tok/akshara), canonical | ⚠️ 7 different published values (0.304–0.554) | one canonical number per artifact | see archive digest D1 |
 | Corpus tokens (all / pure Tamil) | 609.7M / ~164M (v1 only) | 1.5–2B / ≥1B verified | corpus stats, `DATA_WEIGHTING.md` |
 | Packed / corpus token ratio | ~0.46 | ≥ 0.95 | `CONTINUED_PRETRAIN.md` |
-| bits/akshara (val) | 2.274 (Stage 1) · ~1.955 at step ~2400 (training val) | < 2.322 floor, trending down | `CONTINUED_PRETRAIN.md` §5.3 |
+| bits/akshara (val) | **1.820 (Stage 1b, step 4,881)** · 2.274 (Stage 1) · 1.955 at step ~2400 | < 2.322 floor | `docs/reports/eval_report_nano_stage1b.json` |
 | Sandhi-correct (G4) | 91.5% | ≥ 90% | same |
 | Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |
 | SFT examples | 0 | 20–50k (nano) | `CAPABILITIES.md` §5 |
@@ -71,3 +71,5 @@ base), and an export/quantize path that does not work with the JAX model today.
 ## 7. Done last iteration (12–27 Oct)
 
 Phase 1 foundation hardening: data-parallel sharding, KV cache, HF revision pinning, round-trip + resume tests · CI back to green (lint, bandit, JAX-less collection) · Aram Harness framework and structured Tamil reasoning protocol · Phase 2 corpus: v2 ingestion (538k new docs), TVA + Wikisource crawlers, per-source failure isolation · Tokenizer v3 + token-tax benchmark + Swaram whitepaper · Capabilities plan + frozen response protocol v0
+
+**2 Nov — critical model regression fixed.** Commit `e6f5a99` hoisted `Block(c)` out of the layer loop, so Flax reused one parameter scope for every layer: the model silently became a weight-shared 9.2M-param stack (not 14.5M) and every older `block_{i}` checkpoint failed to load. Fixed by instantiating `Block(c, name=f"block_{i}")` inside the loop, with a regression test (`test_each_layer_has_its_own_block_params`). The in-flight v3-long run (checkpoints `Block_0` only, 9.2M params) was trained with the bug and is being restarted from scratch.

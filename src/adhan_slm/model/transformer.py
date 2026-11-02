@@ -373,11 +373,6 @@ try:
             # only build the O(T^2) boolean array for the XLA fallback path.
             mask = None if _HAS_FUSED_ATTN else jnp.tril(jnp.ones((t, t), dtype=bool))[None, None]
 
-            # --- P1: Gradient checkpointing (remat) ---
-            block_fn = Block(c)
-            if c.remat and cache is None:
-                block_fn = jax.checkpoint(block_fn, policy=jax.checkpoint_policies.dots_saveable)
-
             new_cache = [] if return_cache else None
             # On prefill (cache is None but return_cache is set) allocate the
             # fixed-size K/V buffers once. Their shape never changes afterwards,
@@ -389,6 +384,17 @@ try:
                 buf = jnp.zeros((bsz, c.max_seq_len, c.kv_heads, dh_), dtype=dt)
                 working_cache = [(buf, buf) for _ in range(c.n_layers)]
             for i in range(c.n_layers):
+                # One Block instance per layer, explicitly named. Instantiating a
+                # single Block outside the loop makes Flax reuse one parameter
+                # scope for every layer (weight sharing), which silently shrinks
+                # the model and breaks every checkpoint saved with per-layer
+                # names. The explicit name also keeps old `block_{i}`
+                # checkpoints loadable.
+                block_fn = Block(c, name=f"block_{i}")
+                if c.remat and cache is None:
+                    block_fn = jax.checkpoint(
+                        block_fn, policy=jax.checkpoint_policies.dots_saveable
+                    )
                 if not return_cache:
                     x = block_fn(x, mask, cond, deterministic=deterministic)
                 else:

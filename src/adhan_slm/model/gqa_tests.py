@@ -180,6 +180,22 @@ def test_positional_information_comes_only_from_rope() -> None:
         assert not any(forbidden in n for n in names), f"unexpected learned position param {names}"
 
 
+def test_each_layer_has_its_own_block_params() -> None:
+    """Regression: one Block instance must not be shared across all layers.
+
+    A single ``Block(c)`` instantiated outside the layer loop makes Flax reuse
+    one parameter scope for every layer. The model then silently trains a
+    weight-shared stack (and shrinks the parameter count), while its config
+    and checkpoint metadata still claim ``n_layers`` distinct blocks.
+    """
+    cfg = _cfg(n_layers=3)
+    _, params = _params(cfg)
+    block_keys = sorted(k for k in params if k.startswith("block_"))
+    assert block_keys == ["block_0", "block_1", "block_2"]
+    for key in block_keys:
+        assert params[key]["qkv"]["kernel"].shape == (cfg.d_model, 3 * cfg.d_model)
+
+
 def test_rope_theta_changes_the_function() -> None:
     """If RoPE were bypassed, changing theta could not change the logits."""
     tokens = jnp.arange(16, dtype=jnp.int32).reshape(2, 8) % 64
