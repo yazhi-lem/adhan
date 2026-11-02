@@ -27,7 +27,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Safety (Aram) | 🔴 | Harness built (12 principles, 27 prompts); score "not run" (27 Oct) | First critical-only run |
 | Export / edge | 🔴 | `scripts/export_onnx.py` and `quantize_model.py` target the removed HF pipeline (`docs/DEV.md` Notes) | Rework for JAX/Orbax |
 | Serving | 🟡 | FastAPI with bounded input and 503s when no model is loaded; never validated against a real checkpoint | `adhan serve` on Stage 1b |
-| CI | 🟢 | lint / test / type-check workflows; suite **124 passed / 2 skipped** (3 Nov) | Add structure-invariant model test; consolidate into one `ci.yml` |
+| CI | 🟢 | lint / test / type-check workflows; suite **127 passed / 2 skipped** (3 Nov); structure-invariant + remat-grad tests added | Consolidate into one `ci.yml` |
 | Repo hygiene | 🔴 | **29 remote branches**, 6 stacked duplicates of work already on `main`; 2 hygiene fixes cherry-picked 3 Nov | Close to <10 branches |
 | Thesis validation | 🔴 | Swaram has never been compared to a Tamil-trained BPE at equal vocab/compute; whitepaper admits "no Tamil-trained BPE baseline yet" | Run the A/B (N14) |
 

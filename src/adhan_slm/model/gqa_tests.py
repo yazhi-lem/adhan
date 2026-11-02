@@ -205,3 +205,102 @@ def test_rope_theta_changes_the_function() -> None:
         model, params = _params(cfg)
         outs.append(model.apply({"params": params}, tokens, deterministic=True))
     assert not jnp.allclose(outs[0], outs[1])
+
+
+# --- 3. structure invariants (regression guard for the weight-sharing bug) ----
+
+
+def _structure_configs():
+    """A small fuzz matrix: layer counts, widths, GQA, remat, optional layers."""
+    for n_layers in (1, 2, 3, 6):
+        for d_model, n_heads in ((16, 2), (32, 4), (48, 4)):
+            for n_kv_heads in (0, n_heads // 2):
+                for remat in (False, True):
+                    yield _cfg(
+                        n_layers=n_layers,
+                        d_model=d_model,
+                        n_heads=n_heads,
+                        n_kv_heads=n_kv_heads,
+                        d_ff=2 * d_model,
+                        max_seq_len=8,
+                        remat=remat,
+                    )
+
+
+def test_structure_invariants_hold_across_a_config_fuzz() -> None:
+    """The model must contain exactly ``n_layers`` distinct blocks.
+
+    This is the guard for the 2026-10 regression where a single ``Block``
+    instance was hoisted out of the layer loop, so Flax reused one parameter
+    scope for every layer. The model trained fine and only failed on checkpoint
+    restore; a structural assertion in CI makes that class of bug impossible.
+    """
+    for cfg in _structure_configs():
+        model = AdhanSLM(cfg)
+        params = model.init(jax.random.PRNGKey(0), jnp.ones((1, 4), dtype=jnp.int32))["params"]
+
+        block_keys = sorted(k for k in params if k.startswith("block_"))
+        assert block_keys == [f"block_{i}" for i in range(cfg.n_layers)], (
+            f"expected {cfg.n_layers} distinct blocks, got {block_keys}"
+        )
+
+        actual = sum(x.size for x in jax.tree_util.tree_leaves(params))
+        assert actual == cfg.approx_params(), (
+            f"param count mismatch for {cfg}: actual {actual}, formula {cfg.approx_params()}"
+        )
+
+
+def test_params_round_trip_through_orbax() -> None:
+    """init -> save -> load must reproduce the exact params tree and block names."""
+    ocp = pytest.importorskip("orbax.checkpoint")
+    import tempfile
+    from pathlib import Path
+
+    cfg = AdhanConfig(
+        vocab_size=64,
+        d_model=32,
+        n_layers=3,
+        n_heads=4,
+        d_ff=64,
+        max_seq_len=8,
+        dtype="float32",
+    )
+    model = AdhanSLM(cfg)
+    params = model.init(jax.random.PRNGKey(0), jnp.ones((1, 4), dtype=jnp.int32))["params"]
+
+    with tempfile.TemporaryDirectory() as d:
+        path = str(Path(d).resolve())
+        mgr = ocp.CheckpointManager(path)
+        mgr.save(0, args=ocp.args.Composite(params=ocp.args.StandardSave(params)))
+        mgr.wait_until_finished()
+        restored = mgr.restore(0, args=ocp.args.Composite(params=ocp.args.StandardRestore(params)))
+        out = restored["params"]
+
+        assert sorted(k for k in out if k.startswith("block_")) == ["block_0", "block_1", "block_2"]
+        leaves_in = jax.tree_util.tree_leaves(params)
+        leaves_out = jax.tree_util.tree_leaves(out)
+        assert len(leaves_in) == len(leaves_out)
+        for a, b in zip(leaves_in, leaves_out):
+            assert jnp.array_equal(a, b), "orbax round-trip changed a parameter"
+
+
+def test_remat_produces_finite_gradients() -> None:
+    """Gradient checkpointing must not leak tracers or break the backward pass.
+
+    ``nn.remat`` wraps the module *class*; wrapping a module instance with
+    ``jax.checkpoint`` leaks tracers during backprop. This test exercises the
+    remat path end-to-end (init -> loss -> grad) so a regression fails CI.
+    """
+    cfg = _cfg(n_layers=2, remat=True)
+    model = AdhanSLM(cfg)
+    tokens = jnp.arange(8, dtype=jnp.int32).reshape(1, 8) % cfg.vocab_size
+    params = model.init(jax.random.PRNGKey(0), tokens)["params"]
+
+    def loss(p):
+        logits = model.apply({"params": p}, tokens, deterministic=True)
+        return jnp.mean(jax.nn.log_softmax(logits)[..., 0])
+
+    grads = jax.grad(loss)(params)
+    leaves = jax.tree_util.tree_leaves(grads)
+    assert leaves, "no gradients produced"
+    assert all(jnp.all(jnp.isfinite(x)) for x in leaves), "remat produced non-finite grads"

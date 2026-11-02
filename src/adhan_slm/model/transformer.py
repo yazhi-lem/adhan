@@ -383,6 +383,15 @@ try:
                 dh_ = c.d_model // c.n_heads
                 buf = jnp.zeros((bsz, c.max_seq_len, c.kv_heads, dh_), dtype=dt)
                 working_cache = [(buf, buf) for _ in range(c.n_layers)]
+            # Gradient checkpointing: ``nn.remat`` wraps the *module class* so
+            # Flax lifts its variables/rngs correctly. Wrapping a module
+            # instance with ``jax.checkpoint`` instead leaks tracers during the
+            # backward pass (the module's params are bound to the outer trace).
+            block_cls = (
+                nn.remat(Block, policy=jax.checkpoint_policies.dots_saveable)
+                if c.remat and not return_cache
+                else Block
+            )
             for i in range(c.n_layers):
                 # One Block instance per layer, explicitly named. Instantiating a
                 # single Block outside the loop makes Flax reuse one parameter
@@ -390,11 +399,7 @@ try:
                 # the model and breaks every checkpoint saved with per-layer
                 # names. The explicit name also keeps old `block_{i}`
                 # checkpoints loadable.
-                block_fn = Block(c, name=f"block_{i}")
-                if c.remat and cache is None:
-                    block_fn = jax.checkpoint(
-                        block_fn, policy=jax.checkpoint_policies.dots_saveable
-                    )
+                block_fn = block_cls(c, name=f"block_{i}")
                 if not return_cache:
                     x = block_fn(x, mask, cond, deterministic=deterministic)
                 else:
