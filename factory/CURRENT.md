@@ -17,7 +17,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 
 | Workstream | RAG | Fact (source) | Next checkpoint |
 |---|---|---|---|
-| Tokenizer (Swaram v3) | 🟡 | vocab 31,964 · 100% lossless · fertility 0.554 · tax vs GPT-4 4.21× (`docs/tokenizer/TOKEN_TAX_BENCHMARK_V3.md`, 355 docs). **Thesis unvalidated: no Tamil-trained BPE baseline** | Swaram-vs-BPE A/B at equal vocab/compute |
+| Tokenizer (Swaram v3) | 🔴 | vocab 31,964 · 100% lossless · tax vs GPT-4 4.21×, **but loses to a Tamil-trained SentencePiece BPE: fertility 0.527 vs 0.346 tok/akshara (Swaram uses 1.52× more tokens)** (`docs/reports/ab_swaram_vs_bpe.md`) | Model-level A/B (bits/akshara) or drop the compression claim |
 | Tokenizer morphology (G3) | 🔴 | boundary agreement 5.6% (v3 sample) / 24.2% (Stage 1b sample); gate is ≥30%. The morph-guard variant reached 37.5% at +23% tokens (`TOKENIZER_BENCHMARK_V2.md`) | Decide whether v4 uses the guard |
 | Corpus scale | 🟡 | ~609.7M swaram tokens (v1 328M + v2 281.7M), 1.87M docs. Target 1.5–2B, so ~35% of the way (Phase 2 totals, 27 Oct) | Raise IndicCorp / mC4 / FineWeb limits |
 | Corpus purity | 🟡 | ~164M pure-Tamil tokens in v1; 38.5% of tokens are `▁` markers (`docs/corpus/DATA_WEIGHTING.md`) | Re-measure on v1+v2 |
@@ -29,7 +29,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Serving | 🟡 | FastAPI with bounded input and 503s when no model is loaded; never validated against a real checkpoint | `adhan serve` on Stage 1b |
 | CI | 🟢 | lint / test / type-check workflows; suite **127 passed / 2 skipped** (3 Nov); structure-invariant + remat-grad tests added | Consolidate into one `ci.yml` |
 | Repo hygiene | 🔴 | **29 remote branches**, 6 stacked duplicates of work already on `main`; 2 hygiene fixes cherry-picked 3 Nov | Close to <10 branches |
-| Thesis validation | 🔴 | Swaram has never been compared to a Tamil-trained BPE at equal vocab/compute; whitepaper admits "no Tamil-trained BPE baseline yet" | Run the A/B (N14) |
+| Thesis validation | 🔴 | A/B run 3 Nov: Swaram beats byte-level BPE (2.49×) but **loses to SentencePiece BPE** (0.346 vs 0.527 tok/akshara). Compression claim not supported; morphological/downstream claim still untested | Model-level A/B (N14b) |
 
 ## 3. Key metrics
 
@@ -44,7 +44,8 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |
 | SFT examples | ~11.2k (Sangam 9,961 + QA 1,277) | 20–50k (nano) | `data/final/sft_*/stats.json` |
 | Aram Harness score | not run | > 0.90, 0 CRITICAL | `ARAM_HARNESS.md` |
-| Swaram vs Tamil-BPE (bits/akshara) | **not measured** | Swaram wins by ≥10% at equal vocab/compute | `docs/reviews/2026-11-03-battle-plan.md` |
+| Swaram vs Tamil-BPE (fertility) | **0.527 vs 0.346** (BPE wins) | Swaram wins by ≥10% | `docs/reports/ab_swaram_vs_bpe.json` |
+| Swaram vs Tamil-BPE (bits/akshara) | **not measured** | Swaram wins by ≥10% at equal compute | `NEXT.md` N14b |
 
 ## 4. In flight
 
@@ -62,14 +63,14 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | B1 | **What Adhan Kutty v1 is** (from-scratch nano vs LoRA/continued pretraining of an open base) is undecided. Part of the Kutty backlog assumes a base model; the roadmap forbids borrowed bases | 6 Oct (backlog filed) | the whole Kutty backlog and the 26 Dec launch | Founder decision **overdue**; recommended (c) in `NEXT.md` N2 |
 | B2 | Export/quantize does not work with JAX checkpoints | ≥ Aug | phone demo, INT4 build, `yazh-unity`, `illakiya` | Adhan DRI to scope the rework (`NEXT.md` N9) |
 | B3 | Training runs on one 12-core CPU box at ~2k tok/s | ongoing | Stage 2/3 timelines | GPU access: the T4 recipe exists; rent a T4/A10 for a weekend (`NEXT.md` N17) |
-| B4 | **Thesis unvalidated**: no Swaram-vs-Tamil-BPE A/B at equal compute | 3 Nov (review) | the entire from-scratch thesis and the tokenizer paper | Run N14 this iteration |
+| B4 | **Thesis not supported on compression**: a Tamil-trained SentencePiece BPE is 1.52× more compressed than Swaram | 3 Nov (A/B) | the entire from-scratch thesis and the tokenizer paper | Run the model-level A/B (N14b); if it also loses, pivot Kutty to a fine-tune |
 | B5 | **Public claim wrong**: yazhi.dev says "7B-parameter · 22+ Indian languages" | ≥ Oct | credibility of every public number | Fix this week (`NEXT.md` N5) |
 
 ## 6. Decisions needed
 
 | # | Decision | Options | Recommendation | Decider | By |
 |---|---|---|---|---|---|
-| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c)**. Purity is not a feature; ship a working model on 26 Dec and publish the from-scratch nano + tokenizer as the research contribution | Founder | **overdue** |
+| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c)**, now strengthened by the A/B: the compression thesis did not survive a Tamil BPE | Founder | **overdue** |
 | D2 | Canonical tokenizer numbers | keep per-doc numbers · one generated table | **One generated table** (`benchmark_token_tax.py` on a pinned sample); docs link to it | Adhan DRI | 29 Oct |
 | D3 | Morph-guard in the next tokenizer | keep v3 · v4 with `--morphology-guard` | Decide **after** Stage 1b eval. Changing the tokenizer invalidates all shards and checkpoints | Adhan DRI | 14 Nov |
 | D4 | Where to pretrain Stage 2 | CPU box · free T4 · platform GPU node | Platform GPU node if it is up; T4 as fallback | Adhan DRI + infra | 7 Nov |

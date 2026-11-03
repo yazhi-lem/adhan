@@ -1,0 +1,73 @@
+{
+  "corpus": "data/raw/expanded",
+  "swaram_tokenizer": "data/final/tamil_slm_v2",
+  "vocab_size": 31964,
+  "seed": 0,
+  "val_frac": 0.02,
+  "held_out_docs": 2000,
+  "bpe_train_chars": 300000145,
+  "bpe_train_seconds": {
+    "byte": 64.8,
+    "metaspace": 138.9
+  },
+  "metrics": [
+    {
+      "tokenizer": "swaram",
+      "docs": 2000,
+      "tokens": 507125,
+      "aksharas": 961778,
+      "words": 195582,
+      "chars": 1757132,
+      "fertility_tok_per_akshara": 0.5273,
+      "tokens_per_word": 2.5929,
+      "chars_per_token": 3.4649
+    },
+    {
+      "tokenizer": "bpe_byte_32k",
+      "docs": 2000,
+      "tokens": 1264219,
+      "aksharas": 961778,
+      "words": 195582,
+      "chars": 1757132,
+      "fertility_tok_per_akshara": 1.3145,
+      "tokens_per_word": 6.4639,
+      "chars_per_token": 1.3899
+    },
+    {
+      "tokenizer": "bpe_metaspace_32k",
+      "docs": 2000,
+      "tokens": 332623,
+      "aksharas": 961778,
+      "words": 195582,
+      "chars": 1757132,
+      "fertility_tok_per_akshara": 0.3458,
+      "tokens_per_word": 1.7007,
+      "chars_per_token": 5.2827
+    }
+  ],
+  "bpe_tax_vs_swaram": {
+    "byte": 2.4929,
+    "metaspace": 0.6559
+  },
+  "verdict": {
+    "status": "thesis_not_supported_on_this_sample",
+    "swaram_advantage_vs_strongest_baseline": -0.3442,
+    "per_baseline": {
+      "byte": {
+        "swaram_fertility": 0.5273,
+        "bpe_fertility": 1.3145,
+        "swaram_advantage_relative": 1.4929,
+        "swaram_wins_by_10pct": true,
+        "status": "swaram_supported"
+      },
+      "metaspace": {
+        "swaram_fertility": 0.5273,
+        "bpe_fertility": 0.3458,
+        "swaram_advantage_relative": -0.3442,
+        "swaram_wins_by_10pct": false,
+        "status": "thesis_not_supported_on_this_sample"
+      }
+    }
+  },
+  "note": "Fertility uses a tokenizer-independent akshara count. A BPE tax > 1.0 means Swaram is more compressed; < 1.0 means the BPE wins on this sample. The byte-level baseline is the direct control for GPT-4-style tokenizers; the metaspace baseline is the stronger SentencePiece-style control."
+}

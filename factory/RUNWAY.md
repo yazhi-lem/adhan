@@ -57,7 +57,7 @@ L = likelihood, I = impact (1–3). Review every Monday.
 | R6 | Credibility: inconsistent numbers or inflated public claims ("7B") undercut the benchmark launch | 3 | 2 | N3–N5; every public number links to the canonical table | Any new public post | Adhan DRI + Media |
 | R7 | Morphology gate G3 stays failing | 3 | 1 | Decide guard vs v3 after Stage 1b (D3); report it honestly in the card | — | Adhan DRI |
 | R8 | Single-box CPU host is shared with cron ingestion (ETA ±1 h) | 2 | 1 | Pause ingestion during runs; snapshot checkpoints before evaluating them | — | Adhan DRI |
-| R9 | **The from-scratch akshara thesis is unvalidated** — no Swaram-vs-Tamil-BPE A/B at equal compute | 3 | 3 | Run N14 this iteration; if Swaram does not win by ≥10% bits/akshara, pivot Kutty v1 to a fine-tune of an open base | A/B result by 14 Nov | Adhan DRI |
+| R9 | **The from-scratch akshara thesis lost its first test** — a Tamil SentencePiece BPE is 1.52× more compressed than Swaram (3 Nov) | 3 | 3 | Run the model-level A/B (N14b); if Swaram does not win by ≥10% bits/akshara, pivot Kutty v1 to a fine-tune of an open base | Model A/B by 14 Nov | Adhan DRI |
 | R10 | **Public claim ("7B · 22+ languages") is false** and undercuts every published number | 3 | 3 | Correct it this week (N5); link every public number to the canonical table | Any new public post | Founder + yazhi-dev |
 
 ## 5. Cut list (in order, if 26 Dec is at risk)
