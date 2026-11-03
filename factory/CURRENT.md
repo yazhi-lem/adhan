@@ -24,7 +24,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Packing efficiency | 🟢 | fixed: `StreamingPacker` carries remainders across documents; the 300M budget now packs **293.57M / 293.57M** tokens (99.9997%) into `nano_300m_s512_v2` (was 133.6M, 0.46×) | Use the v2 shards for Stage 2 |
 | Pretraining | 🟢 | Stage 1b (step 4,881) evaluated: val **bits/akshara 1.820** vs floor 2.322 (nll 3.537, ppl 34.36 on the 300m val set) — a clear win over Stage 1's 2.274 (`docs/reports/eval_report_nano_stage1b.json`) | SFT v0 on top of Stage 1b |
 | Post-training (SFT / chat) | 🟡 | ~11.2k examples exist: Sangam 9,961 train / 1,303 val / 1,146 test (zero poem overlap) + grounded QA 971 / 124 / 182 (`data/final/sft_*/stats.json`). No SFT run yet; no SFT-vs-base regression gate | SFT v0 with regression gate |
-| Safety (Aram) | 🔴 | Harness built (12 principles, 27 prompts); score "not run" (27 Oct) | First critical-only run |
+| Safety (Aram) | 🔴 | First critical-only baseline on Stage 1b: **score 0.13, 7 CRITICAL / 9 prompts** (3 Nov); expected pre-SFT, now measurable (`docs/reports/aram_report_stage1b.json`) | SFT gate must clear 0 CRITICAL |
 | Export / edge | 🔴 | `scripts/export_onnx.py` and `quantize_model.py` target the removed HF pipeline (`docs/DEV.md` Notes) | Rework for JAX/Orbax |
 | Serving | 🟡 | FastAPI with bounded input and 503s when no model is loaded; never validated against a real checkpoint | `adhan serve` on Stage 1b |
 | CI | 🟢 | lint / test / type-check workflows; suite **127 passed / 2 skipped** (3 Nov); structure-invariant + remat-grad tests added | Consolidate into one `ci.yml` |
@@ -43,7 +43,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Sandhi-correct (G4) | 91.5% | ≥ 90% | same |
 | Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |
 | SFT examples | ~11.2k (Sangam 9,961 + QA 1,277) | 20–50k (nano) | `data/final/sft_*/stats.json` |
-| Aram Harness score | not run | > 0.90, 0 CRITICAL | `ARAM_HARNESS.md` |
+| Aram Harness score | **0.13 · 7 CRITICAL** (Stage 1b, critical-only) | > 0.90, 0 CRITICAL | `docs/reports/aram_report_stage1b.json` |
 | Swaram vs Tamil-BPE (fertility) | **0.527 vs 0.346** (BPE wins) | Swaram wins by ≥10% | `docs/reports/ab_swaram_vs_bpe.json` |
 | Swaram vs Tamil-BPE (bits/akshara) | **not measured** | Swaram wins by ≥10% at equal compute | `NEXT.md` N14b |
 
@@ -70,7 +70,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 
 | # | Decision | Options | Recommendation | Decider | By |
 |---|---|---|---|---|---|
-| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c)**, now strengthened by the A/B: the compression thesis did not survive a Tamil BPE | Founder | **overdue** |
+| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c)**, now strengthened by the A/B: the compression thesis did not survive a Tamil BPE. Draft ADR written: `docs/adr/0001-kutty-v1.md` | Founder | **overdue** (draft ready) |
 | D2 | Canonical tokenizer numbers | keep per-doc numbers · one generated table | **One generated table** (`benchmark_token_tax.py` on a pinned sample); docs link to it | Adhan DRI | 29 Oct |
 | D3 | Morph-guard in the next tokenizer | keep v3 · v4 with `--morphology-guard` | Decide **after** Stage 1b eval. Changing the tokenizer invalidates all shards and checkpoints | Adhan DRI | 14 Nov |
 | D4 | Where to pretrain Stage 2 | CPU box · free T4 · platform GPU node | Platform GPU node if it is up; T4 as fallback | Adhan DRI + infra | 7 Nov |
