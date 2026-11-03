@@ -10,8 +10,8 @@ admits "no Tamil-trained BPE baseline yet"). The model is a 14.5M-param CPU toy 
 its Stage 1b generations are not coherent Tamil. The public site still claims "7B-parameter · 22+ Indian languages"
 — a ~3-orders-of-magnitude overstatement that must be corrected this week. A weight-sharing regression silently
 trained the v3-long run as a 9.2M model until it was caught on 2 Nov. The date with the most risk is **Adhan Kutty v1
-on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision** (from scratch vs fine-tune) and the
-**absence of a GPU**. Full review: [`docs/reviews/2026-11-03-battle-plan.md`](../docs/reviews/2026-11-03-battle-plan.md).
+on 26 Dec (53 days)**; the base decision is now recorded (Qwen3-1.7B student, Sarvam-M teacher), so the remaining
+hard blocker is the **absence of a GPU** and the 48-hour base bake-off. Full review: [`docs/reviews/2026-11-03-battle-plan.md`](../docs/reviews/2026-11-03-battle-plan.md).
 
 ## 2. Health
 
@@ -61,7 +61,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 
 | # | Blocker | Since | Blocks | Ask / who |
 |---|---|---|---|---|
-| B1 | **What Adhan Kutty v1 is** (from-scratch nano vs LoRA/continued pretraining of an open base) is undecided. Part of the Kutty backlog assumes a base model; the roadmap forbids borrowed bases | 6 Oct (backlog filed) | the whole Kutty backlog and the 26 Dec launch | Founder decision **overdue**; recommended (c) in `NEXT.md` N2 |
+| B1 | ✅ **Resolved 3 Nov.** Kutty v1 = Qwen3-1.7B-Base student + Sarvam-M teacher; Adhan-nano stays research; Sarvam-1 rejected for non-commercial licence | 6 Oct | — | Recorded in `docs/reports/base_decision_2026-11-03.md`; see D1 |
 | B2 | Export/quantize does not work with JAX checkpoints | ≥ Aug | phone demo, INT4 build, `yazh-unity`, `illakiya` | Adhan DRI to scope the rework (`NEXT.md` N9) |
 | B3 | Training runs on one 12-core CPU box at ~2k tok/s | ongoing | Stage 2/3 timelines | GPU access: the T4 recipe exists; rent a T4/A10 for a weekend (`NEXT.md` N17) |
 | B4 | **Thesis not supported on compression**: a Tamil-trained SentencePiece BPE is 1.52× more compressed than Swaram | 3 Nov (A/B) | the entire from-scratch thesis and the tokenizer paper | Run the model-level A/B (N14b); if it also loses, pivot Kutty to a fine-tune |
@@ -71,7 +71,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 
 | # | Decision | Options | Recommendation | Decider | By |
 |---|---|---|---|---|---|
-| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c)**, now strengthened by the A/B: the compression thesis did not survive a Tamil BPE. Draft ADR written: `docs/adr/0001-kutty-v1.md` | Founder | **overdue** (draft ready) |
+| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c) chosen 3 Nov:** product student `Qwen3-1.7B-Base` (Apache-2.0); teacher `sarvam-m` 24B (Apache-2.0); Sarvam-1 rejected (non-commercial); Adhan-nano stays research. See `docs/reports/base_decision_2026-11-03.md` | Founder | recorded 3 Nov |
 | D2 | Canonical tokenizer numbers | keep per-doc numbers · one generated table | **One generated table** (`benchmark_token_tax.py` on a pinned sample); docs link to it | Adhan DRI | 29 Oct |
 | D3 | Morph-guard in the next tokenizer | keep v3 · v4 with `--morphology-guard` | Decide **after** Stage 1b eval. Changing the tokenizer invalidates all shards and checkpoints | Adhan DRI | 14 Nov |
 | D4 | Where to pretrain Stage 2 | CPU box · free T4 · platform GPU node | Platform GPU node if it is up; T4 as fallback | Adhan DRI + infra | 7 Nov |

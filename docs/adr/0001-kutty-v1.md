@@ -1,6 +1,6 @@
 # ADR 0001 — Adhan Kutty v1: base, tokenizer, scope, and ship bar
 
-**Status:** Proposed — awaiting Founder sign-off
+**Status:** Proposed — decision recorded 2026-11-03; Founder sign-off pending
 **Date:** 2026-11-03
 **Decider:** Founder · **Drafters:** Adhan DRI
 **Supersedes:** the undecided "from scratch vs fine-tune" question open since 6 Oct
@@ -32,10 +32,12 @@ It needs a GPU and is due 14 Nov. Kutty v1 cannot wait for a positive result to 
 Adopt **option (c): ship a fine-tune-based product, keep the from-scratch model as the
 research artifact.**
 
-1. **Kutty v1 product model** is a LoRA / continued-pretraining adaptation of an open,
-   permissively licensed **0.5–2B Tamil-capable base**, using that base's own tokenizer.
-   Final base selection is gated on a redistribution-compatible licence and a Tamil
-   tokenizer/context check before any training spend.
+1. **Kutty v1 product model** is a LoRA / SFT adaptation of **`Qwen/Qwen3-1.7B-Base`**
+   (Apache-2.0, 32k context, 100+ languages), using that base's own tokenizer.
+   **`sarvamai/sarvam-m`** 24B (Apache-2.0) is the server-side teacher/reference, not the
+   phone model. **`sarvamai/sarvam-1`** 2B is rejected for product use: its research
+   licence is non-commercial. Full selection evidence:
+   `docs/reports/base_decision_2026-11-03.md`.
 2. **Kutty v1 is not** the from-scratch `adhan-nano`. `adhan-nano` + Swaram remain the
    public research contribution (tokenizer paper, ablations, checkpoints).
 3. **SFT scope for v1:** Sangam and grounded QA first, with citations and refusal. Add
