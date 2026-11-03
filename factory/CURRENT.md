@@ -4,84 +4,81 @@
 
 ## 1. Headline
 
-**🔴 Red — strategic reset.** The tokenizer is the strongest asset Yazhi has, but the central thesis is still
-**unvalidated**: Swaram has never been compared to a Tamil-trained BPE at equal vocab and compute (the whitepaper
-admits "no Tamil-trained BPE baseline yet"). The model is a 14.5M-param CPU toy that barely beats a unigram floor;
-its Stage 1b generations are not coherent Tamil. The public site still claims "7B-parameter · 22+ Indian languages"
-— a ~3-orders-of-magnitude overstatement that must be corrected this week. A weight-sharing regression silently
-trained the v3-long run as a 9.2M model until it was caught on 2 Nov. The date with the most risk is **Adhan Kutty v1
-on 26 Dec (53 days)**; the base decision is now recorded (Qwen3-1.7B student, Sarvam-M teacher), so the remaining
-hard blocker is the **absence of a GPU** and the 48-hour base bake-off. Full review: [`docs/reviews/2026-11-03-battle-plan.md`](../docs/reviews/2026-11-03-battle-plan.md).
+**🟡 Execution reset — base decided, now prove it.** On 3 Nov the base question closed:
+Kutty v1 is a fine-tune of **`Qwen/Qwen3-1.7B-Base`** (Apache-2.0), with
+**`sarvamai/sarvam-m` 24B** (Apache-2.0) as the server-side teacher/reference.
+`Sarvam-1` 2B is rejected for product use because its licence is non-commercial/research
+only. `adhan-nano` + Swaram continue as the research artifact, not the product base.
+Full record: [`docs/reports/base_decision_2026-11-03.md`](../docs/reports/base_decision_2026-11-03.md).
+
+The critical risk is now **Qwen3's Tamil tokenizer tax**: 2.016 tok/akshara vs 0.538 for
+Sarvam-1 on the same 300-doc sample. The 48-hour bake-off (`K1`) decides whether Qwen3-1.7B
+is good enough on Tamil quality, or whether we move to Qwen3-4B / a negotiated Sarvam-1
+licence. The other hard blocker is **GPU access** for SFT, distillation, and the teacher.
 
 ## 2. Health
 
 | Workstream | RAG | Fact (source) | Next checkpoint |
 |---|---|---|---|
-| Tokenizer (Swaram v3) | 🔴 | vocab 31,964 · 100% lossless · tax vs GPT-4 4.21×, **but loses to a Tamil-trained SentencePiece BPE: fertility 0.527 vs 0.346 tok/akshara (Swaram uses 1.52× more tokens)** (`docs/reports/ab_swaram_vs_bpe.md`) | Model-level A/B (bits/akshara) or drop the compression claim |
-| Tokenizer morphology (G3) | 🔴 | boundary agreement 5.6% (v3 sample) / 24.2% (Stage 1b sample); gate is ≥30%. The morph-guard variant reached 37.5% at +23% tokens (`TOKENIZER_BENCHMARK_V2.md`) | Decide whether v4 uses the guard |
-| Corpus scale | 🟡 | ~609.7M swaram tokens (v1 328M + v2 281.7M), 1.87M docs. Target 1.5–2B, so ~35% of the way (Phase 2 totals, 27 Oct) | Raise IndicCorp / mC4 / FineWeb limits |
-| Corpus purity | 🟡 | ~164M pure-Tamil tokens in v1; 38.5% of tokens are `▁` markers (`docs/corpus/DATA_WEIGHTING.md`) | Re-measure on v1+v2 |
-| Packing efficiency | 🟢 | fixed: `StreamingPacker` carries remainders across documents; the 300M budget now packs **293.57M / 293.57M** tokens (99.9997%) into `nano_300m_s512_v2` (was 133.6M, 0.46×) | Use the v2 shards for Stage 2 |
-| Pretraining | 🟢 | Stage 1b (step 4,881) evaluated: val **bits/akshara 1.820** vs floor 2.322 (nll 3.537, ppl 34.36 on the 300m val set) — a clear win over Stage 1's 2.274 (`docs/reports/eval_report_nano_stage1b.json`) | SFT v0 on top of Stage 1b |
-| Post-training (SFT / chat) | 🟡 | SFT v0 Sangam set built: **9,961 train / 1,303 val / 1,146 test**, zero poem overlap (`data/final/sft_v0_sangam`, datasheet in `docs/reports/datasheet_sft_v0_sangam.json`) + grounded QA 971 / 124 / 182. No SFT run yet; no SFT-vs-base regression gate | SFT v0 with regression gate |
-| Safety (Aram) | 🔴 | First critical-only baseline on Stage 1b: **score 0.13, 7 CRITICAL / 9 prompts** (3 Nov); expected pre-SFT, now measurable (`docs/reports/aram_report_stage1b.json`) | SFT gate must clear 0 CRITICAL |
-| Export / edge | 🔴 | `scripts/export_onnx.py` and `quantize_model.py` target the removed HF pipeline (`docs/DEV.md` Notes) | Rework for JAX/Orbax |
-| Serving | 🟢 | Validated against Stage 1b: `/health` 200, `/generate` 48-token request **p50 1,757 ms / p95 2,540 ms** on CPU (`docs/reports/serving_stage1b.json`) | Measure GPU/INT8 path after export rework |
-| CI | 🟢 | lint / test / type-check workflows; suite **127 passed / 2 skipped** (3 Nov); structure-invariant + remat-grad tests added | Consolidate into one `ci.yml` |
-| Repo hygiene | 🔴 | **29 remote branches**, 6 stacked duplicates of work already on `main`; 2 hygiene fixes cherry-picked 3 Nov | Close to <10 branches |
-| Thesis validation | 🔴 | A/B run 3 Nov: Swaram beats byte-level BPE (2.49×) but **loses to SentencePiece BPE** (0.346 vs 0.527 tok/akshara). Compression claim not supported; morphological/downstream claim still untested | Model-level A/B (N14b) |
+| Base decision | 🟢 | **Qwen3-1.7B-Base student · Sarvam-M 24B teacher · Sarvam-1 rejected** (`docs/reports/base_decision_2026-11-03.md`) | Bake-off result K1 |
+| Base bake-off | 🟡 | Preliminary CPU smoke: Qwen3-1.7B XNLI **42.0%** (n=50), IndicQA **EM 0.140/F1 0.192** (n=50); 4B/full-GPU run pending (`docs/reports/base_bakeoff_qwen3.md`) | K1 full run, due 5 Nov |
+| SFT v0 | ⚪ | Data ready: Sangam 9,961 train / 1,303 val / 1,146 test, zero poem overlap; grounded QA 971/124/182. No Qwen3 SFT run yet | K2, due 10 Nov |
+| Distillation | ⚪ | Sarvam-M 24B teacher not yet run; no Tamil prompt/verifier pipeline | K3, due 14 Nov |
+| Export / phone | 🔴 | No Qwen3 INT4 GGUF/ONNX build; reference phone not chosen | K4/K5, due 21 Nov |
+| Tanglish sanitization | 🟡 | Source scoped: `vishnu-n/Tanglish-Corpus-185k` @ `927f5b4` (CC-BY-4.0); 5.5% keyword-political, 171k neutral candidates. Gazetteer-first plan | K6, due 10 Nov |
+| Safety (Aram) | 🟡 | Stage 1b baseline 0.13, 7 CRITICAL/9 (`docs/reports/aram_report_stage1b.json`); Qwen3 untested | K7, due 21 Nov |
+| Serving | 🟢 | Adhan FastAPI validated against Stage 1b: `/generate` p50 1,757 ms / p95 2,540 ms CPU (`docs/reports/serving_stage1b.json`) | Re-test with Qwen3 endpoint |
+| Research track | 🟡 | Swaram A/B: 0.527 vs Tamil BPE 0.346 → compression thesis unsupported; morphology 5.6–24.2%, gate 30% | Keep as paper, not product gate |
+| CI | 🟢 | 127 passed / 2 skipped (3 Nov); structure-invariant + remat tests added | Keep green |
 
 ## 3. Key metrics
 
 | Metric | Now | Target | Source |
 |---|---|---|---|
-| Token tax vs GPT-4 (cl100k) | **4.21×** | publish, keep Swaram at 1.00× | `docs/tokenizer/TOKEN_TAX_BENCHMARK_V3.md` |
-| Fertility (tok/akshara), canonical | ⚠️ 7 different published values (0.304–0.554) | one canonical number per artifact | see archive digest D1 |
-| Corpus tokens (all / pure Tamil) | 609.7M / ~164M (v1 only) | 1.5–2B / ≥1B verified | corpus stats, `DATA_WEIGHTING.md` |
-| Packed / corpus token ratio | **~1.00** (293.57M / 293.57M) | ≥ 0.95 | `data/final/nano_300m_s512_v2/datasheet.json` |
-| bits/akshara (val) | **1.820 (Stage 1b, step 4,881)** · 2.274 (Stage 1) · 1.955 at step ~2400 | < 2.322 floor | `docs/reports/eval_report_nano_stage1b.json` |
-| Sandhi-correct (G4) | 91.5% | ≥ 90% | same |
-| Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |
-| Serving `/generate` latency | **p50 1,757 ms · p95 2,540 ms** (48 tok, CPU) | measure after export/INT8 | `docs/reports/serving_stage1b.json` |
-| SFT examples | ~11.2k (Sangam 9,961 + QA 1,277) | 20–50k (nano) | `data/final/sft_*/stats.json` |
-| Aram Harness score | **0.13 · 7 CRITICAL** (Stage 1b, critical-only) | > 0.90, 0 CRITICAL | `docs/reports/aram_report_stage1b.json` |
-| Swaram vs Tamil-BPE (fertility) | **0.527 vs 0.346** (BPE wins) | Swaram wins by ≥10% | `docs/reports/ab_swaram_vs_bpe.json` |
-| Swaram vs Tamil-BPE (bits/akshara) | **not measured** | Swaram wins by ≥10% at equal compute | `NEXT.md` N14b |
+| Kutty v1 product base | **Qwen3-1.7B-Base** (Apache-2.0) | bake-off confirms Tamil quality | `docs/reports/base_decision_2026-11-03.md` |
+| Teacher / reference | **Sarvam-M 24B** (Apache-2.0) | distillation data + eval ceiling | same |
+| Tokenizer fertility, Qwen3 | **2.016 tok/akshara** | measure after SFT; no regression | 300-doc sample, 35,986 aksharas |
+| Tokenizer fertility, Sarvam-1 | 0.538 | — (product-rejected) | same sample |
+| Tokenizer fertility, Sarvam-M | 0.804 | teacher efficiency | same sample |
+| Tokenizer fertility, Swaram v2 | 0.527 | research artifact | `docs/reports/ab_swaram_vs_bpe.json` |
+| Tamil-trained BPE fertility | 0.346 | research baseline | same |
+| SFT examples | 11,232 (9,961 + 1,271) | 20–50k | `data/final/sft_*/stats.json` |
+| bits/akshara (Adhan Stage 1b) | 1.820 | research only | `docs/reports/eval_report_nano_stage1b.json` |
+| Serving `/generate` latency | p50 1,757 ms · p95 2,540 ms (Adhan CPU) | Qwen3 INT4 on phone | `docs/reports/serving_stage1b.json` |
+| Aram Harness score | 0.13 · 7 CRITICAL (Adhan Stage 1b) | >0.90, 0 CRITICAL for Qwen3 | `docs/reports/aram_report_stage1b.json` |
+| Tanglish neutral candidates | 171,449 (after keyword filter) | freeze 500 | `docs/reports/n3_tanglish_source_scope.md` |
 
 ## 4. In flight
 
 | Change | What | Age | State | Needed to land |
 |---|---|---|---|---|
-| Six early-Phase-2 branches | Corpus pipeline, tokenizer, nano config, GQA/T4, health/mixture, Sangam ingest | ~2–4 wks | Same work already on `main` | Diff each against `main`; close if empty |
-| Tamil normalisation suite | NFC + grapheme checks in CI | 4 days since last update | awaiting review | Review + merge |
-| Roadmap sync to the Q4 plan | docs | 13 days | awaiting review | Close as superseded by `factory/` |
-| Colab/PyTorch workspace scaffold | notebook + corpus mount | 5 wks | awaiting review | Decide: the JAX T4 notebook already exists (`COLAB_T4.md`) |
+| K1 base bake-off | Qwen3-1.7B vs Qwen3-4B on tamil-bench + 20-prompt read | new | partial CPU smoke only | GPU/full n + Qwen3-4B + generation read |
+| K2 SFT v0 | Qwen3-1.7B + Sangam/QA SFT | new | not started | GPU window + regression gate |
+| K3 distillation | Sarvam-M teacher prompts/filter | new | not started | GPU + Tamil verifier |
+| K6 Tanglish freeze | gazetteer sanitizer + 500 sentences | new | not started | filter code + native review |
 
 ## 5. Blockers (oldest first)
 
 | # | Blocker | Since | Blocks | Ask / who |
 |---|---|---|---|---|
-| B1 | ✅ **Resolved 3 Nov.** Kutty v1 = Qwen3-1.7B-Base student + Sarvam-M teacher; Adhan-nano stays research; Sarvam-1 rejected for non-commercial licence | 6 Oct | — | Recorded in `docs/reports/base_decision_2026-11-03.md`; see D1 |
-| B2 | Export/quantize does not work with JAX checkpoints | ≥ Aug | phone demo, INT4 build, `yazh-unity`, `illakiya` | Adhan DRI to scope the rework (`NEXT.md` N9) |
-| B3 | Training runs on one 12-core CPU box at ~2k tok/s | ongoing | Stage 2/3 timelines | GPU access: the T4 recipe exists; rent a T4/A10 for a weekend (`NEXT.md` N17) |
-| B4 | **Thesis not supported on compression**: a Tamil-trained SentencePiece BPE is 1.52× more compressed than Swaram | 3 Nov (A/B) | the entire from-scratch thesis and the tokenizer paper | Run the model-level A/B (N14b); if it also loses, pivot Kutty to a fine-tune |
-| B5 | **Public claim wrong**: yazhi.dev says "7B-parameter · 22+ Indian languages" | ≥ Oct | credibility of every public number | Fix this week (`NEXT.md` N5) |
+| B1 | **No GPU.** SFT, distillation, and Qwen3-4B/24B teacher runs need one | ongoing | K1–K3, 26 Dec | Book a T4/A10 weekend or platform GPU node (`K1`) |
+| B2 | **Qwen3 Tamil quality unknown** and its tokenizer is 3.75× less efficient than Sarvam-1 | 3 Nov | product base confirmation | Run K1 bake-off now |
+| B3 | **Export path for Qwen3 → INT4 GGUF/ONNX** is untested | 3 Nov | phone demo K4/K5 | Spike export on Qwen3-1.7B |
+| B4 | **Tanglish political filter** has no human-labeled audit | 3 Nov | public eval table K6 | Gazetteer pass + 100-sentence native review |
+| B5 | **Sarvam-M teacher access** (24B) not booked | 3 Nov | distillation K3 | GPU with ≥48 GB or quantised teacher |
 
 ## 6. Decisions needed
 
 | # | Decision | Options | Recommendation | Decider | By |
 |---|---|---|---|---|---|
-| D1 | Kutty v1 base | (a) from-scratch adhan-nano + SFT · (b) LoRA on an open base · (c) ship (b) as product, keep (a) as research artifact | **(c) chosen 3 Nov:** product student `Qwen3-1.7B-Base` (Apache-2.0); teacher `sarvam-m` 24B (Apache-2.0); Sarvam-1 rejected (non-commercial); Adhan-nano stays research. See `docs/reports/base_decision_2026-11-03.md` | Founder | recorded 3 Nov |
-| D2 | Canonical tokenizer numbers | keep per-doc numbers · one generated table | **One generated table** (`benchmark_token_tax.py` on a pinned sample); docs link to it | Adhan DRI | 29 Oct |
-| D3 | Morph-guard in the next tokenizer | keep v3 · v4 with `--morphology-guard` | Decide **after** Stage 1b eval. Changing the tokenizer invalidates all shards and checkpoints | Adhan DRI | 14 Nov |
-| D4 | Where to pretrain Stage 2 | CPU box · free T4 · platform GPU node | Platform GPU node if it is up; T4 as fallback | Adhan DRI + infra | 7 Nov |
-| D5 | Rent a GPU for the A/B and Stage 2 | stay on CPU · rent T4/A10 · platform node | **Rent a T4/A10 for a weekend** (~$10–20); sovereignty is about weights/data, not rented FLOPs | Adhan DRI | 7 Nov |
-| D6 | Public claim wording | keep "7B · 22+" · correct to "14.5M research-preview · Tamil" | **Correct it**; link to the model card | Founder + yazhi-dev | 4 Nov |
+| D1 | Kutty v1 base | Adhan-nano · Sarvam-1 · Qwen3-1.7B · Qwen3-4B | **Qwen3-1.7B-Base** chosen 3 Nov; revisit only if K1 fails | Founder | **recorded** |
+| D2 | If Qwen3-1.7B Tamil quality fails K1 | Qwen3-4B · Gemma-3-4B-IT · negotiated Sarvam-1 commercial licence | Prefer Qwen3-4B first; do not silently change licence | Founder | 5 Nov |
+| D3 | Teacher data policy | Sarvam-M outputs + human filter · Qwen3-4B outputs · no distillation | Sarvam-M + verifier/human sample; record licence/terms | Adhan DRI | 7 Nov |
+| D4 | Reference phone + runtime | Android ₹10–15k · emulator · server demo | Phone + llama.cpp/ONNX; fall back to desktop demo only via cut list | Adhan DRI | 7 Nov |
 
-## 7. Done last iteration (12–27 Oct)
+## 7. Done last iteration
 
-Phase 1 foundation hardening: data-parallel sharding, KV cache, HF revision pinning, round-trip + resume tests · CI back to green (lint, bandit, JAX-less collection) · Aram Harness framework and structured Tamil reasoning protocol · Phase 2 corpus: v2 ingestion (538k new docs), TVA + Wikisource crawlers, per-source failure isolation · Tokenizer v3 + token-tax benchmark + Swaram whitepaper · Capabilities plan + frozen response protocol v0
-
-**2 Nov — critical model regression fixed.** Commit `e6f5a99` hoisted `Block(c)` out of the layer loop, so Flax reused one parameter scope for every layer: the model silently became a weight-shared 9.2M-param stack (not 14.5M) and every older `block_{i}` checkpoint failed to load. Fixed by instantiating `Block(c, name=f"block_{i}")` inside the loop, with a regression test (`test_each_layer_has_its_own_block_params`). The in-flight v3-long run (checkpoints `Block_0` only, 9.2M params) was trained with the bug and is being restarted from scratch.
-
-**2–3 Nov — Stage 1b eval + packing fix + review.** Stage 1b (step 4,881) evaluated: val bits/akshara **1.820** (was 2.274). Cross-document packing fixed (`StreamingPacker`): the 300M budget now packs **99.9997%** of tokens (was 0.46×). Two unmerged hygiene fixes cherry-picked (MLflow loopback bind, `--sangam-root` required). Senior review + battle plan written (`docs/reviews/2026-11-03-battle-plan.md`).
+- **3 Nov — base decision recorded.** Qwen3-1.7B student, Sarvam-M teacher, Sarvam-1 rejected; tokenizer fertility evidence and fallback documented (`docs/reports/base_decision_2026-11-03.md`).
+- **3 Nov — MuRIL assessed.** Encoder-only, not a base; frozen XNLI 42.77%, Tanglish political weak-label CV 67.75%/AUC 0.754 → gazetteer-first sanitization (`docs/reports/muril_base_assessment.md`).
+- **3 Nov — factory reset** around the new execution plan; old N1–N17 backlog removed.
+- Earlier: Stage 1b eval 1.820 bits/akshara; packing fix 99.9997%; SFT v0 Sangam set; serving validated; first Aram baseline; structure-invariant CI.

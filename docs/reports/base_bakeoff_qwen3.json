@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-03",
+  "status": "partial — preliminary local CPU smoke, not the final K1 bake-off",
+  "candidate": "qwen3:1.7b",
+  "runtime": {
+    "engine": "ollama 0.32.14",
+    "device": "CPU",
+    "model_size_on_disk": "1.4 GB",
+    "endpoint": "native /api/chat with think=false"
+  },
+  "tamil_bench": {
+    "xnli": {"n": 50, "accuracy": 0.420, "note": "3-way chance 0.333"},
+    "indicqa": {"n": 50, "em": 0.140, "f1": 0.192, "errors": 0},
+    "milu": {"status": "not run", "reason": "gated dataset; needs HF access"}
+  },
+  "smoke": {
+    "xnli_n20_accuracy": 0.350
+  },
+  "comparison": {
+    "muril_frozen_xnli_full_test": 0.4277,
+    "qwen3_1_7b_xnli_n50": 0.4200
+  },
+  "caveats": [
+    "n=50 is a smoke sample, not the final 200/199/100 bake-off.",
+    "CPU/Ollama latency is not representative of GPU or phone INT4.",
+    "Qwen3-4B has not been run yet.",
+    "The tamil-bench chat-style prompt is not a fine-tuned SFT evaluation."
+  ],
+  "next": [
+    "Run full xnli n=200, indicqa n=100, milu n=199 on GPU.",
+    "Run Qwen3-4B with the same prompts and seed.",
+    "Add the 20-prompt Tamil generation read.",
+    "Record INT4 size and tokens/s on the K5 reference device."
+  ]
+}
