@@ -1,0 +1,39 @@
+{
+  "name": "adhan-sft-v0-sangam",
+  "version": "0.1.0",
+  "date": "2026-11-03",
+  "builder": "scripts/build_sangam_sft.py",
+  "command": "python scripts/build_sangam_sft.py --out-dir data/final/sft_v0_sangam --open-sangam-root ../open-sangam",
+  "inputs": {
+    "labels": "data/final/tinai_labels.jsonl",
+    "sangam_dir": "data/raw/sangam",
+    "open_sangam_root": "../open-sangam"
+  },
+  "outputs": {
+    "train": "data/final/sft_v0_sangam/train.jsonl",
+    "val": "data/final/sft_v0_sangam/val.jsonl",
+    "test": "data/final/sft_v0_sangam/test.jsonl",
+    "stats": "data/final/sft_v0_sangam/stats.json",
+    "bench": "bench/tamil-bench/data/sangam_ta_test.jsonl"
+  },
+  "poems": 2669,
+  "poems_by_split": {"train": 2140, "val": 279, "test": 250},
+  "examples_by_split": {"train": 9961, "val": 1303, "test": 1146},
+  "examples_by_task": {
+    "sangam_citation": 2669,
+    "sangam_eurai_en": 32,
+    "sangam_karupporul": 2355,
+    "sangam_tinai": 2355,
+    "sangam_tinai_from_urai": 2347,
+    "sangam_urai": 2652
+  },
+  "split_rule": "stable poem-id hash; val_frac=0.10, test_frac=0.10, seed=42",
+  "poem_overlap": {"train_test": 0, "train_val": 0, "val_test": 0},
+  "licensing": "Derived from the Open-Sangam corpus and its traditional commentaries; follow the upstream Open-Sangam licence. The 32 English eurai targets are Open-Sangam translations.",
+  "known_limits": [
+    "Only 32 of 2,669 poems have a gold English eurai; do not treat sangam_eurai_en as a translation-quality claim.",
+    "314 poems have unknown tinai and are excluded from tinai-conditioned evaluation.",
+    "Where multiple task examples share a poem, the poem-level split keeps them on the same side; do not evaluate per-example across splits."
+  ],
+  "verification": "stats.json reports zero poem overlap across train/val/test; the builder exits non-zero if any overlap is detected."
+}
