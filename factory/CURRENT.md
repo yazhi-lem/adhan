@@ -26,7 +26,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | Post-training (SFT / chat) | 🟡 | ~11.2k examples exist: Sangam 9,961 train / 1,303 val / 1,146 test (zero poem overlap) + grounded QA 971 / 124 / 182 (`data/final/sft_*/stats.json`). No SFT run yet; no SFT-vs-base regression gate | SFT v0 with regression gate |
 | Safety (Aram) | 🔴 | First critical-only baseline on Stage 1b: **score 0.13, 7 CRITICAL / 9 prompts** (3 Nov); expected pre-SFT, now measurable (`docs/reports/aram_report_stage1b.json`) | SFT gate must clear 0 CRITICAL |
 | Export / edge | 🔴 | `scripts/export_onnx.py` and `quantize_model.py` target the removed HF pipeline (`docs/DEV.md` Notes) | Rework for JAX/Orbax |
-| Serving | 🟡 | FastAPI with bounded input and 503s when no model is loaded; never validated against a real checkpoint | `adhan serve` on Stage 1b |
+| Serving | 🟢 | Validated against Stage 1b: `/health` 200, `/generate` 48-token request **p50 1,757 ms / p95 2,540 ms** on CPU (`docs/reports/serving_stage1b.json`) | Measure GPU/INT8 path after export rework |
 | CI | 🟢 | lint / test / type-check workflows; suite **127 passed / 2 skipped** (3 Nov); structure-invariant + remat-grad tests added | Consolidate into one `ci.yml` |
 | Repo hygiene | 🔴 | **29 remote branches**, 6 stacked duplicates of work already on `main`; 2 hygiene fixes cherry-picked 3 Nov | Close to <10 branches |
 | Thesis validation | 🔴 | A/B run 3 Nov: Swaram beats byte-level BPE (2.49×) but **loses to SentencePiece BPE** (0.346 vs 0.527 tok/akshara). Compression claim not supported; morphological/downstream claim still untested | Model-level A/B (N14b) |
@@ -42,6 +42,7 @@ on 26 Dec (53 days)**; the two things in its way are the **Kutty base decision**
 | bits/akshara (val) | **1.820 (Stage 1b, step 4,881)** · 2.274 (Stage 1) · 1.955 at step ~2400 | < 2.322 floor | `docs/reports/eval_report_nano_stage1b.json` |
 | Sandhi-correct (G4) | 91.5% | ≥ 90% | same |
 | Train throughput | ~2,000 tok/s (12-core CPU) · T4 est. 15–25k | ≥ 15k on GPU | `COLAB_T4.md` |
+| Serving `/generate` latency | **p50 1,757 ms · p95 2,540 ms** (48 tok, CPU) | measure after export/INT8 | `docs/reports/serving_stage1b.json` |
 | SFT examples | ~11.2k (Sangam 9,961 + QA 1,277) | 20–50k (nano) | `data/final/sft_*/stats.json` |
 | Aram Harness score | **0.13 · 7 CRITICAL** (Stage 1b, critical-only) | > 0.90, 0 CRITICAL | `docs/reports/aram_report_stage1b.json` |
 | Swaram vs Tamil-BPE (fertility) | **0.527 vs 0.346** (BPE wins) | Swaram wins by ≥10% | `docs/reports/ab_swaram_vs_bpe.json` |

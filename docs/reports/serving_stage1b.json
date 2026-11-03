@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-03",
+  "endpoint": "POST /generate",
+  "model": "adhan-nano-ta",
+  "checkpoint": "checkpoints/adhan-nano-ta (latest, step 4881)",
+  "config": "src/adhan_slm/configs/adhan_slm_nano_ta_cont.yaml",
+  "tokenizer": "data/final/nano_300m_s512",
+  "device": "cpu",
+  "host": "127.0.0.1:8765",
+  "request": {
+    "text": "தமிழ் மொழி",
+    "max_length": 48,
+    "temperature": 0.0
+  },
+  "n_requests": 10,
+  "latency_ms": {
+    "p50": 1757.4,
+    "p95": 2540.4,
+    "min": 1628.2,
+    "max": 2540.4
+  },
+  "completion_tokens_last_request": 26,
+  "notes": "First validation of the FastAPI server against a real checkpoint. Generation stopped at EOS after 26 tokens despite max_length=48."
+}
