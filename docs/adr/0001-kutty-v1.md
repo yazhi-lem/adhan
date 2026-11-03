@@ -64,6 +64,15 @@ research artifact.**
 - **Optionality:** (c) does not kill (a). If N14b supports Swaram, the research line
   continues and can become the Kutty v2 foundation.
 
+### MuRIL is not a candidate base
+
+`google/muril-base-cased` was assessed (2026-11-03). It is a 237.6M-parameter
+BERT-base **encoder** (Apache-2.0, 17 Indian languages, 512-token context). It has no
+autoregressive decoder, so it cannot answer prompts, write Tamil, or absorb the Kutty
+SFT/chat tasks. It does not change D1. Its useful role is auxiliary: a fine-tuned
+political/abuse classifier for the Tanglish eval source, a retrieval encoder, and an
+encoder-only XNLI baseline. See `docs/reports/muril_base_assessment.md`.
+
 ## 4. What this is not
 
 - Not permission to use a base whose licence forbids redistribution or commercial use.

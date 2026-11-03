@@ -74,7 +74,17 @@ Sample rows are genuine Tanglish:
 - The corpus card and HF metadata agree on **CC-BY-4.0**.
 - Its size means the 500-sentence sample is stable even after a content filter.
 
-## 4. Risks and how to handle them
+## 4. Political-content sanitization
+
+The corpus is ~5.5% keyword-positive for political/sensitive public-affairs text
+(9,929 of 181,378 filtered candidates). A high-recall gazetteer/regex pass leaves
+~171k neutral candidates — enough for 500 without a model. Frozen MuRIL was probed as
+a possible paraphrase detector: 67.75% ± 1.57% CV accuracy / 0.754 CV AUC on
+keyword-derived weak labels, which is **not** good enough to ship. Use the gazetteer
+first; add a fine-tuned MuRIL classifier only after 500–1,000 human labels exist.
+Full assessment and pipeline: [`muril_base_assessment.md`](muril_base_assessment.md).
+
+## 5. Risks and how to handle them
 
 | Risk | Why it matters | Mitigation |
 |---|---|---|
@@ -84,7 +94,7 @@ Sample rows are genuine Tanglish:
 | **Upstream drift or deletion** | A moving HF dataset breaks `--repro` | Pin the revision above; record the file SHA-256; keep a local copy outside git for reproduction. |
 | **Licence mis-tagging** | A dataset card is not a legal opinion | Document the declared licence verbatim; do not relicense the text; attribute the dataset in the results table and manifest. |
 
-## 5. Implementation plan (when N3 proceeds)
+## 6. Implementation plan (when N3 proceeds)
 
 1. **Fetch and pin**
    ```bash
@@ -118,7 +128,7 @@ Sample rows are genuine Tanglish:
 6. **Publish attribution** next to the canonical tokenizer table:
    `Tanglish sample: vishnu-n/Tanglish-Corpus-185k, CC-BY-4.0, revision 927f5b4`.
 
-## 6. Decision
+## 7. Decision
 
 Adopt **`vishnu-n/Tanglish-Corpus-185k` at revision `927f5b4` as the primary Tanglish
 source**, with a deterministic content filter and a local-only raw copy. If provenance

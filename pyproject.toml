@@ -75,6 +75,10 @@ benchmark = [
     "tokenizers>=0.15.0",
     "sentencepiece>=0.1.99",
 ]
+# Frozen-encoder probes (MuRIL etc.). Flax backend; torch is not required.
+muril = [
+    "transformers>=4.40,<5",
+]
 serving = [
     "fastapi>=0.100.0",
     "uvicorn>=0.22.0",
