@@ -29,6 +29,15 @@ jobs:
           pip install -e ".[dev,serving]"
 
 
+      # Tamil normalisation suite (LEM-75): NFC + grapheme checks shared by the
+      # corpus, dedup and tokenizer-benchmark steps. Blocking, strict-typed and
+      # held to a coverage floor so the data freeze can rely on it.
+      - name: Tamil normalisation suite (NFC + grapheme checks)
+        run: |
+          mypy --strict src/adhan_slm/data/tamil_normalise.py
+          pytest src/adhan_slm/data/tamil_normalise_tests.py \
+            --cov=adhan_slm.data.tamil_normalise --cov-report=term --cov-fail-under=90
+
       - name: Run unit tests
         run: |
           pytest -m "not integration" --cov=src/adhan_slm --cov-report=xml --cov-report=term
