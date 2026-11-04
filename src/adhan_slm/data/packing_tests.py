@@ -71,9 +71,9 @@ def test_streaming_packer_carries_remainders_across_documents() -> None:
 
     flat = [t for s in seqs for t in s]
     assert flat == raw[: len(flat)], "streaming packer must preserve the raw prefix"
-    assert len(flat) >= 0.95 * len(raw), (
-        f"streaming packer kept {len(flat)}/{len(raw)} tokens; expected >= 95%"
-    )
+    assert len(flat) >= 0.95 * len(
+        raw
+    ), f"streaming packer kept {len(flat)}/{len(raw)} tokens; expected >= 95%"
 
 
 def test_per_document_packing_loses_short_documents() -> None:
