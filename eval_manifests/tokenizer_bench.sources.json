@@ -1,0 +1,44 @@
+{
+  "per_register": 500,
+  "seed": 13,
+  "min_chars": 15,
+  "max_chars": 300,
+  "sources": [
+    {
+      "id": "thirukkural-classical",
+      "register": "classical",
+      "path": "data/intermediate/bench_sources/thirukkural.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "Public domain (Thirukkural; digitised text)",
+      "url": "https://raw.githubusercontent.com/tk120404/thirukkural/master/thirukkural.json"
+    },
+    {
+      "id": "kalithokai-sangam",
+      "register": "classical",
+      "path": "data/intermediate/bench_sources/kalithokai.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "Public domain (Kalithokai, Sangam anthology)",
+      "url": "https://github.com/yazhi-lem/open-sangam"
+    },
+    {
+      "id": "wikipedia-ta",
+      "register": "modern",
+      "path": "data/intermediate/bench_sources/wikipedia_ta.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "CC BY-SA 4.0 (Tamil Wikipedia contributors)",
+      "url": "https://ta.wikipedia.org"
+    },
+    {
+      "id": "tanglish-185k",
+      "register": "tanglish",
+      "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "CC-BY-4.0",
+      "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+    }
+  ]
+}

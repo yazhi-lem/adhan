@@ -324,15 +324,25 @@ def to_markdown(results: Sequence[Result], price_per_million: Optional[float] = 
 
 def _load_adapters(args: argparse.Namespace) -> List[TokenizerAdapter]:
     adapters: List[TokenizerAdapter] = []
-    if args.swaram:
-        tok = SwaramTokenizer.from_files(args.swaram[0], args.swaram[1])
-        adapters.append(SwaramAdapter(tok))
+    names = list(getattr(args, "swaram_name", None) or [])
+    for index, (vocab, merges) in enumerate(args.swaram or []):
+        tok = SwaramTokenizer.from_files(vocab, merges)
+        if index < len(names):
+            label = names[index]
+        elif len(args.swaram) == 1:
+            label = "swaram"
+        else:
+            label = f"swaram-{index + 1}"
+        adapters.append(SwaramAdapter(tok, label))
     for spec in args.hf or []:
         p = Path(spec)
         if p.suffix == ".json":
             from tokenizers import Tokenizer
 
-            adapters.append(TokenizersAdapter(Tokenizer.from_file(str(p)), p.parent.name or p.stem))
+            # Label by the file, not the directory: a directory called
+            # "tokenizers" or "snapshots" says nothing in a results table.
+            label = p.stem if p.is_file() else (p.parent.name or p.stem)
+            adapters.append(TokenizersAdapter(Tokenizer.from_file(str(p)), label))
         else:
             from transformers import AutoTokenizer
 
@@ -348,7 +358,19 @@ def _load_adapters(args: argparse.Namespace) -> List[TokenizerAdapter]:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     ap.add_argument("--corpus", required=True, help="frozen eval corpus (JSONL)")
-    ap.add_argument("--swaram", nargs=2, metavar=("VOCAB", "MERGES"))
+    ap.add_argument(
+        "--swaram",
+        action="append",
+        nargs=2,
+        metavar=("VOCAB", "MERGES"),
+        help="Swaram vocab.json + merges.txt (repeatable)",
+    )
+    ap.add_argument(
+        "--swaram-name",
+        action="append",
+        metavar="LABEL",
+        help="row label for the matching --swaram (default: swaram, or swaram-N)",
+    )
     ap.add_argument(
         "--hf",
         action="append",
