@@ -26,6 +26,7 @@ import argparse
 import json
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from typing import Iterator, List, Sequence
 
@@ -90,6 +91,12 @@ def main() -> int:
     ap.add_argument("--min-frequency", type=int, default=2)
     ap.add_argument("--out", required=True, help="output directory")
     ap.add_argument("--progress", action="store_true", help="show tokenizers progress bar")
+    ap.add_argument(
+        "--extend-inventory-min-count",
+        type=int,
+        default=0,
+        help="also make aksharas the table lacks atomic, if seen at least N times",
+    )
     args = ap.parse_args()
 
     budgets = list(args.chars or [])
@@ -111,6 +118,31 @@ def main() -> int:
     docs = sample(entries)
     chars = sum(len(d) for d in docs)
     print(f"  {len(docs):,} docs, {chars:,} chars")
+
+    if args.extend_inventory_min_count:
+        # Data-driven inventory extension. An akshara the table does not know
+        # cannot be protected by a composition merge, so a learned merge can cut
+        # it. Adding the *systematic* ones (a ZWJ, a doubled vowel sign) as their
+        # own vocabulary entries makes them atomic too; one-off typos are left
+        # alone so the vocabulary does not fill with noise.
+        observed: Counter = Counter()
+        for doc in docs:
+            for cluster in indic_akshara.segment(doc, [script]):
+                if cluster in inventory or not cluster.strip():
+                    continue
+                # ZWJ/ZWNJ are format characters, not part of an akshara: giving
+                # them their own composed token makes the Rust and Python paths
+                # rank-compete over it. Leave them to byte fallback.
+                if any(ch in cluster for ch in "\u200c\u200d"):
+                    continue
+                observed[cluster] += 1
+        extra = [c for c, n in observed.most_common() if n >= args.extend_inventory_min_count]
+        if extra:
+            inventory = list(inventory) + extra
+            print(
+                f"  inventory extended by {len(extra)} cluster(s) seen >= "
+                f"{args.extend_inventory_min_count}x (of {len(observed)} unknown)"
+            )
 
     print("[2/2] training tokenizer")
     started = time.perf_counter()
@@ -135,10 +167,12 @@ def main() -> int:
         "vocab_size": len(tok),
         "n_merges": len(tok.merges),
         "inventory_size": len(inventory),
+        "inventory_extension_min_count": args.extend_inventory_min_count,
         "byte_fallback": not args.no_byte_fallback,
         "min_frequency": args.min_frequency,
         "train_docs": len(docs),
         "train_chars": chars,
+        "splits_in_inventory": None,
         "train_seconds": round(seconds, 1),
         "corpora": [
             {

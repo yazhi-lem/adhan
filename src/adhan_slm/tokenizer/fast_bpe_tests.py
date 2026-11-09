@@ -175,3 +175,26 @@ def test_word_mark_spans_cover_every_akshara(tok: AksharaBPE) -> None:
     assert spans[0].akshara_start == 0
     assert spans[-1].akshara_end == n_aksharas
     assert all("\u2581" in s.piece or s.piece for s in spans)
+
+
+def test_no_merge_contains_a_control_character(tok: AksharaBPE) -> None:
+    """merges.txt is one tab-separated merge per line: a newline merge corrupts it."""
+    for left, right in tok.merges:
+        for side in (left, right):
+            assert not any(ch in "\n\r\t" for ch in side), (left, right)
+
+
+def test_python_and_rust_agree_on_tricky_text(tok: AksharaBPE) -> None:
+    """Punctuation, mixed whitespace and code-switching must not diverge."""
+    from adhan_slm.tokenizer.swaram_tokenizer import SwaramTokenizer
+
+    for text in (
+        "தமிழ்\tமொழி\nஉலகின்  சிறந்த",
+        "உரை: பூமியைக் காப்பர்; (அடைப்பு) 123 45.6",
+        "இது AI model தான், 2026!",
+    ):
+        reference = SwaramTokenizer(vocab=tok.vocab, merges=tok.merges)
+        # Compare ids, not token strings: the Rust path renders an uncovered
+        # character as its byte tokens inside `tokenize`, the Python path leaves
+        # it whole there and applies byte fallback in `encode`.
+        assert tok.encode(text) == reference.encode(text), text

@@ -59,8 +59,12 @@ def _composition_merges(inventory: Sequence[str]) -> List[Tuple[str, str]]:
 
     ``கொ`` (ka + o-matra) becomes ``("க","ொ") -> கொ``; a Devanagari conjunct such
     as ``क्ष`` chains through ``("क","्") -> क्`` then ``("क्","ष") -> क्ष``.
-    Every intermediate symbol is itself an inventory akshara, so this adds no
-    vocabulary — only merge ranks.
+
+    For a normal akshara every intermediate is itself in the inventory, so this
+    adds no vocabulary. A data-driven inventory extension can carry a cluster the
+    table never had (two vowel signs in a row, ``தாா்``), whose intermediate is
+    not an akshara — ``AksharaBPE._build`` adds those intermediates to the
+    vocabulary so the chain can still run.
     """
     out: List[Tuple[str, str]] = []
     seen = set()
@@ -199,7 +203,12 @@ class AksharaBPE:
         pattern = re.compile("|".join(re.escape(a) for a in sorted(inv, key=len, reverse=True)))
 
         def to_pua(text: str) -> str:
-            text = unicodedata.normalize("NFC", text).replace(" ", WORD_MARK)
+            # Collapse whitespace before anything else. A literal newline inside
+            # the training text would otherwise become a merge pair, and
+            # merges.txt is tab-separated, one merge per line — a "\n" merge
+            # corrupts the file and silently re-ranks the Python path.
+            text = " ".join(unicodedata.normalize("NFC", text).split())
+            text = text.replace(" ", WORD_MARK)
             return pattern.sub(lambda m: pua.get(m.group(), m.group()), text)
 
         def iterator() -> Iterator[str]:
@@ -327,6 +336,12 @@ class AksharaBPE:
                     vocab[t] = len(vocab)
 
         comp = _composition_merges(inventory)
+        # Intermediates of a chain that the inventory does not already contain
+        # (see the module docstring): add them, or BPE refuses to initialise.
+        for left, right in comp:
+            for token in (left, right, left + right):
+                if token not in vocab:
+                    vocab[token] = len(vocab)
         merges = comp + [m for m in learned_merges if m not in set(comp)]
         # Drop merges whose members are not in the (possibly re-ided) vocab.
         merges = [(a, b) for a, b in merges if a in vocab and b in vocab]

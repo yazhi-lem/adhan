@@ -1,91 +1,98 @@
-# Swaram v4: beating Agaram's tokenizer on Tamil
+# Swaram v4: beating Agaram's tokenizer on Tamil, without splitting an akshara
 
 **2026-11-09.** Agaram 2.5B had the best licence-clean Tamil tokenizer we had measured
-(0.364 tokens per akshara). Swaram v4 reaches **0.307 at the same 64k vocabulary** —
-16% fewer tokens per akshara, and it cuts 0.2% of Tamil aksharas instead of Agaram's 7.1%.
-The frozen corpus, harness and sample rule are in
-[`docs/TOKENIZER_BENCH.md`](../TOKENIZER_BENCH.md); every number below is from
-[`tokenizer_bench_results.md`](tokenizer_bench_results.md).
+(0.364 tokens per akshara). Swaram v4 reaches **0.286 at the same 64k vocabulary**, and
+the 32k build that a nano-scale model can actually afford reaches **0.317** — still
+better than Agaram, at half the embedding cost. Neither build cuts a single Tamil akshara
+into two tokens (0.0% of 42,611 aksharas) against Agaram's 7.1%.
+
+Numbers come from the frozen 1,500-sentence corpus (500 each of classical / modern /
+tanglish, seed 13): [`tokenizer_bench_results.md`](tokenizer_bench_results.md). Sample
+rule and rebuild steps: [`docs/TOKENIZER_BENCH.md`](../TOKENIZER_BENCH.md).
 
 ## Result
 
-1,500 sentences, 500 each of classical / modern / tanglish, seed 13.
+| Tokenizer | vocab | Tokens/akshara | Tokens/word | Aksharas split | Tokens/1k sent. |
+|---|---:|---:|---:|---:|---:|
+| **swaram-v4-64k** | 63,959 | **0.286** | 1.42 | **0.0%** | 14,593 |
+| **swaram-v4-32k** | 31,959 | **0.317** | 1.58 | **0.0%** | 16,221 |
+| agaram-2.5b | 64k byte BPE | 0.364 | 1.81 | 7.1% | 18,583 |
+| sarvam-1 | — | 0.505 | 2.52 | 7.0% | 25,789 |
+| swaram-v3 (shipped) | 31,964 | 0.564 | 2.81 | 0.1% | 28,819 |
+| sarvam-m | — | 0.602 | 3.00 | 30.1% | 30,781 |
+| qwen3-1.7b / 4b | ~151k | 1.346 | 6.71 | 89.1% | 68,765 |
 
-| Tokenizer | vocab | Tokens/akshara | Tokens/word | Aksharas split |
-|---|---:|---:|---:|---:|
-| **swaram-v4-64k-mix** | 63,954 | **0.307** | 1.53 | **0.2%** |
-| swaram-v4-96k-mix | 95,954 | 0.296 | 1.48 | 0.3% |
-| agaram-2.5b | 64k byte BPE | 0.364 | 1.81 | 7.1% |
-| sarvam-1 | — | 0.505 | 2.52 | 7.0% |
-| swaram-v3 (shipped 32k) | 31,964 | 0.564 | 2.81 | 0.1% |
-| sarvam-m | — | 0.602 | 3.00 | 30.1% |
-| qwen3-1.7b / 4b | ~151k | 1.346 | 6.71 | 89.1% |
+Per register, both v4 builds win everywhere:
 
-Per register, Swaram v4-64k-mix beats Agaram everywhere: classical 0.370 vs 0.404,
-modern 0.318 vs 0.381, tanglish 0.252 vs 0.321. The 96k build is marginally better
-(0.296) and is *not* the recommendation — see the embedding cost below.
+| Register | swaram-v4-64k | swaram-v4-32k | agaram-2.5b |
+|---|---:|---:|---:|
+| classical | 0.290 | 0.319 | 0.404 |
+| modern | 0.306 | 0.342 | 0.381 |
+| tanglish | 0.265 | 0.295 | 0.321 |
 
-## What actually moved the number
+## What moved the number
 
-Three changes, in order of effect on the all-register figure (32k control → 64k → mix):
+| Step | Tokens/akshara | Splits |
+|---|---:|---:|
+| v3 (32k, 300M chars, space as its own token, Tamil-only mix) | 0.564 | 0.1% |
+| v4-32k / v4-64k, corrected inventory, space still a token | 0.580 / 0.546 | — |
+| + Tanglish in the training mix (21M chars) | 0.507 | 0.2% |
+| **+ the word mark merges with the following word** | **0.307** | 0.2% |
+| **+ 70M training chars, whitespace-collapsed, data-driven inventory** | **0.286** (64k), 0.317 (32k) | **0.0%** |
 
-| Change | Tokens/akshara | Note |
-|---|---:|---|
-| v3 (32k, space as its own token, Tamil-only mix) | 0.564 | shipped artifact |
-| v4-32k, corrected inventory, same convention | 0.580 | 15M chars of training data vs v3's 300M |
-| + budget 32k → 64k | 0.546 | −6% |
-| + Tanglish in the training mix | 0.507 | −7%, almost all of it in the tanglish register |
-| **+ word mark merges with the following word** | **0.307** | −39% at 64k: the space stops costing a token |
+Three fixes, in order of effect:
 
-The last line is the real bug. Swaram emitted `▁` as a standalone token for every space,
-so every word cost one extra token (measured: 0.90 per word on the benchmark corpus).
-SentencePiece-style tokenizers fold the space into the word that follows it (`▁மொழி`),
-which is what Agaram does. Fixing it (`pre_tokenizers.Split(..., behavior="merged_with_next")`
-in the Rust path, the same convention in `SwaramTokenizer.train`) removes ~0.9 tokens per
-word and brings `tokens/word` from 2.52 to 1.53 — below Agaram's 1.81.
-
-The Tanglish mixture matters because Swaram had almost no Latin merges: tanglish cost
-0.508 without it, 0.252 with it. It costs 0.013 on classical and 0.007 on modern —
-worth it for a tokenizer that will serve code-mixed Tamil input.
+1. **`▁` merges with the following word** (SentencePiece convention). Swaram emitted the
+   word mark as a standalone token, so every space cost a token — 0.90 per word measured.
+   `pre_tokenizers.Split(..., behavior="merged_with_next")` in the Rust path and the same
+   convention in `SwaramTokenizer.train`. This alone took 0.507 → 0.307.
+2. **Tanglish in the mixture.** Tamil-only training left the merge table almost without
+   Latin: tanglish cost 0.508. With 6–10M chars of the CC-BY-4.0 Tanglish corpus it is
+   0.265–0.295, at a cost of ~0.01 on classical and modern.
+3. **Whitespace collapse during training + a data-driven inventory.** Scraped documents
+   carry `\n`/`\t`; those became merge pairs, and because `merges.txt` is one
+   tab-separated merge per line, a newline merge **silently corrupted the file** and
+   re-ranked the Python path (101 of 1,500 sentences tokenized differently from the Rust
+   path before this). Training now collapses whitespace, and aksharas the table does not
+   know but that occur ≥20 times are added to the inventory so a learned merge cannot cut
+   them. Runtime text keeps its whitespace and stays byte-lossless; only training is
+   normalised. Splits went 0.2% → 0.0% and Python/Rust parity went 101/1,500 → 1/1,500.
 
 ## Reproduce
 
 ```bash
-# 1. local pools from the crawl + the CC-BY-4.0 Tanglish corpus (see TOKENIZER_BENCH.md)
-python scripts/build_bench_sources.py
+python scripts/build_bench_sources.py                     # local pools (crawl + Tanglish)
 
-# 2. train the tokenizer (21M chars: 15M Tamil web + 6M Tanglish, 64k vocab, ~11s)
-python scripts/train_tokenizer.py --vocab-size 64000 \
-  --corpus data/raw/expanded --chars 15000000 \
-  --corpus data/raw/tanglish/tanglish_corpus.jsonl --chars 6000000 \
-  --out data/final/swaram_v4b_64k_mix
+# 70M chars: 60M Tamil web + 10M Tanglish, ~2m45s each including sampling
+python scripts/train_tokenizer.py --vocab-size 64000 --extend-inventory-min-count 20 \
+  --corpus data/raw/expanded --chars 60000000 \
+  --corpus data/raw/tanglish/tanglish_corpus.jsonl --chars 10000000 \
+  --out data/final/swaram_v4e_64k_big
 
-# 3. score it on the frozen corpus
 python -m adhan_slm.eval.tokenizer_bench --corpus data/eval/tokenizer_bench.jsonl \
-  --swaram data/final/swaram_v4b_64k_mix/vocab.json \
-           data/final/swaram_v4b_64k_mix/merges.txt --swaram-name swaram-v4-64k-mix \
+  --swaram data/final/swaram_v4e_64k_big/vocab.json \
+           data/final/swaram_v4e_64k_big/merges.txt --swaram-name swaram-v4-64k \
   --baselines --out-md docs/reports/tokenizer_bench_results.md
 ```
 
 `data/` is gitignored, so the weights are not in this repository; the recipe travels in
-`data/final/swaram_v4b_64k_mix/datasheet.json` (corpora, char budgets, inventory size,
-merge count, seconds) and in the two commands above.
+`data/final/swaram_v4e_64k_big/datasheet.json` (corpora, budgets, inventory size, merge
+count, seconds) and in the two commands above.
 
 ## Honest limits
 
-- **Training data.** 21M characters. Agaram's tokenizer saw a corpus orders of magnitude
-  larger, and v2/v3 saw 300M. More data should improve v4 further; this result is the
-  floor, not the ceiling.
-- **Vocabulary cost.** 64k tokens is 2× the v3 embedding matrix. At `d_model = 256`
-  (`adhan-nano`) that is 16.4M parameters of embedding — larger than the model itself.
-  For a nano-scale student, keep 32k (0.437) or 24k; ship 64k only with a ≥1B-token
-  budget, where the embedding amortises. 96k is measured, not recommended.
-- **Akshara splits.** 0.2% (v4) vs 0.1% (v3): the Tanglish mixture and raw Latin alphabet
-  let a few merges cut a cluster. Still 35× better than Agaram's 7.1%, and it can be
-  driven to zero by keeping the raw-alphabet merges out of Tamil (future work).
-- **Not a fairness claim about corpora.** Both tokenizers were scored on the same frozen
-  corpus, at the same 64k vocabulary. Agaram's *training* corpus is larger and unknown in
-  detail; ours is the 21M chars above.
-- **The v2/v3 artifacts are superseded** by the word-mark convention: their `vocab.json`
-  ids do not carry `▁` merges, so a checkpoint trained on them cannot be re-tokenized into
-  v4 ids. Retrain rather than remap.
+- **Training data volume.** 70M characters. Agaram's tokenizer saw a corpus orders of
+  magnitude larger, and v2/v3 saw 300M Tamil-only. More data should improve v4 further;
+  this is a floor, not a ceiling.
+- **One known path difference.** 1 of 1,500 benchmark sentences tokenizes differently
+  between the Rust and Python paths. The cause is a ZWJ inside a word (`இன்னு‍`): the
+  Python path receives the ZWJ cluster from the segmenter as one unit, the Rust path has
+  no composition merge for it and merges around it. Ids still round-trip; it is a
+  documented difference, not a silent bug.
+- **Fairness.** Both tokenizers are scored on the same frozen corpus at the same 64k
+  vocabulary. Agaram's *training* corpus is larger and its exact composition is unknown.
+- **v2/v3 are superseded.** The word-mark convention changes the token alphabet, so their
+  vocabularies cannot be remapped; retrain rather than remap.
+- **Splits are a metric, not a proof.** 0.0% is the measured share of the 42,611 Tamil
+  aksharas in this corpus that more than one token touches. A different corpus can
+  surface a cluster the inventory still lacks; `--extend-inventory-min-count` is the knob.

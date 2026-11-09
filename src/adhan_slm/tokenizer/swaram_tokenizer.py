@@ -238,8 +238,25 @@ class SwaramTokenizer:
 
     # -- குறியாக்கம் மற்றும் குறிமீட்பு (Encode / Decode) -------------------------
     def tokenize(self, text: str) -> List[str]:
-        """உரையை டோக்கன் சரங்களின் பட்டியலாக மாற்றுதல் (Token strings)."""
-        return self._apply_merges(self._pretokenize(text))
+        """உரையை டோக்கன் சரங்களின் பட்டியலாக மாற்றுதல் (Token strings).
+
+        Merges run *inside* a word only: the word mark opens the following word
+        and nothing crosses a pre-token boundary. Without this the Python path
+        happily merged ``து`` + ``▁`` across a space, producing different tokens
+        from the Rust path on 101 of 1,500 benchmark sentences.
+        """
+        out: List[str] = []
+        word: List[str] = []
+        for piece in self._pretokenize(text):
+            if piece == WORD_MARK:
+                if word:
+                    out.extend(self._apply_merges(word))
+                word = [WORD_MARK]
+            else:
+                word.append(piece)
+        if word:
+            out.extend(self._apply_merges(word))
+        return out
 
     # -- சொல்வடிவ அளவீடு (Morphology-aware tokenization) -------------------------
     def tokenize_spans(self, text: str) -> List["TokenSpan"]:
@@ -348,8 +365,11 @@ class SwaramTokenizer:
             # The word mark belongs to the word that follows it (SentencePiece's
             # ``▁word`` convention). Leaving it as its own token cost ~0.9 tokens
             # per word and made every akshara merge compete with a space.
+            #
+            # Whitespace is collapsed first, exactly as the Rust path does: a
+            # merge containing a newline cannot survive merges.txt.
             word: List[str] = [WORD_MARK]
-            for tok in probe._pretokenize(line):
+            for tok in probe._pretokenize(" ".join(line.split())):
                 if tok not in seen:
                     seen.add(tok)
                     base.append(tok)

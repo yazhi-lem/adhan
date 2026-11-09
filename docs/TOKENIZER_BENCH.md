@@ -87,8 +87,8 @@ Headline numbers, tokens per akshara — the lower the better:
 
 | Tokenizer | all | classical | modern | tanglish | Tamil clusters split |
 |---|---:|---:|---:|---:|---:|
-| **swaram-v4-64k-mix** | **0.307** | 0.370 | 0.318 | 0.252 | 0.2% |
-| swaram-v4-96k-mix | 0.296 | 0.354 | 0.311 | 0.243 | 0.3% |
+| **swaram-v4-64k** | **0.286** | 0.290 | 0.306 | 0.265 | **0.0%** |
+| **swaram-v4-32k** | **0.317** | 0.319 | 0.342 | 0.295 | **0.0%** |
 | agaram-2.5b | 0.364 | 0.404 | 0.381 | 0.321 | 7.1% |
 | sarvam-1 | 0.505 | 0.543 | 0.526 | 0.459 | 7.0% |
 | swaram-v3 | 0.564 | 0.525 | 0.522 | 0.627 | 0.1% |
@@ -98,12 +98,13 @@ Headline numbers, tokens per akshara — the lower the better:
 | codepoint | 1.562 | 1.808 | 1.811 | 1.173 | 68.5% |
 | utf8-byte | 3.436 | 4.870 | 4.885 | 1.173 | 100.0% |
 
-Swaram v4 is trained with
-[`scripts/train_tokenizer.py`](../scripts/train_tokenizer.py) (64k vocab, 15M Tamil web
-chars + 6M Tanglish, ~11s); the recipe, the ablation that got there and the honest limits
-are in [`reports/swaram_v4_tokenizer_2026-11-09.md`](reports/swaram_v4_tokenizer_2026-11-09.md).
-The single biggest factor was the word-mark convention: `▁` now merges with the word that
-follows it instead of costing its own token (0.9 tokens per word).
+Swaram v4 is trained with [`scripts/train_tokenizer.py`](../scripts/train_tokenizer.py)
+(70M chars: 60M Tamil web + 10M Tanglish, `--extend-inventory-min-count 20`, ~2m45s per
+build); the recipe, the ablation and the honest limits are in
+[`reports/swaram_v4_tokenizer_2026-11-09.md`](reports/swaram_v4_tokenizer_2026-11-09.md).
+Both v4 builds beat Agaram at the same or half the vocabulary, and neither splits a Tamil
+akshara. The 32k build is the one to use at `adhan-nano` scale: 32k × 256 is 8.2M
+embedding parameters, where 64k would be 16.4M.
 
 Three facts worth carrying forward: Qwen3-1.7B and Qwen3-4B **share one tokenizer**, so
 moving to 4B buys no token efficiency; Swaram is the only family here that leaves Tamil

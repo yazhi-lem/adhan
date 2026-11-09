@@ -4,8 +4,8 @@
 
 | Tokenizer | Tokens/word | Tokens/akshara | Tamil clusters split | Tokens/1k sent. |
 |---|---:|---:|---:|---:|
-| swaram-v4-64k-mix | 1.53 | 0.307 | 0.2% | 15,664 |
-| swaram-v4-96k-mix | 1.48 | 0.296 | 0.3% | 15,127 |
+| swaram-v4-64k | 1.42 | 0.286 | 0.0% | 14,593 |
+| swaram-v4-32k | 1.58 | 0.317 | 0.0% | 16,221 |
 | swaram-v3 | 2.81 | 0.564 | 0.1% | 28,819 |
 | swaram-v2 | 2.96 | 0.595 | 0.3% | 30,374 |
 | agaram-2.5b | 1.81 | 0.364 | 7.1% | 18,583 |
@@ -20,8 +20,8 @@
 
 | Tokenizer | Tokens/word | Tokens/akshara | Tamil clusters split | Tokens/1k sent. |
 |---|---:|---:|---:|---:|
-| swaram-v4-64k-mix | 1.74 | 0.370 | 0.0% | 15,426 |
-| swaram-v4-96k-mix | 1.67 | 0.354 | 0.0% | 14,758 |
+| swaram-v4-64k | 1.37 | 0.290 | 0.0% | 12,094 |
+| swaram-v4-32k | 1.50 | 0.319 | 0.0% | 13,306 |
 | swaram-v3 | 2.47 | 0.525 | 0.0% | 21,890 |
 | swaram-v2 | 2.44 | 0.518 | 0.0% | 21,586 |
 | agaram-2.5b | 1.90 | 0.404 | 7.4% | 16,842 |
@@ -36,8 +36,8 @@
 
 | Tokenizer | Tokens/word | Tokens/akshara | Tamil clusters split | Tokens/1k sent. |
 |---|---:|---:|---:|---:|
-| swaram-v4-64k-mix | 1.56 | 0.318 | 0.3% | 16,538 |
-| swaram-v4-96k-mix | 1.52 | 0.311 | 0.5% | 16,144 |
+| swaram-v4-64k | 1.50 | 0.306 | 0.0% | 15,902 |
+| swaram-v4-32k | 1.68 | 0.342 | 0.0% | 17,782 |
 | swaram-v3 | 2.56 | 0.522 | 0.2% | 27,142 |
 | swaram-v2 | 2.57 | 0.525 | 0.5% | 27,268 |
 | agaram-2.5b | 1.86 | 0.381 | 6.9% | 19,786 |
@@ -52,8 +52,8 @@
 
 | Tokenizer | Tokens/word | Tokens/akshara | Tamil clusters split | Tokens/1k sent. |
 |---|---:|---:|---:|---:|
-| swaram-v4-64k-mix | 1.33 | 0.252 | n/a | 15,028 |
-| swaram-v4-96k-mix | 1.28 | 0.243 | n/a | 14,480 |
+| swaram-v4-64k | 1.40 | 0.265 | n/a | 15,782 |
+| swaram-v4-32k | 1.56 | 0.295 | n/a | 17,576 |
 | swaram-v3 | 3.31 | 0.627 | n/a | 37,426 |
 | swaram-v2 | 3.74 | 0.709 | n/a | 42,268 |
 | agaram-2.5b | 1.69 | 0.321 | n/a | 19,122 |
