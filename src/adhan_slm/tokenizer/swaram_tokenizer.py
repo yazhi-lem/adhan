@@ -23,9 +23,11 @@ import unicodedata
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 from adhan_slm.core.logging import get_logger
+from adhan_slm.tokenizer import morphology
+from adhan_slm.tokenizer.morphology import BoundaryReport, TokenSpan
 
 logger = get_logger(__name__)
 
@@ -252,6 +254,25 @@ class SwaramTokenizer:
     def tokenize(self, text: str) -> List[str]:
         """உரையை டோக்கன் சரங்களின் பட்டியலாக மாற்றுதல் (Token strings)."""
         return self._apply_merges(self._pretokenize(text))
+
+    # -- சொல்வடிவ அளவீடு (Morphology-aware tokenization) -------------------------
+    def tokenize_spans(self, text: str) -> List["TokenSpan"]:
+        """Tokens with the akshara range each one covers.
+
+        Layer A guarantees every token is a whole number of aksharas, so the
+        akshara index is an exact bridge between the tokenizer's output and the
+        morphological rules in :mod:`adhan_slm.tokenizer.morphology`.
+        """
+        return morphology.spans_from_pieces(self.tokenize(text), self._pretokenize(text))
+
+    def morphology(self, words: Sequence[str]) -> "BoundaryReport":
+        """Stem/suffix boundary agreement for ``words`` (see morphology module).
+
+        A dependency-free stand-in for the open-tamil-based probe in
+        ``eval/morphology.py``: it answers "do this tokenizer's merges stop at
+        real Tamil morpheme boundaries?" without needing an external oracle.
+        """
+        return morphology.boundary_agreement(self, words)
 
     def encode(self, text: str, add_special: bool = False) -> List[int]:
         """உரையை எண்சார் குறியீடுகளாக மாற்றுதல் (Token IDs)."""
