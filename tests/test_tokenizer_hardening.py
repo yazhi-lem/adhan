@@ -163,6 +163,19 @@ def test_devanagari_vedic_and_prishthamatra_signs_attach() -> None:
     assert segment_devanagari("क\u0962") == ["क\u0962"]
 
 
+def test_a_mark_never_attaches_to_whitespace_or_punctuation() -> None:
+    """An orphaned vowel sign must not invent composite tokens like " ா".
+
+    Real corpora contain these (a sign stranded by a line break): 51 distinct
+    forms over 160k documents before this was fixed.
+    """
+    assert segment_aksharas("போ  ா வா") == ["போ", " ", " ", "ா", " ", "வா"]
+    assert segment_devanagari("क \u093f") == ["क", " ", "ि"]
+    # A mark that does follow a letter still attaches, and later marks chain.
+    assert segment_aksharas("பொ") == ["பொ"]
+    assert segment_aksharas("\u0bbe\u0bbf") == ["\u0bbe\u0bbf"]
+
+
 def test_leading_matra_does_not_crash_or_vanish() -> None:
     for text in ("\u0bbe", "\u093f", "\u0b82"):
         assert "".join(segment_aksharas(text)) == unicodedata.normalize("NFC", text)

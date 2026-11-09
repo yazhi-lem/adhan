@@ -399,6 +399,18 @@ def _owner_index(names: Tuple[str, ...]) -> Dict[int, Script]:
     return idx
 
 
+def _can_take_marks(piece: str) -> bool:
+    """True if a combining mark may attach to this piece (i.e. it ends in a letter).
+
+    A vowel sign or nukta must ride on a *letter*, not on whitespace or
+    punctuation. Real corpora do contain " ா" (a vowel sign orphaned by a line
+    break); gluing it to the space invents composite tokens like " ா" — 51 such
+    forms across 160k documents, which is small but is pure vocabulary noise.
+    """
+    last = piece[-1]
+    return unicodedata.category(last)[0] in {"L", "M"} or last in ZERO_WIDTH_JOINERS
+
+
 def segment(text: str, scripts: Sequence[Script] = SCRIPTS) -> List[str]:
     """Split text into aksharas for the given scripts; other characters stand alone.
 
@@ -417,7 +429,7 @@ def segment(text: str, scripts: Sequence[Script] = SCRIPTS) -> List[str]:
         cp = ord(ch)
         owner = owner_by_cp.get(cp)
 
-        if out:
+        if out and _can_take_marks(out[-1]):
             if cp in _ZW_JOINER_CPS or _is_shared_combining(cp):
                 out[-1] += ch
                 continue
