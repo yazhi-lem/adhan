@@ -10,6 +10,7 @@
 | [`behaviour/`](behaviour) | Capabilities + ship bars · response protocol v0 · reasoning protocol · eval harness · Aram safety harness |
 | [`serving/`](serving) | Deployment (API, container, yazhi-api) |
 | [`strategy/`](strategy) | Multilingual scope · the name |
+| [`paper/`](paper) | [Kutty v1 technical report](paper/TECHNICAL_REPORT_KUTTY_V1.md) — scaffolded, `⏳` slots named in its Appendix A |
 | [`reports/`](reports) | Generated eval reports (JSON) |
 
 Live plan: [`../factory/`](../factory). Retired docs: [`../archives/`](../archives).

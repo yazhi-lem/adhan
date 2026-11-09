@@ -88,5 +88,18 @@ worthwhile.
 - Sarvam grants a commercial licence for Sarvam-1 2B.
 - A permissively licensed 2B Indic model with Sarvam-class fertility appears.
 
+**Annotation (2026-11-05) — last bullet partially fired, trigger closed for v1.**
+Agaram 2.5B (`murai-labs/agaram-2.5b-*`, Apache-2.0, trained from scratch) appeared on
+12 Oct and measures **0.418 tok/akshara** on our 300-doc sample — better than Sarvam-1
+(0.584) and 4.85× cheaper than Qwen3 (2.027), so the *fertility* half fired. The *quality*
+half failed: on the same smoke prompts as Qwen3 it scored XNLI **12.0%** (n=50; Qwen3
+42.0%) and IndicQA **EM 0.000 / F1 0.143** (Qwen3 0.140 / 0.192). Evidence and caveats:
+[`agaram_reading_2026-11-05.md`](agaram_reading_2026-11-05.md) ·
+[`bases_tokenizer_bench.json`](bases_tokenizer_bench.json).
+No licence-clean model of this class yet combines Sarvam-class fertility with Qwen3-class
+quality, so this trigger does **not** reopen D1. What it does retire is part of `R2`: a
+permissively licensed Tamil tokenizer at 0.418 exists, so the token tax is a training-data
+choice for Kutty v2, not a licensing dead end.
+
 Until one of those fires, **Qwen3-1.7B-Base is the product base; Sarvam-M is the teacher;
 Adhan-nano is the research artifact; embeddings are auxiliary.**

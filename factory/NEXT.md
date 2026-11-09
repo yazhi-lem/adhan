@@ -10,7 +10,13 @@ Sangam/QA data with a regression gate, start distillation from Sarvam-M, produce
 phone build, and freeze a neutral Tamil/Tanglish eval set.
 
 **Capacity:** one full-time DRI ≈ 8 working days. K1–K4 are the committed set; K5–K8 are
-P1 and land only if compute and review are available.
+P1 and land only if compute and review are available; K11–K15 in the stretch table are the
+overflow and are **not** committed.
+
+**Carried in from 5 Nov (code already landed, wiring not):** corpus hygiene (MinHash dedup +
+benchmark-leak filter) and training diagnostics exist as modules with tests but touch no
+pipeline yet. Their wiring is K11/K12 below, deliberately not committed this iteration —
+K1–K4 own the critical path.
 
 | ID | P | Task | DRI | Size | Exit criterion | Depends on | Due |
 |---|---|---|---|---|---|---|---|
@@ -27,14 +33,19 @@ P1 and land only if compute and review are available.
 
 ## Stretch (only if committed work is done)
 
-- 500–1,000 human labels for a fine-tuned MuRIL political classifier (if gazetteer recall is insufficient).
-- Qwen3-4B as a second SFT candidate if 1.7B quality is marginal.
-- Grammar-constrained decoding / citation format check.
+| ID | P | Task | DRI | Size | Exit criterion | Depends on |
+|---|---|---|---|---|---|---|
+| K11 | P1 | **Wire corpus hygiene into the corpus build.** Call `deduplicate_records` + `detect_contamination` from `scripts/prepare_slm_corpus.py` (modules and tests already landed 5 Nov); write the removed-doc counts and the benchmark list into `datasheet.json` | Adhan DRI | S (1d) | A rebuilt shard dir whose `datasheet.json` states docs-in, duplicates-removed, leaks-removed, and the benchmark files used | — |
+| K12 | P1 | **Diagnostics on a real run.** Set `train.diagnostics_every` on the next continued-pretraining/SFT run and triage the first spike report | Adhan DRI | S (1d) | `logs/diagnostics/` from a real run + one paragraph naming any layer that spiked and what was done | K2 or any GPU run |
+| K13 | P2 | **Adhan GGUF spike (research only).** Implement the JAX→HF weight-copy mapping documented in `scripts/export_gguf.py` and a token-parity check against the JAX tokenizer | Research DRI | M (2d) | A GGUF that answers the same 10 prompts token-for-token as the JAX checkpoint, parity report committed | — |
+| K14 | P2 | 500–1,000 human labels for a fine-tuned MuRIL political classifier (if gazetteer recall is insufficient) | Adhan DRI | M (2d) | Label file + inter-annotator check | K6 |
+| K15 | P2 | Qwen3-4B as a second SFT candidate if 1.7B quality is marginal | Adhan DRI | M (2d) | 4B SFT row in the bake-off table | K1, K2 |
 
 ## Explicitly not this iteration
 
 - Building the product on `adhan-nano`, or fine-tuning it for the 26 Dec launch.
 - Using Sarvam-1 without a commercial licence.
 - A new tokenizer, chat special tokens, or Swaram swap into Qwen3.
-- DPO, mini/1B+ scaling, multilingual Kannada/Telugu, or LSH dedup.
+- DPO, mini/1B+ scaling, or multilingual Kannada/Telugu.
+- Re-running MinHash dedup over the already-packed shards; dedup applies to the *next* corpus build, not to shipped artifacts.
 - Publishing raw vishnu Tanglish text or any unlabelled political content.
