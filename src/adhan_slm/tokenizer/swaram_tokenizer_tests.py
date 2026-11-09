@@ -177,10 +177,21 @@ def test_byte_fallback_roundtrips_numerals_english_and_emoji():
 
 
 def test_without_byte_fallback_out_of_vocab_is_still_unk():
+    # Tamil digits (௦–௯) are part of the base inventory, so they are *not* the
+    # OOV probe any more — an emoji is. This test is about the fallback switch,
+    # and the digit case below pins the new, wider inventory.
     tok = _train_byte_fallback(byte_fallback=False)
-    ids = tok.encode("௦")
+    ids = tok.encode("😀")
     assert tok.unk_id in ids
     assert "<unk>" in tok.decode(ids)
+
+
+def test_tamil_digits_are_in_the_base_inventory():
+    from adhan_slm.common.scripts import TAMIL_DIGITS
+
+    tok = _train_byte_fallback(byte_fallback=False)
+    for digit in TAMIL_DIGITS:
+        assert tok.unk_id not in tok.encode(digit), f"{digit} should be in-vocabulary"
 
 
 def test_byte_fallback_survives_save_and_load(tmp_path):

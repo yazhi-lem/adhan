@@ -1,13 +1,19 @@
-"""சுவரம் டோக்கனைசர் (Swaram Tokenizer) — தமிழ் அக்சர மற்றும் மார்பீம் பகுப்பாய்வு.
+"""சுவரம் டோக்கனாக்கி (Swaram tokenizer) — தமிழ் அக்ஷரம் + உருபன் பகுப்பாய்வு.
 Swaram tokenizer — native Tamil akshara + morpheme tokenization for Adhan SLM.
 
 இரண்டு இழப்பற்ற அடுக்குகள் (Two Lossless Layers):
-  அடுக்கு அ (Layer A): அக்சரப் பிரிப்பு (Akshara Segmentation) — மாறாநிலை, மூடிய கணம் (Deterministic, Closed Inventory)
-  அடுக்கு ஆ (Layer B): மார்பீம் இணைப்புகள் (Morpheme BPE Merges) — அக்சரங்களின் மேல் கற்றறிந்த BPE அடுக்கு
+  அடுக்கு அ (Layer A): அக்ஷரப் பிரிப்பு (Akshara Segmentation) — மாறாநிலை, மூடிய கணம் (Deterministic, Closed Inventory)
+  அடுக்கு ஆ (Layer B): உருபன் இணைப்புகள் (Morpheme BPE Merges) — அக்ஷரங்களின் மேல் கற்றறிந்த BPE அடுக்கு
+
+Terms used in this module (right word, in code as in prose):
+  உயிர் uyir — independent vowel;  மெய் mei — pure consonant (with புள்ளி);
+  உயிர்மெய் uyirmei — consonant + உயிர்க் குறி (vowel sign);
+  புள்ளி pulli — the virama ்;  ஆய்தம் āytam — the letter ஃ.
+  The Tamil Unicode facts themselves live in :mod:`adhan_slm.common.scripts`.
 
 அடிப்படை அலகு (Atomic Unit):
   தமிழ் எழுத்துக்கூட்டு / உயிர்மெய் (Akshara grapheme cluster).
-  ஒரு மெய் எழுத்து தன் உயிர்மெய் குறியீட்டையோ (Matra) அல்லது புள்ளியையோ (Pulli/Virama) தன்னுடன் இணைத்துக் கொள்ளும்.
+  ஒரு மெய் எழுத்து தன் உயிர்க் குறியையோ (vowel sign) அல்லது புள்ளியையோ (pulli) தன்னுடன் இணைத்துக் கொள்ளும்.
   இது தமிழின் சொல் இலக்கண அமைப்பை (Morphology & Sandhi) சிதைக்காமல் காக்கிறது.
 
 CLI பயன்பாடு:
@@ -25,27 +31,32 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
+from adhan_slm.common.scripts import (
+    GRANTHA,
+    MEI,
+    MEI_ALL,
+    TAMIL,
+    TAMIL_DIGITS,
+    TAMIL_VOWEL_SIGNS,
+    UYIR,
+    akshara_inventory,
+    segment,
+)
 from adhan_slm.core.logging import get_logger
 from adhan_slm.tokenizer import morphology
 from adhan_slm.tokenizer.morphology import BoundaryReport, TokenSpan
 
 logger = get_logger(__name__)
 
-# --- தமிழ் யுனிகோட் எல்லைகள் (Tamil Unicode Block U+0B80–U+0BFF) ----------------
-# உயிர்மெய் குறியீடுகள் (Vowel Signs / Matras: ா ி ீ ு ூ ெ ே ை ொ ோ ௌ)
-_TAMIL_MATRAS = set(range(0x0BBE, 0x0BCD))
-# புள்ளி / மெய் எழுத்து வடிவம் (Virama / Pulli: ்)
-_TAMIL_PULLI = 0x0BCD
-# மெய்யோடு இணையும் சார்பு எழுத்துக் குறிகள் (Combining Marks)
-_COMBINING = _TAMIL_MATRAS | {_TAMIL_PULLI}
-
-# --- அடிப்படைத் தமிழ் எழுத்துக்களின் பட்டியல் (Closed Base Inventory) -----------
-# 12 உயிர் எழுத்துக்கள் (12 Swaram / Pure Vowels)
-UYIR = list("அஆஇஈஉஊஎஏஐஒஓஔ")
-# 18 தமிழ் மெய் எழுத்துக்கள் + கிரந்த மெய்கள் (Consonants + Grantha Consonants)
-_CONSONANTS = list("கஙசஜஞடணதநனபமயரறலளழவஶஷஸஹ")
-# ஆய்த எழுத்து (Aytham)
-AYTHAM = "ஃ"
+# The Tamil Unicode facts live in ``adhan_slm.common.scripts`` — one validated
+# table shared with the morphology layer, the puṇarcci engine and Aksharam.
+# Nothing about U+0B80–U+0BFF is redefined here.
+TAMIL_UYIR = UYIR  # 12 உயிர் (independent vowels)
+TAMIL_MEI = MEI  # 18 மெய் (pure consonants, each with pulli)
+TAMIL_GRANTHA = GRANTHA  # 5 கிரந்த meis: ஜ் ஶ் ஷ் ஸ் ஹ்
+TAMIL_CONSONANTS = MEI_ALL  # all 23 meis the script can write
+TAMIL_SIGNS = TAMIL_VOWEL_SIGNS  # 11 உயிர்க் குறிகள் (அ is inherent)
+TAMIL_NUMERALS = TAMIL_DIGITS  # ௦–௯
 
 # சிறப்பு குறியீடுகள் (Special Tokens for Neural Modeling)
 SPECIAL_TOKENS = ["<pad>", "<bos>", "<eos>", "<unk>", "<mask>"]
@@ -56,60 +67,35 @@ _BYTE_TOKEN_VALUE = {t: i for i, t in enumerate(BYTE_TOKENS)}
 WORD_MARK = "▁"
 
 
-def _is_combining(cp: int) -> bool:
-    """கொடுக்கப்பட்ட யுனிகோட் குறியீடு மெய்யோடு இணையும் குறியா என சரிபார்த்தல்."""
-    return cp in _COMBINING
-
-
 def default_akshara_inventory() -> List[str]:
-    """முழுமையான தமிழ் அக்சர கணம் (Complete Base Akshara Inventory).
+    """முழுமையான தமிழ் அக்ஷர கணம் (Complete Base Akshara Inventory).
 
-    அடங்கியவை:
-      - 12 உயிர் எழுத்துக்கள் (Pure Vowels)
-      - 1 ஆய்த எழுத்து (Aytham)
-      - 18 தூய மெய் எழுத்துக்கள் (Pure Consonants with Pulli: க், ங், ச்...)
-      - 216 உயிர்மெய் எழுத்துக்கள் (Consonant-Vowel Ligatures: க, கா, கி, கீ...)
-      - கிரந்த எழுத்துக்கள் (ஜ, ஷ, ஸ, ஹ, க்ஷ, ஸ்ரீ)
+    அடங்கியவை (322 அக்ஷரங்கள், வரிசை மாறாமல், நகல்கள் நீக்கப்பட்டு):
+      - 12 உயிர் எழுத்துக்கள் (uyir)
+      - 1 ஆய்த எழுத்து (ஃ)
+      - 10 தமிழ் எண்கள் (௦–௯) — ஆண்டு/எண் உரை OOV ஆகாது
+      - 18 மெய் + 5 கிரந்த மெய் = 23 மெய்யெழுத்துக்கள்
+      - 23 × 12 = 276 உயிர்மெய் வடிவங்கள் (அகரம் + 11 உயிர்க் குறிகள்)
 
-    எந்தவொரு தமிழ் சொல்லும் OOV (Out-of-Vocabulary) பிழையின்றி பிரிக்கப்படுவதை இது உறுதி செய்கிறது.
+    எந்தவொரு தமிழ்ச் சொல்லும் OOV (Out-of-Vocabulary) பிழையின்றி பிரிக்கப்படுவதை
+    இது உறுதி செய்கிறது. எண்ணிக்கை இங்கே கணக்கிடப்படுகிறது, கையால் எழுதப்படவில்லை.
     """
-    inv: List[str] = list(UYIR) + [AYTHAM]
-    matras = [chr(cp) for cp in range(0x0BBE, 0x0BCD)]
-    for c in _CONSONANTS:
-        inv.append(c)  # அகர வரிசை உயிர்மெய் (Inherent 'a' consonant: க, ச, த...)
-        inv.append(
-            c + chr(_TAMIL_PULLI)
-        )  # மெய் எழுத்து (Pure consonant with virama: க், ச், த்...)
-        for m in matras:  # உயிர்மெய் சேர்க்கை (க + ா = கா, க + ி = கி...)
-            inv.append(c + m)
-
-    # நகல்களை நீக்கி வரிசையை முறைப்படுத்துதல் (Deduplicate while preserving order)
-    seen, out = set(), []
-    for a in inv:
-        if a not in seen:
-            seen.add(a)
-            out.append(a)
-    return out
+    return akshara_inventory(TAMIL)
 
 
 def segment_aksharas(text: str) -> List[str]:
-    """அடுக்கு அ: சொற்களை முழுமையான அக்சரங்களாகப் பிரித்தல் (Layer A: Akshara Segmentation).
+    """அடுக்கு அ: சொற்களை முழுமையான அக்ஷரங்களாகப் பிரித்தல் (Layer A: Akshara Segmentation).
 
-    இழப்பற்ற பிரிப்பு முறை (Lossless): ''.join(out) == text.
-    - ஒவ்வொரு தமிழ் எழுத்துத் தொடக்கத்திலும் புதிய அக்சரம் தொடங்கும்.
-    - புள்ளி மற்றும் துணைக்கால்/உயிர்மெய்க் குறிகள் முந்தைய மெய் எழுத்துடன் இணையும்.
-    - ஆங்கிலம், எண்கள் மற்றும் நிறுத்தற்குறிகள் தனித்தனி குறியீடுகளாகப் பாதுகாக்கப்படும்.
+    இழப்பற்ற பிரிப்பு முறை (Lossless): ''.join(out) == NFC(text).
+    - ஒவ்வொரு தமிழ் எழுத்துத் தொடக்கத்திலும் புதிய அக்ஷரம் தொடங்கும்.
+    - உயிர்க் குறிகள் (vowel signs), புள்ளி (pulli), அனுஸ்வாரம் (ஂ), ௗ நீட்டல்
+      குறி மற்றும் ZWJ/ZWNJ ஆகியவை முந்தைய எழுத்துடன் இணையும்.
+    - ஆய்தம் (ஃ) தனி எழுத்து; ஆங்கிலம், எண்கள், நிறுத்தற்குறிகள் தனித்தனியே நிற்கும்.
+
+    செயலாக்கம் :func:`adhan_slm.common.scripts.segment` இல் ஒன்றே ஒன்று —
+    சுவரம், அக்ஷரம் மற்றும் பல-எழுத்துப் பாதை ஒருபோதும் வேறுபடாது.
     """
-    text = unicodedata.normalize("NFC", text)
-    out: List[str] = []
-    for ch in text:
-        cp = ord(ch)
-        if out and _is_combining(cp):
-            # முந்தைய மெய் எழுத்துடன் உயிர்மெய்க் குறியையோ புள்ளியையோ இணைத்தல்
-            out[-1] += ch
-        else:
-            out.append(ch)
-    return out
+    return segment(text, (TAMIL,))
 
 
 def _learn_merges(

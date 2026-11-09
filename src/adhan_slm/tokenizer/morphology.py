@@ -37,19 +37,36 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Sequence, Set, Tuple
 
+from adhan_slm.common.scripts import (
+    MEI_BASES,
+    PULLI,
+    TAMIL_AYTHAM,
+    TAMIL_GRANTHA_MEI,
+    TAMIL_MEI,
+    TAMIL_UYIR,
+    TAMIL_VOWEL_SIGNS,
+)
+
 # --- 1. Letter classes (Eḻuttatikāram: the inventory before any joining rule) --
 #
 # Tholkappiyam fixes the alphabet first: 12 vowels (uyir), 18 consonants (mei),
 # 216 consonant+vowel forms (uyirmei), and āytam. Every sandhi rule below is
 # keyed on which of those four classes a word *ends* with.
 
-UYIR = tuple("அஆஇஈஉஊஎஏஐஒஓஔ")
-MEI = tuple("க்ங்ச்ஞ்ட்ண்த்ந்ப்ம்ய்ர்ல்வ்ழ்ள்ற்ன்")
-AYTHAM = "ஃ"
+# The letter inventory lives in ``adhan_slm.common.scripts`` so that the
+# tokenizer, this sandhi layer and the puṇarcci engine share one validated table:
+#   UYIR / MEI / GRANTHA / AYTHAM, and the 11 vowel signs (அ is inherent).
+UYIR = TAMIL_UYIR  # 12 உயிர்
+MEI = TAMIL_MEI  # 18 மெய் (with pulli) — Tholkappiyam's count
+GRANTHA = TAMIL_GRANTHA_MEI  # 5 கிரந்த meis: ஜ் ஶ் ஷ் ஸ் ஹ்
+MEI_ALL = MEI + GRANTHA  # all 23 meis the script can write
+AYTHAM = TAMIL_AYTHAM  # ஃ
 
-# Vowel signs that ride on a consonant to make an uyirmei.
-MATRAS = tuple(chr(cp) for cp in range(0x0BBE, 0x0BCD))  # ா ி ீ ு ூ ெ ே ை ொ ோ ௌ
-_PULLI = "\u0bcd"  # ்  (virama: turns a consonant into a bare mei)
+# Vowel signs (உயிர்க் குறிகள்) that ride on a consonant to make an uyirmei.
+# "Matra" is kept as the historical name for this tuple; strictly a matra is a
+# unit of duration, and the sign is an uyir-k-kuri.
+MATRAS = TAMIL_VOWEL_SIGNS  # ா ி ீ ு ூ ெ ே ை ொ ோ ௌ (11; அ is inherent)
+_PULLI = PULLI  # ்  (virama: turns a consonant into a bare mei)
 _FRONT_MATRAS = ("ி", "ீ", "ை")  # front vowels: these select the ய் glide
 
 
@@ -86,12 +103,12 @@ def letter_class(char: str) -> LetterClass:
         return LetterClass.AYTHAM
     if char in UYIR:
         return LetterClass.UYIR
-    if char in MEI:
+    if char in MEI_ALL or char in MEI_BASES:
         return LetterClass.MEI
-    if char[0] in MEI and char.endswith(_PULLI):
+    if char[0] in MEI_BASES and char.endswith(_PULLI):
         # A consonant cluster written with an explicit virama is still a mei.
         return LetterClass.MEI
-    if char[0] in MEI and len(char) >= 2:
+    if char[0] in MEI_BASES and len(char) >= 2:
         # Consonant + vowel sign (or two signs, e.g. ொ = ெ + ா).
         return LetterClass.UYIRMEI
     return LetterClass.OTHER
@@ -151,7 +168,7 @@ def _insert_glide(after: LetterClass, final_char: str) -> str:
 # அ keeps the consonant's inherent vowel, so its matra is the empty string. This
 # table is why "திரு" + "அடி" surfaces as திருவடி and not திருவ்அடி: the glide
 # consonant takes the following vowel onto itself, exactly as Tamil writes it.
-_VOWEL_TO_MATRA = {
+VOWEL_TO_MATRA = {
     "அ": "",
     "ஆ": "ா",
     "இ": "ி",
@@ -166,17 +183,35 @@ _VOWEL_TO_MATRA = {
     "ஔ": "ௌ",
 }
 
+# Matra -> the independent vowel it stands for (the inverse of VOWEL_TO_MATRA;
+# "" is the consonant's inherent அ). Punarchi reversal needs this direction: a
+# written கல்லடி hides கல் + அடி, so the second ல must come back out as the free
+# vowel அ.
+MATRA_TO_VOWEL = {matra: vowel for vowel, matra in VOWEL_TO_MATRA.items()}
+# Backwards-compatible private alias (older call sites used the underscore name).
+_VOWEL_TO_MATRA = VOWEL_TO_MATRA
 
-def _attach(consonant: str, word: str) -> str:
+
+def attach_consonant(consonant: str, word: str) -> str:
     """Attach a bare consonant to ``word``, absorbing its initial vowel.
 
-    ``_attach("வ", "அடி")`` -> ``"வடி"``; ``_attach("ய", "இல்லை")`` -> ``"யில்லை"``.
-    Inserting the glide or a doubled consonant without this step would produce
-    the ungrammatical ``வ்அடி`` (a virama'd consonant followed by a free vowel).
+    ``attach_consonant("வ", "அடி")`` -> ``"வடி"``; ``attach_consonant("ய", "இல்லை")``
+    -> ``"யில்லை"``. Inserting the glide or a doubled consonant without this
+    step would produce the ungrammatical ``வ்அடி`` (a virama'd consonant followed
+    by a free vowel).
+
+    Public because the extended puṇarcci engine in
+    :mod:`adhan_slm.tokenizer.punarchi` and the suffix analysis in this module
+    (:func:`sandhi_splits`, :func:`split_suffix`) share it: one implementation
+    keeps the forward and the reversed rule tables consistent.
     """
-    if word and word[0] in _VOWEL_TO_MATRA:
-        return consonant + _VOWEL_TO_MATRA[word[0]] + word[1:]
+    if word and word[0] in VOWEL_TO_MATRA:
+        return consonant + VOWEL_TO_MATRA[word[0]] + word[1:]
     return consonant + word
+
+
+# Backwards-compatible private alias.
+_attach = attach_consonant
 
 
 def explain_join(left: str, right: str) -> SandhiResult:
