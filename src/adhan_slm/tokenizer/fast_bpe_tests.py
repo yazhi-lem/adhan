@@ -145,3 +145,33 @@ def test_from_python_wraps_existing_tokenizer() -> None:
     fast = AksharaBPE.from_python(py, default_akshara_inventory())
     assert fast.vocab_size >= len(py.vocab)
     assert fast.decode(fast.encode(CORPUS[0])) == CORPUS[0]
+
+
+# -- word mark convention ----------------------------------------------------
+
+
+def test_word_mark_merges_with_the_following_word(tok: AksharaBPE) -> None:
+    """A space must not cost a token of its own (SentencePiece's ``▁word``).
+
+    Before this, every word cost one extra token, which is ~0.9 tokens per word
+    on real text and made the tokenizer look far worse than a byte BPE on the
+    tokenizer benchmark.
+    """
+    pieces = tok.tokenize("தமிழ் மொழி உலகின்")
+    assert pieces, "no tokens"
+    assert any(p.startswith(WORD_MARK) and len(p) > 1 for p in pieces), pieces
+    assert pieces.count(WORD_MARK) < 3, f"standalone word marks remain: {pieces}"
+    # Decoding still restores the spaces exactly.
+    assert tok.decode(tok.encode("தமிழ் மொழி உலகின்")) == "தமிழ் மொழி உலகின்"
+
+
+def test_word_mark_spans_cover_every_akshara(tok: AksharaBPE) -> None:
+    """Spans are akshara ranges; the \u2581 inside a token stands for the space."""
+    from adhan_slm.tokenizer.swaram_tokenizer import segment_aksharas
+
+    text = "தமிழ் மொழி"
+    n_aksharas = len(segment_aksharas(text))
+    spans = tok.tokenize_spans(text)
+    assert spans[0].akshara_start == 0
+    assert spans[-1].akshara_end == n_aksharas
+    assert all("\u2581" in s.piece or s.piece for s in spans)

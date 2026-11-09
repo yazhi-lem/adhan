@@ -345,18 +345,21 @@ class SwaramTokenizer:
         probe = cls()
         word_counts: Counter = Counter()
         for line in corpus:
-            word: List[str] = []
+            # The word mark belongs to the word that follows it (SentencePiece's
+            # ``▁word`` convention). Leaving it as its own token cost ~0.9 tokens
+            # per word and made every akshara merge compete with a space.
+            word: List[str] = [WORD_MARK]
             for tok in probe._pretokenize(line):
                 if tok not in seen:
                     seen.add(tok)
                     base.append(tok)
                 if tok == WORD_MARK:
-                    if word:
+                    if len(word) > 1:
                         word_counts[tuple(word)] += 1
-                    word = []
+                    word = [WORD_MARK]
                 else:
                     word.append(tok)
-            if word:
+            if len(word) > 1:
                 word_counts[tuple(word)] += 1
 
         vocab = {t: i for i, t in enumerate(base)}

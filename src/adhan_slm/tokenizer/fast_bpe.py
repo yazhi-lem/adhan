@@ -211,7 +211,9 @@ class AksharaBPE:
         specs = list(special_tokens) + (list(BYTE_TOKENS) if byte_fallback else [])
 
         tok = Tokenizer(models.BPE(unk_token="<unk>"))
-        tok.pre_tokenizer = pre_tokenizers.Split(pattern=WORD_MARK, behavior="isolated")
+        # SentencePiece convention: the word mark merges with the word that follows it,
+        # so a space never costs a token of its own (that was ~0.9 tokens per word).
+        tok.pre_tokenizer = pre_tokenizers.Split(pattern=WORD_MARK, behavior="merged_with_next")
         trainer = trainers.BpeTrainer(
             vocab_size=vocab_size,
             min_frequency=min_frequency,
@@ -338,7 +340,9 @@ class AksharaBPE:
             )
         )
         tok.normalizer = normalizers.Replace(" ", WORD_MARK)
-        tok.pre_tokenizer = pre_tokenizers.Split(pattern=WORD_MARK, behavior="isolated")
+        # SentencePiece convention: the word mark merges with the word that follows it,
+        # so a space never costs a token of its own (that was ~0.9 tokens per word).
+        tok.pre_tokenizer = pre_tokenizers.Split(pattern=WORD_MARK, behavior="merged_with_next")
         tok.decoder = decoders.Sequence([decoders.ByteFallback(), decoders.Replace(WORD_MARK, " ")])
         return cls(tok, vocab, merges, inventory, script, byte_fallback)
 

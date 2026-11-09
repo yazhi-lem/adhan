@@ -203,3 +203,22 @@ def test_byte_fallback_survives_save_and_load(tmp_path):
     loaded = SwaramTokenizer.from_files(str(vocab_path), str(merges_path))
     text = "AI ௧ சென்றான்"
     assert loaded.decode(loaded.encode(text)) == text
+
+
+# -- word mark convention (python path must match the Rust path) --------------
+
+_WM_CORPUS = [
+    "தமிழ் மொழி உலகின் மிகத் தொன்மையான மொழிகளில் ஒன்றாகும்",
+    "தமிழ்நாடு வேளாண்மைக்கும் தொழிலுக்கும் பெயர் பெற்றது",
+    "திருக்குறள் தமிழின் பெருமையை உலகுக்கு எடுத்துக்காட்டுகிறது",
+] * 20
+
+
+def test_python_word_mark_merges_with_the_following_word():
+    from adhan_slm.tokenizer.swaram_tokenizer import WORD_MARK
+
+    tok = SwaramTokenizer.train(_WM_CORPUS, vocab_size=1200)
+    pieces = tok.tokenize("தமிழ் மொழி உலகின்")
+    assert any(p.startswith(WORD_MARK) and len(p) > 1 for p in pieces), pieces
+    assert pieces.count(WORD_MARK) < 3, f"standalone word marks remain: {pieces}"
+    assert tok.decode(tok.encode("தமிழ் மொழி உலகின்")) == "தமிழ் மொழி உலகின்"

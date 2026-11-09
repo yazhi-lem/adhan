@@ -2,39 +2,39 @@
   {
     "overall": {
       "aksharas": 76637,
-      "cluster_split_rate": 0.00161801740673565,
+      "cluster_split_rate": 0.0009525425055782455,
       "sentences": 1500,
-      "tamil_cluster_split_rate": 0.002863110464434066,
+      "tamil_cluster_split_rate": 0.0017131726549482528,
       "tamil_clusters": 42611,
-      "tokens": 45561,
-      "tokens_per_1k_sentences": 30374.0,
-      "tokens_per_akshara": 0.5945039602280883,
-      "tokens_per_word": 2.9621611078603474,
+      "tokens": 23496,
+      "tokens_per_1k_sentences": 15664.0,
+      "tokens_per_akshara": 0.3065882015214583,
+      "tokens_per_word": 1.527598985761654,
       "words": 15381
     },
     "per_register": {
       "classical": {
         "aksharas": 20831,
-        "cluster_split_rate": 0.0,
+        "cluster_split_rate": 0.00038404301281743557,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.0,
+        "tamil_cluster_split_rate": 0.00042138530418751646,
         "tamil_clusters": 18985,
-        "tokens": 10793,
-        "tokens_per_1k_sentences": 21586.0,
-        "tokens_per_akshara": 0.5181220296673228,
-        "tokens_per_word": 2.438544961590601,
+        "tokens": 7713,
+        "tokens_per_1k_sentences": 15426.0,
+        "tokens_per_akshara": 0.37026546973261004,
+        "tokens_per_word": 1.7426570266606416,
         "words": 4426
       },
       "modern": {
         "aksharas": 25980,
-        "cluster_split_rate": 0.004772902232486528,
+        "cluster_split_rate": 0.0025019245573518092,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.005163802590366545,
+        "tamil_cluster_split_rate": 0.00275120629814611,
         "tamil_clusters": 23626,
-        "tokens": 13634,
-        "tokens_per_1k_sentences": 27268.0,
-        "tokens_per_akshara": 0.524788298691301,
-        "tokens_per_word": 2.5690597324288675,
+        "tokens": 8269,
+        "tokens_per_1k_sentences": 16538.0,
+        "tokens_per_akshara": 0.3182832948421863,
+        "tokens_per_word": 1.5581307706802336,
         "words": 5307
       },
       "tanglish": {
@@ -43,14 +43,67 @@
         "sentences": 500,
         "tamil_cluster_split_rate": null,
         "tamil_clusters": 0,
-        "tokens": 21134,
-        "tokens_per_1k_sentences": 42268.0,
-        "tokens_per_akshara": 0.7085764098437605,
-        "tokens_per_word": 3.74185552407932,
+        "tokens": 7514,
+        "tokens_per_1k_sentences": 15028.0,
+        "tokens_per_akshara": 0.25192784818614633,
+        "tokens_per_word": 1.3303824362606231,
         "words": 5648
       }
     },
-    "tokenizer": "swaram-v2"
+    "tokenizer": "swaram-v4-64k-mix"
+  },
+  {
+    "overall": {
+      "aksharas": 76637,
+      "cluster_split_rate": 0.0014483865495778802,
+      "sentences": 1500,
+      "tamil_cluster_split_rate": 0.0026049611602637817,
+      "tamil_clusters": 42611,
+      "tokens": 22691,
+      "tokens_per_1k_sentences": 15127.333333333334,
+      "tokens_per_akshara": 0.29608413690515023,
+      "tokens_per_word": 1.4752616864963266,
+      "words": 15381
+    },
+    "per_register": {
+      "classical": {
+        "aksharas": 20831,
+        "cluster_split_rate": 9.601075320435889e-05,
+        "sentences": 500,
+        "tamil_cluster_split_rate": 0.00010534632604687912,
+        "tamil_clusters": 18985,
+        "tokens": 7379,
+        "tokens_per_1k_sentences": 14758.0,
+        "tokens_per_akshara": 0.3542316739474821,
+        "tokens_per_word": 1.667193854496159,
+        "words": 4426
+      },
+      "modern": {
+        "aksharas": 25980,
+        "cluster_split_rate": 0.004195535026943803,
+        "sentences": 500,
+        "tamil_cluster_split_rate": 0.004613561330737323,
+        "tamil_clusters": 23626,
+        "tokens": 8072,
+        "tokens_per_1k_sentences": 16144.0,
+        "tokens_per_akshara": 0.31070053887605853,
+        "tokens_per_word": 1.5210099868098736,
+        "words": 5307
+      },
+      "tanglish": {
+        "aksharas": 29826,
+        "cluster_split_rate": 0.0,
+        "sentences": 500,
+        "tamil_cluster_split_rate": null,
+        "tamil_clusters": 0,
+        "tokens": 7240,
+        "tokens_per_1k_sentences": 14480.0,
+        "tokens_per_akshara": 0.24274123248172735,
+        "tokens_per_word": 1.2818696883852692,
+        "words": 5648
+      }
+    },
+    "tokenizer": "swaram-v4-96k-mix"
   },
   {
     "overall": {
@@ -108,39 +161,39 @@
   {
     "overall": {
       "aksharas": 76637,
-      "cluster_split_rate": 0.4955961219776348,
+      "cluster_split_rate": 0.00161801740673565,
       "sentences": 1500,
-      "tamil_cluster_split_rate": 0.8912956748257492,
+      "tamil_cluster_split_rate": 0.002863110464434066,
       "tamil_clusters": 42611,
-      "tokens": 103147,
-      "tokens_per_1k_sentences": 68764.66666666667,
-      "tokens_per_akshara": 1.3459164633271135,
-      "tokens_per_word": 6.706130940771081,
+      "tokens": 45561,
+      "tokens_per_1k_sentences": 30374.0,
+      "tokens_per_akshara": 0.5945039602280883,
+      "tokens_per_word": 2.9621611078603474,
       "words": 15381
     },
     "per_register": {
       "classical": {
         "aksharas": 20831,
-        "cluster_split_rate": 0.8168594882626854,
+        "cluster_split_rate": 0.0,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.896233868843824,
+        "tamil_cluster_split_rate": 0.0,
         "tamil_clusters": 18985,
-        "tokens": 40653,
-        "tokens_per_1k_sentences": 81306.0,
-        "tokens_per_akshara": 1.951562575008401,
-        "tokens_per_word": 9.18504292815183,
+        "tokens": 10793,
+        "tokens_per_1k_sentences": 21586.0,
+        "tokens_per_akshara": 0.5181220296673228,
+        "tokens_per_word": 2.438544961590601,
         "words": 4426
       },
       "modern": {
         "aksharas": 25980,
-        "cluster_split_rate": 0.8069668976135489,
+        "cluster_split_rate": 0.004772902232486528,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.8873275205282316,
+        "tamil_cluster_split_rate": 0.005163802590366545,
         "tamil_clusters": 23626,
-        "tokens": 51309,
-        "tokens_per_1k_sentences": 102618.0,
-        "tokens_per_akshara": 1.9749422632794458,
-        "tokens_per_word": 9.668174109666479,
+        "tokens": 13634,
+        "tokens_per_1k_sentences": 27268.0,
+        "tokens_per_akshara": 0.524788298691301,
+        "tokens_per_word": 2.5690597324288675,
         "words": 5307
       },
       "tanglish": {
@@ -149,51 +202,51 @@
         "sentences": 500,
         "tamil_cluster_split_rate": null,
         "tamil_clusters": 0,
-        "tokens": 11185,
-        "tokens_per_1k_sentences": 22370.0,
-        "tokens_per_akshara": 0.3750083819486354,
-        "tokens_per_word": 1.9803470254957507,
+        "tokens": 21134,
+        "tokens_per_1k_sentences": 42268.0,
+        "tokens_per_akshara": 0.7085764098437605,
+        "tokens_per_word": 3.74185552407932,
         "words": 5648
       }
     },
-    "tokenizer": "qwen3-1.7b"
+    "tokenizer": "swaram-v2"
   },
   {
     "overall": {
       "aksharas": 76637,
-      "cluster_split_rate": 0.4955961219776348,
+      "cluster_split_rate": 0.039537038245234024,
       "sentences": 1500,
-      "tamil_cluster_split_rate": 0.8912956748257492,
+      "tamil_cluster_split_rate": 0.07103799488395016,
       "tamil_clusters": 42611,
-      "tokens": 103147,
-      "tokens_per_1k_sentences": 68764.66666666667,
-      "tokens_per_akshara": 1.3459164633271135,
-      "tokens_per_word": 6.706130940771081,
+      "tokens": 27875,
+      "tokens_per_1k_sentences": 18583.333333333332,
+      "tokens_per_akshara": 0.3637277033286794,
+      "tokens_per_word": 1.8123008907093168,
       "words": 15381
     },
     "per_register": {
       "classical": {
         "aksharas": 20831,
-        "cluster_split_rate": 0.8168594882626854,
+        "cluster_split_rate": 0.06711151648984687,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.896233868843824,
+        "tamil_cluster_split_rate": 0.0736370819067685,
         "tamil_clusters": 18985,
-        "tokens": 40653,
-        "tokens_per_1k_sentences": 81306.0,
-        "tokens_per_akshara": 1.951562575008401,
-        "tokens_per_word": 9.18504292815183,
+        "tokens": 8421,
+        "tokens_per_1k_sentences": 16842.0,
+        "tokens_per_akshara": 0.4042532763669531,
+        "tokens_per_word": 1.902620876638048,
         "words": 4426
       },
       "modern": {
         "aksharas": 25980,
-        "cluster_split_rate": 0.8069668976135489,
+        "cluster_split_rate": 0.0628175519630485,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.8873275205282316,
+        "tamil_cluster_split_rate": 0.0689494624566156,
         "tamil_clusters": 23626,
-        "tokens": 51309,
-        "tokens_per_1k_sentences": 102618.0,
-        "tokens_per_akshara": 1.9749422632794458,
-        "tokens_per_word": 9.668174109666479,
+        "tokens": 9893,
+        "tokens_per_1k_sentences": 19786.0,
+        "tokens_per_akshara": 0.38079291762894535,
+        "tokens_per_word": 1.8641416996419824,
         "words": 5307
       },
       "tanglish": {
@@ -202,14 +255,14 @@
         "sentences": 500,
         "tamil_cluster_split_rate": null,
         "tamil_clusters": 0,
-        "tokens": 11185,
-        "tokens_per_1k_sentences": 22370.0,
-        "tokens_per_akshara": 0.3750083819486354,
-        "tokens_per_word": 1.9803470254957507,
+        "tokens": 9561,
+        "tokens_per_1k_sentences": 19122.0,
+        "tokens_per_akshara": 0.3205592436129551,
+        "tokens_per_word": 1.6928116147308783,
         "words": 5648
       }
     },
-    "tokenizer": "qwen3-4b"
+    "tokenizer": "agaram-2.5b"
   },
   {
     "overall": {
@@ -320,39 +373,39 @@
   {
     "overall": {
       "aksharas": 76637,
-      "cluster_split_rate": 0.039537038245234024,
+      "cluster_split_rate": 0.4955961219776348,
       "sentences": 1500,
-      "tamil_cluster_split_rate": 0.07103799488395016,
+      "tamil_cluster_split_rate": 0.8912956748257492,
       "tamil_clusters": 42611,
-      "tokens": 27875,
-      "tokens_per_1k_sentences": 18583.333333333332,
-      "tokens_per_akshara": 0.3637277033286794,
-      "tokens_per_word": 1.8123008907093168,
+      "tokens": 103147,
+      "tokens_per_1k_sentences": 68764.66666666667,
+      "tokens_per_akshara": 1.3459164633271135,
+      "tokens_per_word": 6.706130940771081,
       "words": 15381
     },
     "per_register": {
       "classical": {
         "aksharas": 20831,
-        "cluster_split_rate": 0.06711151648984687,
+        "cluster_split_rate": 0.8168594882626854,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.0736370819067685,
+        "tamil_cluster_split_rate": 0.896233868843824,
         "tamil_clusters": 18985,
-        "tokens": 8421,
-        "tokens_per_1k_sentences": 16842.0,
-        "tokens_per_akshara": 0.4042532763669531,
-        "tokens_per_word": 1.902620876638048,
+        "tokens": 40653,
+        "tokens_per_1k_sentences": 81306.0,
+        "tokens_per_akshara": 1.951562575008401,
+        "tokens_per_word": 9.18504292815183,
         "words": 4426
       },
       "modern": {
         "aksharas": 25980,
-        "cluster_split_rate": 0.0628175519630485,
+        "cluster_split_rate": 0.8069668976135489,
         "sentences": 500,
-        "tamil_cluster_split_rate": 0.0689494624566156,
+        "tamil_cluster_split_rate": 0.8873275205282316,
         "tamil_clusters": 23626,
-        "tokens": 9893,
-        "tokens_per_1k_sentences": 19786.0,
-        "tokens_per_akshara": 0.38079291762894535,
-        "tokens_per_word": 1.8641416996419824,
+        "tokens": 51309,
+        "tokens_per_1k_sentences": 102618.0,
+        "tokens_per_akshara": 1.9749422632794458,
+        "tokens_per_word": 9.668174109666479,
         "words": 5307
       },
       "tanglish": {
@@ -361,14 +414,67 @@
         "sentences": 500,
         "tamil_cluster_split_rate": null,
         "tamil_clusters": 0,
-        "tokens": 9561,
-        "tokens_per_1k_sentences": 19122.0,
-        "tokens_per_akshara": 0.3205592436129551,
-        "tokens_per_word": 1.6928116147308783,
+        "tokens": 11185,
+        "tokens_per_1k_sentences": 22370.0,
+        "tokens_per_akshara": 0.3750083819486354,
+        "tokens_per_word": 1.9803470254957507,
         "words": 5648
       }
     },
-    "tokenizer": "agaram-2.5b"
+    "tokenizer": "qwen3-1.7b"
+  },
+  {
+    "overall": {
+      "aksharas": 76637,
+      "cluster_split_rate": 0.4955961219776348,
+      "sentences": 1500,
+      "tamil_cluster_split_rate": 0.8912956748257492,
+      "tamil_clusters": 42611,
+      "tokens": 103147,
+      "tokens_per_1k_sentences": 68764.66666666667,
+      "tokens_per_akshara": 1.3459164633271135,
+      "tokens_per_word": 6.706130940771081,
+      "words": 15381
+    },
+    "per_register": {
+      "classical": {
+        "aksharas": 20831,
+        "cluster_split_rate": 0.8168594882626854,
+        "sentences": 500,
+        "tamil_cluster_split_rate": 0.896233868843824,
+        "tamil_clusters": 18985,
+        "tokens": 40653,
+        "tokens_per_1k_sentences": 81306.0,
+        "tokens_per_akshara": 1.951562575008401,
+        "tokens_per_word": 9.18504292815183,
+        "words": 4426
+      },
+      "modern": {
+        "aksharas": 25980,
+        "cluster_split_rate": 0.8069668976135489,
+        "sentences": 500,
+        "tamil_cluster_split_rate": 0.8873275205282316,
+        "tamil_clusters": 23626,
+        "tokens": 51309,
+        "tokens_per_1k_sentences": 102618.0,
+        "tokens_per_akshara": 1.9749422632794458,
+        "tokens_per_word": 9.668174109666479,
+        "words": 5307
+      },
+      "tanglish": {
+        "aksharas": 29826,
+        "cluster_split_rate": 0.0,
+        "sentences": 500,
+        "tamil_cluster_split_rate": null,
+        "tamil_clusters": 0,
+        "tokens": 11185,
+        "tokens_per_1k_sentences": 22370.0,
+        "tokens_per_akshara": 0.3750083819486354,
+        "tokens_per_word": 1.9803470254957507,
+        "words": 5648
+      }
+    },
+    "tokenizer": "qwen3-4b"
   },
   {
     "overall": {
