@@ -531,6 +531,18 @@ def train(
         run.log_metric("eta_seconds_estimate", eta_seconds, step=0)
         # Reproducibility contract (roadmap §5): the exact config and the corpus
         # datasheet travel with the run, not just the flattened param table.
+
+        # Optional training diagnostics (from Under the Hood Project 11):
+        # per-layer gradient norms, activation stats, spike/NaN detection.
+        diagnostics = None
+        diag_every = int(tcfg.get("diagnostics_every", 0))
+        if diag_every and not (smoke or overfit_batch):
+            from adhan_slm.training.debug_diagnostics import TrainingDiagnostics
+
+            diagnostics = TrainingDiagnostics(
+                model=model, log_every=diag_every, log_dir="logs/diagnostics"
+            )
+
         for artifact in _run_artifacts(config_path, cfg):
             try:
                 run.log_artifact(str(artifact), artifact_path="config")
@@ -633,6 +645,13 @@ def train(
             is_last = step == updates - 1
             if (step + 1) % log_every == 0 or is_last:
                 _flush(step)
+                if diagnostics is not None:
+                    lr = float(sched(max(0, step - schedule_base)))
+                    diagnostics.maybe_log(state, step, last_train_loss, lr=lr)
+                    for spike in diagnostics.detect_spikes():
+                        logger.warning("gradient spike: %s", spike)
+                    for nan_issue in diagnostics.detect_nans():
+                        logger.warning("NaN/Inf detected: %s", nan_issue)
                 pending_losses, pending_steps = [], []
                 window_start = time.perf_counter()
 

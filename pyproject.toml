@@ -37,6 +37,13 @@ dependencies = [
 
 [project.scripts]
 adhan = "adhan_slm.cli:main"
+# Corpus hygiene (adapted from Agaram 2.5B's data pipeline):
+#   adhan-dedup          MinHash near-duplicate removal, O(n) via LSH banding
+#   adhan-decontaminate  benchmark/eval leak removal (exact + word/char n-gram)
+adhan-dedup = "adhan_slm.data.minhash_dedup:_cli"
+adhan-decontaminate = "adhan_slm.data.contamination:_cli"
+# Chat CLI with the crisis-resource footer; needs the [jax] extra to generate.
+adhan-chat = "adhan_slm.chat_cli:main"
 
 [project.optional-dependencies]
 # Default JAX stack: CPU wheels. This is what `pip install -e ".[jax]"` gives you,
@@ -75,6 +82,15 @@ benchmark = [
     "tokenizers>=0.15.0",
     "sentencepiece>=0.1.99",
 ]
+# JAX checkpoint -> HuggingFace -> GGUF export (scripts/export_gguf.py).
+# Kept out of the core env: torch alone is ~2 GB, and nobody needs the export
+# path to train, tokenize or evaluate. Opt in with `pip install -e ".[export]"`.
+export = [
+    "torch>=2.2",
+    "transformers>=4.44",
+    "safetensors>=0.4.0",
+    "huggingface_hub>=0.23",
+]
 # Frozen-encoder probes (MuRIL etc.). Flax backend; torch is not required.
 muril = [
     "transformers>=4.40,<5",
@@ -94,7 +110,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,serving,dev]",
+    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,serving,export,dev]",
 ]
 
 [project.urls]
