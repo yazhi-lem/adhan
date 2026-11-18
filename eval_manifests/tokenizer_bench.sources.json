@@ -8,10 +8,10 @@
     {
       "id": "thirukkural",
       "register": "classical",
-      "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+      "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
       "format": "jsonl",
       "text_field": "text",
-      "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
+      "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
       "url": "https://github.com/tk120404/thirukkural"
     },
     {

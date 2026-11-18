@@ -32,15 +32,15 @@
       },
       "thirukkural": {
         "blocked": {
-          "abuse": 2,
-          "politics": 89,
-          "sexual": 9,
-          "violence": 45
+          "abuse": 1,
+          "politics": 1,
+          "sexual": 0,
+          "violence": 5
         },
         "documents": 1330,
-        "kept_candidates": 8107,
+        "kept_candidates": 2631,
         "selected": 500,
-        "sentences": 9668
+        "sentences": 2660
       },
       "wikipedia-ta": {
         "blocked": {
@@ -50,7 +50,7 @@
           "violence": 10055
         },
         "documents": 80326,
-        "kept_candidates": 1406763,
+        "kept_candidates": 1406765,
         "selected": 500,
         "sentences": 2485012
       }
@@ -65,9 +65,9 @@
       "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
     },
     "thirukkural": {
-      "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
-      "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
-      "sha256": "291cf96234db01039aba6deafa85842d77f5d87eaaf817656c598ee39f46640d",
+      "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
+      "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
+      "sha256": "1af600fe10c3dca8d056311728688aa82ceb8321ae0568755436f63a8e982d15",
       "url": "https://github.com/tk120404/thirukkural"
     },
     "wikipedia-ta": {
@@ -77,7 +77,7 @@
       "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
     }
   },
-  "output_sha256": "003a2dfea372b04a35ce9e71adc35130bd5ec3ee8a6fd4736f9ecb363dc9ae42",
+  "output_sha256": "83e50fe7bbb671be0e5c93ce2da5d89ebec9e14dbcc1308e3e420dee00a56130",
   "schema_version": 1,
   "spec": {
     "content_filter": "eval_manifests/content_blocklist.v1.json",
@@ -89,8 +89,8 @@
       {
         "format": "jsonl",
         "id": "thirukkural",
-        "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
-        "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+        "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
+        "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
         "register": "classical",
         "text_field": "text",
         "url": "https://github.com/tk120404/thirukkural"

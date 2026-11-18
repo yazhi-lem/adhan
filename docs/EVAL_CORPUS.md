@@ -98,7 +98,7 @@ register. Every one is pinned so a rebuild matches the manifest hash:
 
 | Register | Source | Pin | Licence |
 |---|---|---|---|
-| `classical` | Thirukkural corpus (`tk120404/thirukkural`) | local file SHA-256 | Kural verses public domain; repo data Apache-2.0; embedded M. Varadarasanar commentary is third-party and is not relicensed |
+| `classical` | Thirukkural verses only (`tk120404/thirukkural` @ `cf3ff6c`) | file SHA-256 | **Public domain** — `scripts/build_classical_corpus.py` keeps `Line1`/`Line2` and drops every commentary field |
 | `modern` | `wikimedia/wikipedia`, config `20231101.ta` | revision `b04c8d1` + file SHA-256 | CC-BY-SA-3.0 + GFDL |
 | `tanglish` | `vishnu-n/Tanglish-Corpus-185k` | revision `927f5b4` + file SHA-256 | CC-BY-4.0 |
 
@@ -109,12 +109,13 @@ Why these three: [`reports/k6_modern_tamil_source.md`](reports/k6_modern_tamil_s
 
 ```bash
 pip install -e ".[eval-corpus]"        # pyarrow, only for the dump-backed fetch
-python scripts/fetch_modern_tamil.py   # data/raw/modern_tamil/wikipedia_ta.jsonl
-python scripts/build_eval_corpus.py    # freeze + write the manifest
+python scripts/build_classical_corpus.py   # data/raw/thirukkural/thirukkural_verses.jsonl
+python scripts/fetch_modern_tamil.py     # data/raw/modern_tamil/wikipedia_ta.jsonl
+python scripts/build_eval_corpus.py      # freeze + write the manifest
 python scripts/build_eval_corpus.py --verify
 ```
 
-The classical and Tanglish raw files are fetched separately (Thirukkural extractor, pinned HF
+The Tanglish raw file is fetched separately (Thirukkural extractor, pinned HF
 resolve URL). `data/` is git-ignored, so a clean clone must fetch the three raw inputs before
 `--verify` can pass; the manifest records the SHA-256 each one must have.
 
@@ -124,10 +125,15 @@ lower `per_register`, or pass `--allow-shortfall`.
 ### Current freeze
 
 `eval_manifests/tokenizer_bench.manifest.json` was built from the sources above: 1,500
-sentences (500 per register), output SHA-256 `003a2dfe…`. Candidates that survived the rules:
-classical 8,107 · modern 1,406,763 · tanglish 238,817. The content filter vetoed 145
-(classical), 82,532 (modern) and 13,616 (tanglish) candidates, so the 500-sentence sample is
-not drawn from political or abusive sentences in any register.
+sentences (500 per register), output SHA-256 `83e50fe7…`. Candidates that survived the rules:
+classical 2,631 · modern 1,406,765 · tanglish 238,817. The content filter vetoed 7 (classical),
+82,532 (modern) and 13,616 (tanglish) candidates, so no register samples political or abusive
+text.
+
+The classical source carries **verses only**. The convenient Thirukkural files on the web bundle
+the verses with 20th-century commentaries whose rights belong to their authors, which would make
+a public benchmark need a legal opinion. `scripts/build_classical_corpus.py` keeps the two verse
+lines and drops the rest, so the register is unambiguously public domain.
 
 ## Data handling
 
