@@ -10,7 +10,7 @@
   "filter": {
     "version": "v2",
     "path": "/home/spidy/Projects/Yazhi_Projects/adhan/eval_manifests/content_blocklist.v2.json",
-    "sha256": "d6df418502f269b7aa306a8549ea9cb2ffe017fa9757bcf8983405a7c9a1e44c",
+    "sha256": "ae2cc5ac6eb004325c0d83809c78a7db441ae89a2ef5aea9ad7c2b8ab02aff41",
     "native_review": "pending",
     "categories": [
       "politics",
@@ -25,17 +25,17 @@
     "length": 13415,
     "script": 5,
     "duplicate": 1190,
-    "blocked": 12094
+    "blocked": 12776
   },
   "blocked_per_category": {
-    "politics": 8522,
-    "violence": 1203,
-    "sexual": 362,
-    "abuse": 2007
+    "politics": 9145,
+    "violence": 1198,
+    "sexual": 359,
+    "abuse": 2074
   },
   "candidates": 252430,
-  "neutral_candidates": 240336,
-  "blocked_share": 0.04791031176959949,
+  "neutral_candidates": 239654,
+  "blocked_share": 0.0506120508655865,
   "sample_size": 500,
-  "headroom": 480.672
+  "headroom": 479.308
 }

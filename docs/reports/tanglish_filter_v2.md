@@ -30,25 +30,25 @@ how many neutral Tanglish sentences remain to sample 500 from?
 | Dropped: length | 13,415 |
 | Dropped: script | 5 |
 | Dropped: duplicate | 1,190 |
-| Dropped: content filter | 12,094 |
-| **Neutral candidates** | **240,336** |
+| Dropped: content filter | 12,776 |
+| **Neutral candidates** | **239,654** |
 
 ### Content filter, per category
 
 | Category | Blocked |
 |---|---:|
-| politics | 8,522 |
-| violence | 1,203 |
-| sexual | 362 |
-| abuse | 2,007 |
+| politics | 9,145 |
+| violence | 1,198 |
+| sexual | 359 |
+| abuse | 2,074 |
 
-The filter vetoed **4.8%** of candidates. That matches the
+The filter vetoed **5.1%** of candidates. That matches the
 ~5.5% keyword-positive rate in the N3 scope report
 ([`n3_tanglish_source_scope.md`](n3_tanglish_source_scope.md)), so the filter behaves as
 scoped rather than over- or under-filtering.
 
-At 240,336 neutral candidates the 500-sentence sample has
-**481× headroom**, so the freeze does not depend on a handful of
+At 239,654 neutral candidates the 500-sentence sample has
+**479× headroom**, so the freeze does not depend on a handful of
 rows and can survive a stricter reviewer-passed gazetteer.
 
 ## Caveats

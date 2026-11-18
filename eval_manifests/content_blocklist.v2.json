@@ -2,7 +2,7 @@
   "version": "v2",
   "description": "High-recall exclusion gazetteer for the public tokenizer benchmark. A sentence matching any term is dropped before the 500-sentence Tanglish sample is frozen, so an inflammatory or political row cannot reach a public table. Latin exact terms match as whole words; Latin stems also accept a closed set of Tanglish case suffixes (pundaiku, mayirum, arasiyaluku); Tamil terms match at a word start with a known case suffix only (தேர்தலில், அமைச்சரை), which avoids சாதிக்க and புண்டரீகாட்சன்.",
   "native_review": "pending",
-  "review_note": "v2 responds to review: inflected forms now match, over-broad terms (strike, war, government, inc, cpi, sunni) are removed, Tamil party names added, and Tamil matching is bounded so ordinary words no longer match by substring. A native reviewer must still extend and sign it off before the corpus is frozen for publication (see docs/EVAL_CORPUS.md).",
+  "review_note": "v2 responds to review: inflected forms now match, over-broad terms (strike, war, government, inc, cpi, sunni) are removed, Tamil party names added, and Tamil matching is bounded so ordinary words no longer match by substring. A native reviewer must still extend and sign it off before the corpus is frozen for publication (see docs/EVAL_CORPUS.md). v2.1 adds named public figures that appear in the sample without party vocabulary (stalin, kanimozhi, seeman) and the abusive stem gaandu; short ambiguous abbreviations such as eps stay out because they matched 'Epstein'.",
   "categories": {
     "politics": {
       "latin": [
@@ -76,7 +76,13 @@
         "secular",
         "hindutva",
         "sangh",
-        "rss"
+        "rss",
+        "stalin",
+        "edappadi",
+        "palaniswami",
+        "udhayanidhi",
+        "kanimozhi",
+        "seeman"
       ],
       "latin_stems": [
         "arasiyal",
@@ -109,7 +115,13 @@
         "பாஜக",
         "காங்கிரஸ்",
         "விடுதலைச்சிறைவன்",
-        "தேசியம்"
+        "தேசியம்",
+        "ஸ்டாலின்",
+        "எடப்பாடி",
+        "பழனிசாமி",
+        "உதயநிதி",
+        "கனிமொழி",
+        "சீமான்"
       ]
     },
     "violence": {
@@ -232,7 +244,9 @@
         "poolu",
         "koothi",
         "soothu",
-        "sunni"
+        "sunni",
+        "gaandu",
+        "kaandu"
       ],
       "tamil": [
         "தேவடியா",
@@ -242,7 +256,8 @@
         "புண்டை",
         "நாயே",
         "கூத்தி",
-        "சூத்து"
+        "சூத்து",
+        "காண்டு"
       ]
     }
   }
