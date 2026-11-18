@@ -1,0 +1,41 @@
+{
+  "source": {
+    "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+    "sha256": "cd1f7d589cf89f6f59be81099dfda928f9e9dd0e47b6c95a3ba0d7df7f2b02bd",
+    "bytes": 27854538
+  },
+  "register": "tanglish",
+  "min_chars": 15,
+  "max_chars": 300,
+  "filter": {
+    "version": "v1",
+    "path": "/home/spidy/Projects/Yazhi_Projects/adhan/eval_manifests/content_blocklist.v1.json",
+    "sha256": "e3457cc2255e0a0bc2d24d2b30d8847866b724e4574357218156e2ced01f1bca",
+    "native_review": "pending",
+    "categories": [
+      "politics",
+      "violence",
+      "sexual",
+      "abuse"
+    ]
+  },
+  "rows": 185973,
+  "sentences": 267040,
+  "dropped": {
+    "length": 13415,
+    "script": 5,
+    "duplicate": 1187,
+    "blocked": 13616
+  },
+  "blocked_per_category": {
+    "politics": 9405,
+    "violence": 1703,
+    "sexual": 675,
+    "abuse": 1833
+  },
+  "candidates": 252433,
+  "neutral_candidates": 238817,
+  "blocked_share": 0.053939065019232825,
+  "sample_size": 500,
+  "headroom": 477.634
+}

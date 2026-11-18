@@ -20,12 +20,48 @@ that lists every source with its register, path, licence and URL, then:
    (classical and modern: at least 80% Tamil letters; tanglish: no Tamil-script characters
    and at least 80% Latin letters)
 4. drops exact duplicates across all sources
-5. ranks the remaining sentences by `sha256(seed | source | text)` and keeps the first
+5. applies the **content filter** (see below) and drops every sentence it vetoes
+6. ranks the remaining sentences by `sha256(seed | source | text)` and keeps the first
    `per_register` of each register
 
-Step 5 makes the sample a pure function of the text and the seed: input order, file order
+Step 6 makes the sample a pure function of the text and the seed: input order, file order
 and platform do not change it. The output is canonical JSONL (`data/eval/tokenizer_bench.jsonl`,
 git-ignored) and a manifest.
+
+## Content filter (K6 / #112)
+
+The public set must not ship an inflammatory, political or sexual sentence scraped from
+social media. A spec may name a gazetteer:
+
+```json
+{ "content_filter": "eval_manifests/content_blocklist.v1.json" }
+```
+
+The path resolves like a source path; `"none"` (the default) applies no filter. Matching is
+deterministic and deliberately simple (`src/adhan_slm/eval/content_filter.py`):
+
+- Latin terms match case-insensitively as whole words, so `vote` does not fire inside
+  `devoter`; internal whitespace in a term matches any run of whitespace.
+- Tamil terms match as plain substrings.
+- Categories are checked in file order and the first hit wins, so the same sentence always
+  reports the same category.
+
+The gazetteer is JSON rather than code so a native reviewer can extend it without touching
+Python: [`../eval_manifests/content_blocklist.v1.json`](../eval_manifests/content_blocklist.v1.json).
+v1 is a seed list from the N3 scope report and is marked `"native_review": "pending"`; it
+must be reviewed and extended before the corpus is frozen for publication.
+
+The manifest records the filter's version, SHA-256, categories and native-review state, plus
+how many candidates each source lost per category, e.g.
+
+```json
+"content_filter": { "version": "v1", "sha256": "…", "categories": [
+  "politics", "violence", "sexual", "abuse"], "native_review": "pending" },
+"counts": { "per_source": { "tanglish-social": { "blocked": { "politics": 3401 } } } }
+```
+
+`--verify` also fails if the gazetteer changed under a saved manifest, even when the
+version string is unchanged.
 
 ## The manifest
 
@@ -68,5 +104,6 @@ tests use small synthetic fixtures only.
 ## Still needed (not done by code)
 
 - Choose and license-check the modern and Tanglish sources.
-- A native reviewer checks the Tamil and Tanglish samples before the corpus is frozen.
+- A native reviewer signs off the v1 gazetteer (`eval_manifests/content_blocklist.v1.json`)
+  and checks the Tanglish sample before the corpus is frozen.
 - Commit the filled-in spec and the generated manifest.

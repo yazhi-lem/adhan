@@ -201,5 +201,94 @@ def test_manifest_records_licence_url_and_hashes():
             assert len(meta["sha256"]) == 64
 
 
+def _write_blocklist(base, politics_terms):
+    path = base / "blocklist.json"
+    path.write_text(
+        json.dumps(
+            {
+                "version": "test-v1",
+                "native_review": "pending",
+                "categories": {"politics": {"latin": politics_terms, "tamil": []}},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_content_filter_drops_matching_candidates_and_counts_them():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, content_filter="blocklist.json")
+        _write_blocklist(base, ["election", "vkkatchi"])
+        (base / "tg.txt").write_text(
+            "\n".join(_tanglish_sentences(30) + ["bro election la vote podu da", "vkkatchi news"]),
+            encoding="utf-8",
+        )
+        res = ec.build(spec, base)
+
+        blocked = res["manifest"]["counts"]["per_source"]["t1"]["blocked"]
+        assert blocked == {"politics": 2}
+        texts = " ".join(r["text"] for r in res["records"])
+        assert "election" not in texts and "vkkatchi" not in texts
+        desc = res["manifest"]["content_filter"]
+        assert desc["version"] == "test-v1"
+        assert desc["categories"] == ["politics"]
+        assert len(desc["sha256"]) == 64
+
+
+def test_content_filter_absent_records_no_filter_and_blocks_nothing():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        res = ec.build(_make_spec(base, per_register=5), base)
+        assert res["manifest"]["content_filter"] is None
+        assert res["manifest"]["counts"]["per_source"]["t1"]["blocked"] == {}
+
+
+def test_content_filter_shortfall_is_visible_when_it_empties_a_register():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, content_filter="blocklist.json")
+        _write_blocklist(base, list(_TG))
+        (base / "tg.txt").write_text("\n".join(_tanglish_sentences(30)), encoding="utf-8")
+        res = ec.build(spec, base)
+        assert res["manifest"]["counts"]["per_register"]["tanglish"] == 0
+        assert any("tanglish" in s for s in ec.shortfalls(res["manifest"]))
+
+
+def test_missing_or_invalid_blocklist_is_rejected():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        for value in ("nope.json", "bad.json"):
+            if value == "bad.json":
+                (base / "bad.json").write_text("{not json", encoding="utf-8")
+            spec = _make_spec(base, per_register=5, content_filter=value)
+            try:
+                ec.build(spec, base)
+            except ec.EvalCorpusError as exc:
+                assert "content_filter" in str(exc)
+                continue
+            raise AssertionError(f"accepted content_filter={value!r}")
+
+
+def test_verify_detects_a_swapped_blocklist():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, content_filter="blocklist.json")
+        _write_blocklist(base, ["election"])
+        res = ec.build(spec, base)
+        out = base / "out" / "bench.jsonl"
+        manifest_path = base / "out" / "manifest.json"
+        ec.write_outputs(res, out, manifest_path)
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert ec.verify(out, manifest, base) == []
+
+        # Same version string, different gazetteer: the hash must catch it.
+        _write_blocklist(base, ["election", "vkkatchi"])
+        problems = ec.verify(out, manifest, base)
+        assert any("content_filter" in p for p in problems), problems
+
+
 if __name__ == "__main__":
     run_module_tests(globals(), "eval corpus")
