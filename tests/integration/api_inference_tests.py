@@ -20,6 +20,12 @@ from adhan_slm.serving.api import (  # noqa: E402
     TokensResponse,
 )
 from adhan_slm.tokenizer import SwaramTokenizer  # noqa: E402
+
+# The API server needs the optional `serving` extra. Skip this module instead of crashing
+# collection, which used to take the entire suite down (see adhan#121).
+pytest.importorskip("fastapi", reason="the serving extra (fastapi) is not installed")
+pytest.importorskip("uvicorn", reason="the serving extra (uvicorn) is not installed")
+
 from scripts.run_api_server import create_app  # noqa: E402
 
 try:
