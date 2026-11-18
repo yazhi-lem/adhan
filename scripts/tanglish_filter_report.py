@@ -8,7 +8,7 @@ script answers that on a pinned source and writes both a readable report and the
     python scripts/tanglish_filter_report.py
 
     # another filter version or source
-    python scripts/tanglish_filter_report.py --filter v1 \
+    python scripts/tanglish_filter_report.py --filter v2 \
         --corpus data/raw/tanglish/tanglish_corpus.jsonl
 
 The raw corpus stays local (`data/` is git-ignored). Only counts, hashes and the pinned
@@ -30,8 +30,8 @@ from adhan_slm.eval import content_filter as cf  # noqa: E402
 from adhan_slm.eval import eval_corpus as ec  # noqa: E402
 
 DEFAULT_CORPUS = "data/raw/tanglish/tanglish_corpus.jsonl"
-DEFAULT_MD = "docs/reports/tanglish_filter_v1.md"
-DEFAULT_JSON = "docs/reports/tanglish_filter_v1.json"
+DEFAULT_MD = "docs/reports/tanglish_filter_v2.md"
+DEFAULT_JSON = "docs/reports/tanglish_filter_v2.json"
 REGISTER = "tanglish"
 
 
@@ -160,7 +160,7 @@ def to_markdown(report: dict) -> str:
         "",
         f"The filter vetoed **{report['blocked_share']:.1%}** of candidates. That matches the",
         "~5.5% keyword-positive rate in the N3 scope report",
-        "([`n3_tanglish_source_scope.md`](n3_tanglish_source_scope.md)), so v1 behaves as",
+        "([`n3_tanglish_source_scope.md`](n3_tanglish_source_scope.md)), so the filter behaves as",
         "scoped rather than over- or under-filtering.",
         "",
         f"At {report['neutral_candidates']:,} neutral candidates the 500-sentence sample has",
@@ -169,7 +169,7 @@ def to_markdown(report: dict) -> str:
         "",
         "## Caveats",
         "",
-        f"- `native_review` is `{flt.get('native_review', 'pending')}`: v1 is a seed gazetteer.",
+        f"- `native_review` is `{flt.get('native_review', 'pending')}`: this is a seed gazetteer.",
         "  A native reviewer must extend and sign it off before the corpus is frozen.",
         "- A gazetteer is high recall, not precision. It removes some innocent rows and misses",
         "  paraphrases; MuRIL was probed for this and rejected as too weak to ship",
@@ -186,7 +186,7 @@ def to_markdown(report: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--corpus", default=DEFAULT_CORPUS)
-    ap.add_argument("--filter", default="v1", help="shipped gazetteer version, or 'none'")
+    ap.add_argument("--filter", default="v2", help="shipped gazetteer version, or 'none'")
     ap.add_argument("--min-chars", type=int, default=15)
     ap.add_argument("--max-chars", type=int, default=300)
     ap.add_argument("--out", default=DEFAULT_MD)

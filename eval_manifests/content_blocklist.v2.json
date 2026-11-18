@@ -1,8 +1,8 @@
 {
-  "version": "v1",
-  "description": "High-recall exclusion gazetteer for the public tokenizer benchmark. A sentence matching any term is dropped before the 500-sentence Tanglish sample is frozen, so an inflammatory or political row cannot reach a public table. Rows are matched case-insensitively as whole Latin words, or as plain substrings for Tamil script.",
+  "version": "v2",
+  "description": "High-recall exclusion gazetteer for the public tokenizer benchmark. A sentence matching any term is dropped before the 500-sentence Tanglish sample is frozen, so an inflammatory or political row cannot reach a public table. Latin exact terms match as whole words; Latin stems also accept a closed set of Tanglish case suffixes (pundaiku, mayirum, arasiyaluku); Tamil terms match at a word start with a known case suffix only (தேர்தலில், அமைச்சரை), which avoids சாதிக்க and புண்டரீகாட்சன்.",
   "native_review": "pending",
-  "review_note": "v1 is a seed list written from the N3 scope report; a native reviewer must extend and sign off before the corpus is frozen for publication (see docs/EVAL_CORPUS.md).",
+  "review_note": "v2 responds to review: inflected forms now match, over-broad terms (strike, war, government, inc, cpi, sunni) are removed, Tamil party names added, and Tamil matching is bounded so ordinary words no longer match by substring. A native reviewer must still extend and sign it off before the corpus is frozen for publication (see docs/EVAL_CORPUS.md).",
   "categories": {
     "politics": {
       "latin": [
@@ -10,7 +10,6 @@
         "political",
         "politician",
         "politicians",
-        "arasiyal",
         "election",
         "elections",
         "electoral",
@@ -32,7 +31,6 @@
         "admk",
         "aiadmk",
         "bjp",
-        "inc",
         "congress",
         "tvk",
         "ntk",
@@ -40,10 +38,8 @@
         "vck",
         "mnm",
         "mdmk",
-        "cpm",
-        "cpi",
         "mla",
-        "mps",
+        "mp",
         "parliament",
         "parliamentary",
         "assembly",
@@ -53,21 +49,14 @@
         "ministers",
         "cabinet",
         "governor",
-        "president",
         "prime minister",
-        "government",
-        "govt",
-        "sarkar",
-        "aatchi",
         "thalaivar",
         "katchi",
-        "leader",
         "opposition",
         "protest",
         "protesters",
         "bandh",
         "hartal",
-        "strike",
         "rally",
         "campaign",
         "propaganda",
@@ -77,6 +66,7 @@
         "caste",
         "castes",
         "casteist",
+        "casteism",
         "jathi",
         "sathiyar",
         "reservation",
@@ -86,12 +76,18 @@
         "secular",
         "hindutva",
         "sangh",
-        "rss",
-        "bjp rule"
+        "rss"
+      ],
+      "latin_stems": [
+        "arasiyal",
+        "therthal",
+        "thalaivan",
+        "thalaivi"
       ],
       "tamil": [
         "தேர்தல்",
         "வாக்கு",
+        "வாக்குப்பதிவு",
         "அரசியல்",
         "கட்சி",
         "முதலமைச்சர்",
@@ -107,7 +103,13 @@
         "வேட்பாளர்",
         "தலைவர்",
         "அரசு",
-        "அரசாங்கம்"
+        "அரசாங்கம்",
+        "திமுக",
+        "அதிமுக",
+        "பாஜக",
+        "காங்கிரஸ்",
+        "விடுதலைச்சிறைவன்",
+        "தேசியம்"
       ]
     },
     "violence": {
@@ -123,7 +125,6 @@
         "attacked",
         "riot",
         "riots",
-        "war",
         "bomb",
         "blast",
         "terrorist",
@@ -134,18 +135,19 @@
         "stabbed",
         "corpse",
         "suicide",
-        "kolai",
-        "kollai",
-        "thimiru",
         "rowdy",
         "rowdyism",
         "goondas",
-        "encounter killed",
         "custodial death",
         "atrocity",
         "atrocities",
         "genocide",
         "massacre"
+      ],
+      "latin_stems": [
+        "kolai",
+        "kollai",
+        "thimiru"
       ],
       "tamil": [
         "கொலை",
@@ -155,7 +157,9 @@
         "தற்கொலை",
         "வெடிகுண்டு",
         "யுத்தம்",
-        "காயம்"
+        "காயம்",
+        "கொல்ல",
+        "அடித்து"
       ]
     },
     "sexual": {
@@ -181,12 +185,9 @@
         "blue film",
         "kamasutra",
         "ool padam",
-        "soothu",
-        "sunni",
-        "pundai",
-        "koothi",
         "kundi"
       ],
+      "latin_stems": [],
       "tamil": [
         "பாலியல்",
         "வன்புணர்வு",
@@ -197,21 +198,6 @@
     },
     "abuse": {
       "latin": [
-        "thevdiya",
-        "thevidiya",
-        "thevadiya",
-        "otha",
-        "oombu",
-        "baadu",
-        "baadhu",
-        "myir",
-        "myiru",
-        "mayiru",
-        "punda",
-        "poolu",
-        "naaye",
-        "naaya",
-        "naai",
         "fuck",
         "fucking",
         "fucker",
@@ -226,15 +212,37 @@
         "chutiya",
         "chutiyan",
         "madarchod",
-        "bhenchod"
+        "bhenchod",
+        "naaye",
+        "naaya"
+      ],
+      "latin_stems": [
+        "thevdiya",
+        "thevidiya",
+        "thevadiya",
+        "otha",
+        "oombu",
+        "baadu",
+        "baadhu",
+        "myir",
+        "myiru",
+        "mayir",
+        "punda",
+        "pundai",
+        "poolu",
+        "koothi",
+        "soothu",
+        "sunni"
       ],
       "tamil": [
         "தேவடியா",
         "ஓத்த",
-        "மயிரு",
+        "மயிர்",
         "புண்ட",
+        "புண்டை",
         "நாயே",
-        "கூத்தி"
+        "கூத்தி",
+        "சூத்து"
       ]
     }
   }

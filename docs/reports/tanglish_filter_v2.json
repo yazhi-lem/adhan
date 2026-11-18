@@ -8,9 +8,9 @@
   "min_chars": 15,
   "max_chars": 300,
   "filter": {
-    "version": "v1",
-    "path": "/home/spidy/Projects/Yazhi_Projects/adhan/eval_manifests/content_blocklist.v1.json",
-    "sha256": "e3457cc2255e0a0bc2d24d2b30d8847866b724e4574357218156e2ced01f1bca",
+    "version": "v2",
+    "path": "/home/spidy/Projects/Yazhi_Projects/adhan/eval_manifests/content_blocklist.v2.json",
+    "sha256": "d6df418502f269b7aa306a8549ea9cb2ffe017fa9757bcf8983405a7c9a1e44c",
     "native_review": "pending",
     "categories": [
       "politics",
@@ -24,18 +24,18 @@
   "dropped": {
     "length": 13415,
     "script": 5,
-    "duplicate": 1187,
-    "blocked": 13616
+    "duplicate": 1190,
+    "blocked": 12094
   },
   "blocked_per_category": {
-    "politics": 9405,
-    "violence": 1703,
-    "sexual": 675,
-    "abuse": 1833
+    "politics": 8522,
+    "violence": 1203,
+    "sexual": 362,
+    "abuse": 2007
   },
-  "candidates": 252433,
-  "neutral_candidates": 238817,
-  "blocked_share": 0.053939065019232825,
+  "candidates": 252430,
+  "neutral_candidates": 240336,
+  "blocked_share": 0.04791031176959949,
   "sample_size": 500,
-  "headroom": 477.634
+  "headroom": 480.672
 }

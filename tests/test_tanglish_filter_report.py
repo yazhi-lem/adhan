@@ -107,5 +107,5 @@ def test_markdown_states_counts_categories_and_the_review_caveat(tmp_path: Path)
 
 
 def test_reports_land_in_the_docs_reports_convention() -> None:
-    assert report.DEFAULT_MD == "docs/reports/tanglish_filter_v1.md"
-    assert report.DEFAULT_JSON == "docs/reports/tanglish_filter_v1.json"
+    assert report.DEFAULT_MD == "docs/reports/tanglish_filter_v2.md"
+    assert report.DEFAULT_JSON == "docs/reports/tanglish_filter_v2.json"

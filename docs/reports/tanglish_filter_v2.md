@@ -1,4 +1,4 @@
-# Content filter v1: Tanglish source measurement
+# Content filter v2: Tanglish source measurement
 
 Task: [K6 / #112](https://github.com/yazhi-lem/adhan/issues/112). Answers one
 question with committed code: after the eval-corpus rules and the gazetteer pass,
@@ -19,7 +19,7 @@ how many neutral Tanglish sentences remain to sample 500 from?
 - 15–300 characters per sentence
 - `tanglish` script rule: no Tamil-script characters, at least 80% Latin letters
 - exact-duplicate removal across the source
-- content filter `v1` (categories: politics, violence, sexual, abuse)
+- content filter `v2` (categories: politics, violence, sexual, abuse)
 
 ## Results
 
@@ -29,31 +29,31 @@ how many neutral Tanglish sentences remain to sample 500 from?
 | Sentences | 267,040 |
 | Dropped: length | 13,415 |
 | Dropped: script | 5 |
-| Dropped: duplicate | 1,187 |
-| Dropped: content filter | 13,616 |
-| **Neutral candidates** | **238,817** |
+| Dropped: duplicate | 1,190 |
+| Dropped: content filter | 12,094 |
+| **Neutral candidates** | **240,336** |
 
 ### Content filter, per category
 
 | Category | Blocked |
 |---|---:|
-| politics | 9,405 |
-| violence | 1,703 |
-| sexual | 675 |
-| abuse | 1,833 |
+| politics | 8,522 |
+| violence | 1,203 |
+| sexual | 362 |
+| abuse | 2,007 |
 
-The filter vetoed **5.4%** of candidates. That matches the
+The filter vetoed **4.8%** of candidates. That matches the
 ~5.5% keyword-positive rate in the N3 scope report
-([`n3_tanglish_source_scope.md`](n3_tanglish_source_scope.md)), so v1 behaves as
+([`n3_tanglish_source_scope.md`](n3_tanglish_source_scope.md)), so the filter behaves as
 scoped rather than over- or under-filtering.
 
-At 238,817 neutral candidates the 500-sentence sample has
-**478× headroom**, so the freeze does not depend on a handful of
+At 240,336 neutral candidates the 500-sentence sample has
+**481× headroom**, so the freeze does not depend on a handful of
 rows and can survive a stricter reviewer-passed gazetteer.
 
 ## Caveats
 
-- `native_review` is `pending`: v1 is a seed gazetteer.
+- `native_review` is `pending`: this is a seed gazetteer.
   A native reviewer must extend and sign it off before the corpus is frozen.
 - A gazetteer is high recall, not precision. It removes some innocent rows and misses
   paraphrases; MuRIL was probed for this and rejected as too weak to ship

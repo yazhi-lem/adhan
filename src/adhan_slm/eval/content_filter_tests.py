@@ -21,7 +21,13 @@ _BLOCKLIST = {
     "categories": {
         "politics": {
             "latin": ["election", "vote", "dmk", "chief minister"],
-            "tamil": ["தேர்தல்"],
+            "latin_stems": ["arasiyal"],
+            "tamil": ["தேர்தல்", "அமைச்சர்", "சாதி"],
+        },
+        "abuse": {
+            "latin": [],
+            "latin_stems": ["pundai", "mayir"],
+            "tamil": ["புண்ட"],
         },
         "violence": {"latin": ["kill", "murder"], "tamil": ["கொலை"]},
     },
@@ -92,7 +98,7 @@ def test_describe_records_version_hash_and_categories():
         f = cf.ContentFilter.load(path)
         desc = f.describe()
         assert desc["version"] == "test"
-        assert desc["categories"] == ["politics", "violence"]
+        assert desc["categories"] == ["politics", "abuse", "violence"]
         assert desc["native_review"] == "pending"
         assert len(desc["sha256"]) == 64
         assert f.source_path == path
@@ -136,14 +142,78 @@ def test_from_dict_requires_version_and_categories():
 
 def test_shipped_blocklist_loads_and_is_well_formed():
     """The committed v1 gazetteer must parse and veto the obvious cases."""
-    f = cf.load_named("v1")
-    assert f.version == "v1"
+    f = cf.load_named("v2")
+    assert f.version == "v2"
     assert f.active
     assert f.native_review == "pending"
     assert "politics" in f.category_names()
 
     assert f.blocked("bro election la vote podu da") in ("politics", "abuse")
     assert f.blocked("naan office ku poren") is None
+
+
+def test_latin_stems_accept_tanglish_case_suffixes():
+    """Tanglish inflects with a small closed suffix set; the stems must cover it."""
+    f = _filter()
+    assert f.blocked("bro pundaiku pesuran") == "abuse"
+    assert f.blocked("mayirum theriyala") == "abuse"
+    assert f.blocked("arasiyaluku time illa") == "politics"
+
+
+def test_latin_stem_suffixes_are_closed_not_open():
+    """An open suffix would drag in unrelated words; only the listed markers may follow."""
+    f = _filter()
+    assert f.blocked("pundaikaran") is None  # not a listed suffix
+    assert f.blocked("arasiyalism") is None
+
+
+def test_tamil_terms_match_inflected_forms():
+    """Tamil drops the pulli before a case suffix: தேர்தல் -> தேர்தலில்."""
+    f = _filter()
+    assert f.blocked("இந்த தேர்தலில் யாரு வருவாங்க") == "politics"
+    assert f.blocked("அமைச்சரை பாத்திங்களா") == "politics"
+
+
+def test_tamil_matching_does_not_fire_inside_longer_words():
+    """The reviewer's false positives: சாதிக்க and புண்டரீகாட்சன் must stay clean."""
+    f = _filter()
+    assert f.blocked("நல்லா சாதிக்கணும்") is None
+    assert f.blocked("புண்டரீகாட்சன் கோவிலுக்கு போனான்") is None
+    # ...while the real forms still match.
+    assert f.blocked("சாதி பாக்குறாங்க") == "politics"
+    assert f.blocked("புண்டை") == "abuse"
+
+
+def test_decomposed_input_is_blocked_after_nfc_normalisation():
+    """A caller must not be able to slip past by passing NFD text."""
+    import unicodedata
+
+    f = _filter()
+    nfd = unicodedata.normalize("NFD", "கொலை நடந்தது")
+    assert nfd != unicodedata.normalize("NFC", nfd), "fixture must actually decompose"
+    assert f.blocked(nfd) == "violence"
+
+
+def test_terms_are_nfc_normalised_when_loaded():
+    import unicodedata
+
+    raw = {
+        "version": "test",
+        "categories": {"politics": {"tamil": [unicodedata.normalize("NFD", "தேர்தல்")]}},
+    }
+    f = cf.ContentFilter.from_dict(raw)
+    assert f.blocked("தேர்தல் நாளைக்கு") == "politics"
+
+
+def test_patterns_are_compiled_once_not_per_call():
+    """The regex used to be rebuilt on every call (~4.7x slower)."""
+    f = _filter()
+    for cat in f.categories:
+        assert cat._latin_re is not None or cat._tamil_re is not None
+    before = [id(cat._latin_re) for cat in f.categories]
+    for _ in range(3):
+        f.blocked("election murder pundaiku")
+    assert [id(cat._latin_re) for cat in f.categories] == before
 
 
 def test_latin_boundary_does_not_fire_mid_word():
