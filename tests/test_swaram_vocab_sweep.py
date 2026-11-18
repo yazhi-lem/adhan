@@ -9,6 +9,7 @@ claims to be reproducible from.
 from __future__ import annotations
 
 import importlib.util
+import json
 import unicodedata
 from pathlib import Path
 
@@ -81,7 +82,6 @@ def _row(size: int, byte_fb: bool, fertility: float) -> dict:
         "requested": size,
         "actual": size,
         "byte_fallback": byte_fb,
-        "train_s": 1.0,
         "tok_per_akshara": fertility,
         "tok_per_word": 2.0,
         "unk_rate": 0.0,
@@ -96,7 +96,7 @@ def test_markdown_has_one_row_per_result_and_the_documented_columns() -> None:
     table = [ln for ln in md.splitlines() if ln.startswith("| 1000") or ln.startswith("| 12000")]
     assert len(table) == 2
     for line in table:
-        assert len([c for c in line.split("|")[1:-1]]) == 8
+        assert len([c for c in line.split("|")[1:-1]]) == 7
     assert "1197 training docs" in md
     assert "133 held-out docs" in md
 
@@ -115,8 +115,6 @@ def test_markdown_carries_the_baselines_that_make_fertility_readable() -> None:
 
 
 def test_report_is_serialisable_and_keeps_the_target() -> None:
-    import json
-
     rows = [_row(1000, False, 0.542)]
     report = sweep.to_report(rows, n_train=1197, n_eval=133)
 
@@ -125,6 +123,14 @@ def test_report_is_serialisable_and_keeps_the_target() -> None:
     assert report["fertility_target_tok_per_akshara"] == 1.15
     assert report["rows"] == rows
     assert json.loads(json.dumps(report)) == report
+
+
+def test_report_excludes_wall_clock_timings() -> None:
+    """A per-machine timing column made every regeneration a diff; it must not come back."""
+    rows = [_row(1000, False, 0.5)]
+    assert "train_s" not in rows[0]
+    assert "Train time" not in sweep.to_markdown(rows, 1197, 133)
+    assert "train_s" not in json.dumps(sweep.to_report(rows, 1197, 133))
 
 
 def test_reports_land_in_the_docs_reports_convention() -> None:

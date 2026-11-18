@@ -82,12 +82,12 @@ def run(sizes: list[int], cache_dir: Path) -> list[dict]:
             t0 = time.perf_counter()
             tok = SwaramTokenizer.train(train_docs, vocab_size=size, byte_fallback=byte_fb)
             secs = time.perf_counter() - t0
+            print(f"  vocab {size:>6,} byte_fallback={byte_fb!s:<5} trained in {secs:.1f}s")
             rows.append(
                 {
                     "requested": size,
                     "actual": len(tok),
                     "byte_fallback": byte_fb,
-                    "train_s": secs,
                     **measure(tok, eval_docs),
                 }
             )
@@ -95,7 +95,7 @@ def run(sizes: list[int], cache_dir: Path) -> list[dict]:
 
 
 def to_report(rows: list[dict], n_train: int, n_eval: int) -> dict:
-    """Build the JSON report. Timings are per-run and will differ on re-run."""
+    """Build the JSON report. Wall-clock timings are deliberately excluded (see the doc)."""
     return {
         "corpus": "thirukkural",
         "n_train_docs": n_train,
@@ -120,18 +120,22 @@ def to_markdown(rows: list[dict], n_train: int, n_eval: int) -> str:
         "Lower tokens/akshara is better (pilot target < 1.15).",
         "",
         "| Vocab | Byte fallback | Actual | Tokens/akshara | Tokens/word | `<unk>` rate "
-        "| Round-trip | Train time |",
-        "|---:|:---:|---:|---:|---:|---:|---:|---:|",
+        "| Round-trip |",
+        "|---:|:---:|---:|---:|---:|---:|---:|",
     ]
     for r in rows:
         lines.append(
             f"| {r['requested']} | {'yes' if r['byte_fallback'] else 'no'} | {r['actual']} "
             f"| {r['tok_per_akshara']:.3f} | {r['tok_per_word']:.2f} | {r['unk_rate']:.2%} "
-            f"| {r['roundtrip']:.1%} | {r['train_s']:.1f}s |"
+            f"| {r['roundtrip']:.1%} |"
         )
     lines += [
         "",
         "Round-trip is `decode(encode(text)) == NFC(text)` on the held-out split.",
+        "",
+        "Training time is printed by the script but kept out of this report: it is per-machine",
+        "wall clock, so including it made every re-run a spurious diff. The full sweep is about",
+        "11s on a laptop.",
         "",
         "## How to read this",
         "",

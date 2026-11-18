@@ -3,20 +3,24 @@
 Frozen Thirukkural corpus: 1197 training docs, 133 held-out docs.
 Lower tokens/akshara is better (pilot target < 1.15).
 
-| Vocab | Byte fallback | Actual | Tokens/akshara | Tokens/word | `<unk>` rate | Round-trip | Train time |
-|---:|:---:|---:|---:|---:|---:|---:|---:|
-| 1000 | no | 1000 | 0.542 | 2.47 | 0.01% | 98.5% | 0.7s |
-| 1000 | yes | 1000 | 0.611 | 2.79 | 0.00% | 100.0% | 0.6s |
-| 2000 | no | 2000 | 0.445 | 2.03 | 0.01% | 98.5% | 0.9s |
-| 2000 | yes | 2000 | 0.460 | 2.10 | 0.00% | 100.0% | 0.9s |
-| 4000 | no | 4000 | 0.386 | 1.76 | 0.01% | 98.5% | 1.1s |
-| 4000 | yes | 4000 | 0.391 | 1.78 | 0.00% | 100.0% | 1.1s |
-| 8000 | no | 8000 | 0.344 | 1.57 | 0.01% | 98.5% | 1.2s |
-| 8000 | yes | 8000 | 0.345 | 1.58 | 0.00% | 100.0% | 1.2s |
-| 12000 | no | 12000 | 0.328 | 1.50 | 0.01% | 98.5% | 1.3s |
-| 12000 | yes | 12000 | 0.329 | 1.50 | 0.00% | 100.0% | 1.3s |
+| Vocab | Byte fallback | Actual | Tokens/akshara | Tokens/word | `<unk>` rate | Round-trip |
+|---:|:---:|---:|---:|---:|---:|---:|
+| 1000 | no | 1000 | 0.542 | 2.47 | 0.01% | 98.5% |
+| 1000 | yes | 1000 | 0.611 | 2.79 | 0.00% | 100.0% |
+| 2000 | no | 2000 | 0.445 | 2.03 | 0.01% | 98.5% |
+| 2000 | yes | 2000 | 0.460 | 2.10 | 0.00% | 100.0% |
+| 4000 | no | 4000 | 0.386 | 1.76 | 0.01% | 98.5% |
+| 4000 | yes | 4000 | 0.391 | 1.78 | 0.00% | 100.0% |
+| 8000 | no | 8000 | 0.344 | 1.57 | 0.01% | 98.5% |
+| 8000 | yes | 8000 | 0.345 | 1.58 | 0.00% | 100.0% |
+| 12000 | no | 12000 | 0.328 | 1.50 | 0.01% | 98.5% |
+| 12000 | yes | 12000 | 0.329 | 1.50 | 0.00% | 100.0% |
 
 Round-trip is `decode(encode(text)) == NFC(text)` on the held-out split.
+
+Training time is printed by the script but kept out of this report: it is per-machine
+wall clock, so including it made every re-run a spurious diff. The full sweep is about
+11s on a laptop.
 
 ## How to read this
 
