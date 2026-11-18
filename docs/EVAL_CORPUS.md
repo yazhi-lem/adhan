@@ -91,27 +91,56 @@ A source whose `license`, `url` or `path` is empty or starts with `TODO` is reje
 unlicensed source cannot enter the public set. Keep unlicensed text out of the committed
 manifest and out of any public repo.
 
+## Sources (pinned)
+
+`eval_manifests/tokenizer_bench.sources.json` is committed and names three sources, one per
+register. Every one is pinned so a rebuild matches the manifest hash:
+
+| Register | Source | Pin | Licence |
+|---|---|---|---|
+| `classical` | Thirukkural corpus (`tk120404/thirukkural`) | local file SHA-256 | Kural verses public domain; repo data Apache-2.0; embedded M. Varadarasanar commentary is third-party and is not relicensed |
+| `modern` | `wikimedia/wikipedia`, config `20231101.ta` | revision `b04c8d1` + file SHA-256 | CC-BY-SA-3.0 + GFDL |
+| `tanglish` | `vishnu-n/Tanglish-Corpus-185k` | revision `927f5b4` + file SHA-256 | CC-BY-4.0 |
+
+Why these three: [`reports/k6_modern_tamil_source.md`](reports/k6_modern_tamil_source.md) and
+[`reports/n3_tanglish_source_scope.md`](reports/n3_tanglish_source_scope.md).
+
 ## Using it
 
 ```bash
-cp eval_manifests/tokenizer_bench.sources.example.json eval_manifests/tokenizer_bench.sources.json
-# fill in the real sources, licences and URLs, then:
-python scripts/build_eval_corpus.py
+pip install -e ".[eval-corpus]"        # pyarrow, only for the dump-backed fetch
+python scripts/fetch_modern_tamil.py   # data/raw/modern_tamil/wikipedia_ta.jsonl
+python scripts/build_eval_corpus.py    # freeze + write the manifest
 python scripts/build_eval_corpus.py --verify
 ```
+
+The classical and Tanglish raw files are fetched separately (Thirukkural extractor, pinned HF
+resolve URL). `data/` is git-ignored, so a clean clone must fetch the three raw inputs before
+`--verify` can pass; the manifest records the SHA-256 each one must have.
 
 If a register has fewer usable sentences than `per_register`, the build fails. Add sources,
 lower `per_register`, or pass `--allow-shortfall`.
 
+### Current freeze
+
+`eval_manifests/tokenizer_bench.manifest.json` was built from the sources above: 1,500
+sentences (500 per register), output SHA-256 `003a2dfe…`. Candidates that survived the rules:
+classical 8,107 · modern 1,406,763 · tanglish 238,817. The content filter vetoed 145
+(classical), 82,532 (modern) and 13,616 (tanglish) candidates, so the 500-sentence sample is
+not drawn from political or abusive sentences in any register.
+
 ## Data handling
 
 The builder is pure Python (standard library), does no network I/O and sends no text
-anywhere. Fetching raw sources is a separate step (`src/data_scraper/raw_extractors`). The
-tests use small synthetic fixtures only.
+anywhere. Fetching raw sources is a separate step (`scripts/fetch_modern_tamil.py` for the
+modern register, `src/data_scraper/raw_extractors` for the rest). The tests use small
+synthetic fixtures only.
 
 ## Still needed (not done by code)
 
-- Choose and license-check the modern and Tanglish sources.
 - A native reviewer signs off the v2 gazetteer (`eval_manifests/content_blocklist.v2.json`)
-  and checks the Tanglish sample before the corpus is frozen.
-- Commit the filled-in spec and the generated manifest.
+  and reads the 500 sampled Tanglish sentences before the corpus goes public.
+- Provenance review of the Tanglish source (see the N3 report §5): only the DravidianCodeMix
+  subset is CC-BY-4.0; the rest are YouTube and Reddit comments under platform terms.
+- Re-run `--verify` after any gazetteer change; the manifest records the filter hash, so a new
+  gazetteer version is a new freeze, not an edit.

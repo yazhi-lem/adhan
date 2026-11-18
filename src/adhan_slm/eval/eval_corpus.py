@@ -208,6 +208,20 @@ def load_content_filter(spec: Spec, base: Path) -> ContentFilter:
         raise EvalCorpusError(f"content_filter {name!r}: {exc}") from exc
 
 
+def _describe_filter(content_filter: ContentFilter, base: Path) -> Optional[Dict[str, Any]]:
+    """Manifest description with a repo-relative path, so the manifest is portable."""
+    if not content_filter.active:
+        return None
+    desc = content_filter.describe()
+    path = desc.get("path")
+    if path:
+        try:
+            desc["path"] = Path(path).resolve().relative_to(base.resolve()).as_posix()
+        except ValueError:
+            pass  # outside the repo: keep the absolute path rather than hide it
+    return desc
+
+
 def build(spec: Spec, base: Path) -> Dict[str, Any]:
     """Build the corpus. Returns ``{"records": [...], "manifest": {...}}``.
 
@@ -271,7 +285,7 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "unicode_normalization": "NFC",
         "spec": spec.to_dict(),
-        "content_filter": content_filter.describe() if content_filter.active else None,
+        "content_filter": _describe_filter(content_filter, base),
         "counts": {
             "total": len(records),
             "per_register": selected,
@@ -349,7 +363,7 @@ def verify(corpus_path: Path, manifest: Dict[str, Any], base: Path) -> List[str]
         problems.append(str(exc))
         return problems
     want_filter = manifest.get("content_filter")
-    got_filter = content_filter.describe() if content_filter.active else None
+    got_filter = _describe_filter(content_filter, base)
     if _filter_signature(got_filter) != _filter_signature(want_filter):
         problems.append("content_filter differs from the manifest version/hash")
     for sid, meta in manifest["inputs"].items():

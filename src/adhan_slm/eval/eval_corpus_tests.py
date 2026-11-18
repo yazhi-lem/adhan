@@ -238,6 +238,15 @@ def test_content_filter_drops_matching_candidates_and_counts_them():
         assert len(desc["sha256"]) == 64
 
 
+def test_content_filter_path_is_repo_relative_in_the_manifest():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, content_filter="blocklist.json")
+        _write_blocklist(base, ["election"])
+        desc = ec.build(spec, base)["manifest"]["content_filter"]
+        assert desc["path"] == "blocklist.json", desc["path"]
+
+
 def test_content_filter_absent_records_no_filter_and_blocks_nothing():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)

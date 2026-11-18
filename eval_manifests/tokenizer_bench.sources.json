@@ -1,0 +1,36 @@
+{
+  "per_register": 500,
+  "seed": 13,
+  "min_chars": 15,
+  "max_chars": 300,
+  "content_filter": "eval_manifests/content_blocklist.v1.json",
+  "sources": [
+    {
+      "id": "thirukkural",
+      "register": "classical",
+      "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
+      "url": "https://github.com/tk120404/thirukkural"
+    },
+    {
+      "id": "wikipedia-ta",
+      "register": "modern",
+      "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)",
+      "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+    },
+    {
+      "id": "tanglish-social",
+      "register": "tanglish",
+      "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "CC-BY-4.0 (dataset card, vishnu-n/Tanglish-Corpus-185k @ 927f5b4)",
+      "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+    }
+  ]
+}

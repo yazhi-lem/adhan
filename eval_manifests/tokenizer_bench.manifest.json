@@ -1,0 +1,119 @@
+{
+  "content_filter": {
+    "categories": [
+      "politics",
+      "violence",
+      "sexual",
+      "abuse"
+    ],
+    "native_review": "pending",
+    "path": "eval_manifests/content_blocklist.v1.json",
+    "sha256": "e3457cc2255e0a0bc2d24d2b30d8847866b724e4574357218156e2ced01f1bca",
+    "version": "v1"
+  },
+  "counts": {
+    "per_register": {
+      "classical": 500,
+      "modern": 500,
+      "tanglish": 500
+    },
+    "per_source": {
+      "tanglish-social": {
+        "blocked": {
+          "abuse": 1833,
+          "politics": 9405,
+          "sexual": 675,
+          "violence": 1703
+        },
+        "documents": 185973,
+        "kept_candidates": 238817,
+        "selected": 500,
+        "sentences": 267040
+      },
+      "thirukkural": {
+        "blocked": {
+          "abuse": 2,
+          "politics": 89,
+          "sexual": 9,
+          "violence": 45
+        },
+        "documents": 1330,
+        "kept_candidates": 8107,
+        "selected": 500,
+        "sentences": 9668
+      },
+      "wikipedia-ta": {
+        "blocked": {
+          "abuse": 581,
+          "politics": 70888,
+          "sexual": 1008,
+          "violence": 10055
+        },
+        "documents": 80326,
+        "kept_candidates": 1406763,
+        "selected": 500,
+        "sentences": 2485012
+      }
+    },
+    "total": 1500
+  },
+  "inputs": {
+    "tanglish-social": {
+      "license": "CC-BY-4.0 (dataset card, vishnu-n/Tanglish-Corpus-185k @ 927f5b4)",
+      "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+      "sha256": "cd1f7d589cf89f6f59be81099dfda928f9e9dd0e47b6c95a3ba0d7df7f2b02bd",
+      "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+    },
+    "thirukkural": {
+      "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
+      "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+      "sha256": "291cf96234db01039aba6deafa85842d77f5d87eaaf817656c598ee39f46640d",
+      "url": "https://github.com/tk120404/thirukkural"
+    },
+    "wikipedia-ta": {
+      "license": "CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)",
+      "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+      "sha256": "78fc0d4d4038fa456609bf48bb1747be5d32fb6f56d801d0c5943844096518e5",
+      "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+    }
+  },
+  "output_sha256": "003a2dfea372b04a35ce9e71adc35130bd5ec3ee8a6fd4736f9ecb363dc9ae42",
+  "schema_version": 1,
+  "spec": {
+    "content_filter": "eval_manifests/content_blocklist.v1.json",
+    "max_chars": 300,
+    "min_chars": 15,
+    "per_register": 500,
+    "seed": 13,
+    "sources": [
+      {
+        "format": "jsonl",
+        "id": "thirukkural",
+        "license": "Kural verses: public domain. Repository data: Apache-2.0 (github.com/tk120404/thirukkural). Embedded M. Varadarasanar commentary is third-party and is not relicensed here; only hashes and counts are committed.",
+        "path": "data/raw/thirukkural/thirukkural_corpus.jsonl",
+        "register": "classical",
+        "text_field": "text",
+        "url": "https://github.com/tk120404/thirukkural"
+      },
+      {
+        "format": "jsonl",
+        "id": "wikipedia-ta",
+        "license": "CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)",
+        "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+        "register": "modern",
+        "text_field": "text",
+        "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+      },
+      {
+        "format": "jsonl",
+        "id": "tanglish-social",
+        "license": "CC-BY-4.0 (dataset card, vishnu-n/Tanglish-Corpus-185k @ 927f5b4)",
+        "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+        "register": "tanglish",
+        "text_field": "text",
+        "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+      }
+    ]
+  },
+  "unicode_normalization": "NFC"
+}
