@@ -269,9 +269,11 @@ def _overall_verdict(verdicts: dict) -> dict:
         (v["swaram_advantage_relative"] for v in verdicts.values()), default=None
     )
     return {
-        "status": "swaram_supported"
-        if weakest_advantage is not None and weakest_advantage >= 0.10
-        else "thesis_not_supported_on_this_sample",
+        "status": (
+            "swaram_supported"
+            if weakest_advantage is not None and weakest_advantage >= 0.10
+            else "thesis_not_supported_on_this_sample"
+        ),
         "swaram_advantage_vs_strongest_baseline": weakest_advantage,
         "per_baseline": verdicts,
     }

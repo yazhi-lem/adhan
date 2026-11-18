@@ -110,9 +110,27 @@ def _xnli(xnli_dir: Path, tok, model, max_train: int, max_test: int) -> dict:
     val = val.iloc[rng.choice(len(val), size=min(2000, len(val)), replace=False)]
     test = test.iloc[rng.choice(len(test), size=min(max_test, len(test)), replace=False)]
 
-    x_train = embed(tok, model, train.premise.tolist(), pairs=(train.premise.tolist(), train.hypothesis.tolist()), label="xnli-train")
-    x_val = embed(tok, model, val.premise.tolist(), pairs=(val.premise.tolist(), val.hypothesis.tolist()), label="xnli-val")
-    x_test = embed(tok, model, test.premise.tolist(), pairs=(test.premise.tolist(), test.hypothesis.tolist()), label="xnli-test")
+    x_train = embed(
+        tok,
+        model,
+        train.premise.tolist(),
+        pairs=(train.premise.tolist(), train.hypothesis.tolist()),
+        label="xnli-train",
+    )
+    x_val = embed(
+        tok,
+        model,
+        val.premise.tolist(),
+        pairs=(val.premise.tolist(), val.hypothesis.tolist()),
+        label="xnli-val",
+    )
+    x_test = embed(
+        tok,
+        model,
+        test.premise.tolist(),
+        pairs=(test.premise.tolist(), test.hypothesis.tolist()),
+        label="xnli-test",
+    )
 
     clf = LogisticRegression(max_iter=2000, C=1.0)
     clf.fit(x_train, train.label.values)
@@ -149,8 +167,13 @@ def _tanglish(path: Path, tok, model, sample: int) -> dict:
     political = [t for t in rows if POLITICAL_RE.search(t)]
     neutral = [t for t in rows if not POLITICAL_RE.search(t)]
     rng = np.random.default_rng(42)
-    political = [political[i] for i in rng.choice(len(political), size=min(sample, len(political)), replace=False)]
-    neutral = [neutral[i] for i in rng.choice(len(neutral), size=min(sample, len(neutral)), replace=False)]
+    political = [
+        political[i]
+        for i in rng.choice(len(political), size=min(sample, len(political)), replace=False)
+    ]
+    neutral = [
+        neutral[i] for i in rng.choice(len(neutral), size=min(sample, len(neutral)), replace=False)
+    ]
     texts = political + neutral
     labels = np.array([1] * len(political) + [0] * len(neutral))
     x = embed(tok, model, texts, max_len=64, label="tanglish")

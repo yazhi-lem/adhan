@@ -240,14 +240,14 @@ def test_structure_invariants_hold_across_a_config_fuzz() -> None:
         params = model.init(jax.random.PRNGKey(0), jnp.ones((1, 4), dtype=jnp.int32))["params"]
 
         block_keys = sorted(k for k in params if k.startswith("block_"))
-        assert block_keys == [f"block_{i}" for i in range(cfg.n_layers)], (
-            f"expected {cfg.n_layers} distinct blocks, got {block_keys}"
-        )
+        assert block_keys == [
+            f"block_{i}" for i in range(cfg.n_layers)
+        ], f"expected {cfg.n_layers} distinct blocks, got {block_keys}"
 
         actual = sum(x.size for x in jax.tree_util.tree_leaves(params))
-        assert actual == cfg.approx_params(), (
-            f"param count mismatch for {cfg}: actual {actual}, formula {cfg.approx_params()}"
-        )
+        assert (
+            actual == cfg.approx_params()
+        ), f"param count mismatch for {cfg}: actual {actual}, formula {cfg.approx_params()}"
 
 
 def test_params_round_trip_through_orbax() -> None:
