@@ -156,6 +156,30 @@ anywhere. Fetching raw sources is a separate step (`scripts/fetch_modern_tamil.p
 modern register, `src/data_scraper/raw_extractors` for the rest). The tests use small
 synthetic fixtures only.
 
+## Native review gate
+
+A code-only corpus cannot be published: a native speaker has to accept the gazetteer and the
+sampled sentences. Two steps, one of which never leaves the machine:
+
+```bash
+python scripts/build_review_packet.py      # data/review/k6_review_packet.md  (text, git-ignored)
+                                           # data/review/k6_review_signoff.json (template)
+# reviewer reads the packet, fills the sign-off, commits it:
+#   eval_manifests/k6_review_signoff.json
+python scripts/check_review_signoff.py     # exits 1 until the review is complete
+```
+
+The packet holds the sampled text and stays in git-ignored `data/review/`. The sign-off holds
+only ids, a SHA-256 per sentence and verdicts, so it is safe to commit. It repeats the corpus
+output hash and the blocklist hash, which makes a review **stale rather than silently wrong**
+if the freeze or the gazetteer changes afterwards.
+
+`check_review_signoff.py` fails closed on: a stale corpus hash, a changed blocklist, a missing
+reviewer name, `native_speaker` unset, a non-ISO review date, an unaccepted gazetteer, missing
+gazetteer terms, unreviewed or extra sentence ids, per-sentence hash drift, `pending` verdicts,
+and any `drop` verdict (which means the freeze must be rebuilt without that sentence). It is
+written to be used as a release gate in CI unchanged.
+
 ## Still needed (not done by code)
 
 - A native reviewer signs off the v2 gazetteer (`eval_manifests/content_blocklist.v2.json`)
