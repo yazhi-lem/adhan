@@ -43,7 +43,15 @@ def main() -> int:
 
     try:
         if args.verify:
-            manifest = json.loads((ROOT / args.manifest).read_text(encoding="utf-8"))
+            manifest_path = ROOT / args.manifest
+            if not manifest_path.exists():
+                print(
+                    f"FAIL: {args.manifest} not found; run the build first "
+                    "(python scripts/build_eval_corpus.py)",
+                    file=sys.stderr,
+                )
+                return 1
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             problems = ec.verify(ROOT / args.out, manifest, ROOT)
             if problems:
                 for p in problems:

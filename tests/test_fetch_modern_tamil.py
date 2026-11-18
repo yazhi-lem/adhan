@@ -23,7 +23,7 @@ def test_pinned_provenance_is_recorded_in_code() -> None:
     assert fetch.DEFAULT_REPO == "wikimedia/wikipedia"
     assert fetch.DEFAULT_CONFIG == "20231101.ta"
     assert len(fetch.DEFAULT_REVISION) == 40
-    assert "CC-BY-SA" in fetch.LICENSE
+    assert "CC BY-SA 4.0" in fetch.LICENSE and "GFDL" in fetch.LICENSE
 
 
 def test_extract_writes_one_jsonl_record_per_article(tmp_path: Path) -> None:
@@ -82,7 +82,10 @@ def test_sha256_file_matches_hashlib(tmp_path: Path) -> None:
 
 def test_parquet_shard_name_matches_the_pinned_layout() -> None:
     """The shard path is derived, not hand-typed, so it cannot drift from the config."""
-    from huggingface_hub import hf_hub_url
+    # huggingface_hub ships with the optional `eval-corpus` extra: skip, do not fail.
+    hf_hub_url = pytest.importorskip(
+        "huggingface_hub", reason="needs the eval-corpus extra"
+    ).hf_hub_url
 
     name = f"{fetch.DEFAULT_CONFIG}/train-{0:05d}-of-00002.parquet"
     url = hf_hub_url(fetch.DEFAULT_REPO, name, revision=fetch.DEFAULT_REVISION, repo_type="dataset")
