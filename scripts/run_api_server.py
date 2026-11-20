@@ -2,18 +2,26 @@
 
 Usage:
     python scripts/run_api_server.py --port 8000 --model adhan-nano
+
+``fastapi`` and ``uvicorn`` are optional (the ``serving`` extra). Importing this module must
+never fail or exit when they are absent: tests import it, and an import-time ``exit()`` used to
+kill pytest collection outright. The dependency is checked when the app is actually built.
 """
 
 import argparse
-from typing import Optional
+import sys
+from typing import Any, Optional
 
-try:
+try:  # pragma: no cover - presence of the optional extra
     import uvicorn
     from fastapi import FastAPI, HTTPException, Request, Response
     from fastapi.responses import JSONResponse
-except ImportError:
-    print("FastAPI and uvicorn required. Install with: pip install fastapi uvicorn")
-    exit(1)
+
+    SERVING_IMPORT_ERROR: Optional[str] = None
+except ImportError as exc:  # pragma: no cover - exercised by the regression test
+    uvicorn = None  # type: ignore[assignment]
+    FastAPI = HTTPException = Request = Response = JSONResponse = None  # type: ignore[assignment]
+    SERVING_IMPORT_ERROR = str(exc)
 
 from adhan_slm.core.logging import configure_root_logger, get_logger
 from adhan_slm.serving.api import (
@@ -26,11 +34,27 @@ from adhan_slm.serving.api import (
 
 logger = get_logger(__name__)
 
+SERVING_HINT = 'pip install -e ".[serving]"'
+
+
+def require_serving_dependencies() -> None:
+    """Raise a clear error when the optional ``serving`` extra is missing.
+
+    Called from :func:`create_app` and :func:`main`, never at import time, so importing this
+    module stays side-effect free.
+    """
+    if SERVING_IMPORT_ERROR is None:
+        return
+    raise ImportError(
+        f"fastapi and uvicorn are required to serve the API ({SERVING_IMPORT_ERROR}). "
+        f"Install them with: {SERVING_HINT}"
+    )
+
 
 def create_app(
     model_name: str = "adhan-nano",
     api: Optional[AdhanInferenceAPI] = None,
-) -> FastAPI:
+) -> Any:
     """Create FastAPI application.
 
     Args:
@@ -39,7 +63,11 @@ def create_app(
 
     Returns:
         FastAPI application instance
+
+    Raises:
+        ImportError: when the ``serving`` extra is not installed.
     """
+    require_serving_dependencies()
     app = FastAPI(
         title="Adhan SLM Inference API",
         description="REST API for Adhan Tamil Small Language Model inference",
@@ -157,8 +185,8 @@ def create_app(
     return app
 
 
-def main():
-    """Main entry point."""
+def main() -> int:
+    """Main entry point. Returns a process exit code instead of calling exit()."""
     parser = argparse.ArgumentParser(description="Run Adhan SLM inference API server")
     parser.add_argument(
         "--model",
@@ -184,6 +212,14 @@ def main():
 
     args = parser.parse_args()
 
+    if SERVING_IMPORT_ERROR is not None:
+        print(
+            f"FastAPI and uvicorn are required to run the API server: {SERVING_IMPORT_ERROR}\n"
+            f"Install them with: {SERVING_HINT}",
+            file=sys.stderr,
+        )
+        return 2
+
     # Configure logging
     configure_root_logger(level=args.log_level.upper())
     logger.info(f"Starting Adhan SLM API server (model: {args.model})")
@@ -199,7 +235,8 @@ def main():
         reload=args.reload,
         log_level=args.log_level.lower(),
     )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

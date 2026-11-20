@@ -111,6 +111,23 @@ pytest tests/integration/train_cpu_*_tests.py -v   # ~3 min (XLA compiles per co
 python -m adhan_slm.training.device_tests          # dtype/backend resolution, <1s
 ```
 
+## Running the tests
+
+```bash
+pip install -e ".[dev]"        # minimum: no fastapi, torch or jax
+pytest -q                      # the whole suite must collect and pass, skipping what needs extras
+pytest -m "not integration"    # what CI's main job runs
+```
+
+Optional extras gate parts of the suite, never collection. `serving` (fastapi/uvicorn) skips the
+API tests, `torch` skips the shard-format tests, `jax` skips training tests, `eval-corpus`
+(pyarrow/huggingface-hub) skips the corpus-fetch tests. If a module ever crashes collection
+instead of skipping, that is a bug: a CI job (`collect-without-extras`) installs `.[dev]` alone
+and runs the suite to catch exactly that (adhan#121).
+
+There is one pytest config, in `pyproject.toml`. Do not add a `pytest.ini`: pytest prefers it
+silently, and the two would drift.
+
 ## Notes
 
 - Run from repository root.

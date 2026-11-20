@@ -40,6 +40,41 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+  # The suite must collect with the *documented* dev setup only. Optional extras (serving,
+  # torch, jax) are absent here on purpose: a module that exits at import time used to kill
+  # collection outright, so the main job never saw it because it installs `.[dev,serving]`.
+  # adhan#121.
+  collect-without-extras:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dev extras only
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Assert the optional extras really are absent
+        run: >
+          python -c "import importlib.util as u;
+          missing = [n for n in ('fastapi', 'torch', 'jax') if u.find_spec(n) is None];
+          assert len(missing) == 3, f'optional extra installed: {missing}';
+          print('extras absent: fastapi, torch, jax')"
+
+      - name: Collect the whole suite (must not INTERNALERROR)
+        run: pytest --collect-only -q
+
+      - name: Run the suite without optional extras
+        run: pytest -q
+
   # The PyTorch trainer's MemmapShardDataset must read the shards packing.py
   # writes. The main test job doesn't install torch, so the dataset test in
   # packing_tests.py would be skipped there; this job installs CPU torch and
