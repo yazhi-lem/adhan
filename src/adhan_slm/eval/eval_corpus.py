@@ -32,6 +32,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
+from adhan_slm.eval.content_filter import NO_FILTER, ContentFilter, ContentFilterError
+
 REGISTERS = ("classical", "modern", "tanglish")
 SCHEMA_VERSION = 1
 
@@ -83,6 +85,8 @@ class Spec:
     seed: int = 13
     min_chars: int = 15
     max_chars: int = 300
+    #: ``"none"`` or a path to a content blocklist, resolved like a source path.
+    content_filter: str = NO_FILTER
 
     @classmethod
     def from_dict(cls, raw: Dict[str, Any]) -> "Spec":
@@ -93,6 +97,7 @@ class Spec:
             seed=int(raw.get("seed", 13)),
             min_chars=int(raw.get("min_chars", 15)),
             max_chars=int(raw.get("max_chars", 300)),
+            content_filter=str(raw.get("content_filter", NO_FILTER)),
         )
         spec.validate()
         return spec
@@ -118,6 +123,7 @@ class Spec:
             "seed": self.seed,
             "min_chars": self.min_chars,
             "max_chars": self.max_chars,
+            "content_filter": self.content_filter,
         }
 
 
@@ -191,6 +197,17 @@ def _read_documents(source: Source, base: Path) -> Iterable[str]:
 # -- build --------------------------------------------------------------------------
 
 
+def load_content_filter(spec: Spec, base: Path) -> ContentFilter:
+    """Resolve and load the spec's content filter, or the inert one when unset."""
+    name = (spec.content_filter or NO_FILTER).strip()
+    if name == NO_FILTER:
+        return ContentFilter.none()
+    try:
+        return ContentFilter.load(_resolve_path(name, base))
+    except ContentFilterError as exc:
+        raise EvalCorpusError(f"content_filter {name!r}: {exc}") from exc
+
+
 def build(spec: Spec, base: Path) -> Dict[str, Any]:
     """Build the corpus. Returns ``{"records": [...], "manifest": {...}}``.
 
@@ -198,12 +215,18 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
     register, then by rank, so the output bytes are identical on every run.
     """
     spec.validate()
+    content_filter = load_content_filter(spec, base)
     seen: Set[str] = set()
-    per_source: Dict[str, Dict[str, int]] = {}
+    per_source: Dict[str, Dict[str, Any]] = {}
     ranked: Dict[str, List[Tuple[str, str, str]]] = {r: [] for r in REGISTERS}
 
     for source in spec.sources:
-        stats = {"documents": 0, "sentences": 0, "kept_candidates": 0}
+        stats: Dict[str, Any] = {
+            "documents": 0,
+            "sentences": 0,
+            "kept_candidates": 0,
+            "blocked": {name: 0 for name in content_filter.category_names()},
+        }
         for doc in _read_documents(source, base):
             stats["documents"] += 1
             for sent in split_sentences(doc):
@@ -213,6 +236,10 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
                 if not script_ok(sent, source.register):
                     continue
                 if sent in seen:
+                    continue
+                category = content_filter.blocked(sent)
+                if category is not None:
+                    stats["blocked"][category] += 1
                     continue
                 seen.add(sent)
                 stats["kept_candidates"] += 1
@@ -244,6 +271,7 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "unicode_normalization": "NFC",
         "spec": spec.to_dict(),
+        "content_filter": content_filter.describe() if content_filter.active else None,
         "counts": {
             "total": len(records),
             "per_register": selected,
@@ -263,9 +291,13 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
     return {"records": records, "manifest": manifest}
 
 
-def _resolve(source: Source, base: Path) -> Path:
-    p = Path(source.path)
+def _resolve_path(path: str, base: Path) -> Path:
+    p = Path(path)
     return p if p.is_absolute() else (base / p).resolve()
+
+
+def _resolve(source: Source, base: Path) -> Path:
+    return _resolve_path(source.path, base)
 
 
 def serialize(records: Sequence[Dict[str, str]]) -> str:
@@ -286,6 +318,21 @@ def shortfalls(manifest: Dict[str, Any]) -> List[str]:
 # -- verify -------------------------------------------------------------------------
 
 
+def _filter_signature(desc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """The part of a content-filter description that must match on verify.
+
+    The stored path is dropped: it is absolute on the machine that built the manifest
+    and may differ in a clean clone, while the version and hash identify the gazetteer.
+    """
+    if not desc:
+        return None
+    return {
+        "version": desc.get("version"),
+        "sha256": desc.get("sha256"),
+        "categories": desc.get("categories"),
+    }
+
+
 def verify(corpus_path: Path, manifest: Dict[str, Any], base: Path) -> List[str]:
     """Check an existing corpus file against its manifest. Returns a list of problems.
 
@@ -296,6 +343,15 @@ def verify(corpus_path: Path, manifest: Dict[str, Any], base: Path) -> List[str]
     if manifest.get("schema_version") != SCHEMA_VERSION:
         problems.append(f"schema_version {manifest.get('schema_version')} != {SCHEMA_VERSION}")
     spec = Spec.from_dict(manifest["spec"])
+    try:
+        content_filter = load_content_filter(spec, base)
+    except EvalCorpusError as exc:
+        problems.append(str(exc))
+        return problems
+    want_filter = manifest.get("content_filter")
+    got_filter = content_filter.describe() if content_filter.active else None
+    if _filter_signature(got_filter) != _filter_signature(want_filter):
+        problems.append("content_filter differs from the manifest version/hash")
     for sid, meta in manifest["inputs"].items():
         src = next((s for s in spec.sources if s.id == sid), None)
         if src is None:
