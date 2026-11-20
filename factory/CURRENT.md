@@ -1,5 +1,7 @@
 # CURRENT — adhan · 2026-11-03
 
+> **Plan reset, 20 Nov 2026:** we are replanning from scratch, so every launch and due date in this doc is TBD (replanning).
+
 > Reset every Monday. Facts only; each number cites its source. The template and rules are in [`README.md`](README.md).
 
 ## 1. Headline
@@ -24,9 +26,9 @@ licence. The other hard blocker is **GPU access** for SFT, distillation, and the
 | Base bake-off | 🟡 | Preliminary CPU smoke: Qwen3-1.7B XNLI **42.0%** (n=50), IndicQA **EM 0.140/F1 0.192** (n=50); 4B/full-GPU run pending (`docs/reports/base_bakeoff_qwen3.md`) | K1 full run, due 5 Nov |
 | SFT v0 | ⚪ | Data ready: Sangam 9,961 train / 1,303 val / 1,146 test, zero poem overlap; grounded QA 971/124/182. No Qwen3 SFT run yet | K2, due 10 Nov |
 | Distillation | ⚪ | Sarvam-M 24B teacher not yet run; no Tamil prompt/verifier pipeline | K3, due 14 Nov |
-| Export / phone | 🔴 | No Qwen3 INT4 GGUF/ONNX build; reference phone not chosen | K4/K5, due 21 Nov |
+| Export / phone | 🔴 | No Qwen3 INT4 GGUF/ONNX build; reference phone not chosen | K4/K5, due TBD (replanning) |
 | Tanglish sanitization | 🟡 | Source scoped: `vishnu-n/Tanglish-Corpus-185k` @ `927f5b4` (CC-BY-4.0); 5.5% keyword-political, 171k neutral candidates. Gazetteer-first plan | K6, due 10 Nov |
-| Safety (Aram) | 🟡 | Stage 1b baseline 0.13, 7 CRITICAL/9 (`docs/reports/aram_report_stage1b.json`); Qwen3 untested | K7, due 21 Nov |
+| Safety (Aram) | 🟡 | Stage 1b baseline 0.13, 7 CRITICAL/9 (`docs/reports/aram_report_stage1b.json`); Qwen3 untested | K7, due TBD (replanning) |
 | Serving | 🟢 | Adhan FastAPI validated against Stage 1b: `/generate` p50 1,757 ms / p95 2,540 ms CPU (`docs/reports/serving_stage1b.json`) | Re-test with Qwen3 endpoint |
 | Research track | 🟡 | Swaram A/B: 0.527 vs Tamil BPE 0.346 → compression thesis unsupported; morphology 5.6–24.2%, gate 30% | Keep as paper, not product gate |
 | CI | 🟢 | 127 passed / 2 skipped (3 Nov); structure-invariant + remat tests added | Keep green |
@@ -61,7 +63,7 @@ licence. The other hard blocker is **GPU access** for SFT, distillation, and the
 
 | # | Blocker | Since | Blocks | Ask / who |
 |---|---|---|---|---|
-| B1 | **No GPU.** SFT, distillation, and Qwen3-4B/24B teacher runs need one | ongoing | K1–K3, 26 Dec | Book a T4/A10 weekend or platform GPU node (`K1`) |
+| B1 | **No GPU.** SFT, distillation, and Qwen3-4B/24B teacher runs need one | ongoing | K1–K3, Kutty v1 (TBD (replanning)) | Book a T4/A10 weekend or platform GPU node (`K1`) |
 | B2 | **Qwen3 Tamil quality unknown** and its tokenizer is 3.75× less efficient than Sarvam-1 | 3 Nov | product base confirmation | Run K1 bake-off now |
 | B3 | **Export path for Qwen3 → INT4 GGUF/ONNX** is untested | 3 Nov | phone demo K4/K5 | Spike export on Qwen3-1.7B |
 | B4 | **Tanglish political filter** has no human-labeled audit | 3 Nov | public eval table K6 | Gazetteer pass + 100-sentence native review |
