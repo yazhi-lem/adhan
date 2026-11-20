@@ -23,7 +23,10 @@ from typing import Any, Dict, List
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-THIRUKKURAL_URL = "https://raw.githubusercontent.com/tk120404/thirukkural/master/thirukkural.json"
+#: Pinned to a commit, not `master`: the corpus must be reproducible byte for byte, and the
+#: same revision is what the frozen eval corpus pins (scripts/build_classical_corpus.py).
+THIRUKKURAL_REVISION = "cf3ff6c5a73c23b4092913156830457caab65fd4"
+THIRUKKURAL_URL = f"https://raw.githubusercontent.com/tk120404/thirukkural/{THIRUKKURAL_REVISION}/thirukkural.json"
 
 
 def fetch_thirukkural_data() -> List[Dict[str, Any]]:

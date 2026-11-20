@@ -1,0 +1,121 @@
+{
+  "corpus": "thirukkural",
+  "n_train_docs": 1197,
+  "n_eval_docs": 133,
+  "fertility_target_tok_per_akshara": 1.15,
+  "note": "Corpus is ~1.3k couplets; large vocabularies partly memorise training words. Tok/akshara below 1 measures merge rate, not a validated 12k vocabulary.",
+  "baselines": [
+    {
+      "name": "Qwen3-1.7B-Base",
+      "tok_per_akshara": 2.016,
+      "role": "product student"
+    },
+    {
+      "name": "Sarvam-1",
+      "tok_per_akshara": 0.538,
+      "role": "licence-rejected"
+    },
+    {
+      "name": "Sarvam-M 24B",
+      "tok_per_akshara": 0.804,
+      "role": "teacher"
+    },
+    {
+      "name": "Tamil-trained BPE",
+      "tok_per_akshara": 0.346,
+      "role": "research baseline"
+    }
+  ],
+  "rows": [
+    {
+      "requested": 1000,
+      "actual": 1000,
+      "byte_fallback": false,
+      "tok_per_akshara": 0.5419385823657372,
+      "tok_per_word": 2.4739489295847306,
+      "unk_rate": 7.651402119438387e-05,
+      "roundtrip": 0.9849624060150376
+    },
+    {
+      "requested": 1000,
+      "actual": 1000,
+      "byte_fallback": true,
+      "tok_per_akshara": 0.6106449699127044,
+      "tok_per_word": 2.7875935001289656,
+      "unk_rate": 0.0,
+      "roundtrip": 1.0
+    },
+    {
+      "requested": 2000,
+      "actual": 2000,
+      "byte_fallback": false,
+      "tok_per_akshara": 0.4446704522982174,
+      "tok_per_word": 2.0299200412690226,
+      "unk_rate": 8.812125484666901e-05,
+      "roundtrip": 0.9849624060150376
+    },
+    {
+      "requested": 2000,
+      "actual": 2000,
+      "byte_fallback": true,
+      "tok_per_akshara": 0.4602932451902704,
+      "tok_per_word": 2.101238070673201,
+      "unk_rate": 0.0,
+      "roundtrip": 1.0
+    },
+    {
+      "requested": 4000,
+      "actual": 4000,
+      "byte_fallback": false,
+      "tok_per_akshara": 0.3855128965731559,
+      "tok_per_word": 1.75986587567707,
+      "unk_rate": 9.707795359673819e-05,
+      "roundtrip": 0.9849624060150376
+    },
+    {
+      "requested": 4000,
+      "actual": 4000,
+      "byte_fallback": true,
+      "tok_per_akshara": 0.3909653360454276,
+      "tok_per_word": 1.7847562548362135,
+      "unk_rate": 0.0,
+      "roundtrip": 1.0
+    },
+    {
+      "requested": 8000,
+      "actual": 8000,
+      "byte_fallback": false,
+      "tok_per_akshara": 0.34372969460688757,
+      "tok_per_word": 1.5691256125870519,
+      "unk_rate": 0.00010458610050724259,
+      "roundtrip": 0.9849624060150376
+    },
+    {
+      "requested": 8000,
+      "actual": 8000,
+      "byte_fallback": true,
+      "tok_per_akshara": 0.3454530044919061,
+      "tok_per_word": 1.5769925199896828,
+      "unk_rate": 0.0,
+      "roundtrip": 1.0
+    },
+    {
+      "requested": 12000,
+      "actual": 12000,
+      "byte_fallback": false,
+      "tok_per_akshara": 0.32821990564172104,
+      "tok_per_word": 1.4983234459633736,
+      "unk_rate": 0.0001076773985140519,
+      "roundtrip": 0.9849624060150376
+    },
+    {
+      "requested": 12000,
+      "actual": 12000,
+      "byte_fallback": true,
+      "tok_per_akshara": 0.32915218803853435,
+      "tok_per_word": 1.5025793139025019,
+      "unk_rate": 0.0,
+      "roundtrip": 1.0
+    }
+  ]
+}
