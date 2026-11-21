@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Generator, Optional
 
 from adhan_slm.core import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, WRONG_SHAPE, log_skipped
 
 logger = get_logger(__name__)
 
@@ -167,7 +168,15 @@ class SangamImporter:
                 for idx, record in enumerate(records):
                     try:
                         yield self._convert_sangam_record(record, idx, json_file.stem)
-                    except (KeyError, ValueError):
+                    except (KeyError, ValueError) as exc:
+                        log_skipped(
+                            self.logger,
+                            "convert sangam record",
+                            reason=WRONG_SHAPE,
+                            path=json_file,
+                            error=exc,
+                            record=idx,
+                        )
                         continue
             except json.JSONDecodeError as e:
                 self.logger.debug(f"Invalid JSON in {json_file}: {e}")
@@ -181,7 +190,15 @@ class SangamImporter:
                         try:
                             record = json.loads(line)
                             yield self._convert_sangam_record(record, line_idx, jsonl_file.stem)
-                        except json.JSONDecodeError:
+                        except json.JSONDecodeError as exc:
+                            log_skipped(
+                                self.logger,
+                                "read sangam line",
+                                reason=MALFORMED_JSON,
+                                path=jsonl_file,
+                                error=exc,
+                                line=line_idx,
+                            )
                             continue
             except Exception as e:
                 self.logger.debug(f"Error processing {jsonl_file}: {e}")

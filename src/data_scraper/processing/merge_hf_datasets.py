@@ -5,6 +5,11 @@ import json
 import sys
 from pathlib import Path
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, log_skipped
+
+logger = get_logger(__name__)
+
 # make local imports work
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -23,7 +28,8 @@ for f in files_to_merge:
             try:
                 obj = json.loads(line)
                 all_records.append(obj)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as exc:
+                log_skipped(logger, "read hf line", reason=MALFORMED_JSON, path=f, error=exc)
                 continue
     print(f"Loaded {f}, {len(all_records)} total records so far")
 

@@ -45,6 +45,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.skip_log import SkipCounter  # noqa: E402
 from adhan_slm.data import corpus as corpus_mod  # noqa: E402
 from adhan_slm.data import packing  # noqa: E402
 from adhan_slm.data.deduplicator import TextDeduplicator  # noqa: E402
@@ -140,9 +141,15 @@ def main() -> None:
     TokCls = _TOKENIZERS[args.tokenizer]
 
     logger.info("[1/6] reading corpus from %s ...", args.corpus)
+    skipped = SkipCounter()
     docs = corpus_mod.read_corpus(
-        args.corpus, line_documents=not args.whole_file_docs, limit=args.limit
+        args.corpus,
+        line_documents=not args.whole_file_docs,
+        limit=args.limit,
+        skipped=skipped,
     )
+    if skipped.total:
+        logger.warning("      reader skipped %s", skipped.summary())
     if not docs:
         sys.exit(f"no documents found under {args.corpus}")
 
@@ -286,6 +293,7 @@ def main() -> None:
         "n_val_documents": len(val_docs),
         "split_seed": args.seed,
         "dedup_threshold": None if args.skip_dedup else args.dedup_threshold,
+        "skipped": skipped.as_dict(),
         "dedup_stats": dedup_stats,
         "pii_level": args.pii_level,
         "pii_stats": pii_stats,

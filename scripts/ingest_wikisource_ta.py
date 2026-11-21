@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.data.corpus_hygiene import tamil_ratio as _tamil_ratio  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -43,10 +44,8 @@ WS_RE = re.compile(r"[ \t]+")
 
 
 def tamil_ratio(text: str) -> float:
-    clean = "".join(text.split())
-    if not clean:
-        return 0.0
-    return len(TAMIL_RANGE.findall(clean)) / len(clean)
+    """Share of Tamil characters over non-whitespace characters (canonical: adhan#125)."""
+    return _tamil_ratio(text)
 
 
 def api_get(params: dict, retries: int = 4) -> dict:

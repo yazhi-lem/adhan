@@ -29,7 +29,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core import TAMIL_HASHTAGS
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.skip_log import CONVERSION_FAILED, SOURCE_FAILED, log_skipped  # noqa: E402
+
+logger = get_logger(__name__)
 
 
 class TamilCorpusScraper:
@@ -459,8 +462,9 @@ class TamilCorpusScraper:
                 for loc in root.findall(".//loc"):
                     if loc.text and loc.text.strip() not in found_urls:
                         found_urls.append(loc.text.strip())
-            except ET.ParseError:
-                # last-resort: regex
+            except ET.ParseError as exc:
+                # last-resort: regex. Not fatal, but the fallback is worth recording.
+                log_skipped(logger, "parse sitemap xml", reason=SOURCE_FAILED, error=exc, level=10)
                 txt = content.decode("utf-8", errors="ignore")
                 for m in re.findall(r"<loc>(.*?)</loc>", txt, flags=re.I):
                     if m.strip() not in found_urls:
@@ -480,10 +484,14 @@ class TamilCorpusScraper:
                                 if r2.status_code == 200:
                                     visited_sitemaps.add(s)
                                     parse_sitemap(r2.content)
-                            except Exception:
+                            except Exception as exc:  # noqa: BLE001 - try the next sitemap
+                                log_skipped(
+                                    logger, "parse nested sitemap", reason=SOURCE_FAILED, error=exc
+                                )
                                 continue
                     break
-            except Exception:
+            except Exception as exc:  # noqa: BLE001 - try the next candidate
+                log_skipped(logger, "parse sitemap", reason=SOURCE_FAILED, error=exc)
                 continue
 
         return list(dict.fromkeys(found_urls))
@@ -532,7 +540,8 @@ class TamilCorpusScraper:
                 allowed = True
                 try:
                     allowed = rp.can_fetch("*", u)
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - fail open, but record it
+                    log_skipped(logger, "check robots.txt", reason=SOURCE_FAILED, path=u, error=exc)
                     allowed = True
                 if not allowed:
                     logger.info(f"Skipping disallowed by robots.txt: {u}")
@@ -630,7 +639,8 @@ class TamilCorpusScraper:
                 allowed = True
                 try:
                     allowed = rp.can_fetch("*", u)
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - fail open, but record it
+                    log_skipped(logger, "check robots.txt", reason=SOURCE_FAILED, path=u, error=exc)
                     allowed = True
                 if not allowed:
                     logger.info(f"Skipping PDF disallowed by robots.txt: {u}")
@@ -724,7 +734,8 @@ class TamilCorpusScraper:
             if isinstance(url, bytes):
                 try:
                     url = url.decode("utf-8", errors="ignore")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - str() is the fallback
+                    log_skipped(logger, "decode url", reason=CONVERSION_FAILED, error=exc)
                     url = str(url)
             if url is None:
                 url = ""

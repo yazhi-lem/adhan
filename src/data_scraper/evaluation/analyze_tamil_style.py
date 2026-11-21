@@ -9,6 +9,11 @@ import json
 import re
 from pathlib import Path
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, log_skipped
+
+logger = get_logger(__name__)
+
 IN_FILE = Path("data/pre_training/tamil_texts/all_sentences.jsonl")
 
 records = []
@@ -17,7 +22,8 @@ with IN_FILE.open("r", encoding="utf-8") as fh:
         try:
             obj = json.loads(line)
             records.append(obj)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 - one bad line must not stop the scan
+            log_skipped(logger, "read corpus line", reason=MALFORMED_JSON, error=exc)
             continue
 
 print(f"Total: {len(records)} sentences\n")

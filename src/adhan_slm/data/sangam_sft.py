@@ -21,7 +21,11 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from adhan_slm import protocol as p
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import UNREADABLE_FILE, log_skipped
 from adhan_slm.data.sangam_tinai import canonical_tinai, load_canon
+
+logger = get_logger(__name__)
 
 #: Romanised corpus work id -> canonical Tamil work name used in citations.
 WORK_TAMIL: Dict[str, str] = {
@@ -121,7 +125,8 @@ def load_open_sangam(open_sangam_root: str | Path | None) -> Dict[str, dict]:
             continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as exc:
+            log_skipped(logger, "read sangam source", reason=UNREADABLE_FILE, path=path, error=exc)
             continue
         if not isinstance(data, list):
             continue

@@ -24,8 +24,13 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import UNREADABLE_FILE, log_skipped
+
 ROOT_DIR = Path(__file__).resolve().parents[2]
 LOGS_DIR = ROOT_DIR / "logs"
+
+logger = get_logger(__name__)
 
 
 def setup_cli_logging(verbose: bool = False, trace: bool = False) -> Path:
@@ -56,8 +61,8 @@ def setup_cli_logging(verbose: bool = False, trace: bool = False) -> Path:
         if latest_link.is_symlink() or latest_link.exists():
             latest_link.unlink()
         latest_link.symlink_to(log_file.name)
-    except Exception:
-        pass
+    except Exception as exc:  # noqa: BLE001 - the symlink is a convenience, not the log itself
+        log_skipped(logger, "refresh latest-log symlink", reason=UNREADABLE_FILE, error=exc)
 
     return log_file
 

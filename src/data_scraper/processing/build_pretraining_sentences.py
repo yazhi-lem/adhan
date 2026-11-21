@@ -30,8 +30,18 @@ from typing import Dict, List
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.skip_log import (  # noqa: E402
+    MALFORMED_JSON,
+    SOURCE_FAILED,
+    UNREADABLE_FILE,
+    log_skipped,
+)
+
+logger = get_logger(__name__)
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core import TAMIL_HASHTAGS
+from src.core import TAMIL_HASHTAGS  # noqa: E402 - needs the sys.path bootstrap above
 
 SEED = 42
 random.seed(SEED)
@@ -66,24 +76,24 @@ def collect_candidates(
             texts = scraper.scrape_wikipedia()
             for t in texts:
                 candidates.append({"text": t, "source": "wikipedia", "url": None})
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 - one source must not kill the build
+            log_skipped(logger, "scrape wikipedia", reason=SOURCE_FAILED, error=exc)
 
     if "literature" in sources:
         try:
             texts = scraper.scrape_tamil_literature_sites()
             for t in texts:
                 candidates.append({"text": t, "source": "literature", "url": None})
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 - one source must not kill the build
+            log_skipped(logger, "scrape literature", reason=SOURCE_FAILED, error=exc)
 
     if "news" in sources:
         try:
             texts = scraper.scrape_tamil_news_sites()
             for t in texts:
                 candidates.append({"text": t, "source": "news", "url": None})
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 - one source must not kill the build
+            log_skipped(logger, "scrape news", reason=SOURCE_FAILED, error=exc)
 
     if "social" in sources:
         try:
@@ -91,8 +101,8 @@ def collect_candidates(
             texts = scraper.scrape_social_media(hashtags)
             for t in texts:
                 candidates.append({"text": t, "source": "social", "url": None})
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 - one source must not kill the build
+            log_skipped(logger, "scrape social", reason=SOURCE_FAILED, error=exc)
 
     if "local" in sources:
         # scan pdf_texts, projectmadurai_manifests, raw_html as fallback
@@ -103,7 +113,8 @@ def collect_candidates(
             for p in pdir.rglob("*.txt"):
                 try:
                     raw = p.read_text(encoding="utf-8", errors="ignore")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "read pdf text", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
                 if raw and len(raw) > 50:
                     candidates.append({"text": raw, "source": "local_pdf", "url": str(p)})
@@ -113,14 +124,22 @@ def collect_candidates(
             for p in list(mdir.rglob("*.txt")) + list(mdir.rglob("*.jsonl")):
                 try:
                     txt = p.read_text(encoding="utf-8", errors="ignore")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "read manifest", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
                 if p.suffix == ".jsonl":
                     for line in txt.splitlines():
                         try:
                             obj = json.loads(line)
                             t = obj.get("text") or ""
-                        except Exception:
+                        except Exception as exc:  # noqa: BLE001 - keep reading the file
+                            log_skipped(
+                                logger,
+                                "read manifest line",
+                                reason=MALFORMED_JSON,
+                                path=p,
+                                error=exc,
+                            )
                             continue
                         if t and len(t) > 40:
                             candidates.append(
@@ -138,7 +157,8 @@ def collect_candidates(
                     t = scraper._extract_text_from_html(html)
                     if t and len(t) > 40:
                         candidates.append({"text": t, "source": "local_html", "url": str(p)})
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "extract html", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
 
     return candidates[: max(1, max_articles)]

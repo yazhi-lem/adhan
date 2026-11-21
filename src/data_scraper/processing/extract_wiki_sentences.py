@@ -25,16 +25,26 @@ from typing import Dict, List
 from tamil_corpus_scraper import TamilCorpusScraper
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
 from src.core import TAMIL_HASHTAGS
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.skip_log import (  # noqa: E402
+    MALFORMED_JSON,
+    SOURCE_FAILED,
+    UNREADABLE_FILE,
+    log_skipped,
+)
+
+logger = get_logger(__name__)
 
 SENT_SPLIT_RE = re.compile(r"[\n\.!?।]+")
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    """SHA-256 of ``s`` as hex (canonical: adhan#125)."""
+    return _sha256_hex(s)
 
 
 def split_sentences(text: str) -> List[str]:
@@ -81,7 +91,8 @@ def collect_articles(
             txt = scraper._scrape_wikipedia_article(url)
             if txt:
                 articles.append({"url": url, "text": txt})
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 - one article must not stop the crawl
+            log_skipped(logger, "scrape article", reason=SOURCE_FAILED, path=url, error=exc)
             continue
         if len(articles) >= max_articles:
             break
@@ -137,7 +148,8 @@ def main():
                     break
                 try:
                     raw = p.read_text(encoding="utf-8", errors="ignore")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "read file", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
                 if not raw.strip():
                     continue
@@ -157,7 +169,8 @@ def main():
                     break
                 try:
                     txt = p.read_text(encoding="utf-8", errors="ignore")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "read file", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
                 if p.suffix == ".jsonl":
                     for line in txt.splitlines():
@@ -165,7 +178,14 @@ def main():
                             break
                         try:
                             obj = json.loads(line)
-                        except Exception:
+                        except Exception as exc:  # noqa: BLE001 - keep reading the file
+                            log_skipped(
+                                logger,
+                                "read jsonl line",
+                                reason=MALFORMED_JSON,
+                                path=p,
+                                error=exc,
+                            )
                             continue
                         t = obj.get("text") or ""
                         cleaned = scraper._clean_tamil_text(t)
@@ -187,7 +207,8 @@ def main():
                     txt = scraper._extract_text_from_html(html)
                     if txt and scraper._is_tamil_text(txt) and len(txt) > 40:
                         candidates.append({"url": str(p), "text": txt})
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - one file must not stop the scan
+                    log_skipped(logger, "extract html", reason=UNREADABLE_FILE, path=p, error=exc)
                     continue
 
         logger.info(f"Collected {len(candidates)} local text chunks for fallback")

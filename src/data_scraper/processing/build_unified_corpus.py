@@ -16,7 +16,10 @@ from typing import Dict, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.core.skip_log import MALFORMED_JSON, SOURCE_FAILED, log_skipped  # noqa: E402
+
+logger = get_logger(__name__)
 
 
 def sentence_split(text: str) -> List[str]:
@@ -69,8 +72,8 @@ def load_social_sources(data_dir: Path) -> List[Dict]:
                                 "url": None,
                             }
                         )
-                except Exception:
-                    pass
+                except Exception as exc:  # noqa: BLE001 - one source must not kill the build
+                    log_skipped(logger, "load social corpus", reason=SOURCE_FAILED, error=exc)
 
     return records
 
@@ -172,8 +175,14 @@ def load_existing_corpus(corpus_file: Path) -> List[Dict]:
                 try:
                     obj = json.loads(line)
                     records.append(obj)
-                except Exception:
-                    pass
+                except Exception as exc:  # noqa: BLE001 - malformed line, keep reading
+                    log_skipped(
+                        logger,
+                        "read corpus line",
+                        reason=MALFORMED_JSON,
+                        path=corpus_file,
+                        error=exc,
+                    )
     return records
 
 
