@@ -91,27 +91,119 @@ A source whose `license`, `url` or `path` is empty or starts with `TODO` is reje
 unlicensed source cannot enter the public set. Keep unlicensed text out of the committed
 manifest and out of any public repo.
 
+## Sources (pinned)
+
+`eval_manifests/tokenizer_bench.sources.json` is committed and names three sources, one per
+register. Every one is pinned so a rebuild matches the manifest hash:
+
+| Register | Source | Pin | Licence |
+|---|---|---|---|
+| `classical` | Thirukkural verses only (`tk120404/thirukkural` @ `cf3ff6c`) | file SHA-256 | **Public domain** — `scripts/build_classical_corpus.py` keeps `Line1`/`Line2` and drops every commentary field |
+| `modern` | `wikimedia/wikipedia`, config `20231101.ta` | revision `b04c8d1` + file SHA-256 | CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL |
+| `tanglish` | `vishnu-n/Tanglish-Corpus-185k` | revision `927f5b4` + file SHA-256 | DravidianCodeMix subset (~32k rows) CC-BY-4.0; the rest are YouTube/Reddit comments under platform terms |
+
+Why these three: [`reports/k6_modern_tamil_source.md`](reports/k6_modern_tamil_source.md) and
+[`reports/n3_tanglish_source_scope.md`](reports/n3_tanglish_source_scope.md).
+
 ## Using it
 
 ```bash
-cp eval_manifests/tokenizer_bench.sources.example.json eval_manifests/tokenizer_bench.sources.json
-# fill in the real sources, licences and URLs, then:
-python scripts/build_eval_corpus.py
+pip install -e ".[eval-corpus]"        # pyarrow, only for the dump-backed fetch
+python scripts/build_classical_corpus.py   # data/raw/thirukkural/thirukkural_verses.jsonl
+python scripts/fetch_modern_tamil.py     # data/raw/modern_tamil/wikipedia_ta.jsonl
+python scripts/build_eval_corpus.py      # freeze + write the manifest
 python scripts/build_eval_corpus.py --verify
 ```
+
+The Tanglish raw file is fetched separately from the pinned HuggingFace resolve URL. `data/` is git-ignored, so a clean clone must fetch the three raw inputs before
+`--verify` can pass; the manifest records the SHA-256 each one must have.
 
 If a register has fewer usable sentences than `per_register`, the build fails. Add sources,
 lower `per_register`, or pass `--allow-shortfall`.
 
+### Current freeze
+
+`eval_manifests/tokenizer_bench.manifest.json` was built from the sources above: 1,500 sentences
+(500 per register), output SHA-256 `24a66b9d…`, `--verify` clean. Candidates that survived the
+rules: classical 2,634 · modern 1,420,253 · tanglish 239,551. The content filter vetoed 4
+(classical), 65,796 (modern) and 12,761 (tanglish) candidates.
+
+**What that does and does not mean.** The filter is a keyword gazetteer: it removes rows that name
+parties, elections, public figures, violence, sexual content or profanity, and the sample is built
+from what remains. It cannot remove paraphrase, code-switching, implication or an unlisted name,
+so the honest claim is *"the sample contains no row a keyword gazetteer recognises as political or
+abusive"* — not "the sample is clean". That gap is what the native review below exists to close.
+
+**Identifier masking.** Scraped Tanglish rows carry YouTube handles, links and hashtags, some of
+them real names. The spec sets `"mask": ["url", "handle", "hashtag"]`, so those are replaced with
+`<url>`, `<user>` and `<hashtag>` *before* ranking and sampling, and the manifest records how many
+of each were replaced per source (tanglish: 9,272 handles, 3,551 hashtags, 1 URL). The committed
+sample contains no handles, links or hashtags.
+
+**Attribution.** The modern source keeps `title`, `url`, `page_id` and the dump `snapshot` in every
+record, so a sentence can be traced to the page and dump date it came from if the sample is ever
+published.
+
+The classical source carries **verses only**. The convenient Thirukkural files on the web bundle
+the verses with 20th-century commentaries whose rights belong to their authors, which would make a
+public benchmark need a legal opinion. `scripts/build_classical_corpus.py` keeps the two verse
+lines and drops the rest, so the register is unambiguously public domain.
+
 ## Data handling
 
 The builder is pure Python (standard library), does no network I/O and sends no text
-anywhere. Fetching raw sources is a separate step (`src/data_scraper/raw_extractors`). The
-tests use small synthetic fixtures only.
+anywhere. Fetching raw sources is a separate step (`scripts/fetch_modern_tamil.py` for the
+modern register, `src/data_scraper/raw_extractors` for the rest). The tests use small
+synthetic fixtures only.
+
+## Native review gate
+
+A code-only corpus cannot be published: a native speaker has to accept the gazetteer and the
+sampled sentences. Two steps, one of which never leaves the machine:
+
+```bash
+python scripts/build_review_packet.py      # data/review/k6_review_packet.md  (text, git-ignored)
+                                           # data/review/k6_review_signoff.json (template)
+# reviewer reads the packet, fills the sign-off, commits it:
+#   eval_manifests/k6_review_signoff.json
+python scripts/check_review_signoff.py     # exits 1 until the review is complete
+```
+
+The packet holds the sampled text and stays in git-ignored `data/review/`. The sign-off holds only
+ids, a SHA-256 per sentence and verdicts, so it is safe to commit.
+
+### Order of operations for a release
+
+The gazetteer has to be accepted *before* the freeze it belongs to can be signed, so the sequence
+is:
+
+1. Reviewer reads the packet and marks the gazetteer verdict plus any missing terms.
+2. Maintainer records that acceptance by replacing `"native_review": "pending"` in the blocklist
+   file with the reviewer and date, then rebuilds: `python scripts/build_eval_corpus.py`.
+   The sentence text is unchanged, so the sample hash and every per-sentence hash stay valid.
+3. Reviewer fills the sign-off's per-sentence verdicts over that freeze.
+4. `python scripts/check_review_signoff.py` exits 0.
+
+### What the gate checks
+
+It re-hashes what is on disk rather than trusting the manifest, then fails closed on: a corpus
+that does not match the manifest, a gazetteer that does not match the manifest's record, a
+gazetteer still marked `native_review: pending`, a missing `reviewed_by`, `native_speaker` that is
+not the boolean `true`, a non-ISO or future `reviewed_at`, a gazetteer verdict that is not `keep`,
+listed missing terms, unreviewed or extra ids, entries that are not objects with `sha256` and
+`verdict`, per-sentence hash drift, `pending` verdicts, and any `drop` verdict (which means the
+freeze must be rebuilt without that sentence).
+
+`.github/workflows/release.yml` runs exactly this as the release step — it fetches the three pinned
+sources, rebuilds the corpus, verifies it against the manifest, then runs the gate. It is triggered
+by a `v*` tag or manually, not by every PR, so a PR that does not touch the sign-off is not blocked
+by its absence.
 
 ## Still needed (not done by code)
 
-- Choose and license-check the modern and Tanglish sources.
 - A native reviewer signs off the v2 gazetteer (`eval_manifests/content_blocklist.v2.json`)
-  and checks the Tanglish sample before the corpus is frozen.
-- Commit the filled-in spec and the generated manifest.
+  and reads the 500 sampled Tanglish sentences before the corpus goes public.
+- Provenance review of the Tanglish source (see the N3 report §5): only the DravidianCodeMix
+  subset is CC-BY-4.0; the rest are YouTube and Reddit comments under platform terms.
+- Re-run `--verify` after any gazetteer change; the manifest records the filter hash, so a new
+  gazetteer version is a new freeze, not an edit.

@@ -87,6 +87,8 @@ class Spec:
     max_chars: int = 300
     #: ``"none"`` or a path to a content blocklist, resolved like a source path.
     content_filter: str = NO_FILTER
+    #: Identifier kinds to mask before sampling; empty keeps source text verbatim.
+    mask: Sequence[str] = ()
 
     @classmethod
     def from_dict(cls, raw: Dict[str, Any]) -> "Spec":
@@ -98,6 +100,7 @@ class Spec:
             min_chars=int(raw.get("min_chars", 15)),
             max_chars=int(raw.get("max_chars", 300)),
             content_filter=str(raw.get("content_filter", NO_FILTER)),
+            mask=tuple(str(k) for k in raw.get("mask", ())),
         )
         spec.validate()
         return spec
@@ -115,6 +118,9 @@ class Spec:
             raise EvalCorpusError(f"no source for register(s): {', '.join(missing)}")
         if self.per_register < 1 or self.min_chars < 1 or self.max_chars <= self.min_chars:
             raise EvalCorpusError("per_register/min_chars/max_chars are inconsistent")
+        unknown = [k for k in self.mask if k not in MASK_PATTERNS]
+        if unknown:
+            raise EvalCorpusError(f"unknown mask kind(s) {unknown}; expected one of {MASK_KINDS}")
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -124,6 +130,7 @@ class Spec:
             "min_chars": self.min_chars,
             "max_chars": self.max_chars,
             "content_filter": self.content_filter,
+            "mask": list(self.mask),
         }
 
 
@@ -138,6 +145,35 @@ def normalize(text: str) -> str:
 def split_sentences(text: str) -> List[str]:
     """Split a document into sentence-like lines (full stop, ``?``, ``!``, ``।``, newline)."""
     return [p for p in (normalize(x) for x in _SENT_SPLIT.split(text)) if p]
+
+
+#: Placeholders for masked personal identifiers. Masking runs before ranking, so it is part of
+#: the sample's identity rather than a display-time cosmetic.
+MASK_PATTERNS: Dict[str, "re.Pattern[str]"] = {
+    "url": re.compile(r"\bhttps?://\S+|\bwww\.\S+", re.IGNORECASE),
+    "handle": re.compile(r"(?<![\w@])@[A-Za-z0-9_.]{2,}"),
+    "hashtag": re.compile(r"(?<![\w#])#[\w\u0B80-\u0BFF]{2,}"),
+}
+MASK_PLACEHOLDERS = {"url": "<url>", "handle": "<user>", "hashtag": "<hashtag>"}
+#: Every mask kind, in the order they are applied.
+MASK_KINDS = tuple(MASK_PATTERNS)
+
+
+def mask_identifiers(text: str, kinds: Iterable[str] = MASK_KINDS) -> Tuple[str, Dict[str, int]]:
+    """Replace URLs, ``@handles`` and ``#hashtags`` with placeholders.
+
+    Scraped Tanglish rows carry YouTube handles, links and hashtags; several are real names.
+    Masking keeps the sentence usable for tokenization while keeping personal identifiers out of
+    the frozen sample. Returns the masked text and how many of each kind were replaced.
+    """
+    counts = {kind: 0 for kind in kinds}
+    for kind in kinds:
+        if kind not in MASK_PATTERNS:
+            raise EvalCorpusError(f"unknown mask kind {kind!r}; expected one of {MASK_KINDS}")
+        pattern = MASK_PATTERNS[kind]
+        text, hits = pattern.subn(MASK_PLACEHOLDERS[kind], text)
+        counts[kind] += hits
+    return _WS.sub(" ", text).strip(), counts
 
 
 def script_ok(sentence: str, register: str) -> bool:
@@ -208,6 +244,20 @@ def load_content_filter(spec: Spec, base: Path) -> ContentFilter:
         raise EvalCorpusError(f"content_filter {name!r}: {exc}") from exc
 
 
+def _describe_filter(content_filter: ContentFilter, base: Path) -> Optional[Dict[str, Any]]:
+    """Manifest description with a repo-relative path, so the manifest is portable."""
+    if not content_filter.active:
+        return None
+    desc = content_filter.describe()
+    path = desc.get("path")
+    if path:
+        try:
+            desc["path"] = Path(path).resolve().relative_to(base.resolve()).as_posix()
+        except ValueError:
+            pass  # outside the repo: keep the absolute path rather than hide it
+    return desc
+
+
 def build(spec: Spec, base: Path) -> Dict[str, Any]:
     """Build the corpus. Returns ``{"records": [...], "manifest": {...}}``.
 
@@ -225,12 +275,17 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
             "documents": 0,
             "sentences": 0,
             "kept_candidates": 0,
+            "masked": {kind: 0 for kind in spec.mask},
             "blocked": {name: 0 for name in content_filter.category_names()},
         }
         for doc in _read_documents(source, base):
             stats["documents"] += 1
             for sent in split_sentences(doc):
                 stats["sentences"] += 1
+                if spec.mask:
+                    sent, hits = mask_identifiers(sent, spec.mask)
+                    for kind, n in hits.items():
+                        stats["masked"][kind] += n
                 if not (spec.min_chars <= len(sent) <= spec.max_chars):
                     continue
                 if not script_ok(sent, source.register):
@@ -271,7 +326,7 @@ def build(spec: Spec, base: Path) -> Dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "unicode_normalization": "NFC",
         "spec": spec.to_dict(),
-        "content_filter": content_filter.describe() if content_filter.active else None,
+        "content_filter": _describe_filter(content_filter, base),
         "counts": {
             "total": len(records),
             "per_register": selected,
@@ -340,6 +395,11 @@ def verify(corpus_path: Path, manifest: Dict[str, Any], base: Path) -> List[str]
     output hash and the bytes on disk. An empty list means everything matches.
     """
     problems: List[str] = []
+    if not corpus_path.exists():
+        return [
+            f"{corpus_path} does not exist; run the build first "
+            "(python scripts/build_eval_corpus.py)"
+        ]
     if manifest.get("schema_version") != SCHEMA_VERSION:
         problems.append(f"schema_version {manifest.get('schema_version')} != {SCHEMA_VERSION}")
     spec = Spec.from_dict(manifest["spec"])
@@ -349,7 +409,7 @@ def verify(corpus_path: Path, manifest: Dict[str, Any], base: Path) -> List[str]
         problems.append(str(exc))
         return problems
     want_filter = manifest.get("content_filter")
-    got_filter = content_filter.describe() if content_filter.active else None
+    got_filter = _describe_filter(content_filter, base)
     if _filter_signature(got_filter) != _filter_signature(want_filter):
         problems.append("content_filter differs from the manifest version/hash")
     for sid, meta in manifest["inputs"].items():

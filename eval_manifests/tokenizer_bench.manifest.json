@@ -1,0 +1,139 @@
+{
+  "content_filter": {
+    "categories": [
+      "politics",
+      "violence",
+      "sexual",
+      "abuse"
+    ],
+    "native_review": "pending",
+    "path": "eval_manifests/content_blocklist.v2.json",
+    "sha256": "ae2cc5ac6eb004325c0d83809c78a7db441ae89a2ef5aea9ad7c2b8ab02aff41",
+    "version": "v2"
+  },
+  "counts": {
+    "per_register": {
+      "classical": 500,
+      "modern": 500,
+      "tanglish": 500
+    },
+    "per_source": {
+      "tanglish-social": {
+        "blocked": {
+          "abuse": 2071,
+          "politics": 9135,
+          "sexual": 358,
+          "violence": 1197
+        },
+        "documents": 185973,
+        "kept_candidates": 239551,
+        "masked": {
+          "handle": 9272,
+          "hashtag": 3551,
+          "url": 1
+        },
+        "selected": 500,
+        "sentences": 267040
+      },
+      "thirukkural": {
+        "blocked": {
+          "abuse": 0,
+          "politics": 1,
+          "sexual": 0,
+          "violence": 3
+        },
+        "documents": 1330,
+        "kept_candidates": 2634,
+        "masked": {
+          "handle": 0,
+          "hashtag": 0,
+          "url": 0
+        },
+        "selected": 500,
+        "sentences": 2660
+      },
+      "wikipedia-ta": {
+        "blocked": {
+          "abuse": 209,
+          "politics": 55603,
+          "sexual": 938,
+          "violence": 9046
+        },
+        "documents": 80326,
+        "kept_candidates": 1420253,
+        "masked": {
+          "handle": 42,
+          "hashtag": 1156,
+          "url": 5169
+        },
+        "selected": 500,
+        "sentences": 2485012
+      }
+    },
+    "total": 1500
+  },
+  "inputs": {
+    "tanglish-social": {
+      "license": "DravidianCodeMix subset (~32k rows) CC-BY-4.0; the remaining rows are YouTube and Reddit comments under platform terms. Publishing any of it is a separate decision; only hashes and counts are committed here.",
+      "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+      "sha256": "cd1f7d589cf89f6f59be81099dfda928f9e9dd0e47b6c95a3ba0d7df7f2b02bd",
+      "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+    },
+    "thirukkural": {
+      "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
+      "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
+      "sha256": "1af600fe10c3dca8d056311728688aa82ceb8321ae0568755436f63a8e982d15",
+      "url": "https://github.com/tk120404/thirukkural"
+    },
+    "wikipedia-ta": {
+      "license": "CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL (Wikimedia dump terms)",
+      "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+      "sha256": "b64d429e8c40a2bf100a55e0c932d21da7f7e6a9363ff2704c97c4eb03869e0d",
+      "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+    }
+  },
+  "output_sha256": "24a66b9d6462c37e23f829cab94bfc0476756176e157be1925cc8502bc5293d1",
+  "schema_version": 1,
+  "spec": {
+    "content_filter": "eval_manifests/content_blocklist.v2.json",
+    "mask": [
+      "url",
+      "handle",
+      "hashtag"
+    ],
+    "max_chars": 300,
+    "min_chars": 15,
+    "per_register": 500,
+    "seed": 13,
+    "sources": [
+      {
+        "format": "jsonl",
+        "id": "thirukkural",
+        "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
+        "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
+        "register": "classical",
+        "text_field": "text",
+        "url": "https://github.com/tk120404/thirukkural"
+      },
+      {
+        "format": "jsonl",
+        "id": "wikipedia-ta",
+        "license": "CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL (Wikimedia dump terms)",
+        "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+        "register": "modern",
+        "text_field": "text",
+        "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+      },
+      {
+        "format": "jsonl",
+        "id": "tanglish-social",
+        "license": "DravidianCodeMix subset (~32k rows) CC-BY-4.0; the remaining rows are YouTube and Reddit comments under platform terms. Publishing any of it is a separate decision; only hashes and counts are committed here.",
+        "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+        "register": "tanglish",
+        "text_field": "text",
+        "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+      }
+    ]
+  },
+  "unicode_normalization": "NFC"
+}
