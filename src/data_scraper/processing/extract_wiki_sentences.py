@@ -25,6 +25,7 @@ from typing import Dict, List
 from tamil_corpus_scraper import TamilCorpusScraper
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
 from src.core import TAMIL_HASHTAGS
 
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +35,8 @@ SENT_SPLIT_RE = re.compile(r"[\n\.!?।]+")
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    """SHA-256 of ``s`` as hex (canonical: adhan#125)."""
+    return _sha256_hex(s)
 
 
 def split_sentences(text: str) -> List[str]:

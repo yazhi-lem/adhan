@@ -16,19 +16,21 @@ Example:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
+
 OUT_DIR = Path("data/raw/pdf_books_manifests")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8", errors="ignore")).hexdigest()
+    """SHA-256 of ``s``, ignoring undecodable bytes (canonical: adhan#125)."""
+    return _sha256_hex(s, errors="ignore")
 
 
 def looks_like_tscii(s: str) -> bool:
