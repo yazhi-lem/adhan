@@ -99,8 +99,8 @@ register. Every one is pinned so a rebuild matches the manifest hash:
 | Register | Source | Pin | Licence |
 |---|---|---|---|
 | `classical` | Thirukkural verses only (`tk120404/thirukkural` @ `cf3ff6c`) | file SHA-256 | **Public domain** — `scripts/build_classical_corpus.py` keeps `Line1`/`Line2` and drops every commentary field |
-| `modern` | `wikimedia/wikipedia`, config `20231101.ta` | revision `b04c8d1` + file SHA-256 | CC-BY-SA-3.0 + GFDL |
-| `tanglish` | `vishnu-n/Tanglish-Corpus-185k` | revision `927f5b4` + file SHA-256 | CC-BY-4.0 |
+| `modern` | `wikimedia/wikipedia`, config `20231101.ta` | revision `b04c8d1` + file SHA-256 | CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL |
+| `tanglish` | `vishnu-n/Tanglish-Corpus-185k` | revision `927f5b4` + file SHA-256 | DravidianCodeMix subset (~32k rows) CC-BY-4.0; the rest are YouTube/Reddit comments under platform terms |
 
 Why these three: [`reports/k6_modern_tamil_source.md`](reports/k6_modern_tamil_source.md) and
 [`reports/n3_tanglish_source_scope.md`](reports/n3_tanglish_source_scope.md).
@@ -115,8 +115,7 @@ python scripts/build_eval_corpus.py      # freeze + write the manifest
 python scripts/build_eval_corpus.py --verify
 ```
 
-The Tanglish raw file is fetched separately (Thirukkural extractor, pinned HF
-resolve URL). `data/` is git-ignored, so a clean clone must fetch the three raw inputs before
+The Tanglish raw file is fetched separately from the pinned HuggingFace resolve URL. `data/` is git-ignored, so a clean clone must fetch the three raw inputs before
 `--verify` can pass; the manifest records the SHA-256 each one must have.
 
 If a register has fewer usable sentences than `per_register`, the build fails. Add sources,
@@ -124,15 +123,30 @@ lower `per_register`, or pass `--allow-shortfall`.
 
 ### Current freeze
 
-`eval_manifests/tokenizer_bench.manifest.json` was built from the sources above: 1,500
-sentences (500 per register), output SHA-256 `83e50fe7…`. Candidates that survived the rules:
-classical 2,631 · modern 1,406,765 · tanglish 238,817. The content filter vetoed 7 (classical),
-82,532 (modern) and 13,616 (tanglish) candidates, so no register samples political or abusive
-text.
+`eval_manifests/tokenizer_bench.manifest.json` was built from the sources above: 1,500 sentences
+(500 per register), output SHA-256 `24a66b9d…`, `--verify` clean. Candidates that survived the
+rules: classical 2,634 · modern 1,420,253 · tanglish 239,551. The content filter vetoed 4
+(classical), 65,796 (modern) and 12,761 (tanglish) candidates.
+
+**What that does and does not mean.** The filter is a keyword gazetteer: it removes rows that name
+parties, elections, public figures, violence, sexual content or profanity, and the sample is built
+from what remains. It cannot remove paraphrase, code-switching, implication or an unlisted name,
+so the honest claim is *"the sample contains no row a keyword gazetteer recognises as political or
+abusive"* — not "the sample is clean". That gap is what the native review below exists to close.
+
+**Identifier masking.** Scraped Tanglish rows carry YouTube handles, links and hashtags, some of
+them real names. The spec sets `"mask": ["url", "handle", "hashtag"]`, so those are replaced with
+`<url>`, `<user>` and `<hashtag>` *before* ranking and sampling, and the manifest records how many
+of each were replaced per source (tanglish: 9,272 handles, 3,551 hashtags, 1 URL). The committed
+sample contains no handles, links or hashtags.
+
+**Attribution.** The modern source keeps `title`, `url`, `page_id` and the dump `snapshot` in every
+record, so a sentence can be traced to the page and dump date it came from if the sample is ever
+published.
 
 The classical source carries **verses only**. The convenient Thirukkural files on the web bundle
-the verses with 20th-century commentaries whose rights belong to their authors, which would make
-a public benchmark need a legal opinion. `scripts/build_classical_corpus.py` keeps the two verse
+the verses with 20th-century commentaries whose rights belong to their authors, which would make a
+public benchmark need a legal opinion. `scripts/build_classical_corpus.py` keeps the two verse
 lines and drops the rest, so the register is unambiguously public domain.
 
 ## Data handling

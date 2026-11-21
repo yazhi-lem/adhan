@@ -34,8 +34,12 @@ DEFAULT_CONFIG = "20231101.ta"
 DEFAULT_REVISION = "b04c8d1ceb2f5cd4588862100d08de323dccfbaa"
 DEFAULT_OUT = "data/raw/modern_tamil/wikipedia_ta.jsonl"
 
-#: Wikimedia dump terms, as recorded on the dataset card.
-LICENSE = "CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)"
+#: Wikimedia dump terms. The 20231101 dump mixes revisions: edits since June 2023 are
+#: CC BY-SA 4.0, older revisions are CC BY-SA 3.0, and all of it is additionally GFDL.
+LICENSE = (
+    "CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); "
+    "all also GFDL (Wikimedia dump terms)"
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -76,7 +80,12 @@ def fetch_parquet(repo: str, config: str, revision: str, shard: int, cache_dir: 
     )
 
 
-def extract(parquet_path: Path, out: Path, text_field: str = "text") -> dict:
+def extract(
+    parquet_path: Path,
+    out: Path,
+    text_field: str = "text",
+    snapshot: str = DEFAULT_CONFIG,
+) -> dict:
     pq = _import_pyarrow()
     out.parent.mkdir(parents=True, exist_ok=True)
     rows = kept = 0
@@ -93,6 +102,10 @@ def extract(parquet_path: Path, out: Path, text_field: str = "text") -> dict:
                             "text": text,
                             "title": rec.get("title") or "",
                             "url": rec.get("url") or "",
+                            # Attribution material: title + page id + dump snapshot identify
+                            # the exact revision a sentence came from.
+                            "page_id": rec.get("id"),
+                            "snapshot": snapshot,
                         },
                         ensure_ascii=False,
                         sort_keys=True,
@@ -121,7 +134,7 @@ def main() -> int:
         cache = ROOT / cache
 
     shard_path = fetch_parquet(args.repo, args.config, args.revision, args.shard, cache)
-    stats = extract(shard_path, out)
+    stats = extract(shard_path, out, snapshot=args.config)
 
     print(f"source:   {args.repo} config={args.config} revision={args.revision[:8]}")
     print(f"shard:    {shard_path.name}")

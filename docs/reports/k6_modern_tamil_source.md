@@ -26,7 +26,7 @@ records what the source is and under which licence.
 
 | Option | What it is | Licence | Size to fetch | Verdict |
 |---|---|---|---|---|
-| **`wikimedia/wikipedia`, config `20231101.ta`** (HuggingFace mirror of the Wikimedia dump) | Full Tamil Wikipedia article text, snapshot-dated, columns `id/url/title/text` | **CC-BY-SA-3.0 + GFDL** | **265 MB** (2 parquet) | **Recommended.** Encyclopaedic modern Tamil prose, immutable snapshot, smallest fetch that still gives huge headroom |
+| **`wikimedia/wikipedia`, config `20231101.ta`** (HuggingFace mirror of the Wikimedia dump) | Full Tamil Wikipedia article text, snapshot-dated, columns `id/url/title/text` | **CC BY-SA 4.0 (since June 2023) + CC BY-SA 3.0 (older) + GFDL** | **265 MB** (2 parquet) | **Recommended.** Encyclopaedic modern Tamil prose, immutable snapshot, smallest fetch that still gives huge headroom |
 | `ai4bharat/sangraha`, `verified/tam` | AI4Bharat's curated verify pass over Indic web text (news, blogs, wiki) | **CC-BY-4.0** (no share-alike) | **18.71 GB** (53 parquet) | Best licence and register diversity, but 70× the bytes for the same 500 sentences. **Documented fallback** if reviewers want web/news register and a non-SA licence |
 | Live MediaWiki API via `src/data_scraper/raw_extractors/wikipedia_api_extractor.py` | Fetches articles at request time | Same as Wikipedia | tiny | **Reject.** Not reproducible: the article set changes between runs, so `--verify` can never pass |
 | Tamil news sites / RSS | Contemporary prose, closest to "what people read" | Site-specific, mostly all-rights-reserved | small | **Reject.** No reusable licence |
@@ -41,7 +41,8 @@ config:    20231101.ta
 revision:  b04c8d1ceb2f5cd4588862100d08de323dccfbaa
 files:     20231101.ta/train-00000-of-00002.parquet   146.4 MB
            20231101.ta/train-00001-of-00002.parquet   119.2 MB
-licence:   CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)
+licence:   CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions);
+           all also GFDL (Wikimedia dump terms)
 url:       https://huggingface.co/datasets/wikimedia/wikipedia
 ```
 
@@ -61,10 +62,10 @@ second is available via `--shard 1`); one shard already yields far more than 500
 
 ### Why not Sangraha as primary
 
-It is the better *licence* (CC-BY-4.0, no share-alike) and a more diverse register. It is not
+It is the better *licence* (CC BY 4.0, no share-alike) and a more diverse register. It is not
 the better *choice for 500 sentences*: the fetch is 70× larger and the verified subset needs
 the same parquet tooling anyway. It stays documented as the fallback if a reviewer objects to
-CC-BY-SA, or later when a second modern source is wanted for a cross-register A/B.
+CC BY-SA, or later when a second modern source is wanted for a cross-register A/B.
 
 ## 4. Tooling cost
 
@@ -86,7 +87,7 @@ is not welded to this one dataset.
 
 | Risk | Why it matters | Mitigation |
 |---|---|---|
-| **CC-BY-SA share-alike** | A derived *published* sample would carry SA obligations | Only counts, hashes and provenance are committed; raw and sampled text stay in git-ignored `data/`. Attribute the source in the manifest and results table |
+| **CC BY-SA share-alike** | The dump mixes revisions: edits since June 2023 are CC BY-SA 4.0, older ones CC BY-SA 3.0, all also GFDL. A derived *published* sample would carry those obligations | Only counts, hashes and provenance are committed; raw and sampled text stay in git-ignored `data/`. Every record keeps `title`, `page_id` and the dump `snapshot`, so attribution is possible without shipping text |
 | **MediaWiki markup leaking into sentences** | Wiki syntax would distort token counts | The dump's `text` field is plain text (no wikitext); the eval-corpus rules still drop tables, references and short fragments by length and script share |
 | **Stale snapshot** | Wikipedia moves on | The dump date is in the config name and pinned by revision; a newer dump is a new source, not an edit |
 | **Encyclopaedic-only register** | Formal prose may not represent everyday modern Tamil | Documented as a limitation; Sangraha (web/news) is the fallback and can be added as a second modern source later |

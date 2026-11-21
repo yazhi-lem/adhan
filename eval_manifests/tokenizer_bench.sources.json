@@ -3,7 +3,7 @@
   "seed": 13,
   "min_chars": 15,
   "max_chars": 300,
-  "content_filter": "eval_manifests/content_blocklist.v1.json",
+  "content_filter": "eval_manifests/content_blocklist.v2.json",
   "sources": [
     {
       "id": "thirukkural",
@@ -20,7 +20,7 @@
       "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
       "format": "jsonl",
       "text_field": "text",
-      "license": "CC-BY-SA-3.0 + GFDL (Wikimedia dump terms)",
+      "license": "CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL (Wikimedia dump terms)",
       "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
     },
     {
@@ -29,8 +29,13 @@
       "path": "data/raw/tanglish/tanglish_corpus.jsonl",
       "format": "jsonl",
       "text_field": "text",
-      "license": "CC-BY-4.0 (dataset card, vishnu-n/Tanglish-Corpus-185k @ 927f5b4)",
+      "license": "DravidianCodeMix subset (~32k rows) CC-BY-4.0; the remaining rows are YouTube and Reddit comments under platform terms. Publishing any of it is a separate decision; only hashes and counts are committed here.",
       "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
     }
+  ],
+  "mask": [
+    "url",
+    "handle",
+    "hashtag"
   ]
 }
