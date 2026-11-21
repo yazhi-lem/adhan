@@ -20,7 +20,8 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass
+import urllib.request
+from dataclasses import dataclass, field
 from importlib import metadata
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional
@@ -48,6 +49,8 @@ class Config:
     pins: Dict[str, str]
     fetch: Dict[str, str]
     price_per_million: Optional[float] = None
+    #: Tokenizer file name -> pinned URL, so a clean clone can fetch what it needs.
+    tokenizer_fetch: Dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, raw: Dict[str, Any]) -> "Config":
@@ -68,6 +71,7 @@ class Config:
             pins={str(k): str(v) for k, v in raw.get("pins", {}).items()},
             fetch={str(k): str(v) for k, v in raw.get("fetch", {}).items()},
             price_per_million=None if price is None else float(price),
+            tokenizer_fetch={str(k): str(v) for k, v in raw.get("tokenizer_fetch", {}).items()},
         )
 
 
@@ -170,6 +174,35 @@ def build_frozen_corpus(spec: ec.Spec, cfg: Config, base: Path, refreeze: bool) 
 
 
 # -- step 4: run the harness --------------------------------------------------------
+
+
+def fetch_tokenizers(cfg: Config, base: Path, log: Callable[[str], None] = print) -> List[str]:
+    """Download any configured tokenizer file that is not on disk. Returns what was fetched.
+
+    Tokenizer files are not corpus sources, so they have their own map: a clean clone can
+    reproduce the published table without guessing where a tokenizer.json came from.
+    """
+    fetched: List[str] = []
+    for entry in cfg.tokenizers:
+        path_value = entry.get("path") or entry.get("vocab")
+        if not path_value:
+            continue
+        path = Path(path_value)
+        path = path if path.is_absolute() else base / path
+        if path.is_file():
+            continue
+        url = cfg.tokenizer_fetch.get(str(entry.get("name")))
+        if url is None:
+            raise ReproduceError(
+                f"tokenizer file {path} is missing and no tokenizer_fetch entry names "
+                f"{entry.get('name')!r}. Add one, or put the file there."
+            )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        log(f"fetching tokenizer {entry.get('name')} -> {path}")
+        with urllib.request.urlopen(url) as resp:  # noqa: S310 - pinned https URL from config
+            path.write_bytes(resp.read())
+        fetched.append(str(entry.get("name")))
+    return fetched
 
 
 def build_adapters(cfg: Config, base: Path) -> List[tb.TokenizerAdapter]:
@@ -281,6 +314,10 @@ def run(
     fetched = fetch_missing(spec, cfg, base, fetchers)
     if fetched:
         log(f"fetched: {', '.join(fetched)}")
+
+    fetched_tokenizers = fetch_tokenizers(cfg, base, log)
+    if fetched_tokenizers:
+        log(f"fetched tokenizers: {', '.join(fetched_tokenizers)}")
 
     built = build_frozen_corpus(spec, cfg, base, refreeze)
     manifest = built["manifest"]

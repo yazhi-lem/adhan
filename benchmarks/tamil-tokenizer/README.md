@@ -3,8 +3,9 @@
 How many tokens does a tokenizer spend on Tamil? This folder is the public entry point for a
 benchmark that measures the "Tamil token tax" and lets anyone reproduce the numbers.
 
-> Status: **draft, not yet published.** Results are filled in only after the frozen corpus is
-> committed and `scripts/reproduce_benchmark.sh --check` passes from a clean checkout. See
+> Status: **draft, not yet published.** The corpus is frozen, the tables are generated and
+> `scripts/reproduce_benchmark.sh --check` passes; what remains is the native review of the
+> sampled sentences and the post's Tamil text. See
 > [the release checklist](../../docs/BENCHMARK_RELEASE_CHECKLIST.md).
 
 ## What it measures
@@ -15,7 +16,7 @@ On a frozen eval corpus in three registers (classical, modern, Tanglish):
 |---|---|
 | Tokens/word, tokens/akshara | fertility: how finely the text is cut |
 | Tamil clusters split | share of Tamil aksharas that more than one token touches |
-| Tokens and USD per 1,000 sentences | what the tax costs in practice |
+| Tokens per 1,000 sentences | what the tax costs in practice (USD if a price is configured) |
 
 ## Reproduce
 
@@ -35,7 +36,7 @@ differs from the manifest, the run fails instead of publishing different numbers
 | Eval corpus builder and licence log | [`docs/EVAL_CORPUS.md`](../../docs/EVAL_CORPUS.md) |
 | Harness and metric definitions | [`docs/TOKENIZER_BENCH.md`](../../docs/TOKENIZER_BENCH.md) |
 | One-command reproduction | [`docs/REPRODUCE_BENCHMARK.md`](../../docs/REPRODUCE_BENCHMARK.md) |
-| Results tables | `docs/TOKENIZER_BENCH_RESULTS.md` (added when published) |
+| Results tables | [`docs/TOKENIZER_BENCH_RESULTS.md`](../../docs/TOKENIZER_BENCH_RESULTS.md) |
 | Blog post draft | [`docs/blog/tamil-token-tax.md`](../../docs/blog/tamil-token-tax.md) |
 
 ## Rules

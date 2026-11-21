@@ -1,0 +1,33 @@
+{
+  "spec": "eval_manifests/tokenizer_bench.sources.json",
+  "manifest": "eval_manifests/tokenizer_bench.manifest.json",
+  "corpus": "data/eval/tokenizer_bench.jsonl",
+  "results_json": "docs/tokenizer_bench_results.json",
+  "results_md": "docs/TOKENIZER_BENCH_RESULTS.md",
+  "price_per_million": null,
+  "pins": {
+    "tokenizers": "0.23.2"
+  },
+  "fetch": {
+    "thirukkural": "thirukkural"
+  },
+  "tokenizer_fetch": {
+    "qwen3-1.7b-base": "https://huggingface.co/Qwen/Qwen3-1.7B-Base/resolve/main/tokenizer.json"
+  },
+  "tokenizers": [
+    {
+      "kind": "swaram",
+      "name": "swaram-v3",
+      "vocab": "eval_manifests/tokenizers/swaram-v3/vocab.json",
+      "merges": "eval_manifests/tokenizers/swaram-v3/merges.txt"
+    },
+    {
+      "kind": "tokenizers-json",
+      "name": "qwen3-1.7b-base",
+      "path": "data/raw/tokenizers/qwen3-1.7b-base.tokenizer.json"
+    },
+    {
+      "kind": "baselines"
+    }
+  ]
+}
