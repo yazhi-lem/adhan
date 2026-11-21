@@ -201,14 +201,19 @@ def test_unreadable_sangam_source_is_logged_and_skipped(tmp_path):
 
 
 def test_ruff_config_enables_the_silent_except_rules():
-    """S110/E722 are the guard: without them the next `except: pass` lands unnoticed."""
-    import tomllib
+    """S110/E722 are the guard: without them the next `except: pass` lands unnoticed.
 
+    Read as text rather than with ``tomllib``: the project still supports Python 3.10, where
+    ``tomllib`` does not exist, and this test must run on every supported version.
+    """
     root = Path(__file__).resolve().parents[3]
-    config = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
-    select = config["tool"]["ruff"]["lint"]["select"]
-    assert "S110" in select, "try/except/pass must be a lint error"
-    assert "E722" in select, "bare except must be a lint error"
+    text = (root / "pyproject.toml").read_text(encoding="utf-8")
+    section = text.split("[tool.ruff.lint]", 1)[1].split("\n[", 1)[0]
+    select_line = next(
+        (line for line in section.splitlines() if line.strip().startswith("select")), ""
+    )
+    assert "S110" in select_line, f"try/except/pass must be a lint error: {select_line!r}"
+    assert "E722" in select_line, f"bare except must be a lint error: {select_line!r}"
 
 
 if __name__ == "__main__":
