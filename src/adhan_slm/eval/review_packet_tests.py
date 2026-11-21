@@ -45,6 +45,10 @@ _FILTER = {
 _TERMS = {"politics": {"latin": ["election"], "tamil": ["தேர்தல்"]}}
 
 
+def _approved_filter():
+    return dict(_FILTER, native_review="reviewed by Test Reviewer on 2026-11-18")
+
+
 def _complete_template(**overrides):
     signoff = rp.signoff_template(_RECORDS, _CORPUS_SHA, _FILTER)
     signoff.update(
@@ -101,7 +105,77 @@ def test_signoff_never_contains_corpus_text():
 
 
 def test_complete_signoff_passes():
-    assert rp.validate_signoff(_complete_template(), _RECORDS, _CORPUS_SHA, _FILTER) == []
+    assert (
+        rp.validate_signoff(_complete_template(), _RECORDS, _CORPUS_SHA, _approved_filter()) == []
+    )
+
+
+def test_unreviewed_gazetteer_blocks_the_release():
+    """A sign-off cannot approve a blocklist the project still marks as unreviewed."""
+    problems = rp.validate_signoff(_complete_template(), _RECORDS, _CORPUS_SHA, _FILTER)
+    assert any("native_review" in p for p in problems), problems
+
+
+def test_approved_gazetteer_passes():
+    assert (
+        rp.validate_signoff(_complete_template(), _RECORDS, _CORPUS_SHA, _approved_filter()) == []
+    )
+
+
+def test_non_dict_sentence_entry_is_rejected():
+    """`"tanglish-00000": "keep"` used to be skipped silently, bypassing every check."""
+    signoff = _complete_template()
+    signoff["sentences"]["tanglish-00000"] = "keep"
+    problems = rp.validate_signoff(signoff, _RECORDS, _CORPUS_SHA, _approved_filter())
+    assert any("not objects" in p for p in problems), problems
+
+
+def test_native_speaker_must_be_the_boolean_true():
+    for value in ("no", 1, [True], {"yes": True}):
+        signoff = _complete_template()
+        signoff["native_speaker"] = value
+        problems = rp.validate_signoff(signoff, _RECORDS, _CORPUS_SHA, _approved_filter())
+        assert any("boolean true" in p for p in problems), (value, problems)
+
+
+def test_future_review_date_is_rejected():
+    problems = rp.validate_signoff(
+        _complete_template(reviewed_at="2099-01-01"), _RECORDS, _CORPUS_SHA, _approved_filter()
+    )
+    assert any("future" in p for p in problems), problems
+
+
+def test_actual_filter_description_hashes_what_is_on_disk(tmp_path):
+    """The gate must not trust the manifest's own record of the gazetteer."""
+    import json
+
+    blocklist = tmp_path / "blocklist.json"
+    blocklist.write_text(
+        json.dumps(
+            {
+                "version": "v9",
+                "native_review": "pending",
+                "categories": {"politics": {"latin": ["election"]}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    desc = rp.actual_filter_description({"content_filter": "blocklist.json"}, tmp_path)
+    assert desc is not None
+    assert desc["version"] == "v9"
+    assert desc["path"] == "blocklist.json"
+    assert len(desc["sha256"]) == 64
+
+    # Emptying the file changes the hash, so an approval can no longer match.
+    blocklist.write_text(
+        json.dumps({"version": "v9", "categories": {"politics": {"latin": []}}}), encoding="utf-8"
+    )
+    emptied = rp.actual_filter_description({"content_filter": "blocklist.json"}, tmp_path)
+    assert emptied is not None and emptied["sha256"] != desc["sha256"]
+
+
+def test_actual_filter_description_is_none_without_a_filter(tmp_path):
+    assert rp.actual_filter_description({"content_filter": "none"}, tmp_path) is None
 
 
 def test_pending_verdicts_block_the_release():
@@ -188,7 +262,7 @@ def test_packet_and_signoff_agree_on_the_same_freeze():
     md = rp.packet_markdown(_RECORDS, _CORPUS_SHA, _FILTER, blocklist_terms=_TERMS)
     assert _CORPUS_SHA in md
     signoff = _complete_template()
-    assert rp.validate_signoff(signoff, _RECORDS, _CORPUS_SHA, _FILTER) == []
+    assert rp.validate_signoff(signoff, _RECORDS, _CORPUS_SHA, _approved_filter()) == []
 
 
 def test_normalisation_matches_the_corpus_builder():
@@ -199,7 +273,7 @@ def test_normalisation_matches_the_corpus_builder():
     fixed = _complete_template()
     fixed["sentences"] = signoff["sentences"]
     fixed["sentences"]["x"]["verdict"] = rp.VERDICT_KEEP
-    assert rp.validate_signoff(fixed, rec, _CORPUS_SHA, _FILTER) == []
+    assert rp.validate_signoff(fixed, rec, _CORPUS_SHA, _approved_filter()) == []
 
 
 if __name__ == "__main__":

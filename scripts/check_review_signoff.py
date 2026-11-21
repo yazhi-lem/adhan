@@ -16,6 +16,7 @@ written to be usable as a release gate in CI exactly as it is.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -35,7 +36,14 @@ def main() -> int:
     ap.add_argument("--signoff", default=DEFAULT_SIGNOFF)
     ap.add_argument("--corpus", default=DEFAULT_CORPUS)
     ap.add_argument("--manifest", default=DEFAULT_MANIFEST)
+    ap.add_argument(
+        "--base",
+        default=str(ROOT),
+        help="repository root used to resolve source and blocklist paths (default: repo)",
+    )
     args = ap.parse_args()
+
+    base = Path(args.base)
 
     signoff_path = ROOT / args.signoff
     if not signoff_path.exists():
@@ -56,26 +64,47 @@ def main() -> int:
         return 1
 
     manifest = json.loads((ROOT / args.manifest).read_text(encoding="utf-8"))
+    corpus_bytes = corpus.read_bytes()
     records = [
-        json.loads(line) for line in corpus.read_text(encoding="utf-8").splitlines() if line.strip()
+        json.loads(line) for line in corpus_bytes.decode("utf-8").splitlines() if line.strip()
     ]
     signoff = rp.load_signoff(signoff_path)
 
-    problems = rp.validate_signoff(
+    problems = []
+    # Re-hash what is actually on disk: the manifest is a claim, not evidence.
+    actual_corpus_sha = hashlib.sha256(corpus_bytes).hexdigest()
+    if actual_corpus_sha != manifest.get("output_sha256"):
+        problems.append("the corpus on disk does not match the manifest output hash")
+    try:
+        actual_filter = rp.actual_filter_description(manifest.get("spec") or {}, base)
+    except Exception as exc:  # noqa: BLE001 - any load failure must fail closed
+        problems.append(f"cannot load the gazetteer this manifest names: {exc}")
+        actual_filter = None
+    recorded = manifest.get("content_filter") or {}
+    if {k: recorded.get(k) for k in ("version", "sha256")} != {
+        k: (actual_filter or {}).get(k) for k in ("version", "sha256")
+    }:
+        problems.append("the gazetteer on disk does not match the one the manifest records")
+
+    problems += rp.validate_signoff(
         signoff,
         records,
-        corpus_sha256=manifest["output_sha256"],
-        filter_desc=manifest.get("content_filter"),
+        corpus_sha256=actual_corpus_sha,
+        filter_desc=actual_filter,
     )
+
     if problems:
-        print(f"FAIL: the review does not cover this freeze ({len(problems)} problem(s)):")
+        print(
+            f"FAIL: the review does not cover this freeze ({len(problems)} problem(s)):",
+            file=sys.stderr,
+        )
         for problem in problems:
-            print(f"  - {problem}")
+            print(f"  - {problem}", file=sys.stderr)
         return 1
 
     reviewed = len(signoff["sentences"])
     print(f"OK: {args.signoff} signs off {reviewed} sentences")
-    print(f"    corpus {manifest['output_sha256']}")
+    print(f"    corpus {actual_corpus_sha}")
     print(f"    reviewer {signoff['reviewed_by']} on {signoff['reviewed_at']}")
     return 0
 

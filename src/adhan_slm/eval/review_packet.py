@@ -207,16 +207,28 @@ def validate_signoff(
 
     if not str(signoff.get("reviewed_by") or "").strip():
         problems.append("reviewed_by is empty")
-    if not signoff.get("native_speaker"):
-        problems.append("native_speaker is not set")
+    # Strict identity: `"no"`, 1 and [True] are all truthy, and this field is an attestation.
+    if signoff.get("native_speaker") is not True:
+        problems.append("native_speaker must be the boolean true")
     reviewed_at = str(signoff.get("reviewed_at") or "").strip()
     if not reviewed_at:
         problems.append("reviewed_at is empty")
     else:
         try:
-            date.fromisoformat(reviewed_at)
+            reviewed_on = date.fromisoformat(reviewed_at)
         except ValueError:
             problems.append(f"reviewed_at {reviewed_at!r} is not an ISO date")
+        else:
+            if reviewed_on > date.today():
+                problems.append(f"reviewed_at {reviewed_at} is in the future")
+
+    # The gazetteer itself must have left review; a sign-off cannot approve an unreviewed list.
+    blocklist_review = str(flt.get("native_review") or "pending").strip().lower()
+    if blocklist_review == "pending":
+        problems.append(
+            "the gazetteer is still marked native_review='pending' in the blocklist file; "
+            "a reviewer must update it and the freeze must be rebuilt"
+        )
 
     gazetteer = signoff.get("gazetteer") or {}
     if gazetteer.get("verdict") != VERDICT_KEEP:
@@ -238,10 +250,12 @@ def validate_signoff(
     if extra:
         problems.append(f"{len(extra)} reviewed id(s) are not in this freeze, e.g. {extra[:3]}")
 
-    pending = dropped = bad_hash = bad_verdict = 0
+    pending = dropped = bad_hash = bad_verdict = malformed = 0
     for sid, want_hash in expected.items():
         entry = sentences.get(sid)
         if not isinstance(entry, Mapping):
+            # `"tanglish-00000": "keep"` used to be skipped here, bypassing every check.
+            malformed += 1
             continue
         verdict = entry.get("verdict")
         if verdict == VERDICT_PENDING:
@@ -258,11 +272,37 @@ def validate_signoff(
         problems.append(
             f"{dropped} sentence(s) marked {VERDICT_DROP!r}; rebuild the freeze without them"
         )
+    if malformed:
+        problems.append(
+            f"{malformed} sentence entr(y/ies) are not objects with 'sha256' and 'verdict'"
+        )
     if bad_verdict:
         problems.append(f"{bad_verdict} sentence(s) have an unknown verdict")
     if bad_hash:
         problems.append(f"{bad_hash} sentence hash(es) do not match this freeze")
     return problems
+
+
+def actual_filter_description(spec: Mapping[str, Any], base: Path) -> Optional[Dict[str, Any]]:
+    """Hash the blocklist that is *on disk now*, instead of trusting the manifest's own record.
+
+    Without this, a gate can be satisfied by a manifest that describes a filter which no longer
+    exists on disk — emptying the blocklist still passed, as the review found.
+    """
+    from adhan_slm.eval import content_filter as cf  # local import: keeps this module light
+
+    name = str(spec.get("content_filter") or "none").strip()
+    if name == "none":
+        return None
+    path = Path(name)
+    path = path if path.is_absolute() else (Path(base) / path)
+    loaded = cf.ContentFilter.load(path)
+    desc = loaded.describe()
+    try:
+        desc["path"] = path.resolve().relative_to(Path(base).resolve()).as_posix()
+    except ValueError:
+        pass
+    return desc
 
 
 def load_signoff(path: Path) -> Dict[str, Any]:

@@ -1,0 +1,70 @@
+name: Release gate
+
+# The corpus may only be published with a native sign-off that covers the exact bytes being
+# released (adhan#112). This workflow is the release step: it rebuilds the frozen corpus from the
+# pinned sources and then runs the sign-off gate, which fails closed.
+#
+# It is deliberately not part of PR CI: a PR that does not touch the sign-off should not be
+# blocked by its absence. Run it manually before a release, or let a `v*` tag trigger it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: "Fail when no sign-off file is committed"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  frozen-eval-corpus-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install eval-corpus tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,eval-corpus]"
+
+      - name: Fetch the pinned classical source
+        run: python scripts/build_classical_corpus.py
+
+      - name: Fetch the pinned modern source
+        run: python scripts/fetch_modern_tamil.py
+
+      - name: Fetch the pinned Tanglish source
+        run: |
+          mkdir -p data/raw/tanglish
+          curl -L --fail \
+            'https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k/resolve/927f5b497b9f9e35ffc2a10b621a97f6e02ac9c2/tanglish_corpus.jsonl' \
+            -o data/raw/tanglish/tanglish_corpus.jsonl
+
+      - name: Rebuild and verify the frozen corpus against the manifest
+        run: |
+          python scripts/build_eval_corpus.py
+          python scripts/build_eval_corpus.py --verify
+
+      - name: Check the native sign-off covers this freeze
+        run: python scripts/check_review_signoff.py
+
+      - name: Summarise
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          manifest = json.loads(pathlib.Path("eval_manifests/tokenizer_bench.manifest.json").read_text())
+          print("freeze:", manifest["output_sha256"])
+          flt = manifest.get("content_filter") or {}
+          print("filter:", flt.get("version"), flt.get("sha256"), "review:", flt.get("native_review"))
+          PY

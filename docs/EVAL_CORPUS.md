@@ -169,16 +169,35 @@ python scripts/build_review_packet.py      # data/review/k6_review_packet.md  (t
 python scripts/check_review_signoff.py     # exits 1 until the review is complete
 ```
 
-The packet holds the sampled text and stays in git-ignored `data/review/`. The sign-off holds
-only ids, a SHA-256 per sentence and verdicts, so it is safe to commit. It repeats the corpus
-output hash and the blocklist hash, which makes a review **stale rather than silently wrong**
-if the freeze or the gazetteer changes afterwards.
+The packet holds the sampled text and stays in git-ignored `data/review/`. The sign-off holds only
+ids, a SHA-256 per sentence and verdicts, so it is safe to commit.
 
-`check_review_signoff.py` fails closed on: a stale corpus hash, a changed blocklist, a missing
-reviewer name, `native_speaker` unset, a non-ISO review date, an unaccepted gazetteer, missing
-gazetteer terms, unreviewed or extra sentence ids, per-sentence hash drift, `pending` verdicts,
-and any `drop` verdict (which means the freeze must be rebuilt without that sentence). It is
-written to be used as a release gate in CI unchanged.
+### Order of operations for a release
+
+The gazetteer has to be accepted *before* the freeze it belongs to can be signed, so the sequence
+is:
+
+1. Reviewer reads the packet and marks the gazetteer verdict plus any missing terms.
+2. Maintainer records that acceptance by replacing `"native_review": "pending"` in the blocklist
+   file with the reviewer and date, then rebuilds: `python scripts/build_eval_corpus.py`.
+   The sentence text is unchanged, so the sample hash and every per-sentence hash stay valid.
+3. Reviewer fills the sign-off's per-sentence verdicts over that freeze.
+4. `python scripts/check_review_signoff.py` exits 0.
+
+### What the gate checks
+
+It re-hashes what is on disk rather than trusting the manifest, then fails closed on: a corpus
+that does not match the manifest, a gazetteer that does not match the manifest's record, a
+gazetteer still marked `native_review: pending`, a missing `reviewed_by`, `native_speaker` that is
+not the boolean `true`, a non-ISO or future `reviewed_at`, a gazetteer verdict that is not `keep`,
+listed missing terms, unreviewed or extra ids, entries that are not objects with `sha256` and
+`verdict`, per-sentence hash drift, `pending` verdicts, and any `drop` verdict (which means the
+freeze must be rebuilt without that sentence).
+
+`.github/workflows/release.yml` runs exactly this as the release step — it fetches the three pinned
+sources, rebuilds the corpus, verifies it against the manifest, then runs the gate. It is triggered
+by a `v*` tag or manually, not by every PR, so a PR that does not touch the sign-off is not blocked
+by its absence.
 
 ## Still needed (not done by code)
 
