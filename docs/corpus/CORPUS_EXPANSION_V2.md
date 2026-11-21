@@ -47,7 +47,7 @@ seeded with all of v1.
 
 Retrain the tokenizer (`freeze_fast_tokenizer.py --corpus data/raw/expanded_v2 --vocab-size 32000`) and re-run
 `benchmark_token_tax.py`; a retrain that raises the tax is rejected. Pack shards, and fix cross-document packing first
-(`factory/NEXT.md` N7). Budget: ~90 GB disk and ~16 GB RAM peak for expansion + tokenizer + packing.
+(tracked in the GitHub issue tracker). Budget: ~90 GB disk and ~16 GB RAM peak for expansion + tokenizer + packing.
 
 ## Later
 

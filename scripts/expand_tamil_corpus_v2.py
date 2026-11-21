@@ -34,11 +34,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import re
 import sys
-import unicodedata
 from collections import Counter
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Set, Tuple
@@ -49,162 +46,30 @@ sys.path.insert(0, str(ROOT / "src"))
 from _hf_pins import describe_pins, load_tamil_dataset  # noqa: E402
 
 from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.data import corpus_hygiene as hygiene  # noqa: E402
 
 logger = get_logger(__name__)
-
-try:
-    import xxhash
-
-    def _h64(data: bytes) -> int:
-        return xxhash.xxh64_intdigest(data)
-
-except Exception:
-
-    def _h64(data: bytes) -> int:
-        return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), "big")
-
-
-# --- Text hygiene -----------------------------------------------------------
-TAMIL_RANGE = re.compile(r"[\u0B80-\u0BFF]")
-EMAIL_RE = re.compile(r"[\w\.-]+@[\w\.-]+\.\w+")
-PHONE_RE = re.compile(r"(\+91[\-\s]?)?[6-9]\d{9}")
-URL_RE = re.compile(r"https?://\S+|www\.\S+")
-REPEAT_RE = re.compile(r"(.)\1{6,}")
-WS_RE = re.compile(r"[ \t]+")
-NL_RE = re.compile(r"\n{3,}")
-
-
-def normalize(text: str) -> str:
-    if not text:
-        return ""
-    text = unicodedata.normalize("NFC", text)
-    text = URL_RE.sub(" ", text)
-    text = EMAIL_RE.sub(" ", text)
-    text = PHONE_RE.sub(" ", text)
-    text = text.replace("\u200b", "").replace("\ufeff", "")
-    text = WS_RE.sub(" ", text)
-    text = NL_RE.sub("\n\n", text)
-    return text.strip()
-
-
-def tamil_ratio(text: str) -> float:
-    clean = text.replace(" ", "").replace("\n", "").replace("\t", "")
-    if not clean:
-        return 0.0
-    return len(TAMIL_RANGE.findall(clean)) / len(clean)
 
 
 def is_quality(
     text: str,
-    *,
     min_chars: int = 40,
     max_chars: int = 50000,
     min_tamil_ratio: float = 0.55,
     max_markup: int = 30,
     max_pipe_ratio: float = 0.03,
 ) -> bool:
-    """Quality gate — tunable per source."""
-    if not text:
-        return False
-    n = len(text)
-    if n < min_chars or n > max_chars:
-        return False
-    if tamil_ratio(text) < min_tamil_ratio:
-        return False
-    if REPEAT_RE.search(text):
-        return False
-    if text.count("<") > max_markup or text.count("|") > n * max_pipe_ratio:
-        return False
-    # Block common boilerplate patterns
-    boiler = [
-        "javascript",
-        "cookie",
-        "privacy policy",
-        "terms of use",
-        "all rights reserved",
-        "click here to",
-        "subscribe now",
-        "பதிவு செய்ய",
-        "விளம்பரம்",
-        "advertisement",
-    ]
-    lower = text.lower()
-    if sum(1 for b in boiler if b in lower) >= 3:
-        return False
-    return True
-
-
-# --- Fast banded LSH dedup (same as v1, but with larger cache) --------------
-class LshDedup:
-    def __init__(
-        self,
-        num_perm: int = 16,
-        bands: int = 4,
-        shingle_k: int = 5,
-        threshold: float = 0.82,
-        max_shingle_chars: int = 4000,
-    ) -> None:
-        assert num_perm % bands == 0
-        self.num_perm = num_perm
-        self.bands = bands
-        self.rows = num_perm // bands
-        self.k = shingle_k
-        self.threshold = threshold
-        self.max_chars = max_shingle_chars
-        self.exact: Set[str] = set()
-        self.buckets: List[Dict[Tuple[int, ...], List[int]]] = [{} for _ in range(bands)]
-        self.sigs: Dict[int, Tuple[int, ...]] = {}
-        self._next_id = 0
-        self._a = [(i * 2 + 1) * 0x9E3779B97F4A7C15 % (2**64) for i in range(num_perm)]
-        self._b = [(i * 0xBF58476D1CE4E5B9 + 1) % (2**64) for i in range(num_perm)]
-
-    def _shingles(self, text: str) -> Set[int]:
-        clean = text[: self.max_chars]
-        if len(clean) < self.k:
-            return {_h64(clean.encode("utf-8"))} if clean else set()
-        return {_h64(clean[i : i + self.k].encode("utf-8")) for i in range(len(clean) - self.k + 1)}
-
-    def _signature(self, shingles: Set[int]) -> Tuple[int, ...]:
-        if not shingles:
-            return tuple([0] * self.num_perm)
-        return tuple(
-            min((a * s + b) & 0xFFFFFFFFFFFFFFFF for s in shingles)
-            for a, b in zip(self._a, self._b)
-        )
-
-    @staticmethod
-    def _sig_similarity(a: Tuple[int, ...], b: Tuple[int, ...]) -> float:
-        matches = sum(1 for x, y in zip(a, b) if x == y)
-        return matches / len(a)
-
-    def seed_exact(self, text: str) -> None:
-        self.exact.add(hashlib.sha1(text.encode("utf-8")).hexdigest())
-
-    def is_duplicate(self, text: str) -> bool:
-        digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
-        if digest in self.exact:
-            return True
-        shingles = self._shingles(text)
-        sig = self._signature(shingles)
-        candidates: Set[int] = set()
-        keys: List[Tuple[int, Tuple[int, ...]]] = []
-        for band in range(self.bands):
-            start = band * self.rows
-            key = sig[start : start + self.rows]
-            keys.append((band, key))
-            bucket = self.buckets[band].get(key)
-            if bucket:
-                candidates.update(bucket)
-        for cand in candidates:
-            if self._sig_similarity(sig, self.sigs[cand]) >= self.threshold:
-                return True
-        doc_id = self._next_id
-        self._next_id += 1
-        self.exact.add(digest)
-        self.sigs[doc_id] = sig
-        for band, key in keys:
-            self.buckets[band].setdefault(key, []).append(doc_id)
-        return False
+    """v2 quality gate: thin wrapper over the canonical gate with v2 tunables."""
+    return hygiene.is_quality(
+        text,
+        hygiene.V2_QUALITY.with_overrides(
+            min_chars=min_chars,
+            max_chars=max_chars,
+            min_tamil_ratio=min_tamil_ratio,
+            max_markup=max_markup,
+            max_pipe_ratio=max_pipe_ratio,
+        ),
+    )
 
 
 # --- Resilient dataset loading ---------------------------------------------
@@ -230,17 +95,7 @@ def _load_first_available(candidates, config, split="train"):
 
 
 # --- Source readers ---------------------------------------------------------
-
-
-def _iter_strings(obj) -> Iterator[str]:
-    if isinstance(obj, str):
-        yield obj
-    elif isinstance(obj, dict):
-        for v in obj.values():
-            yield from _iter_strings(v)
-    elif isinstance(obj, list):
-        for v in obj:
-            yield from _iter_strings(v)
+# `_iter_strings` is imported from adhan_slm.data.corpus_hygiene (adhan#125).
 
 
 def iter_local_json(path: Path) -> Iterator[Tuple[str, str]]:
@@ -258,14 +113,14 @@ def iter_local_json(path: Path) -> Iterator[Tuple[str, str]]:
                     if isinstance(rec, dict) and isinstance(rec.get("text"), str):
                         yield rec["text"], rec.get("source", path.stem)
                     else:
-                        for s in _iter_strings(rec):
+                        for s in hygiene.iter_strings(rec):
                             yield s, path.stem
         else:
             data = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(data, dict) and isinstance(data.get("text"), str):
                 yield data["text"], path.stem
             else:
-                for s in _iter_strings(data):
+                for s in hygiene.iter_strings(data):
                     yield s, path.stem
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return
@@ -280,7 +135,7 @@ def iter_local_corpus(roots: Iterable[Path]) -> Iterator[Dict]:
         logger.info(f"local source {root}: {len(files)} files")
         for path in files:
             for text, sub in iter_local_json(path):
-                text = normalize(text)
+                text = hygiene.normalize(text)
                 if is_quality(text, min_chars=30, min_tamil_ratio=0.50):
                     yield {
                         "text": text,
@@ -300,7 +155,7 @@ def iter_wikipedia(limit: int) -> Iterator[Dict]:
     ds = load_tamil_dataset("wikimedia/wikipedia", "20231101.ta", split="train", streaming=True)
     n = 0
     for row in ds:
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         if is_quality(text, min_chars=80, min_tamil_ratio=0.55):
             yield {"text": text, "source": "wikipedia-ta", "tier": 2, "quality_score": 0.92}
             n += 1
@@ -318,7 +173,7 @@ def iter_indiccorp(limit: int) -> Iterator[Dict]:
     )
     n = 0
     for row in ds:
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         if is_quality(text, min_chars=50, min_tamil_ratio=0.60):
             yield {"text": text, "source": "indiccorp-v2", "tier": 3, "quality_score": 0.82}
             n += 1
@@ -337,7 +192,7 @@ def iter_fineweb2(limit: int, min_lang_score: float = 0.88) -> Iterator[Dict]:
         score = row.get("language_score")
         if score is not None and float(score) < min_lang_score:
             continue
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         if is_quality(text, min_chars=60, min_tamil_ratio=0.60):
             yield {
                 "text": text,
@@ -360,7 +215,7 @@ def iter_mc4(limit: int) -> Iterator[Dict]:
     ds = load_tamil_dataset("allenai/c4", "ta", split="train", streaming=True)
     n = 0
     for row in ds:
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         # mC4 is already cleaned by upstream; use relaxed gate
         if is_quality(text, min_chars=80, min_tamil_ratio=0.50, max_markup=50):
             yield {"text": text, "source": "mc4", "tier": 3, "quality_score": 0.78}
@@ -378,7 +233,7 @@ def iter_cc100(limit: int) -> Iterator[Dict]:
     ds = _load_first_available([("facebook/cc100", "ta"), ("cc100", "ta")], config="ta")
     n = 0
     for row in ds:
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         if is_quality(text, min_chars=60, min_tamil_ratio=0.50):
             yield {"text": text, "source": "cc100", "tier": 3, "quality_score": 0.75}
             n += 1
@@ -402,7 +257,7 @@ def iter_oscar(limit: int) -> Iterator[Dict]:
     )
     n = 0
     for row in ds:
-        text = normalize(row.get("text", ""))
+        text = hygiene.normalize(row.get("text", ""))
         if is_quality(text, min_chars=60, min_tamil_ratio=0.50):
             yield {"text": text, "source": "oscar", "tier": 3, "quality_score": 0.76}
             n += 1
@@ -426,7 +281,9 @@ def iter_tamil_news(limit: int) -> Iterator[Dict]:
         try:
             ds = load_tamil_dataset(ds_name, config, split="train", streaming=True)
             for row in ds:
-                text = normalize(row.get("text", row.get("content", row.get("article", ""))))
+                text = hygiene.normalize(
+                    row.get("text", row.get("content", row.get("article", "")))
+                )
                 if is_quality(text, min_chars=100, min_tamil_ratio=0.60):
                     yield {"text": text, "source": "tamil-news", "tier": 2, "quality_score": 0.88}
                     n += 1
@@ -453,7 +310,7 @@ def iter_tamil_books(limit: int) -> Iterator[Dict]:
         try:
             ds = load_tamil_dataset(ds_name, split="train", streaming=True)
             for row in ds:
-                text = normalize(row.get("text", row.get("content", "")))
+                text = hygiene.normalize(row.get("text", row.get("content", "")))
                 if is_quality(text, min_chars=200, min_tamil_ratio=0.55):
                     yield {"text": text, "source": "tamil-books", "tier": 1, "quality_score": 0.92}
                     n += 1
@@ -620,7 +477,7 @@ def main() -> None:
     fh = (out_dir / f"corpus-{shard_idx:05d}.jsonl").open("a", encoding="utf-8")
     in_shard = 0
 
-    dedup = LshDedup(threshold=0.82)
+    dedup = hygiene.LshDedup(threshold=0.82)
 
     # Seed from v1 corpus for cross-version dedup
     v1_path = Path(args.seed_v1)

@@ -59,6 +59,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from adhan_slm.core.logging import get_logger  # noqa: E402
+from adhan_slm.data.corpus_hygiene import tamil_ratio as _tamil_ratio  # noqa: E402
 from adhan_slm.data.sangam_tinai import labels_for, profile_for, quantise_kalam  # noqa: E402
 
 logger = get_logger(__name__)
@@ -88,7 +89,8 @@ EXCLUDED_FIELDS = (
 
 
 def tamil_ratio(text: str) -> float:
-    return len(TAMIL.findall(text)) / max(1, len(text))
+    """Share of Tamil characters, measured over the raw length (canonical: adhan#125)."""
+    return _tamil_ratio(text, strip_whitespace=False)
 
 
 def is_quality(text: str, min_chars: int = 40, min_tamil: float = 0.70) -> bool:

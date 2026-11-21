@@ -164,7 +164,7 @@ def measure(name: str, tok, ref_tok, docs: List[dict]) -> dict:
         try:
             if tok.decode(ids) == t:
                 lossless += 1
-        except Exception:
+        except Exception:  # noqa: S110 - a decode failure is counted as "not lossless"
             pass
 
     return {

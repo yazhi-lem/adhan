@@ -173,7 +173,7 @@ See `docs/behaviour/EVAL_TAMIL.md` (Phase 4) and MLflow evaluation runs for the 
 
 Export → INT8 → INT4 weight-only → benchmark on a Raspberry Pi 5 / reference phone. Launch target: **INT4 nano
 ≤ 30 MB, > 10 tok/s on-device, fully offline**. The export scripts predate the JAX model and are being reworked
-(`factory/NEXT.md` N9).
+(tracked in the GitHub issue tracker).
 
 ## 7. Integration with yazhi-api (deployment)
 

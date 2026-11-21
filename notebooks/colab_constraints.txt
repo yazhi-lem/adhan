@@ -1,0 +1,13 @@
+# Supported Colab environment for notebooks/colab_pytorch_workspace.ipynb
+#
+# These are *validation* bounds, not an install list. Colab ships a torch build matched to the
+# CUDA driver it hands you for the session; force-reinstalling a different torch (or numpy) breaks
+# that match and can corrupt the runtime in a way a kernel restart does not fix. So the notebook
+# checks what is installed against these bounds and warns, instead of pip-installing over it.
+#
+# Format: name==version, name>=version, name<=version, name>version, name<version
+# Keep this file in sync with what the notebook actually needs.
+
+python>=3.10
+torch>=2.4,<3
+numpy>=1.26,<3

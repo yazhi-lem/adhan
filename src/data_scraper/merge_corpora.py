@@ -17,6 +17,11 @@ import random
 from collections import defaultdict
 from pathlib import Path
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, UNREADABLE_FILE, log_skipped
+
+logger = get_logger(__name__)
+
 # Domain-specific weights for VAZHI knowledge packs
 DOMAIN_WEIGHTS = {
     "security": 4.0,
@@ -51,7 +56,15 @@ def load_adhan_corpus(adhan_dir: Path) -> list[dict]:
                     continue
                 try:
                     obj = json.loads(line)
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as exc:
+                    log_skipped(
+                        logger,
+                        "read corpus line",
+                        reason=MALFORMED_JSON,
+                        path=path,
+                        error=exc,
+                        line=lineno,
+                    )
                     continue
                 text = obj.get("text", "")
                 if not text:
@@ -82,7 +95,8 @@ def load_vazhi_packs(vazhi_repo: Path) -> list[dict]:
         try:
             with pack_file.open(encoding="utf-8") as fh:
                 data = json.load(fh)
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as exc:
+            log_skipped(logger, "read pack file", reason=UNREADABLE_FILE, path=pack_file, error=exc)
             continue
 
         # Support both a list of conversations and a dict with a "conversations" key

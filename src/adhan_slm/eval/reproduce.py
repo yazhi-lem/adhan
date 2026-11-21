@@ -98,7 +98,7 @@ def environment() -> Dict[str, str]:
     for pkg in ("tokenizers", "transformers"):
         try:
             env[pkg] = metadata.version(pkg)
-        except metadata.PackageNotFoundError:
+        except metadata.PackageNotFoundError:  # noqa: S110 - absence is the answer we want
             pass
     return env
 

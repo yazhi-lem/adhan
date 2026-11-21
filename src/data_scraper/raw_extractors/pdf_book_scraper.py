@@ -16,19 +16,25 @@ Example:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import CONVERSION_FAILED, SOURCE_FAILED, UNREADABLE_FILE, log_skipped
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
+
+logger = get_logger(__name__)
+
 OUT_DIR = Path("data/raw/pdf_books_manifests")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8", errors="ignore")).hexdigest()
+    """SHA-256 of ``s``, ignoring undecodable bytes (canonical: adhan#125)."""
+    return _sha256_hex(s, errors="ignore")
 
 
 def looks_like_tscii(s: str) -> bool:
@@ -56,8 +62,8 @@ def tscii_to_unicode(s: str) -> str:
             return tamil.tscii.convert_to_unicode(s)
         if hasattr(tamil, "txt2unicode") and hasattr(tamil.txt2unicode, "tscii2unicode"):
             return tamil.txt2unicode.tscii2unicode(s)
-    except Exception:
-        pass
+    except Exception as exc:  # noqa: BLE001 - fall back to the raw text, but say so
+        log_skipped(logger, "convert TSCII", reason=CONVERSION_FAILED, error=exc)
     return s
 
 
@@ -139,8 +145,8 @@ def scrape_domains(
         print(f"[START] domain={d} limit={limit} translate={translate}")
         try:
             recs = scraper.extract_pdfs_from_sitemap(d, limit=(limit or 0))
-        except Exception as e:
-            print(f"[ERROR] extract_pdfs_from_sitemap failed for {d}: {e}")
+        except Exception as exc:  # noqa: BLE001 - one domain must not stop the run
+            log_skipped(logger, "extract sitemap", reason=SOURCE_FAILED, path=d, error=exc)
             recs = []
 
         processed = []
@@ -159,8 +165,14 @@ def scrape_domains(
                     if looks_like_tscii(raw):
                         raw = tscii_to_unicode(raw)
                     text = raw
-                except Exception:
-                    pass
+                except Exception as exc:  # noqa: BLE001 - one record must not stop the run
+                    log_skipped(
+                        logger,
+                        "read extracted text",
+                        reason=UNREADABLE_FILE,
+                        path=r.get("text_path"),
+                        error=exc,
+                    )
 
             r["text"] = text
             r["char_count"] = len(text)

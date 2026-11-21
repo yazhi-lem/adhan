@@ -21,7 +21,6 @@ Output:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import logging
 import re
@@ -31,6 +30,8 @@ from typing import Generator, Optional
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
+
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -59,7 +60,8 @@ REQUEST_DELAY = 2.0  # seconds between requests to stay within rate limits
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    """SHA-256 of ``s`` as hex (canonical: adhan#125)."""
+    return _sha256_hex(s)
 
 
 def tamil_fraction(text: str) -> float:
