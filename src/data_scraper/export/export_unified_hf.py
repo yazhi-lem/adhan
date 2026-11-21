@@ -13,6 +13,11 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, log_skipped
+
+logger = get_logger(__name__)
+
 
 def load_records(input_file: Path) -> List[Dict]:
     """Load records from JSONL file."""
@@ -25,7 +30,8 @@ def load_records(input_file: Path) -> List[Dict]:
             try:
                 obj = json.loads(line)
                 records.append(obj)
-            except Exception:
+            except Exception as exc:  # noqa: BLE001 - one bad line must not stop the export
+                log_skipped(logger, "read corpus line", reason=MALFORMED_JSON, error=exc)
                 continue
 
     return records
@@ -191,7 +197,6 @@ def write_readme(
 
 ```python
 from datasets import load_dataset
-
 dataset = load_dataset("json", data_files={{
     "train": "train.jsonl",
     "validation": "validation.jsonl",

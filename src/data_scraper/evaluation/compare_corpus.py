@@ -8,6 +8,11 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, log_skipped
+
+logger = get_logger(__name__)
+
 
 def analyze_corpus(jsonl_path):
     """Analyze a corpus JSONL file."""
@@ -16,8 +21,8 @@ def analyze_corpus(jsonl_path):
         for line in fh:
             try:
                 records.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as exc:
+                log_skipped(logger, "read corpus line", reason=MALFORMED_JSON, error=exc)
 
     # Source distribution
     src_dist = defaultdict(int)

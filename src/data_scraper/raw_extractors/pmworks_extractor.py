@@ -21,7 +21,16 @@ from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import (
+    CONVERSION_FAILED,
+    UNREADABLE_FILE,
+    WRONG_SHAPE,
+    log_skipped,
+)
 from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
+
+logger = get_logger(__name__)
 
 BASE_RAW = Path("data/raw/raw_html/projectmadurai.org")
 PMWORKS_HTML = BASE_RAW / "pmworks.html"
@@ -91,8 +100,8 @@ def extract_pdf_text_if_possible(pdf_path: Path) -> str:
     try:
         if looks_like_tscii(txt):
             txt = tscii_to_unicode(txt)
-    except Exception:
-        pass
+    except Exception as exc:  # noqa: BLE001 - keep the raw text, but say so
+        log_skipped(logger, "convert TSCII", reason=CONVERSION_FAILED, error=exc)
 
     return txt
 
@@ -179,8 +188,8 @@ def tscii_to_unicode(s: str) -> str:
         # fallback
         if hasattr(tamil, "txt2unicode") and hasattr(tamil.txt2unicode, "tscii2unicode"):
             return tamil.txt2unicode.tscii2unicode(s)
-    except Exception as e:
-        print(f"[WARN] TSCII->Unicode conversion failed: {e}", flush=True)
+    except Exception as exc:  # noqa: BLE001 - keep the raw text, but say so
+        log_skipped(logger, "convert TSCII", reason=CONVERSION_FAILED, error=exc)
     return s
 
 
@@ -231,8 +240,8 @@ def build_library(
             try:
                 # read raw bytes then decode according to declared charset (preserve TSCII bytes)
                 raw_bytes = lp.read_bytes()
-            except Exception as e:
-                print(f"[WARN] Could not read {lp}: {e}", flush=True)
+            except Exception as exc:  # noqa: BLE001 - one work must not stop the run
+                log_skipped(logger, "read work html", reason=UNREADABLE_FILE, path=lp, error=exc)
                 html_records.append(
                     {
                         "work_no": work_no,
@@ -253,7 +262,8 @@ def build_library(
             if m:
                 try:
                     declared = m.group(1).decode("ascii", errors="ignore").lower()
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - charset is advisory
+                    log_skipped(logger, "decode charset", reason=CONVERSION_FAILED, error=exc)
                     declared = ""
 
             # decode bytes: if TSCII/x-user-defined declared, use latin-1 to preserve 0x80-0xFF
@@ -262,7 +272,8 @@ def build_library(
             else:
                 try:
                     raw_html = raw_bytes.decode("utf-8")
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - latin-1 fallback is intentional
+                    log_skipped(logger, "decode html as utf-8", reason=CONVERSION_FAILED, error=exc)
                     raw_html = raw_bytes.decode("latin-1", errors="ignore")
 
             # convert legacy TSCII to Unicode if detected
@@ -326,7 +337,8 @@ def build_library(
     for rec in records:
         try:
             wid = f"pm{int(rec['work_no']):04d}"
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as exc:
+            log_skipped(logger, "derive work id", reason=WRONG_SHAPE, error=exc)
             wid = Path(rec.get("html_path") or "").stem or rec.get("work_no") or "unknown"
         groups.setdefault(wid, []).append(rec)
 

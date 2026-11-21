@@ -134,7 +134,11 @@ line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+# S110 (try/except/pass) and E722 (bare except) are enabled because a swallowed exception in a
+# corpus pipeline silently drops records and makes published numbers irreproducible (adhan#124).
+# BLE001 (blind except) is deliberately NOT enabled: catching Exception at a source boundary is
+# the intended pattern here, and every such site now logs with structured context.
+select = ["E", "F", "W", "I", "S110", "E722"]
 ignore = ["E501"]  # Line too long (handled by black)
 
 [tool.mypy]

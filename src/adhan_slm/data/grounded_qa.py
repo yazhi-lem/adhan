@@ -28,6 +28,10 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from adhan_slm import protocol as p
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import MALFORMED_JSON, log_skipped
+
+logger = get_logger(__name__)
 
 TASK_QA = "qa_grounded"
 TASK_CLOZE = "qa_cloze"
@@ -188,7 +192,14 @@ def _read_corpus(dir_path: Path) -> Iterable[Tuple[str, str]]:
                         continue
                     try:
                         obj = json.loads(line)
-                    except json.JSONDecodeError:
+                    except json.JSONDecodeError as exc:
+                        log_skipped(
+                            logger,
+                            "read grounded-qa line",
+                            reason=MALFORMED_JSON,
+                            path=path,
+                            error=exc,
+                        )
                         continue
                     text = (obj.get("text") or "").strip()
                     if text:

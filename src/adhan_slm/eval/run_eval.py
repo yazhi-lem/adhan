@@ -110,7 +110,7 @@ def probe_model(config, checkpoint, tokenizer_dir, tok, texts, n_samples=5):
     result = {"status": "ok"}
     try:
         model, params, model_cfg = load_model(config, checkpoint, vocab_size=len(tok))
-    except (ImportError, FileNotFoundError) as e:
+    except (ImportError, FileNotFoundError) as e:  # noqa: BLE001 - recorded as a typed result
         return {"status": "skipped", "reason": str(e)}
 
     val_bin = Path(tokenizer_dir) / "val.bin"

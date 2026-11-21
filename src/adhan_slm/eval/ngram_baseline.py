@@ -22,7 +22,7 @@ try:
     from ngram.LetterModels import Unigram as _OtUnigram
 
     HAS_OPEN_TAMIL = True
-except ImportError:
+except ImportError:  # noqa: S110 - optional dependency probe: the n-gram baseline degrades
     HAS_OPEN_TAMIL = False
     _ot_utf8 = None
     _OtUnigram = None
