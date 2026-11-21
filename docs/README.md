@@ -2,7 +2,7 @@
 
 | Folder | What's in it |
 |---|---|
-| [`./`](.) | [`ROADMAP_JAX_SLM.md`](ROADMAP_JAX_SLM.md) (thesis, tiers, phases) · [`DEV.md`](DEV.md) (command sequence) |
+| [`./`](.) | [`DEV.md`](DEV.md) (command sequence) · [`EVAL_CORPUS.md`](EVAL_CORPUS.md) · [`REPRODUCE_BENCHMARK.md`](REPRODUCE_BENCHMARK.md) |
 | [`architecture/`](architecture) | Swaram SLM design · tiṇai conditioning · Yazh foundation |
 | [`tokenizer/`](tokenizer) | Whitepaper · **canonical token-tax table (V3)** · tokenizer benchmarks V2/V3 |
 | [`corpus/`](corpus) | Expansion v1/v2 · digital libraries · corpus health · purity + mixture weighting · Sangam ingest |
@@ -12,4 +12,5 @@
 | [`strategy/`](strategy) | Multilingual scope · the name |
 | [`reports/`](reports) | Generated eval reports (JSON) |
 
-Live plan: [`../factory/`](../factory). Retired docs: [`../archives/`](../archives).
+Live plan: the GitHub issue tracker (the `factory/` planning docs were removed in `bb99d6f`).
+Retired docs: [`../archives/`](../archives).
