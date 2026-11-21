@@ -160,6 +160,17 @@ def is_quality(text: str, config: QualityConfig = V1_QUALITY) -> bool:
 # -- near-duplicate detection -------------------------------------------------------
 
 
+def _fingerprint(text: str) -> str:
+    """Exact-duplicate fingerprint.
+
+    SHA-1 is used as a content fingerprint, not for security: collisions are not an attack
+    surface here, and the digest is what the existing corpus state files already contain, so
+    changing the algorithm would invalidate every resume. ``usedforsecurity=False`` says that
+    explicitly (and keeps bandit's B324 quiet, which is why it is not a bare ``sha1()``).
+    """
+    return hashlib.sha1(text.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+
 class LshDedup:
     """Exact + near-duplicate filtering with banded LSH.
 
@@ -219,10 +230,10 @@ class LshDedup:
         Signatures are not rebuilt because that costs a full minhash pass over the archive; exact
         hashing already catches the dominant duplication vector, re-reading the same source.
         """
-        self.exact.add(hashlib.sha1(text.encode("utf-8")).hexdigest())
+        self.exact.add(_fingerprint(text))
 
     def is_duplicate(self, text: str) -> bool:
-        digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
+        digest = _fingerprint(text)
         if digest in self.exact:
             return True
 
