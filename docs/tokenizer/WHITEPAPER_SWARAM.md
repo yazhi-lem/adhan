@@ -76,7 +76,8 @@ akshara-first, and no English byte-pair statistics constrain Tamil.
 The Tamil block is U+0B80–U+0BFF. An akshara consists of a base character
 (a vowel, a consonant, or the *aytham* ஃ) followed by zero or more combining
 marks: the vowel signs U+0BBE–U+0BCC and the virama/pulli U+0BCD. Tamil also
-uses Grantha consonants (ஜ ஷ ஸ ஹ) and ligatures (க்ஷ, ஸ்ரீ) for loanwords.
+uses Grantha consonants (ஜ ஷ ஸ ஹ ஶ) and ligatures (க்ஷ, ஸ்ரீ) for loanwords.
+The conjuncts are composed of those consonants, so the five consonants cover them.
 
 This structure is *regular*: segmentation does not require a learned model and
 is lossless. That is the key property English-centric tokenizers do not exploit.
