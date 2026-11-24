@@ -24,22 +24,67 @@ from adhan_slm.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Grantha characters in Tamil block
-GRANTHA_CHARS = set("ஜஷஸஹக்ஷ")
+# Grantha consonants in the Tamil block, used for loanwords. The set must match
+# docs/architecture/ARCHITECTURE_SWARAM_SLM.md, which lists ஜ ஷ ஸ ஹ ஶ.
+#
+# Two bugs lived in the previous set("ஜஷஸஹக்ஷ"):
+#   * ஶ (U+0BB6) was missing, so ஶ-form words (ஶ்ரீ, ஶிவா) scored as pure.
+#   * க்ஷ is three codepoints (க + ் + ஷ), so set() also captured க and the
+#     pulli ் — every க in Tamil text was counted as Grantha, depressing the
+#     score for ordinary words. The conjuncts க்ஷ and ஸ்ரீ are composed of the
+#     consonants above, so ஷ and ஸ already cover them; no extra entry is needed.
+GRANTHA_CHARS = set("ஜஷஸஹஶ")
 TAMIL_START = 0x0B80
 TAMIL_END = 0x0BFF
 
 
-def compute_pure_tamil_purity(text: str) -> float:
-    """Calculate the ratio of pure native Tamil characters (excluding Grantha letters)."""
+def compute_purity_breakdown(text: str) -> Dict[str, Any]:
+    """Return the letter counts behind :func:`compute_pure_tamil_purity`.
+
+    The denominator is *letters* (``str.isalpha()``), not Tamil-block characters.
+    That distinction matters: the previous version divided only by Tamil-block
+    characters, so Latin-script code-switching never reached the denominator and
+    ``"கூல் AI"`` scored 1.0. Punctuation and digits are excluded, so they do not
+    depress the score either.
+
+    ``other_letters`` counts letters outside the Tamil block. It is reported so
+    callers can distinguish "no Grantha, no English" from "no Grantha, but half
+    the sentence is English" — two very different claims that the single float
+    cannot separate.
+
+    This metric still cannot see *vocabulary*: a Sanskrit stem written in Tamil
+    letters (தர்மம், சந்தோஷம்) is all Tamil script and scores as pure. Use the
+    tamil-tani-tamil guidance for that judgement; this function measures script.
+    """
     clean = re.sub(r"\s+", "", text)
-    if not clean:
-        return 1.0
-    tamil_chars = [c for c in clean if TAMIL_START <= ord(c) <= TAMIL_END]
-    if not tamil_chars:
-        return 0.0
-    grantha_count = sum(1 for c in tamil_chars if c in GRANTHA_CHARS)
-    return (len(tamil_chars) - grantha_count) / len(tamil_chars)
+    letters = [c for c in clean if c.isalpha()]
+    if not letters:
+        return {
+            "purity": 1.0,
+            "tamil_letters": 0,
+            "grantha_letters": 0,
+            "other_letters": 0,
+        }
+
+    tamil_letters = [c for c in letters if TAMIL_START <= ord(c) <= TAMIL_END]
+    grantha_count = sum(1 for c in tamil_letters if c in GRANTHA_CHARS)
+    native_tamil = len(tamil_letters) - grantha_count
+    return {
+        "purity": native_tamil / len(letters),
+        "tamil_letters": len(tamil_letters),
+        "grantha_letters": grantha_count,
+        "other_letters": len(letters) - len(tamil_letters),
+    }
+
+
+def compute_pure_tamil_purity(text: str) -> float:
+    """Ratio of native Tamil letters to all letters, excluding Grantha and Latin.
+
+    Returns 0.0 when the text has letters but none in the Tamil block, and 1.0
+    when there are no letters at all. See :func:`compute_purity_breakdown` for the
+    counts and for the vocabulary limitation this metric cannot measure.
+    """
+    return compute_purity_breakdown(text)["purity"]
 
 
 class ThirukkuralEvaluator:
