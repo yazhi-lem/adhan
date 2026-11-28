@@ -1,0 +1,41 @@
+{
+  "per_register": 500,
+  "seed": 13,
+  "min_chars": 15,
+  "max_chars": 300,
+  "content_filter": "eval_manifests/content_blocklist.v2.json",
+  "sources": [
+    {
+      "id": "thirukkural",
+      "register": "classical",
+      "path": "data/raw/thirukkural/thirukkural_verses.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "Public domain (Thirukkural, Tamil classical text; transcription: github.com/tk120404/thirukkural @ cf3ff6c, Apache-2.0 repository). Third-party commentaries in the upstream file are deliberately not included.",
+      "url": "https://github.com/tk120404/thirukkural"
+    },
+    {
+      "id": "wikipedia-ta",
+      "register": "modern",
+      "path": "data/raw/modern_tamil/wikipedia_ta.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "CC BY-SA 4.0 (edits since June 2023) and CC BY-SA 3.0 (older revisions); all also GFDL (Wikimedia dump terms)",
+      "url": "https://huggingface.co/datasets/wikimedia/wikipedia/config/20231101.ta"
+    },
+    {
+      "id": "tanglish-social",
+      "register": "tanglish",
+      "path": "data/raw/tanglish/tanglish_corpus.jsonl",
+      "format": "jsonl",
+      "text_field": "text",
+      "license": "DravidianCodeMix subset (~32k rows) CC-BY-4.0; the remaining rows are YouTube and Reddit comments under platform terms. Publishing any of it is a separate decision; only hashes and counts are committed here.",
+      "url": "https://huggingface.co/datasets/vishnu-n/Tanglish-Corpus-185k"
+    }
+  ],
+  "mask": [
+    "url",
+    "handle",
+    "hashtag"
+  ]
+}

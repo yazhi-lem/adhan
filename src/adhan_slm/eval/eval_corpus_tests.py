@@ -217,6 +217,68 @@ def _write_blocklist(base, politics_terms):
     return path
 
 
+def test_mask_identifiers_replaces_handles_urls_and_hashtags():
+    masked, counts = ec.mask_identifiers(
+        "bro @someuser watch https://youtu.be/x #trending #சினிமா da"
+    )
+    assert masked == "bro <user> watch <url> <hashtag> <hashtag> da"
+    assert counts == {"url": 1, "handle": 1, "hashtag": 2}
+
+
+def test_mask_identifiers_leaves_ordinary_text_alone():
+    text = "bro office ku late ah vanthen romba tired ah iruku"
+    masked, counts = ec.mask_identifiers(text)
+    assert masked == text
+    assert sum(counts.values()) == 0
+
+
+def test_mask_rejects_unknown_kinds():
+    try:
+        ec.mask_identifiers("x", ["passwords"])
+    except ec.EvalCorpusError as exc:
+        assert "mask kind" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("accepted an unknown mask kind")
+
+
+def test_spec_rejects_unknown_mask_kinds():
+    with tempfile.TemporaryDirectory() as d:
+        raw = _make_spec(Path(d)).to_dict()
+        raw["mask"] = ["passwords"]
+        try:
+            ec.Spec.from_dict(raw)
+        except ec.EvalCorpusError as exc:
+            assert "mask kind" in str(exc)
+        else:  # pragma: no cover
+            raise AssertionError("accepted an unknown mask kind")
+
+
+def test_build_masks_before_sampling_and_records_it():
+    """Handles must be gone from the frozen sample, not just from a display layer."""
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, mask=["handle", "url"])
+        (base / "tg.txt").write_text(
+            "\n".join(_tanglish_sentences(20)) + "\nbro @realname watch https://t.co/x da\n",
+            encoding="utf-8",
+        )
+        res = ec.build(spec, base)
+        texts = " ".join(r["text"] for r in res["records"])
+        assert "@realname" not in texts
+        assert "https://" not in texts
+        stats = res["manifest"]["counts"]["per_source"]["t1"]
+        assert stats["masked"] == {"handle": 1, "url": 1}
+        assert res["manifest"]["spec"]["mask"] == ["handle", "url"]
+
+
+def test_verify_reports_a_missing_corpus_without_a_traceback():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        res = ec.build(_make_spec(base, per_register=3), base)
+        problems = ec.verify(base / "does-not-exist.jsonl", res["manifest"], base)
+        assert problems and "run the build first" in problems[0]
+
+
 def test_content_filter_drops_matching_candidates_and_counts_them():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
@@ -236,6 +298,15 @@ def test_content_filter_drops_matching_candidates_and_counts_them():
         assert desc["version"] == "test-v1"
         assert desc["categories"] == ["politics"]
         assert len(desc["sha256"]) == 64
+
+
+def test_content_filter_path_is_repo_relative_in_the_manifest():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        spec = _make_spec(base, per_register=5, content_filter="blocklist.json")
+        _write_blocklist(base, ["election"])
+        desc = ec.build(spec, base)["manifest"]["content_filter"]
+        assert desc["path"] == "blocklist.json", desc["path"]
 
 
 def test_content_filter_absent_records_no_filter_and_blocks_nothing():
