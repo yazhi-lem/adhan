@@ -14,13 +14,14 @@ Usage:
 """
 
 import argparse
-import hashlib
 import json
 import re
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
+
+from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
 
 BASE_RAW = Path("data/raw/raw_html/projectmadurai.org")
 PMWORKS_HTML = BASE_RAW / "pmworks.html"
@@ -29,7 +30,8 @@ OUT_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def sha256_hex(s: str) -> str:
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    """SHA-256 of ``s`` as hex (canonical: adhan#125)."""
+    return _sha256_hex(s)
 
 
 def parse_pmworks_table(html_path: Path) -> List[Dict]:
