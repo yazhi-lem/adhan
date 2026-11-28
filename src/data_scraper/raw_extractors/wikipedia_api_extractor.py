@@ -22,15 +22,17 @@ from typing import List, Set
 
 try:
     import wikipediaapi
-except Exception:
+except Exception:  # noqa: S110 - optional dependency probe: the API path is skipped
     wikipediaapi = None
 
 from tamil_corpus_scraper import TamilCorpusScraper
 
+from adhan_slm.core.logging import get_logger
+from adhan_slm.core.skip_log import SOURCE_FAILED, log_skipped
 from adhan_slm.data.corpus_hygiene import sha256_hex as _sha256_hex
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 SENT_SPLIT_RE = re.compile(r"[\n\.!?।]+")
 
@@ -75,7 +77,8 @@ def fetch_articles_by_keywords(wiki, keywords: List[str], max_per_kw: int = 300)
                                 "url": f"https://ta.wikipedia.org/wiki/{title.replace(' ', '_')}",
                             }
                         )
-            except Exception:
+            except Exception as exc:  # noqa: BLE001 - one article must not stop the crawl
+                log_skipped(logger, "fetch article", reason=SOURCE_FAILED, error=exc)
                 continue
     logger.info(f"Fetched {len(articles)} articles from search keywords")
     return articles
@@ -124,8 +127,8 @@ def main():
                                 "url": f"https://ta.wikipedia.org/wiki/{title.replace(' ', '_')}",
                             }
                         )
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 - one category must not stop the crawl
+            log_skipped(logger, "fetch category", reason=SOURCE_FAILED, error=exc)
 
     sentences = []
     for art in articles:
