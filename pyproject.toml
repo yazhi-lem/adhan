@@ -75,6 +75,12 @@ benchmark = [
     "tokenizers>=0.15.0",
     "sentencepiece>=0.1.99",
 ]
+# Frozen-eval-corpus fetch only: parquet readers for the dump-backed sources
+# (scripts/fetch_modern_tamil.py). The corpus builder itself is standard-library only.
+eval-corpus = [
+    "pyarrow>=15",
+    "huggingface-hub>=0.23",
+]
 # Frozen-encoder probes (MuRIL etc.). Flax backend; torch is not required.
 muril = [
     "transformers>=4.40,<5",
@@ -94,7 +100,7 @@ dev = [
     "mypy>=1.5.0",
 ]
 all = [
-    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,serving,dev]",
+    "adhan-slm[jax,torch,tamil-nlp,data-collection,benchmark,serving,eval-corpus,dev]",
 ]
 
 [project.urls]

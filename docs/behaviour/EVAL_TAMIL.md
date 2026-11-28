@@ -33,6 +33,27 @@ python -m adhan_slm.eval.run_eval \
 | **morphology** | `eval/morphology.py` | Fraction of inflected words whose tokenizer merge boundary matches open-tamil's stemmer split; sandhi (புணர்ச்சி) correctness rate. | §Phase 4 |
 | **model** | `eval/perplexity.py` | Trained-model **per-token validation perplexity** on `val.bin`, plus sample generations. Directly comparable to the classical floor and (later) a distilgpt2 baseline. | §Phase 3 |
 | **kid_prompts** | `eval/kid_level_prompts.py` | The 50-prompt kid-level set (5–7-year-old register) from open-tamil lexicons, with model generations when a checkpoint is given. | §Phase 4 |
+| **purity** | `eval/thirukkural_eval.py` | Native-Tamil letter ratio: Tamil letters minus Grantha consonants, over *all* letters. Punctuation and digits are excluded. Reported alongside the letter counts so a Grantha-free score is not mistaken for a code-switch-free one. | §Phase 4 |
+
+### What the purity metric does and does not measure
+
+`compute_pure_tamil_purity` divides native Tamil letters by all letters:
+
+```
+purity = (tamil_letters - grantha_letters) / all_letters
+```
+
+Grantha consonants are ஜ ஷ ஸ ஹ ஶ; the conjuncts க்ஷ and ஸ்ரீ are composed of
+them. Two limits are deliberate:
+
+- **It measures script, not vocabulary.** A Sanskrit stem written in Tamil
+  letters (தர்மம், சந்தோஷம்) is all Tamil script and scores as pure. Vocabulary
+  purity is a writing judgement, not a metric.
+- **It is not a grammar check.** A sentence of pure letters in English word
+  order scores 1.0. Purity is necessary, not sufficient, for good Tamil.
+
+Use `compute_purity_breakdown` when a report needs to separate "no Grantha" from
+"no Latin script"; the single float cannot tell those apart.
 
 ## Milestone criteria (first launch, `adhan-nano` v0.1)
 
