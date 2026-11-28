@@ -4,7 +4,7 @@
 **Date:** 2026-11-03
 **Decider:** Founder · **Drafters:** Adhan DRI
 **Supersedes:** the undecided "from scratch vs fine-tune" question open since 6 Oct
-**Related:** `factory/NEXT.md` N2 · `factory/RUNWAY.md` §6 · `docs/reviews/2026-11-03-battle-plan.md` §3
+**Related:** GitHub issues #107–#115 (K1–K9) · `docs/reviews/2026-11-03-battle-plan.md` §3 · `docs/reports/k5_reference_device.md`
 
 ---
 
@@ -15,17 +15,17 @@ Kutty v1 is due **26 Dec 2026 (53 days)**. The facts that constrain the decision
 | Fact | Value | Source |
 |---|---|---|
 | Best from-scratch checkpoint | `adhan-nano`, 14.5M params, Stage 1b step 4,881, val **1.820 bits/akshara** | `docs/reports/eval_report_nano_stage1b.json` |
-| Stage 1b generation quality | short Tamil is not coherent; no SFT run yet | `factory/CURRENT.md` §1 |
+| Stage 1b generation quality | short Tamil is not coherent; no SFT run yet | `docs/reports/eval_report_nano_stage1b.json` |
 | Tokenizer A/B | Swaram **loses** to a Tamil-trained SentencePiece BPE: 0.527 vs 0.346 tok/akshara (1.52× more tokens) | `docs/reports/ab_swaram_vs_bpe.md` |
 | Morphology gate G3 | boundary agreement 5.6–24.2%, gate ≥ 30% | `docs/tokenizer/TOKENIZER_BENCHMARK_V2.md` |
-| GPU | none; CPU host sustains ~2,000 tok/s | `factory/CURRENT.md` §3, B3 |
+| GPU | none; CPU host sustains ~2,000 tok/s | issue #107 (K1) |
 | SFT data | ~11.2k examples (Sangam 9,961 + grounded QA 1,271), never trained | `data/final/sft_*/stats.json` |
-| Export | ONNX/quantize still target the removed HF pipeline | `factory/CURRENT.md` B2 |
-| Public claim | yazhi.dev says "7B-parameter · 22+ Indian languages" — false | `factory/CURRENT.md` B5 |
+| Export | ONNX/quantize still target the removed HF pipeline | issue #110 (K4) |
+| Public claim | yazhi.dev says "7B-parameter · 22+ Indian languages" — false | issue #116 |
 
 The from-scratch thesis still has one untested claim: that *akshara-native tokens produce a
-better Tamil model at equal compute*, independent of raw compression. That is `N14b`.
-It needs a GPU and is due 14 Nov. Kutty v1 cannot wait for a positive result to start.
+better Tamil model at equal compute*, independent of raw compression. That is the Swaram-vs-BPE model-level A/B.
+It needs a GPU. Kutty v1 cannot wait for a positive result to start.
 
 ## 2. Decision (recommended)
 
@@ -43,15 +43,18 @@ research artifact.**
 3. **SFT scope for v1:** Sangam and grounded QA first, with citations and refusal. Add
    conversation only if the Sangam + QA sets clear their gates in time. Assistant-turn loss
    only; 2–3 epochs; a no-SFT regression gate is mandatory.
-4. **Target device:** a ₹10–15k Android reference phone, INT8, via ONNX Runtime Mobile or a
-   llama.cpp-class runtime. The exact device and runtime are recorded by N12 before
-   procurement.
+4. **Target device:** a ₹10–15k Android reference phone with **8 GB RAM / 128 GB storage**,
+   Android 13+, running **INT4** through **`llama.cpp` (GGUF Q4_K_M)**, with ONNX Runtime GenAI as
+   the documented fallback. The exact model is a procurement detail recorded at purchase with its
+   build fingerprint; the runtime and export format are the architectural choices. Decision and
+   reasoning: [`docs/reports/k5_reference_device.md`](../reports/k5_reference_device.md).
 5. **Tokenizer for Kutty v1:** the chosen base's tokenizer. Swaram is used in Kutty v1
    **only if** N14b shows ≥ 10% lower held-out bits/akshara at equal compute. A tokenizer
    swap after training starts invalidates the run.
-6. **Go/no-go bar:** the ship bars in `factory/RUNWAY.md` §6. If they are missed, use the
-   cut list — last resort is a **research preview** (tokenizer + base checkpoint + model
-   card), not a lower quality gate.
+6. **Go/no-go bar:** the ship bars tracked in the GitHub issues (the factory planning docs were
+   removed in `bb99d6f`; issues are the source of truth). If they are missed, use the cut list —
+   last resort is a **research preview** (tokenizer + base checkpoint + model card), not a lower
+   quality gate.
 
 ## 3. Why (c), not (a) or (b)
 
@@ -101,7 +104,7 @@ vs research) and must keep them clearly separated in public copy.
 | F2 | Select the base: licence, Tamil tokenizer, context, size, INT8 support | Adhan DRI | before N14b/Stage 2 |
 | F3 | Run N14b (Swaram vs BPE at model level) | Adhan DRI | 14 Nov |
 | F4 | Rework export for the chosen base/runtime (N9) | Adhan DRI | 7 Nov spike |
-| F5 | Pick reference phone + runtime (N12) | Adhan DRI | 7 Nov |
+| F5 | Pick reference phone + runtime (N12) | Adhan DRI | **done** — `docs/reports/k5_reference_device.md` |
 | F6 | Correct the public claim on yazhi.dev (N5) | Founder + yazhi-dev | 4 Nov |
 
 If F1 rejects option (c), this ADR is superseded and option (a) must be re-costed against

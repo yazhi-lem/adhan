@@ -1,7 +1,7 @@
 # Adhan SLM Deployment Guide
 
 How to serve Adhan locally, in a container, and through **yazhi-api**. The production checklist and the release
-process are in `factory/RUNWAY.md` and `archives/2026-10-27-docs-digest.md` §4.
+process are tracked in the GitHub issues (K4/K5/K9) and `archives/2026-10-27-docs-digest.md` §4.
 
 ## Run the API
 

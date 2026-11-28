@@ -104,7 +104,7 @@ Counter to the usual assumption, bf16 is **not** a pessimisation on CPU. Measure
 XLA:CPU lowers bf16 fine and the halved memory traffic wins. So `dtype: bfloat16`
 stays the default on CPU. `float16` is *rejected* on CPU rather than silently upcast —
 a run whose logged precision is wrong is a run that cannot be reproduced
-(ROADMAP_JAX_SLM §5).
+(see the GitHub issues for the current phase plan).
 
 ### Gradient accumulation, not a bigger batch
 
@@ -206,6 +206,6 @@ PYTHONPATH=src python -m adhan_slm.data.packing_tests
 
 ## See also
 
-- [`docs/ROADMAP_JAX_SLM.md`](../ROADMAP_JAX_SLM.md) — Phase 3 (pretrain) and Phase 6 (ship)
+- The GitHub issue tracker — current phase plan (the roadmap doc was removed in `bb99d6f`)
 - [`docs/training/COLAB_T4.md`](COLAB_T4.md) — single-GPU (free T4) throughput profile
 - [`docs/behaviour/EVAL_TAMIL.md`](../behaviour/EVAL_TAMIL.md) — the eval harness these runs feed

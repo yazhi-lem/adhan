@@ -1,7 +1,7 @@
 # N3 — Tanglish eval source: options and recommendation
 
 **Date:** 2026-11-03
-**Task:** unblock the `tanglish` register of the frozen tokenizer benchmark (`factory/NEXT.md` N3)
+**Task:** unblock the `tanglish` register of the frozen tokenizer benchmark (issue #112, K6)
 **Status:** scope complete; selection proposed, implementation not started
 
 ---
