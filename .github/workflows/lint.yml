@@ -4,7 +4,9 @@ on:
   push:
     branches: [main, claude/**]
   pull_request:
-    branches: [main]
+    # Every PR, not only the ones targeting main: the eval/model work lands as
+    # stacked PRs whose base is another feature branch, and a stack member with
+    # no checks is a PR nobody can review (six open PRs were in that state).
 
 jobs:
   lint:
