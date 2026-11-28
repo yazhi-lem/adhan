@@ -24,7 +24,8 @@ The same thing without the shell wrapper: `PYTHONPATH=src python scripts/reprodu
 
 ## Config
 
-`eval_manifests/tokenizer_bench.reproduce.json` (copy the `.example.json` and fill it in):
+`eval_manifests/tokenizer_bench.reproduce.json` is committed and is what the published tables
+were generated from. The `.example.json` next to it documents the shape for a new benchmark:
 
 | Key | Meaning |
 |---|---|
@@ -33,9 +34,15 @@ The same thing without the shell wrapper: `PYTHONPATH=src python scripts/reprodu
 | `tokenizers` | list of `swaram` (vocab, merges), `tokenizers-json` (path), `transformers-local` (path), `baselines` |
 | `pins` | `{"package": "version"}`; a mismatch fails the run |
 | `fetch` | `{"source id": "fetcher name"}` for sources that can be downloaded |
+| `tokenizer_fetch` | `{"tokenizer name": "pinned URL"}` for tokenizer files a clean clone must download |
 | `price_per_million` | optional USD per 1M tokens, adds the cost column |
 
 Tokenizer paths are relative to the repo root. Gemma and Llama tokenizers are excluded.
+
+The Swaram tokenizer files are **committed** under `eval_manifests/tokenizers/swaram-v3/`: the
+tokenizer is the thing being measured, so it cannot live in git-ignored `data/`. The Qwen3
+tokenizer is fetched from the pinned URL in `tokenizer_fetch`, so a clean clone needs no manual
+setup.
 
 ## Why the tables are reproducible
 

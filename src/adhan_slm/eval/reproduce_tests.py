@@ -151,6 +151,113 @@ def test_missing_source_is_fetched_and_fetch_is_not_repeated():
         assert not any("fetched" in m for m in logs)
 
 
+def test_missing_tokenizer_file_is_fetched_from_its_pinned_url():
+    """A clean clone must be able to fetch a tokenizer, not just the corpus sources."""
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        cfg = _setup(base)
+        cfg = rp.Config.from_dict(
+            {
+                **{
+                    k: getattr(cfg, k)
+                    for k in (
+                        "spec",
+                        "manifest",
+                        "corpus",
+                        "results_json",
+                        "results_md",
+                        "tokenizers",
+                        "fetch",
+                    )
+                },
+                "tokenizer_fetch": {"tok": "https://example.org/tokenizer.json"},
+            }
+        )
+        target = base / "tok" / "tokenizer.json"
+        assert not target.exists()
+
+        # The fetcher is exercised through the same code path, with the download stubbed.
+        import urllib.request
+
+        class _Resp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self):
+                return b'{"version":"1.0","model":{"type":"BPE"}}'
+
+        original = urllib.request.urlopen
+        urllib.request.urlopen = lambda url: _Resp()  # type: ignore[assignment]
+        try:
+            fetched = rp.fetch_tokenizers(
+                rp.Config.from_dict(
+                    {
+                        "spec": "spec.json",
+                        "manifest": "out/manifest.json",
+                        "corpus": "out/corpus.jsonl",
+                        "results_json": "out/results.json",
+                        "results_md": "out/results.md",
+                        "tokenizers": [
+                            {"kind": "tokenizers-json", "name": "tok", "path": "tok/tokenizer.json"}
+                        ],
+                        "tokenizer_fetch": {"tok": "https://example.org/tokenizer.json"},
+                    }
+                ),
+                base,
+                log=lambda _m: None,
+            )
+        finally:
+            urllib.request.urlopen = original
+
+        assert fetched == ["tok"]
+        assert target.is_file()
+        # A second call must not re-download.
+        assert (
+            rp.fetch_tokenizers(
+                rp.Config.from_dict(
+                    {
+                        "spec": "spec.json",
+                        "manifest": "out/manifest.json",
+                        "corpus": "out/corpus.jsonl",
+                        "results_json": "out/results.json",
+                        "results_md": "out/results.md",
+                        "tokenizers": [
+                            {"kind": "tokenizers-json", "name": "tok", "path": "tok/tokenizer.json"}
+                        ],
+                        "tokenizer_fetch": {"tok": "https://example.org/tokenizer.json"},
+                    }
+                ),
+                base,
+                log=lambda _m: None,
+            )
+            == []
+        )
+
+
+def test_missing_tokenizer_without_a_url_gives_a_clear_error():
+    with tempfile.TemporaryDirectory() as d:
+        base = Path(d)
+        cfg = rp.Config.from_dict(
+            {
+                "spec": "spec.json",
+                "manifest": "out/manifest.json",
+                "corpus": "out/corpus.jsonl",
+                "results_json": "out/results.json",
+                "results_md": "out/results.md",
+                "tokenizers": [{"kind": "tokenizers-json", "name": "tok", "path": "tok/x.json"}],
+            }
+        )
+        try:
+            rp.fetch_tokenizers(cfg, base, log=lambda _m: None)
+        except rp.ReproduceError as exc:
+            assert "tokenizer_fetch" in str(exc)
+        else:  # pragma: no cover
+            raise AssertionError("expected ReproduceError")
+
+
 def test_missing_source_without_fetcher_gives_a_clear_error():
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
